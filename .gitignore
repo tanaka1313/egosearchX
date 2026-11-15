@@ -1,0 +1,16 @@
+# dependencies
+node_modules/
+# next.js
+.next/
+out/
+# env / secrets
+.env
+.env.*
+!.env.example
+# vercel
+.vercel/
+# misc
+.DS_Store
+*.log
+coverage/
+.claude/settings.local.json
