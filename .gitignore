@@ -14,3 +14,9 @@ out/
 *.log
 coverage/
 .claude/settings.local.json
+# next.js / typescript
+*.tsbuildinfo
+next-env.d.ts
+/build
+*.pem
+npm-debug.log*

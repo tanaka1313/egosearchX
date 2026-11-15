@@ -20,14 +20,14 @@ X（Twitter）のエゴサ用に、検索クエリを保存・修正・一括実
 Next.js 15（App Router、`output: 'export'` の静的書き出し）+ React 19 + TypeScript（strict）、Tailwind CSS 4 + shadcn/ui、zustand（persist）、zod、@dnd-kit、Vitest + Testing Library。パッケージ管理は npm、配信先は Vercel。
 
 ## コマンド
-> `package.json` は Issue #1・#2 で作る。それまでは下のコマンドを実行できない。作成後にスクリプト名を確かめ、この注記を消す。
-
 検証はこの順で行う（`docs/implementation-plan.md` 6章）。
-1. `npx tsc --noEmit`
-2. `npm test`
-3. `npm run lint`
-4. `npm run build`
+1. `npx tsc --noEmit`（`npm run typecheck` でも可）
+2. `npm test`（`vitest run`。監視モードは `npm run test:watch`）
+3. `npm run lint`（`eslint .`。`any` はエラー）
+4. `npm run build`（`out/` に静的書き出し）
 5. 画面を触る変更（M5 以降）は、`npm run dev` で開いて画面仕様書の該当章の操作を確かめる
+
+整形は `npm run format` / `npm run format:check`（`docs/`・`tasks/`・`CLAUDE.md` は対象外）。
 
 ## ディレクトリ構成
 ファイル単位の一覧は `docs/implementation-plan.md` 2章にある。
