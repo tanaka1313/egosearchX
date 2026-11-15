@@ -14,7 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "EgoSearch Studio",
-  description: "X と Yahoo!リアルタイム検索のエゴサ用クエリを保存・修正・一括実行する",
+  description:
+    "X と Yahoo!リアルタイム検索のエゴサ用クエリを保存・修正・一括実行する",
 };
 
 export default function RootLayout({

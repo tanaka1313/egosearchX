@@ -1,0 +1,11 @@
+docs/
+tasks/
+CLAUDE.md
+README.md
+.claude/
+.serena/
+.next/
+out/
+coverage/
+package-lock.json
+next-env.d.ts
