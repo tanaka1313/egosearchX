@@ -1,4 +1,4 @@
-# egoserachX（EgoSearch Studio）
+# egosearchX（EgoSearch Studio）
 
 X（Twitter）のエゴサを毎日手早く行うための検索支援ツール。
 検索クエリの保存・修正・一括実行に特化し、X検索と Yahoo!リアルタイム検索の両方に対応する。

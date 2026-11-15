@@ -4,7 +4,7 @@
 エゴサ支援Webアプリを、承認済みの要件定義書・画面仕様書どおりに実装し、Vercel に公開する。
 
 ## 2. Plan
-**タスクの正は GitHub Issues**（https://github.com/tanaka1313/egoserachX/issues）。このファイルは全体の進め方と、Issue 番号の対応表。
+**タスクの正は GitHub Issues**（https://github.com/tanaka1313/egosearchX/issues）。このファイルは全体の進め方と、Issue 番号の対応表。
 Issue の工程名はラベル（1 Issue に1つ）、区分はマイルストーンで表す。
 
 ### 方針
@@ -14,7 +14,7 @@ Issue の工程名はラベル（1 Issue に1つ）、区分はマイルスト�
 
 ### 完了
 - [x] 要件定義書・画面仕様書・Phase 0 調査・技術設計の作成と承認
-- [x] GitHub への公開（#47）：https://github.com/tanaka1313/egoserachX
+- [x] GitHub への公開（#47）：https://github.com/tanaka1313/egosearchX
 - [x] ラベル（工程名）・マイルストーン・Issue 47件の登録
 
 ### 対応表（Issue 番号）
