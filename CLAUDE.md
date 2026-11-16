@@ -27,23 +27,6 @@ Next.js 15（App Router、`output: 'export'` の静的書き出し）+ React 19 
 4. `npm run build`（`out/` に静的書き出し）
 5. 画面を触る変更（M5 以降）は、`npm run dev` で開いて画面仕様書の該当章の操作を確かめる
 
-整形は `npm run format` / `npm run format:check`（`docs/`・`tasks/`・`CLAUDE.md` は対象外）。
-
-## ディレクトリ構成
-ファイル単位の一覧は `docs/implementation-plan.md` 2章にある。
-
-```
-src/
-  app/             画面。/ = S1 クイック実行、/studio = S2、/launch = S3、/settings = S4
-  components/      common/（共通部品）、studio/（S2 のペイン）、dialogs/（M1〜M3）
-  lib/query/       AST、演算子定義、パーサー、シリアライザー、共通設定の合成、日付の解決
-  lib/url/         URL の生成と解析
-  lib/templates/   プリセットのテンプレート生成
-  lib/launch/      ランチャー URL の codec
-  lib/storage/     ストアの定義、バージョン、移行処理
-  data/            マスタ JSON（agencies/）、zod スキーマ、事務所の登録
-```
-
 ## 設計上の決まり
 - **演算子の定義は `src/lib/query/operators.ts` の1か所に集める。** エンジン別の対応と `status: 'stable' | 'experimental'` を持たせる。URL 長の警告水準も定数として1か所に置く。X／Yahoo の仕様変更や実機検証の結果を、その変更だけで反映できるようにするため。
 - **`serialize-*` は純粋関数にして `{ text, warnings }` を返す。** 警告をどこに表示するかは UI 側が決める。
