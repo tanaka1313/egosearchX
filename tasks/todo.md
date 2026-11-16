@@ -95,3 +95,15 @@
    - `VERCEL_TOKEN` の値は #11 でユーザーが GitHub のシークレットに登録する。ここには書かない。
    - `vercel link` が GitHub リポジトリの接続を試みて失敗した。結果として Git 連携は無効のまま。
    - `vercel link` が `.gitignore` に重複行を追記し、`.env.local`（OIDC トークン）を作ったため、`.gitignore` は戻し、`.env.local` は削除した。
+
+# #11 GitHub Actions による Vercel 自動デプロイ
+
+1. Goal: PR で Preview、main へのマージで Production に自動デプロイし、PR に Preview URL をコメントする。
+2. Plan:
+   - [x] `ci.yml` に `deploy` ジョブを追加（`needs` は CI の4ジョブ。同一リポジトリの PR と main への push のみ）
+   - [x] `VERCEL_ORG_ID`／`VERCEL_PROJECT_ID`／`VERCEL_TOKEN` を GitHub Secrets に登録
+   - [x] PR #59 で Preview URL のコメントを確認、main へのマージ後に Production のデプロイ成功を確認
+3. Verification: PR #59 のコメントに Preview URL。main の CI 5ジョブ成功。Lint が失敗した最初の実行では deploy がスキップされた。`https://egosearchx.vercel.app` が 200。
+4. Review:
+   - main の CI は Dependabot の eslint-config-next 16 への更新以降 lint が失敗していた（FlatCompat 経由の読み込みが循環参照で壊れる）。`eslint.config.mjs` を flat config の直読みに直した。
+   - コメントは `<!-- vercel-preview -->` の目印で更新し、push のたびに増やさない。
