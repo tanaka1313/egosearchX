@@ -60,3 +60,53 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+
+  # デプロイは CI の4ジョブがすべて成功したときだけ行う。
+  # フォークからの PR にはシークレットが渡らないため、同一リポジトリの PR と main への push に限る。
+  deploy:
+    name: デプロイ（Vercel）
+    needs: [typecheck, test, lint, build]
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ENV: ${{ github.event_name == 'push' && 'production' || 'preview' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Vercel の設定を取得
+        run: npx vercel pull --yes --environment=$VERCEL_ENV --token="$VERCEL_TOKEN"
+      - name: ビルド
+        run: npx vercel build $([ "$VERCEL_ENV" = production ] && echo --prod) --token="$VERCEL_TOKEN"
+      - name: デプロイ
+        id: deploy
+        run: |
+          url=$(npx vercel deploy --prebuilt $([ "$VERCEL_ENV" = production ] && echo --prod) --token="$VERCEL_TOKEN")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+      - name: Preview URL を PR にコメント
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v8
+        env:
+          DEPLOY_URL: ${{ steps.deploy.outputs.url }}
+        with:
+          script: |
+            const marker = '<!-- vercel-preview -->';
+            const body = `${marker}\nPreview: ${process.env.DEPLOY_URL}\nコミット: ${context.sha.slice(0, 7)}`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
+            const existing = comments.find((c) => c.body.startsWith(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
