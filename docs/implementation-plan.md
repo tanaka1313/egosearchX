@@ -67,10 +67,11 @@ type SearchSpec = { root: GroupNode; period: PeriodSpec; inheritCommon: { disabl
 
 ## 4. 実験的な項目の扱い
 - `operators.ts` の各定義に `status: 'stable' | 'experimental'` を持たせる。
-  - experimental：`list:` と `to:` の同時使用、`since_time:`／`until_time:`、Yahooの期間パラメータ（`lts`／`uts`、既定では出力しない）
+  - experimental：現時点では無し。`list:` と `to:` の併用、`since_time:`／`until_time:`、Yahooの `lts`／`uts` は実機で確認して stable にした（`docs/research-phase0.md` 6章）。今後の仕様変更に備えて仕組みは残す。
+  - 公式の記載が無く実機だけを根拠にした定義には、根拠と代替手段をコメントで残す（`docs/requirements.md` 7章のリスク）。
 - experimental の要素を含む検索は、プレビューとカードに「実験的」バッジを付ける（非モーダル）。
 - 実機確認の結果は、`operators.ts` の status とURL長の警告水準の定数を変えるだけで反映できるようにする。
-- URL長の警告水準は暫定で「Xのクエリ 500文字」（APIの512文字を参考にした暫定値）とし、定数として1か所に置く。
+- URL長の警告水準は「Xのクエリ 500文字」とし、定数として1か所に置く。実際の上限は特定していないため、あとから値を変えられるようにする。
 
 ## 5. マイルストーン
 | # | 内容 | 完了条件 |
