@@ -25,3 +25,27 @@
    - 実機で確認済み：`rm -rf`、`git push --force`、`.pem` の Write はブロック、編集後の整形と `any` の lint フィードバックも動作。
    - `.env` の Write は既存の権限 deny ルールが先に拒否したため、フック単体は stdin 経由（`\` と `/` 両方）で確認した。
    - 制約：コマンド文字列全体を走査するため、コミットメッセージ等に禁止パターンを書いてもブロックされる（安全側）。不正な JSON が来た場合は通す（fail-open）。
+
+# #5 Git フック（husky + lint-staged）
+
+1. Goal: コミット時に lint-staged と秘密情報の検出、push 前に tsc とテストを走らせ、型エラーや秘密情報の混入を止める。
+2. Plan:
+   - [x] husky・lint-staged・secretlint を導入（`prepare: husky`）
+   - [x] pre-commit：`lint-staged`（secretlint、tsc（関数形式でプロジェクト全体）、eslint --fix、prettier）
+   - [x] pre-push：`tsc --noEmit && npm test`
+   - [x] `.gitattributes` で `.husky/*` を LF に固定
+   - [x] 捨てブランチで実機確認し、main へマージ
+3. Verification: 型エラーのコミット拒否、ダミーの GitHub トークンのコミット拒否、`--no-verify` で作った型エラーのコミットの push 拒否（リモートに残らないことも確認）。tsc / test / lint / build。
+4. Review:
+   - 完了条件の「CI で同じ検証が走る」は #8 で満たす。
+   - `npm run format:check` は既存の17ファイル（今回未変更）で失敗する。改行コード（CRLF）が原因とみられ、別途対応が必要。
+
+# #6 リポジトリ保護
+
+1. Goal: Dependabot とシークレットスキャン、push protection を有効にする。
+2. Plan:
+   - [x] ブランチ保護は要件から削除（ユーザー指示。Issue #6 を修正済み）
+   - [ ] `.github/dependabot.yml`（npm・github-actions、weekly）を追加し、main へマージ
+   - [ ] API で脆弱性アラート、セキュリティ更新、シークレットスキャン、push protection を有効化
+3. Verification: `gh api` で設定値を読み戻す。
+4. Review:
