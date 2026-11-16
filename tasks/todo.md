@@ -46,6 +46,8 @@
 2. Plan:
    - [x] ブランチ保護は要件から削除（ユーザー指示。Issue #6 を修正済み）
    - [x] `.github/dependabot.yml`（npm・github-actions、weekly）を追加し、main へマージ
-   - [ ] API で脆弱性アラート、セキュリティ更新、シークレットスキャン、push protection を有効化
+   - [x] API で脆弱性アラート、セキュリティ更新、シークレットスキャン、push protection を有効化
 3. Verification: `gh api` で設定値を読み戻す。
 4. Review:
+   - API で読み戻して確認：vulnerability-alerts 204、automated-security-fixes enabled、secret_scanning / push_protection / dependabot_security_updates が enabled。
+   - ブランチ保護は行わない（ブランチで作業し main へ直接マージする運用を続けるため）。
