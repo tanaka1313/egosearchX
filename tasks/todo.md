@@ -79,3 +79,19 @@
    - `format:check` は既存ファイルの改行コード問題で失敗するため CI に含めていない（#5 の Review 参照）。
    - アクションは最新メジャー（checkout v7 / setup-node v7）。
    - 確認用 PR では claude-code-review が自動で走るため、実行をキャンセルした。
+
+# #10 Vercel プロジェクト作成と仮デプロイ
+
+1. Goal: Vercel にプロジェクトを作り、仮デプロイで空のページを表示する。Git 連携の自動デプロイは無効にする。
+2. Plan:
+   - [x] `vercel link --yes --project egosearchx` でプロジェクトを作成
+   - [x] `vercel deploy --prod` で仮デプロイ
+   - [x] Git 連携が無効なことを API で確認
+   - [x] 組織 ID・プロジェクト ID を控える（#11 で使う）
+3. Verification: `https://egosearchx.vercel.app` が HTTP 200 で `<title>EgoSearch Studio` を返す。`/v9/projects/egosearchx` に `link` が無く、`gitProviderOptions.createDeployments` が `disabled`。`git status` に `.vercel/` が出ない。
+4. Review:
+   - 組織 ID（`VERCEL_ORG_ID`）：`team_ysndceqTSNJaxb6KPrCKFxPJ`
+   - プロジェクト ID（`VERCEL_PROJECT_ID`）：`prj_BOC5P5PfVivPlB6EeKy2FvalwdkU`
+   - `VERCEL_TOKEN` の値は #11 でユーザーが GitHub のシークレットに登録する。ここには書かない。
+   - `vercel link` が GitHub リポジトリの接続を試みて失敗した。結果として Git 連携は無効のまま。
+   - `vercel link` が `.gitignore` に重複行を追記し、`.env.local`（OIDC トークン）を作ったため、`.gitignore` は戻し、`.env.local` は削除した。
