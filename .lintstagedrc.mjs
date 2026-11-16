@@ -1,5 +1,5 @@
 // コミット時の検証（#5）。push 前の tsc とテストは .husky/pre-push で行う。
-export default {
+const config = {
   // 全ステージファイルを対象に、秘密情報の混入を検出する
   "*": "secretlint",
   // tsc はファイル名を渡すと tsconfig を無視するため、関数形式でプロジェクト全体を検査する
@@ -10,3 +10,5 @@ export default {
   ],
   "*.{json,css,md,yml,yaml}": "prettier --write --ignore-unknown",
 };
+
+export default config;
