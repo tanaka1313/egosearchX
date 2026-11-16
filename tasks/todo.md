@@ -51,3 +51,31 @@
 4. Review:
    - API で読み戻して確認：vulnerability-alerts 204、automated-security-fixes enabled、secret_scanning / push_protection / dependabot_security_updates が enabled。
    - ブランチ保護は行わない（ブランチで作業し main へ直接マージする運用を続けるため）。
+
+# #7 Issue / PR テンプレート
+
+1. Goal: 工程名ごとの Issue フォームと PR テンプレートを作り、タイトル形式とラベル1つの運用をテンプレートに書く。
+2. Plan:
+   - [x] `.github/ISSUE_TEMPLATE/` に工程名ごとのフォーム6つ（`title: "[工程名] "`、`labels` は工程名1つ、本文は概要／参照ドキュメント／完了条件／依存）
+   - [x] 各フォームの冒頭に運用（ラベルは工程名1つ、マイルストーンは手動設定）を記載
+   - [x] `.github/pull_request_template.md`（関連 Issue、変更内容、検証結果のチェックリスト）
+   - [x] main へマージし、GitHub 上での認識を確認
+3. Verification: 公開ページの blob ビューで GitHub が解析した結果（`isIssueTemplate: true`、`errors: []`）を6ファイル分確認。PR テンプレートは community profile API で検出を確認。
+4. Review:
+   - 初回は「実装」フォームが `Name is too short (minimum is 3 characters)` で無効だったため、名前を「実装タスク」に修正した（ラベルとタイトルは「実装」のまま）。
+   - Issue フォームはマイルストーンを設定できないため、作成後に手動で設定する旨をフォームに書いた。
+   - 選択画面（`/issues/new/choose`）はログインが必要なため、ブラウザでの目視は未実施。
+
+# #8 CI ワークフロー
+
+1. Goal: PR と main への push で tsc / test / lint / build を実行し、失敗したら赤くなる CI を作る。
+2. Plan:
+   - [x] `.nvmrc`（24.18.1）で Node を固定し、`setup-node` の `node-version-file` と `cache: npm` を使う
+   - [x] `.github/workflows/ci.yml`：4ジョブ（typecheck / test / lint / build）を並列に実行。`permissions: contents: read`
+   - [x] PR #57 で全ジョブ成功を確認
+   - [x] 意図的に壊した PR #58（型エラー・`any`・失敗するテスト）で4ジョブとも失敗することを確認し、クローズ
+3. Verification: `gh pr checks`、失敗ログで原因が TS2322 / no-explicit-any / AssertionError / next build の型エラーであることを確認。
+4. Review:
+   - `format:check` は既存ファイルの改行コード問題で失敗するため CI に含めていない（#5 の Review 参照）。
+   - アクションは最新メジャー（checkout v7 / setup-node v7）。
+   - 確認用 PR では claude-code-review が自動で走るため、実行をキャンセルした。
