@@ -1,0 +1,35 @@
+name: "リリース"
+description: "リリース作業"
+title: "[リリース] "
+labels: ["リリース"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        タイトルは `[リリース] 内容` の形で書きます。
+        ラベルは工程名（`リリース`）が1つだけ自動で付きます。他のラベルは足さず、工程が変わったときはラベルを付け替えます。
+        区分はマイルストーン（M0〜M7、実機検証）で表します。テンプレートでは設定できないため、作成後に手動で設定してください。
+  - type: textarea
+    id: summary
+    attributes:
+      label: 概要
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: 参照ドキュメント
+      placeholder: "docs/requirements.md F1"
+  - type: textarea
+    id: done
+    attributes:
+      label: 完了条件
+      placeholder: "- 〇〇ができる"
+    validations:
+      required: true
+  - type: input
+    id: depends
+    attributes:
+      label: 依存
+      placeholder: "#1, #2"
+      value: "なし"
