@@ -1,8 +1,8 @@
 "use client";
 // MOCK: 破棄予定（#61）
-import { Ellipsis } from "lucide-react";
+import { ChevronDown, ChevronRight, Ellipsis } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import { ChipRow } from "./_parts/chips";
 import { DetailPanel } from "./_parts/detail-panel";
@@ -12,7 +12,89 @@ import { favQuery } from "./_parts/rows";
 import { useStore } from "./_parts/store";
 import { EmptyState, Sheet } from "./_parts/ui";
 
-const PERIODS: Period["kind"][] = ["none", "today", "yday", "last", "date"];
+// 日付・N日前からは「詳細条件」で指定する（ここには置かない）
+const PERIODS: Period["kind"][] = ["none", "today", "yday", "last"];
+const FAV_OPEN_KEY = "mock6:favOpen:v1";
+
+/** 詳細条件で指定中の期間を、注記行に出す文言にする */
+function periodNote(p: Period): string {
+  if (p.kind === "last")
+    return "前回実行（昨日 22:30）からの新着だけを開きます。履歴が無い初回は「指定なし」です。";
+  if (p.kind === "days" && p.days) return `詳細条件で指定中：${p.days}日前から`;
+  if (p.kind === "date" && (p.from || p.to))
+    return `詳細条件で指定中：${p.from || "…"}〜${p.to || "…"}（終了日を含む）`;
+  return "";
+}
+
+const favOpenListeners = new Set<() => void>();
+function subscribeFavOpen(fn: () => void) {
+  favOpenListeners.add(fn);
+  return () => {
+    favOpenListeners.delete(fn);
+  };
+}
+
+/** お気に入り：閉じた1行。開くと「押して実行」だけの一覧。開閉は localStorage に記憶する */
+function FavoritesFold() {
+  const s = useStore();
+  // サーバー側は閉じた状態（ハイドレーションのずれを避ける）。クライアントで localStorage を読む
+  const open = useSyncExternalStore(
+    subscribeFavOpen,
+    () => localStorage.getItem(FAV_OPEN_KEY) === "1",
+    () => false,
+  );
+  const toggle = () => {
+    localStorage.setItem(FAV_OPEN_KEY, open ? "0" : "1");
+    favOpenListeners.forEach((fn) => fn());
+  };
+  return (
+    <section aria-label="お気に入り" className="border-t pt-3">
+      <button
+        aria-expanded={open}
+        onClick={toggle}
+        className="flex w-full items-center gap-2 rounded px-1 py-1 text-left text-sm text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        {open ? (
+          <ChevronDown className="size-4" />
+        ) : (
+          <ChevronRight className="size-4" />
+        )}
+        <span>☆ お気に入り（{s.favs.length}）</span>
+      </button>
+      {open && (
+        <div className="mt-2 space-y-2">
+          {s.favs.length === 0 && (
+            <EmptyState text="条件を触って気に入ったら ☆ 保存 でここに入ります" />
+          )}
+          <ul className="space-y-2">
+            {s.favs.slice(0, 4).map((f) => (
+              <li
+                key={f.id}
+                className="flex items-center gap-2 rounded-lg border p-2 text-sm"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-medium">{f.name}</div>
+                  <div className="truncate font-mono text-xs text-muted-foreground">
+                    {favQuery(f, s.chips).text || "（条件なし）"}
+                  </div>
+                </div>
+                <Button size="sm" onClick={() => s.runFav(f.id)}>
+                  ▶ 実行
+                </Button>
+              </li>
+            ))}
+          </ul>
+          <Link
+            href="/mock/mock6/favorites"
+            className="block text-right text-sm text-muted-foreground underline underline-offset-4"
+          >
+            お気に入りを編集 →
+          </Link>
+        </div>
+      )}
+    </section>
+  );
+}
 
 /** ［⋯］：使用頻度の低い操作。自前の小さなポップオーバー（Esc／外側クリックで閉じる） */
 function MoreMenu() {
@@ -87,6 +169,20 @@ function MoreMenu() {
             role="menuitem"
             className={item}
             onClick={act(() => {
+              void navigator.clipboard?.writeText(
+                `https://search.yahoo.co.jp/realtime/search?p=${encodeURIComponent(text)}`,
+              );
+              s.say(
+                "Yahoo の検索リンクをコピーしました（OR→(A B) などの変換は本実装で行います）",
+              );
+            })}
+          >
+            リンクをコピー（Yahoo）
+          </button>
+          <button
+            role="menuitem"
+            className={item}
+            onClick={act(() => {
               void navigator.clipboard?.writeText(text);
               s.say("クエリをコピーしました");
             })}
@@ -143,22 +239,23 @@ export default function Mock6Home() {
                 onClick={() => s.setPeriod({ ...s.period, kind: k })}
                 className={`rounded-full border px-2.5 py-1 text-sm focus-visible:ring-2 focus-visible:ring-ring ${on ? "border-foreground bg-foreground text-background" : "border-border text-muted-foreground"}`}
               >
-                {k === "date" ? "日付…" : PERIOD_LABEL[k]}
+                {PERIOD_LABEL[k]}
               </button>
             );
           })}
-          {/* 注記は1行分の高さを常に確保し、押しても下の要素が動かないようにする */}
+          {/* 注記は2行分の高さを常に確保し、押しても下の要素が動かないようにする */}
           <span className="block min-h-8 basis-full text-xs text-muted-foreground">
-            {s.period.kind === "last" &&
-              "前回実行（昨日 22:30）からの新着だけを開きます。履歴が無い初回は「指定なし」です。"}
-            {s.period.kind === "date" &&
-              "日付は「詳細条件」の期間で指定します（終了日を含む）。"}
+            {periodNote(s.period)}
           </span>
         </div>
 
         <div className="space-y-1">
           <div className="flex items-start gap-2">
-            <code className="line-clamp-3 block min-h-[3.75rem] min-w-0 flex-1 rounded bg-muted p-2 font-mono text-xs break-all">
+            <code
+              tabIndex={0}
+              aria-label="組み立てた検索クエリ（長いときは横にスクロール）"
+              className="block h-9 min-w-0 flex-1 overflow-x-auto rounded bg-muted px-2 py-2 font-mono text-xs leading-5 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-ring"
+            >
               {q.text || "（検索語か条件ボタンを選んでください）"}
             </code>
             {q.warnings.length > 0 ? (
@@ -188,9 +285,7 @@ export default function Mock6Home() {
         </div>
 
         <div className="flex gap-2">
-          <Button className="flex-1" onClick={() => s.run("X", "ホーム")}>
-            X で開く
-          </Button>
+          <Button onClick={() => s.run("X", "ホーム")}>X で開く</Button>
           <Button variant="outline" onClick={() => setSaveOpen(true)}>
             ☆ 保存
           </Button>
@@ -200,38 +295,7 @@ export default function Mock6Home() {
 
       <DetailPanel />
 
-      <section className="space-y-2">
-        <div className="flex items-center">
-          <h2 className="font-bold">お気に入り</h2>
-          <Link
-            href="/mock/mock6/favorites"
-            className="ml-auto text-sm text-muted-foreground underline underline-offset-4"
-          >
-            お気に入りを編集 →
-          </Link>
-        </div>
-        {s.favs.length === 0 && (
-          <EmptyState text="条件を触って気に入ったら ☆ 保存 でここに入ります" />
-        )}
-        <ul className="space-y-2">
-          {s.favs.slice(0, 4).map((f) => (
-            <li
-              key={f.id}
-              className="flex items-center gap-2 rounded-lg border p-2 text-sm"
-            >
-              <div className="min-w-0 flex-1">
-                <div className="truncate font-medium">{f.name}</div>
-                <div className="truncate font-mono text-xs text-muted-foreground">
-                  {favQuery(f, s.chips).text || "（条件なし）"}
-                </div>
-              </div>
-              <Button size="sm" onClick={() => s.runFav(f.id)}>
-                ▶ 実行
-              </Button>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <FavoritesFold />
 
       {saveOpen && <SaveSheet onClose={() => setSaveOpen(false)} />}
     </main>
