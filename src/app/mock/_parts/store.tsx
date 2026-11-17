@@ -57,7 +57,12 @@ export type Store = {
   adoptSuggestion: (token: string) => string | null;
   setChips: (c: Chip[]) => void;
   toggleChip: (id: string) => void;
-  /** 値付きの条件（数値・日付）の値を変える。変えた値はボタンに保存し、ボタンを ON にする */
+  /** ホームの条件ボタンの ON/OFF を指定の状態にする */
+  setChipOn: (id: string, on: boolean) => void;
+  /**
+   * 値付きの条件（数値・日付）の値を変える。変えた値はボタンに保存する（どの画面で変えても同じボタンの値）。
+   * ON にする処理は呼び出し側の検索の組み立て（SearchScope.setOn）が行う。
+   */
   setCondValue: (chipId: string, condId: string, value: string) => void;
   /** ホームに出す／隠す */
   toggleVisible: (id: string) => void;
@@ -282,13 +287,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setChips((cs) =>
         cs.map((c) => (c.id === id ? { ...c, on: !c.on, isNew: false } : c)),
       ),
+    setChipOn: (id, on) =>
+      setChips((cs) =>
+        cs.map((c) => (c.id === id ? { ...c, on, isNew: false } : c)),
+      ),
     setCondValue: (chipId, condId, value) =>
       setChips((cs) =>
         cs.map((c) =>
           c.id === chipId
             ? {
                 ...c,
-                on: true,
                 isNew: false,
                 conds: c.conds.map((x) =>
                   x.id === condId ? { ...x, value } : x,

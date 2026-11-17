@@ -104,7 +104,7 @@ export function PeriodPicker({
             value={value.from}
             max={value.to || undefined}
             onChange={(ev) => onChange({ ...value, from: ev.target.value })}
-            className="min-w-0 flex-1 rounded-lg border bg-background px-2 py-1 text-sm"
+            className="min-w-0 flex-1 rounded-lg border px-2 py-1 text-sm"
           />
           <span aria-hidden>〜</span>
           <input
@@ -113,7 +113,7 @@ export function PeriodPicker({
             value={value.to}
             min={value.from || undefined}
             onChange={(ev) => onChange({ ...value, to: ev.target.value })}
-            className="min-w-0 flex-1 rounded-lg border bg-background px-2 py-1 text-sm"
+            className="min-w-0 flex-1 rounded-lg border px-2 py-1 text-sm"
           />
           <button
             aria-label="日付の指定を解除"

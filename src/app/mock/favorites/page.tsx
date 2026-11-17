@@ -61,7 +61,7 @@ export default function FavoritesPage() {
         onChange={(ev) => setFilter(ev.target.value)}
         aria-label="名前で絞り込み"
         placeholder="名前で絞り込み"
-        className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+        className="w-full rounded-lg border px-3 py-2 text-sm"
       />
       {s.favs.length === 0 ? (
         <EmptyState text="ホームで条件を触って ☆ 保存 するとここに入ります" />
@@ -109,7 +109,7 @@ function FavEditor({ fav, onClose }: { fav: Favorite; onClose: () => void }) {
         <input
           value={f.name}
           onChange={(ev) => setF({ ...f, name: ev.target.value })}
-          className="w-full rounded-lg border bg-background px-3 py-2"
+          className="w-full rounded-lg border px-3 py-2"
         />
       </label>
       <label className="block space-y-1 text-sm">
@@ -117,7 +117,7 @@ function FavEditor({ fav, onClose }: { fav: Favorite; onClose: () => void }) {
         <textarea
           value={f.query}
           onChange={(ev) => setF({ ...f, query: ev.target.value })}
-          className="h-20 w-full rounded-lg border bg-background px-3 py-2 font-mono text-sm"
+          className="h-20 w-full rounded-lg border px-3 py-2 font-mono text-sm"
         />
       </label>
       <PeriodPicker
@@ -129,7 +129,7 @@ function FavEditor({ fav, onClose }: { fav: Favorite; onClose: () => void }) {
         <select
           value={f.engine}
           onChange={(ev) => setF({ ...f, engine: ev.target.value as Engine })}
-          className="w-full rounded-lg border bg-background px-2 py-2"
+          className="w-full rounded-lg border px-2 py-2"
         >
           <option value="x">X</option>
           <option value="yahoo">Yahoo</option>

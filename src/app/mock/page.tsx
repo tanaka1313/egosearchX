@@ -4,11 +4,10 @@ import { ChevronDown, ChevronRight, Search } from "lucide-react";
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
-import { ChipRow } from "./_parts/chips";
-import { DetailPanel } from "./_parts/detail-panel";
+import { ConditionFrame } from "./_parts/condition-frame";
 import { OpenBar } from "./_parts/open-bar";
-import { PeriodPicker } from "./_parts/period-picker";
 import { favQuery } from "./_parts/rows";
+import { HomeScopeProvider } from "./_parts/search-scope";
 import { useStore } from "./_parts/store";
 import { EmptyState } from "./_parts/ui";
 
@@ -89,6 +88,14 @@ function FavoritesFold() {
 }
 
 export default function MockHome() {
+  return (
+    <HomeScopeProvider>
+      <HomeBody />
+    </HomeScopeProvider>
+  );
+}
+
+function HomeBody() {
   const s = useStore();
 
   return (
@@ -126,38 +133,14 @@ export default function MockHome() {
             }}
             aria-label="検索する語"
             placeholder="名前や #タグ を入力（Enter で X で開く）"
-            className="w-full rounded-full border-2 bg-background py-2.5 pr-4 pl-11 text-lg"
+            className="w-full rounded-full border-2 py-2.5 pr-4 pl-11 text-lg"
           />
         </div>
         <OpenBar />
       </section>
 
-      {/* 条件ボタン・期間・詳細条件は同じ「条件」の領域。1つの枠で囲む */}
-      <section
-        aria-label="条件"
-        className="space-y-3 rounded-xl border bg-muted/20 p-3"
-      >
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="font-bold">条件</h2>
-          {/* ON/OFF の設定なので、ボタンではなくチェックボックス＋ラベル */}
-          <label className="flex shrink-0 items-center gap-1.5 text-sm">
-            <input
-              type="checkbox"
-              checked={s.exact}
-              onChange={(ev) => s.setExact(ev.target.checked)}
-              className="size-4"
-            />
-            完全一致
-          </label>
-        </div>
-
-        <ChipRow />
-
-        {/* 詳細条件の「期間」と同じ状態（s.period）を共有する */}
-        <PeriodPicker value={s.period} onChange={s.setPeriod} />
-
-        <DetailPanel />
-      </section>
+      {/* 条件ボタン・期間・詳細条件は同じ「条件」の領域。1つの枠で囲む。詳細条件の末尾にも同じ開くボタン群 */}
+      <ConditionFrame footer={<OpenBar />} />
 
       <FavoritesFold />
     </main>

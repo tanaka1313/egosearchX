@@ -106,6 +106,18 @@ export function periodText(p: Period): string {
 }
 
 /** 保存した検索（お気に入り・いつものエゴサの1件）の、実行時の検索文字列 */
+/**
+ * 保存用の検索文字列（期間のトークンだけを除く）。期間は保存データに種類として別に持つ。
+ * 期間が有効なときに外した日付ボタンは、ここでも入らない（buildQuery の結果から作るため）。
+ */
+export function queryWithoutPeriod(
+  q: { tokens: string[] },
+  period: Period,
+): string {
+  const pt = periodTokens(period);
+  return q.tokens.filter((t) => !pt.includes(t)).join(" ");
+}
+
 export function savedText(s: { query: string; period: Period }): string {
   return [s.query, ...periodTokens(s.period)].filter(Boolean).join(" ");
 }
