@@ -30,7 +30,7 @@ export default function LaunchPage() {
 
   return (
     <main className="mx-auto max-w-xl space-y-3 p-4">
-      <h1 className="text-xl font-bold">グループ名：{g.name}</h1>
+      <h1 className="text-xl font-bold">いつものエゴサ：{g.name}</h1>
       <p className="text-sm">{favs.length}件の検索を新しいタブで開きます</p>
       <label className="flex items-center gap-2 text-xs text-muted-foreground">
         <input

@@ -29,9 +29,6 @@ export default function HistoryPage() {
           </>
         }
       />
-      {!s.recordHistory && (
-        <p className="text-sm">⚠ 履歴の記録はOFFです（設定で変更できます）</p>
-      )}
       {s.history.length === 0 ? (
         <EmptyState text="実行するとここに残ります" />
       ) : (
@@ -79,24 +76,6 @@ export default function HistoryPage() {
                   }}
                 >
                   ☆ お気に入りに保存
-                </Button>
-                <Button
-                  size="xs"
-                  variant="outline"
-                  onClick={() => {
-                    const e = s.saveChip({
-                      id: `hc${Date.now()}`,
-                      label: h.word || "履歴の条件",
-                      on: false,
-                      isNew: true,
-                      conds: [
-                        { id: `hc${Date.now()}c`, kind: "raw", value: h.query },
-                      ],
-                    });
-                    if (e) s.say(e);
-                  }}
-                >
-                  条件ボタンにする
                 </Button>
               </div>
             </li>

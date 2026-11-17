@@ -89,6 +89,20 @@ export default function ButtonsPage() {
             <span className="text-sm">
               {s.chips.length}/{LIMITS.chips}
             </span>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                const n = s.addDefaultChips();
+                s.say(
+                  n
+                    ? `既定のボタンを${n}件追加しました`
+                    : "既定のボタンはすべて登録済みです",
+                );
+              }}
+            >
+              既定のボタンを追加
+            </Button>
             <Button size="sm" disabled={full} onClick={() => setEditing("new")}>
               ＋ 追加
             </Button>
@@ -102,7 +116,7 @@ export default function ButtonsPage() {
       {full && (
         <p className="text-sm">
           ⚠ 上限（{LIMITS.chips}
-          件）です。不要なボタンを削除してください。履歴からの自動追加も止まっています。
+          件）です。不要なボタンを削除してください。
         </p>
       )}
       {s.chips.length === 0 ? (
@@ -131,6 +145,45 @@ export default function ButtonsPage() {
           </ul>
         </DragDropProvider>
       )}
+      <section aria-label="サジェスト検索条件" className="space-y-2 pt-2">
+        <h2 className="font-bold">サジェスト（直近の検索から）</h2>
+        <p className="text-sm text-muted-foreground">
+          最近の検索で使った条件から作った候補です（最大{LIMITS.suggest}
+          件）。気に入ったものを条件ボタンに追加できます。候補の表示順は変えられません。
+        </p>
+        {s.suggestions.length === 0 ? (
+          <EmptyState text="検索するとここに候補が出ます" />
+        ) : (
+          <ul className="space-y-1">
+            {s.suggestions.map((t) => (
+              <li
+                key={t}
+                className="flex items-center gap-2 rounded-lg border border-dashed p-2 text-sm"
+              >
+                <code className="min-w-0 flex-1 truncate font-mono text-xs">
+                  {t}
+                </code>
+                <Button
+                  size="xs"
+                  variant="outline"
+                  disabled={full}
+                  onClick={() => {
+                    const e = s.adoptSuggestion(t);
+                    if (e) s.say(e);
+                  }}
+                >
+                  ＋ 条件ボタンに追加
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
+        {full && (
+          <p className="text-xs">
+            ⚠ 条件ボタンが上限（{LIMITS.chips}件）のため追加できません
+          </p>
+        )}
+      </section>
       {editing && (
         <ChipEditor
           chip={editing === "new" ? null : editing}

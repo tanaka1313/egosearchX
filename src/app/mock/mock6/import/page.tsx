@@ -41,7 +41,7 @@ export default function ImportPage() {
 
   return (
     <main className="mx-auto max-w-3xl space-y-3 p-3 md:p-4">
-      <PageHead title="URL取り込み" />
+      <PageHead title="URL解析" />
       <p className="text-sm text-muted-foreground">
         X／Yahoo!リアルタイム検索の URL
         を貼ると、条件に分解します。解析できない部分は「生トークン」として保持し、URL
@@ -79,12 +79,12 @@ export default function ImportPage() {
             s.setWord("");
             s.setDetail((d) => ({ ...d, raw: r.tokens.join(" ") }));
             s.setNotice(
-              "URL から読み込みました（個別設定の生トークンに入っています）",
+              "URL を解析しました（詳細条件の生トークンに入っています）",
             );
             router.push("/mock/mock6");
           }}
         >
-          ホームに読み込む
+          ホームで編集する
         </Button>
         <Button
           variant="outline"

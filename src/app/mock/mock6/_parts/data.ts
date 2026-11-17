@@ -2,12 +2,18 @@
 // 上限値は仕様で「今後変更の可能性大」。ここ1か所に集める（requirements F6/F9/F10）。
 export const LIMITS = {
   chips: 30,
+  /** 削除済み：条件ボタン・お気に入り・いつものエゴサの「種類ごと」の保持数 */
   trash: 20,
   history: 100,
+  /** サジェスト検索条件の表示数（「もっと開く」の後だけ表示） */
+  suggest: 20,
   foldRows: 2,
   headerGroups: 2,
   urlWarn: 500,
 } as const;
+
+/** 機能タイトル。今後 YouTube／TikTok の同様のツールを同じサイトに足す予定（Issue なし） */
+export const APP_FEATURE = "X（Twitter）";
 
 export const TODAY = "2026-11-17";
 export const YESTERDAY = "2026-11-16";
@@ -138,31 +144,20 @@ export type HistoryItem = {
   note?: string;
 };
 
+/** 連動削除（お気に入り＋それを使ういつものエゴサ）は同じ batch を持ち、まとめて戻せる */
+type TrashBase = {
+  tid: string;
+  at: string;
+  name: string;
+  index: number;
+  batch?: string;
+  reason?: string;
+};
+
 export type TrashItem =
-  | {
-      tid: string;
-      at: string;
-      kind: "chip";
-      name: string;
-      data: Chip;
-      index: number;
-    }
-  | {
-      tid: string;
-      at: string;
-      kind: "fav";
-      name: string;
-      data: Favorite;
-      index: number;
-    }
-  | {
-      tid: string;
-      at: string;
-      kind: "group";
-      name: string;
-      data: Group;
-      index: number;
-    };
+  | (TrashBase & { kind: "chip"; data: Chip })
+  | (TrashBase & { kind: "fav"; data: Favorite })
+  | (TrashBase & { kind: "group"; data: Group });
 
 /** 既定リスト（requirements F1）。ID は開発者が確認した値のみ。 */
 export const DEFAULT_LISTS = [
@@ -333,7 +328,7 @@ export const INITIAL_HISTORY: HistoryItem[] = [
     word: "",
     query: "#配信タグA since:2026-11-16 -ネタバレ語A -ネタバレ語B",
     engine: "X",
-    source: "グループ「配信後エゴサ」",
+    source: "いつものエゴサ「配信後エゴサ」",
     chipLabels: ["配信タグ", "ネタバレ除外"],
   },
   {
@@ -353,7 +348,6 @@ export const INITIAL_HISTORY: HistoryItem[] = [
     engine: "X",
     source: "ホーム",
     chipLabels: ["ホロメンから"],
-    note: "自動追加：「min_faves:50」",
   },
 ];
 
@@ -361,9 +355,85 @@ export const MENU = [
   { href: "/mock/mock6", label: "ホーム" },
   { href: "/mock/mock6/buttons", label: "条件ボタンの編集" },
   { href: "/mock/mock6/favorites", label: "お気に入り" },
-  { href: "/mock/mock6/groups", label: "エゴサグループ" },
+  { href: "/mock/mock6/groups", label: "いつものエゴサ" },
   { href: "/mock/mock6/history", label: "履歴" },
   { href: "/mock/mock6/trash", label: "削除済み" },
-  { href: "/mock/mock6/import", label: "URL取り込み" },
-  { href: "/mock/mock6/settings", label: "設定" },
+  { href: "/mock/mock6/import", label: "URL解析" },
 ] as const;
+
+/** 削除済みの初期ダミー（3種類。画面を確かめやすくする） */
+export const INITIAL_TRASH: TrashItem[] = [
+  {
+    tid: "tr-1",
+    at: "昨日 21:10",
+    kind: "chip",
+    name: "ネタバレ注意",
+    index: 3,
+    data: {
+      id: "k-old1",
+      label: "ネタバレ注意",
+      on: false,
+      conds: [c("k-old1-1", "exclude", "ネタバレ")],
+    },
+  },
+  {
+    tid: "tr-2",
+    at: "3日前 09:00",
+    kind: "fav",
+    name: "コラボ告知",
+    index: 5,
+    batch: "b-old",
+    data: {
+      id: "f-collab",
+      name: "コラボ告知",
+      word: "コラボ",
+      exact: false,
+      chipIds: ["k-rt"],
+      extra: [],
+      period: "today",
+      engine: "x",
+      last: "3日前",
+    },
+  },
+  {
+    tid: "tr-3",
+    at: "3日前 09:00",
+    kind: "group",
+    name: "コラボ日エゴサ",
+    index: 2,
+    batch: "b-old",
+    reason: "お気に入り「コラボ告知」と一緒に削除",
+    data: {
+      id: "g-collab",
+      name: "コラボ日エゴサ",
+      favIds: ["f-collab", "f-tag"],
+      doneToday: false,
+    },
+  },
+];
+
+/** サジェスト検索条件（直近の検索から作る）の種。モックでは20件に満たす分をダミーで足す */
+export const SUGGEST_SEEDS: string[] = [
+  "min_faves:50",
+  "min_faves:500",
+  "filter:videos",
+  "-filter:replies",
+  "lang:en",
+  "-filter:quote",
+  "min_retweets:10",
+  "filter:verified",
+  "to:sample_id",
+  "from:sample_id",
+  "#配信タグB",
+  "#ファンアートタグB",
+  "(表記A OR 表記B)",
+  "min_replies:5",
+  "-切り抜き",
+  "filter:media",
+  "-filter:images",
+  "lang:id",
+  "min_faves:1000",
+  "-ネタバレ語C",
+  "-filter:links",
+  "min_retweets:50",
+];
