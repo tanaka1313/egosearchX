@@ -21,8 +21,7 @@ function Row({
   index: number;
   onEdit: () => void;
 }) {
-  const { deleteChip, toggleVisible, duplicateChip, chips, say } = useStore();
-  const full = chips.length >= LIMITS.chips;
+  const { deleteChip, toggleVisible, say } = useStore();
   const { ref, handleRef } = useSortable({ id: chip.id, index });
   return (
     <li
@@ -75,16 +74,13 @@ function Row({
       <Button
         size="sm"
         variant="outline"
-        disabled={full}
-        title={
-          full ? `上限（${LIMITS.chips}件）のため複製できません` : undefined
-        }
+        title="条件の文字列をクリップボードにコピーします"
         onClick={() => {
-          const e = duplicateChip(chip.id);
-          if (e) say(e);
+          void navigator.clipboard?.writeText(chipTokens(chip).join(" "));
+          say(`「${chip.label}」の条件をコピーしました`);
         }}
       >
-        複製
+        コピー
       </Button>
       <button
         aria-label={`${chip.label}を削除`}
@@ -132,7 +128,7 @@ export default function ButtonsPage() {
       />
       <p className="text-sm text-muted-foreground">
         ホームに並ぶボタンです。ドラッグ（キーボードは Space＋矢印）で並べ替え、
-        ラベルと中身（複数の条件）を編集・複製できます。「表示」を外すと、ホームには出ません（削除はされません）。削除すると「削除済み」に移り、復元できます。
+        ラベルと中身（複数の条件）を編集できます。［コピー］で条件の文字列をクリップボードにコピーできます。「表示」を外すと、ホームには出ません（削除はされません）。削除すると「削除済み」に移り、復元できます。
       </p>
       {full && (
         <p className="text-sm">
