@@ -57,6 +57,8 @@ export type Store = {
   adoptSuggestion: (token: string) => string | null;
   setChips: (c: Chip[]) => void;
   toggleChip: (id: string) => void;
+  /** 値付きの条件（数値・日付）の値を変える。変えた値はボタンに保存し、ボタンを ON にする */
+  setCondValue: (chipId: string, condId: string, value: string) => void;
   /** ホームに出す／隠す */
   toggleVisible: (id: string) => void;
   saveChip: (chip: Chip) => string | null;
@@ -279,6 +281,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     toggleChip: (id) =>
       setChips((cs) =>
         cs.map((c) => (c.id === id ? { ...c, on: !c.on, isNew: false } : c)),
+      ),
+    setCondValue: (chipId, condId, value) =>
+      setChips((cs) =>
+        cs.map((c) =>
+          c.id === chipId
+            ? {
+                ...c,
+                on: true,
+                isNew: false,
+                conds: c.conds.map((x) =>
+                  x.id === condId ? { ...x, value } : x,
+                ),
+              }
+            : c,
+        ),
       ),
     toggleVisible: (id) =>
       setChips((cs) =>

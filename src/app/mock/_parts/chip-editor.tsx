@@ -9,9 +9,12 @@ import { Button } from "@/components/ui/button";
 import {
   COND_KINDS,
   LIMITS,
+  PARAM_OPS,
+  paramOpsOf,
   type Chip,
   type Cond,
   type CondKind,
+  type ParamOp,
 } from "./data";
 import { condToken, parseListId } from "./query";
 import { useStore } from "./store";
@@ -33,8 +36,13 @@ function CondRow({
 }) {
   const { ref, handleRef } = useSortable({ id: cond.id, index });
   const hint = COND_KINDS.find((k) => k.kind === cond.kind)?.hint;
+  const paramType =
+    cond.kind === "number" || cond.kind === "date" ? cond.kind : null;
   return (
-    <li ref={ref} className="flex items-center gap-1 rounded-lg border p-1">
+    <li
+      ref={ref}
+      className="flex flex-wrap items-center gap-1 rounded-lg border p-1"
+    >
       <button
         ref={handleRef}
         aria-label="条件を並べ替え"
@@ -45,9 +53,13 @@ function CondRow({
       <select
         value={cond.kind}
         aria-label="条件の種類"
-        onChange={(ev) =>
-          onChange({ ...cond, kind: ev.target.value as CondKind })
-        }
+        onChange={(ev) => {
+          const kind = ev.target.value as CondKind;
+          // 数値／日付に変えたら演算子の先頭を選び、値は空にする（形式が違うため）
+          if (kind === "number" || kind === "date")
+            onChange({ id: cond.id, kind, op: paramOpsOf(kind)[0], value: "" });
+          else onChange({ id: cond.id, kind, value: cond.value });
+        }}
         className="rounded border px-1 py-1 text-sm"
       >
         {COND_KINDS.map((k) => (
@@ -56,13 +68,34 @@ function CondRow({
           </option>
         ))}
       </select>
+      {paramType && (
+        <select
+          value={cond.op}
+          aria-label="演算子"
+          onChange={(ev) =>
+            onChange({ ...cond, op: ev.target.value as ParamOp })
+          }
+          className="rounded border px-1 py-1 text-sm"
+        >
+          {paramOpsOf(paramType).map((op) => (
+            <option key={op} value={op}>
+              {PARAM_OPS[op].label}（{op}）
+            </option>
+          ))}
+        </select>
+      )}
       <input
+        type={paramType ?? "text"}
+        min={paramType === "number" ? 1 : undefined}
         value={cond.value}
-        aria-label="条件の値"
+        aria-label={paramType ? "初期値（ホームで変えられます）" : "条件の値"}
         placeholder={hint}
         onChange={(ev) => onChange({ ...cond, value: ev.target.value })}
         className="min-w-0 flex-1 rounded border px-2 py-1 font-mono text-sm"
       />
+      {cond.op && paramType && (
+        <span className="shrink-0 text-sm">{PARAM_OPS[cond.op].suffix}</span>
+      )}
       <button
         aria-label="条件を削除"
         onClick={onRemove}
@@ -115,12 +148,24 @@ export function ChipEditor({
 
   const save = () => {
     const filled = conds.filter((c) => c.value.trim());
-    if (!label.trim()) return setErr("ラベルを入力してください");
-    if (label.length > 20) return setErr("ラベルは20文字までです");
+    // ラベルが空なら、値付きの条件の名前（例：ファボ数）を使う
+    const paramOp = filled.find((c) => c.op)?.op;
+    const name = label.trim() || (paramOp ? PARAM_OPS[paramOp].label : "");
+    if (!name) return setErr("ラベルを入力してください");
+    if (name.length > 20) return setErr("ラベルは20文字までです");
     if (!filled.length) return setErr("条件を1つ以上入力してください");
+    const bad = filled.find(
+      (c) => (c.kind === "number" || c.kind === "date") && !condToken(c),
+    );
+    if (bad)
+      return setErr(
+        bad.kind === "number"
+          ? "数値は1以上の整数で入力してください"
+          : "日付を YYYY-MM-DD で入力してください",
+      );
     const out: Chip = {
       id: chip?.id ?? `u${cid()}`,
-      label: label.trim(),
+      label: name,
       conds: filled,
       on: chip?.on ?? false,
       visible: chip?.visible ?? true,

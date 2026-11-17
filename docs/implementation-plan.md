@@ -75,6 +75,8 @@ type Node =
 
 // 条件ボタン（requirements F6）
 type Chip = { id: string; label: string; conds: Node[]; on: boolean; visible: boolean; isNew?: boolean; isDefault?: boolean };
+// 値付きの条件（min_faves などの数値、since:/until: の日付）は、ホームのボタンの入力欄で値を書き換える（値はボタンに保存）。
+// 対応する演算子は operators.ts に「値の型（number／date）・接尾語」として定義する。期間（PeriodSpec）が有効なら、日付の条件は合成から外す（requirements F6）
 
 // 期間：昨日から／3日前から／1週間前から／日付（以降・以前・範囲）。相対指定は文字列に入れず、実行時に解決する
 type PeriodSpec = { kind: 'none' | 'd1' | 'd3' | 'd7' | 'date'; from?: string; to?: string };
