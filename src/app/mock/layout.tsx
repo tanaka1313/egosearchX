@@ -7,7 +7,7 @@ export default function MockLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex flex-col">
       <div
         role="note"
         className="sticky top-0 z-50 flex flex-wrap items-center justify-center gap-x-4 border-b-2 border-dashed border-amber-600 bg-amber-300 px-3 py-1.5 text-sm font-bold text-amber-950"
