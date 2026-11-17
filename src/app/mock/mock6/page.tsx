@@ -1,250 +1,239 @@
 "use client";
 // MOCK: 破棄予定（#61）
+import { Ellipsis } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChipEditor } from "./_parts/chip-editor";
 import { ChipRow } from "./_parts/chips";
 import { DetailPanel } from "./_parts/detail-panel";
-import { LIMITS, type Chip, type Period } from "./_parts/data";
+import { LIMITS, type Period } from "./_parts/data";
 import { PERIOD_LABEL, detailTokens } from "./_parts/query";
-import { FavoriteRow, GroupButton, HistoryRow } from "./_parts/rows";
+import { favQuery } from "./_parts/rows";
 import { useStore } from "./_parts/store";
 import { EmptyState, Sheet } from "./_parts/ui";
 
 const PERIODS: Period["kind"][] = ["none", "today", "yday", "last", "date"];
 
+/** ［⋯］：使用頻度の低い操作。自前の小さなポップオーバー（Esc／外側クリックで閉じる） */
+function MoreMenu() {
+  const s = useStore();
+  const [open, setOpen] = useState(false);
+  const boxRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (ev: MouseEvent) => {
+      if (!boxRef.current?.contains(ev.target as Node)) setOpen(false);
+    };
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key === "Escape") {
+        setOpen(false);
+        btnRef.current?.focus();
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const item =
+    "block w-full rounded px-3 py-2 text-left text-sm hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring";
+  const text = s.query.text;
+  const act = (fn: () => void) => () => {
+    fn();
+    setOpen(false);
+  };
+  return (
+    <div ref={boxRef} className="relative">
+      <Button
+        ref={btnRef}
+        variant="outline"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="そのほかの操作"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <Ellipsis className="size-4" />
+      </Button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 bottom-full z-30 mb-1 w-52 rounded-lg border bg-background p-1 shadow-lg"
+        >
+          <button
+            role="menuitem"
+            className={item}
+            onClick={act(() => s.run("Yahoo", "ホーム"))}
+          >
+            Yahoo で開く
+          </button>
+          <button
+            role="menuitem"
+            className={item}
+            onClick={act(() => {
+              void navigator.clipboard?.writeText(
+                `https://x.com/search?q=${encodeURIComponent(text)}&f=live`,
+              );
+              s.say("X の検索リンクをコピーしました");
+            })}
+          >
+            リンクをコピー（X）
+          </button>
+          <button
+            role="menuitem"
+            className={item}
+            onClick={act(() => {
+              void navigator.clipboard?.writeText(text);
+              s.say("クエリをコピーしました");
+            })}
+          >
+            クエリをコピー
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Mock6Home() {
   const s = useStore();
-  const [editing, setEditing] = useState<Chip | "new" | null>(null);
   const [warnOpen, setWarnOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
-  const [groupForm, setGroupForm] = useState(false);
-
-  const full = s.chips.length >= LIMITS.chips;
   const q = s.query;
+  const urlLong = q.text.length > LIMITS.urlWarn;
 
   return (
-    <main className="mx-auto max-w-6xl space-y-4 p-3 md:p-4">
-      <div className="grid gap-4 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        {/* 大タイル：検索の組み立て（PC）。スマホでは先頭のグループの下に続く */}
-        <div className="order-2 space-y-3 md:order-1">
-          <section
-            aria-label="検索の組み立て"
-            className="space-y-3 rounded-2xl border p-3"
+    <main className="mx-auto max-w-2xl space-y-4 p-3 md:p-4">
+      <section aria-label="検索の組み立て" className="space-y-3">
+        <div className="flex gap-2">
+          <input
+            value={s.word}
+            onChange={(ev) => s.setWord(ev.target.value)}
+            aria-label="検索する語"
+            placeholder="検索する語を入力"
+            className="min-w-0 flex-1 rounded-full border-2 px-4 py-2.5 text-lg"
+          />
+          <button
+            aria-pressed={s.exact}
+            onClick={() => s.setExact(!s.exact)}
+            className={`shrink-0 rounded-full border px-3 text-sm focus-visible:ring-2 focus-visible:ring-ring ${s.exact ? "border-foreground bg-foreground text-background" : "border-border text-muted-foreground"}`}
           >
-            <div className="flex gap-2">
-              <input
-                value={s.word}
-                onChange={(ev) => s.setWord(ev.target.value)}
-                aria-label="検索する語"
-                placeholder="検索する語を入力"
-                className="min-w-0 flex-1 rounded-full border-2 px-4 py-2.5 text-lg"
-              />
+            完全一致
+          </button>
+        </div>
+
+        <ChipRow />
+
+        <div
+          className="flex flex-wrap items-center gap-1"
+          role="group"
+          aria-label="期間"
+        >
+          <span className="mr-1 text-sm font-medium">期間</span>
+          {PERIODS.map((k) => {
+            const on = s.period.kind === k;
+            return (
               <button
-                aria-pressed={s.exact}
-                onClick={() => s.setExact(!s.exact)}
-                className={`shrink-0 rounded-full border px-3 text-sm focus-visible:ring-2 focus-visible:ring-ring ${s.exact ? "bg-foreground text-background" : ""}`}
+                key={k}
+                aria-pressed={on}
+                onClick={() => s.setPeriod({ ...s.period, kind: k })}
+                className={`rounded-full border px-2.5 py-1 text-sm focus-visible:ring-2 focus-visible:ring-ring ${on ? "border-foreground bg-foreground text-background" : "border-border text-muted-foreground"}`}
               >
-                {s.exact ? "✓ " : ""}完全一致
+                {k === "date" ? "日付…" : PERIOD_LABEL[k]}
               </button>
-            </div>
-
-            <div className="space-y-2">
-              <ChipRow onEdit={(c) => setEditing(c)} />
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>
-                  {s.chips.length}/{LIMITS.chips}
-                </span>
-                <Button
-                  size="xs"
-                  variant="outline"
-                  disabled={full}
-                  onClick={() => setEditing("new")}
-                >
-                  ＋ ボタンを作る
-                </Button>
-                {full && <span>上限です。不要なボタンを削除してください</span>}
-                <Link
-                  href="/mock/mock6/buttons"
-                  className="ml-auto underline underline-offset-4"
-                >
-                  すべて管理
-                </Link>
-              </div>
-            </div>
-
-            <div
-              className="flex flex-wrap items-center gap-1"
-              role="group"
-              aria-label="期間"
-            >
-              <span className="mr-1 text-sm font-medium">期間</span>
-              {PERIODS.map((k) => {
-                const on = s.period.kind === k;
-                return (
-                  <button
-                    key={k}
-                    aria-pressed={on}
-                    onClick={() => s.setPeriod({ ...s.period, kind: k })}
-                    className={`rounded-full border px-2.5 py-1 text-sm focus-visible:ring-2 focus-visible:ring-ring ${on ? "bg-foreground text-background" : ""}`}
-                  >
-                    {on ? "✓ " : ""}
-                    {k === "date" ? "日付…" : PERIOD_LABEL[k]}
-                  </button>
-                );
-              })}
-              {s.period.kind === "last" && (
-                <span className="basis-full text-xs text-muted-foreground">
-                  前回実行（昨日
-                  22:30）からの新着だけを開きます。履歴が無い初回は「指定なし」です。
-                </span>
-              )}
-              {s.period.kind === "date" && (
-                <span className="basis-full text-xs text-muted-foreground">
-                  日付は詳細設定の「期間」で指定します（終了日を含む）。
-                </span>
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-start gap-2">
-                <code className="block min-w-0 flex-1 rounded bg-muted p-2 font-mono text-xs break-all">
-                  {q.text || "（検索語か条件ボタンを選んでください）"}
-                </code>
-                {q.warnings.length > 0 && (
-                  <button
-                    aria-expanded={warnOpen}
-                    aria-label={`警告 ${q.warnings.length}件`}
-                    onClick={() => setWarnOpen((v) => !v)}
-                    className="shrink-0 rounded border px-2 py-1 text-sm focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    ⚠ {q.warnings.length}
-                  </button>
-                )}
-              </div>
-              {warnOpen && q.warnings.length > 0 && (
-                <ul className="space-y-1 rounded border p-2 text-xs">
-                  {q.warnings.map((w) => (
-                    <li key={w}>⚠ {w}</li>
-                  ))}
-                </ul>
-              )}
-              {q.text.length > LIMITS.urlWarn && (
-                <p className="text-xs">
-                  ⚠ クエリが{LIMITS.urlWarn}
-                  文字を超えています（上限は未確認）
-                </p>
-              )}
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              <Button onClick={() => s.run("X", "ホーム")}>X で開く</Button>
-              <Button
-                variant="outline"
-                onClick={() => s.run("Yahoo", "ホーム")}
-              >
-                Yahoo で開く
-              </Button>
-              <Button variant="outline" onClick={() => setSaveOpen(true)}>
-                ☆ 保存
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  void navigator.clipboard?.writeText(q.text);
-                  s.say("クエリをコピーしました");
-                }}
-              >
-                コピー
-              </Button>
-            </div>
-            {s.notice && (
-              <p role="status" className="text-xs">
-                {s.notice}
-              </p>
-            )}
-          </section>
-
-          <DetailPanel />
+            );
+          })}
+          {/* 注記は1行分の高さを常に確保し、押しても下の要素が動かないようにする */}
+          <span className="block min-h-8 basis-full text-xs text-muted-foreground">
+            {s.period.kind === "last" &&
+              "前回実行（昨日 22:30）からの新着だけを開きます。履歴が無い初回は「指定なし」です。"}
+            {s.period.kind === "date" &&
+              "日付は「詳細条件」の期間で指定します（終了日を含む）。"}
+          </span>
         </div>
 
-        {/* 小タイル：いつものエゴサ／お気に入り／履歴 */}
-        <div className="order-1 space-y-3 md:order-2">
-          <section className="space-y-2 rounded-2xl border p-3">
-            <h2 className="font-bold">いつものエゴサ</h2>
-            {s.groups.length === 0 ? (
-              <EmptyState text="配信後などのまとめ実行を作れます">
-                <Button size="sm" onClick={() => setGroupForm(true)}>
-                  ＋ グループを作る
-                </Button>
-              </EmptyState>
+        <div className="space-y-1">
+          <div className="flex items-start gap-2">
+            <code className="line-clamp-3 block min-h-[3.75rem] min-w-0 flex-1 rounded bg-muted p-2 font-mono text-xs break-all">
+              {q.text || "（検索語か条件ボタンを選んでください）"}
+            </code>
+            {q.warnings.length > 0 ? (
+              <button
+                aria-expanded={warnOpen}
+                aria-label={`警告 ${q.warnings.length}件`}
+                onClick={() => setWarnOpen((v) => !v)}
+                className="w-12 shrink-0 rounded border px-2 py-1 text-sm focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                ⚠ {q.warnings.length}
+              </button>
             ) : (
-              <div className="flex flex-wrap gap-2">
-                {s.groups.map((g) => (
-                  <GroupButton key={g.id} group={g} />
-                ))}
-                <button
-                  aria-label="エゴサグループを作る"
-                  onClick={() => setGroupForm(true)}
-                  className="rounded-xl border-2 border-dashed px-3 py-2 text-lg hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  ＋
-                </button>
-              </div>
+              <span className="w-12 shrink-0" aria-hidden />
             )}
-          </section>
-
-          <section className="space-y-2 rounded-2xl border p-3">
-            <div className="flex items-center">
-              <h2 className="font-bold">お気に入り</h2>
-              <Link
-                href="/mock/mock6/favorites"
-                className="ml-auto text-sm underline underline-offset-4"
-              >
-                すべて見る
-              </Link>
-            </div>
-            {s.favs.length === 0 && (
-              <EmptyState text="条件を触って気に入ったら ☆ 保存 でここに入ります" />
-            )}
-            <ul className="space-y-2">
-              {s.favs.slice(0, 4).map((f) => (
-                <FavoriteRow key={f.id} fav={f} />
+          </div>
+          {warnOpen && q.warnings.length > 0 && (
+            <ul className="space-y-1 rounded border p-2 text-xs">
+              {q.warnings.map((w) => (
+                <li key={w}>⚠ {w}</li>
               ))}
             </ul>
-          </section>
-
-          <section className="space-y-2 rounded-2xl border p-3">
-            <div className="flex items-center">
-              <h2 className="font-bold">最近の履歴</h2>
-              <Link
-                href="/mock/mock6/history"
-                className="ml-auto text-sm underline underline-offset-4"
-              >
-                すべて見る
-              </Link>
-            </div>
-            {s.history.length === 0 && (
-              <EmptyState text="実行するとここに残ります" />
-            )}
-            <ul className="space-y-2">
-              {s.history.slice(0, 3).map((h) => (
-                <HistoryRow key={h.id} h={h} />
-              ))}
-            </ul>
-          </section>
+          )}
+          <p className="min-h-4 text-xs">
+            {urlLong &&
+              `⚠ クエリが${LIMITS.urlWarn}文字を超えています（上限は未確認）`}
+          </p>
         </div>
-      </div>
 
-      {editing && (
-        <ChipEditor
-          chip={editing === "new" ? null : editing}
-          onClose={() => setEditing(null)}
-        />
-      )}
+        <div className="flex gap-2">
+          <Button className="flex-1" onClick={() => s.run("X", "ホーム")}>
+            X で開く
+          </Button>
+          <Button variant="outline" onClick={() => setSaveOpen(true)}>
+            ☆ 保存
+          </Button>
+          <MoreMenu />
+        </div>
+      </section>
+
+      <DetailPanel />
+
+      <section className="space-y-2">
+        <div className="flex items-center">
+          <h2 className="font-bold">お気に入り</h2>
+          <Link
+            href="/mock/mock6/favorites"
+            className="ml-auto text-sm text-muted-foreground underline underline-offset-4"
+          >
+            お気に入りを編集 →
+          </Link>
+        </div>
+        {s.favs.length === 0 && (
+          <EmptyState text="条件を触って気に入ったら ☆ 保存 でここに入ります" />
+        )}
+        <ul className="space-y-2">
+          {s.favs.slice(0, 4).map((f) => (
+            <li
+              key={f.id}
+              className="flex items-center gap-2 rounded-lg border p-2 text-sm"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-medium">{f.name}</div>
+                <div className="truncate font-mono text-xs text-muted-foreground">
+                  {favQuery(f, s.chips).text || "（条件なし）"}
+                </div>
+              </div>
+              <Button size="sm" onClick={() => s.runFav(f.id)}>
+                ▶ 実行
+              </Button>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       {saveOpen && <SaveSheet onClose={() => setSaveOpen(false)} />}
-      {groupForm && <GroupSheet onClose={() => setGroupForm(false)} />}
     </main>
   );
 }
@@ -355,76 +344,6 @@ function SaveSheet({ onClose }: { onClose: () => void }) {
           キャンセル
         </Button>
         <Button onClick={save}>保存</Button>
-      </div>
-    </Sheet>
-  );
-}
-
-/** エゴサグループの作成（ホームの［＋］） */
-function GroupSheet({ onClose }: { onClose: () => void }) {
-  const s = useStore();
-  const [name, setName] = useState("");
-  const [sel, setSel] = useState<string[]>([]);
-  const [err, setErr] = useState("");
-  return (
-    <Sheet title="エゴサグループを作る" onClose={onClose}>
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">グループ名</span>
-        <input
-          value={name}
-          onChange={(ev) => setName(ev.target.value)}
-          placeholder="例：配信後エゴサ"
-          className="w-full rounded-lg border px-3 py-2"
-        />
-      </label>
-      <fieldset className="space-y-1 text-sm">
-        <legend className="font-medium">含めるお気に入り</legend>
-        {s.favs.length === 0 && (
-          <p className="text-muted-foreground">
-            先に ☆ 保存 でお気に入りを作ってください
-          </p>
-        )}
-        {s.favs.map((f) => (
-          <label key={f.id} className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={sel.includes(f.id)}
-              onChange={() =>
-                setSel(
-                  sel.includes(f.id)
-                    ? sel.filter((x) => x !== f.id)
-                    : [...sel, f.id],
-                )
-              }
-            />
-            {f.name}
-          </label>
-        ))}
-      </fieldset>
-      {err && (
-        <p role="alert" className="text-sm font-medium">
-          ⚠ {err}
-        </p>
-      )}
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onClose}>
-          キャンセル
-        </Button>
-        <Button
-          onClick={() => {
-            if (!name.trim()) return setErr("グループ名を入力してください");
-            if (!sel.length) return setErr("お気に入りを1つ以上選んでください");
-            s.saveGroup({
-              id: `g${Date.now()}`,
-              name: name.trim(),
-              favIds: sel,
-              doneToday: false,
-            });
-            onClose();
-          }}
-        >
-          作成
-        </Button>
       </div>
     </Sheet>
   );

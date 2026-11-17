@@ -2,7 +2,7 @@
 // MOCK: 破棄予定（#61）
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import type { Favorite, Group, HistoryItem } from "./data";
+import type { Favorite } from "./data";
 import { buildQuery } from "./query";
 import { EMPTY_DETAIL, EMPTY_PERIOD } from "./data";
 import { useStore } from "./store";
@@ -105,50 +105,6 @@ export function FavoriteRow({
           )}
         </p>
       ))}
-    </li>
-  );
-}
-
-export function GroupButton({ group }: { group: Group }) {
-  const { runGroup } = useStore();
-  return (
-    <button
-      onClick={() => runGroup(group.id)}
-      className="flex items-center gap-2 rounded-xl border-2 bg-background px-3 py-2 text-left text-sm font-medium hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
-    >
-      <span className="text-base">▶</span>
-      <span>
-        {group.name}（{group.favIds.length}）
-        <span className="block text-xs font-normal text-muted-foreground">
-          {group.doneToday ? "✓ 今日は済" : "□ 今日は未"}
-        </span>
-      </span>
-    </button>
-  );
-}
-
-export function HistoryRow({ h }: { h: HistoryItem }) {
-  const { say } = useStore();
-  return (
-    <li className="space-y-1 rounded-lg border p-2 text-sm">
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-muted-foreground">{h.at}</span>
-        <span className="rounded border px-1 text-xs">{h.engine}</span>
-        <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
-          {h.source}
-        </span>
-        <Button
-          size="xs"
-          variant="outline"
-          onClick={() => say("再実行しました（ダミー）")}
-        >
-          再実行
-        </Button>
-      </div>
-      <div className="truncate font-mono text-xs">
-        {h.query || "（条件なし）"}
-      </div>
-      {h.note && <div className="text-xs">⚑ {h.note}</div>}
     </li>
   );
 }

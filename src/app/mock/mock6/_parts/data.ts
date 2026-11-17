@@ -5,6 +5,7 @@ export const LIMITS = {
   trash: 20,
   history: 100,
   foldRows: 2,
+  headerGroups: 2,
   urlWarn: 500,
 } as const;
 
@@ -358,7 +359,7 @@ export const INITIAL_HISTORY: HistoryItem[] = [
 
 export const MENU = [
   { href: "/mock/mock6", label: "ホーム" },
-  { href: "/mock/mock6/buttons", label: "条件ボタン" },
+  { href: "/mock/mock6/buttons", label: "条件ボタンの編集" },
   { href: "/mock/mock6/favorites", label: "お気に入り" },
   { href: "/mock/mock6/groups", label: "エゴサグループ" },
   { href: "/mock/mock6/history", label: "履歴" },
