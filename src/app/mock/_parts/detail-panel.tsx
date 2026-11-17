@@ -1,14 +1,7 @@
 "use client";
 // MOCK: 破棄予定（#61）
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  ENGINE_LABEL,
-  FILTERS,
-  type Detail,
-  type Engine,
-  type Tri,
-} from "./data";
+import { FILTERS, type Detail, type Tri } from "./data";
 import { PeriodPicker } from "./period-picker";
 import { chipTokens, detailTokens } from "./query";
 import { useSearchScope } from "./search-scope";
@@ -56,7 +49,6 @@ function Field({
 export function DetailPanel({ footer }: { footer?: React.ReactNode }) {
   const { detail, setDetail, period, setPeriod, usedChips, resetDetail } =
     useSearchScope();
-  const [tab, setTab] = useState<"gui" | "text">("gui");
   const patch = (p: Partial<Detail>) => setDetail((d) => ({ ...d, ...p }));
   const nodes = detailTokens(detail);
 
@@ -199,32 +191,8 @@ export function DetailPanel({ footer }: { footer?: React.ReactNode }) {
           <PeriodPicker value={period} onChange={setPeriod} showOutput />
         </Section>
 
-        <Section title="エンジンと表示">
-          <div
-            className="flex flex-wrap gap-1"
-            role="group"
-            aria-label="エンジン"
-          >
-            {(
-              [
-                ["x", "X"],
-                ["yahoo", ENGINE_LABEL.Yahoo],
-                ["both", "両方"],
-              ] as [Engine, string][]
-            ).map(([v, l]) => (
-              <button
-                key={v}
-                aria-pressed={detail.engine === v}
-                onClick={() => patch({ engine: v })}
-                className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm ${toggleClass(detail.engine === v)}`}
-              >
-                <span className="w-3 text-center">
-                  {detail.engine === v ? "✓" : "○"}
-                </span>
-                {l}
-              </button>
-            ))}
-          </div>
+        {/* 検索先は、開くときはボタン（［X で開く］［Yahoo で開く］）、保存するときは保存画面で選ぶ */}
+        <Section title="表示">
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
@@ -265,67 +233,20 @@ export function DetailPanel({ footer }: { footer?: React.ReactNode }) {
           ))}
         </Section>
 
-        <Section title="高度な編集（構造／テキスト）">
-          <div role="tablist" aria-label="表示" className="flex gap-1">
-            {(
-              [
-                ["gui", "構造"],
-                ["text", "テキスト"],
-              ] as const
-            ).map(([v, l]) => (
-              <button
-                key={v}
-                role="tab"
-                aria-selected={tab === v}
-                onClick={() => setTab(v)}
-                className={`rounded-full px-3 py-1 text-sm ${toggleClass(tab === v)}`}
-              >
-                {l}
-              </button>
-            ))}
-          </div>
-          {tab === "gui" ? (
-            <ul className="space-y-1">
-              {nodes.length === 0 && (
-                <li className="text-sm text-muted-foreground">
-                  個別の条件はまだありません
-                </li>
-              )}
-              {nodes.map((n, i) => (
-                <li
-                  key={`${n}${i}`}
-                  className="flex items-center gap-2 rounded border px-2 py-1 text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    aria-label={`${n}を有効にする`}
-                    checked={!detail.offTokens.includes(n)}
-                    onChange={() =>
-                      patch({
-                        offTokens: detail.offTokens.includes(n)
-                          ? detail.offTokens.filter((x) => x !== n)
-                          : [...detail.offTokens, n],
-                      })
-                    }
-                  />
-                  <code className="font-mono text-xs">{n}</code>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <label className="block space-y-1 text-sm">
-              <span>
-                生トークン（解析できない演算子はそのまま保持され、URL
-                に出力されます）
-              </span>
-              <textarea
-                value={detail.raw}
-                onChange={(ev) => patch({ raw: ev.target.value })}
-                className="h-20 w-full rounded-lg border p-2 font-mono text-sm"
-                placeholder="foo:bar -baz"
-              />
-            </label>
-          )}
+        <Section title="テキストで追加">
+          <label className="block space-y-1 text-sm">
+            <span>
+              上の欄に無い条件を、検索文字列のまま足せます（解析できない演算子もそのまま
+              URL に出力されます）
+            </span>
+            <textarea
+              value={detail.raw}
+              onChange={(ev) => patch({ raw: ev.target.value })}
+              aria-label="テキストで追加する条件"
+              className="h-20 w-full rounded-lg border p-2 font-mono text-sm"
+              placeholder="foo:bar -baz"
+            />
+          </label>
         </Section>
 
         {/* 詳細条件を触ったその場で次の操作ができるよう、末尾に画面ごとの操作を置く */}

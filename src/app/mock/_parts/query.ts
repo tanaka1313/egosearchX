@@ -182,9 +182,7 @@ export function buildQuery(i: BuildInput): {
   const skippedDate = pActive
     ? used.filter((ch) => ch.conds.some((c) => c.kind === "date"))
     : [];
-  tokens.push(
-    ...detailTokens(i.detail).filter((x) => !i.detail.offTokens.includes(x)),
-  );
+  tokens.push(...detailTokens(i.detail));
   tokens.push(...(i.extra ?? []));
   tokens.push(...periodTokens(i.period));
   const warnings: string[] = [];

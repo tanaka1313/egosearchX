@@ -10,7 +10,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ConditionFrame } from "../../_parts/condition-frame";
-import { favToItem, type Group, type SavedSearch } from "../../_parts/data";
+import {
+  favToItem,
+  type Engine,
+  type Group,
+  type SavedSearch,
+} from "../../_parts/data";
+import { EnginePicker } from "../../_parts/engine-picker";
 import { OpenButtons, QueryPreview } from "../../_parts/open-bar";
 import {
   periodInverted,
@@ -219,6 +225,7 @@ function NewSearchMaker({
   const s = useStore();
   const scope = useSearchScope();
   const [err, setErr] = useState("");
+  const [engine, setEngine] = useState<Engine>("x");
   const firstChip = scope.usedChips[0]?.label ?? "";
   const base = scope.word.trim() || firstChip;
   const autoName = [groupName.trim(), base].filter(Boolean).join("：");
@@ -232,7 +239,7 @@ function NewSearchMaker({
       name: autoName || "新しい検索",
       query: queryWithoutPeriod(scope.query, scope.period),
       period: scope.period,
-      engine: scope.detail.engine,
+      engine,
       last: "未実行",
     };
     s.saveFav(fav);
@@ -245,6 +252,8 @@ function NewSearchMaker({
       <div className="flex gap-2">
         <OpenButtons primary={false} />
       </div>
+      {/* 詳細条件の末尾にも同じ action を置くので、検索先も同じ状態を共有する */}
+      <EnginePicker value={engine} onChange={setEngine} />
       <Button className="w-full" onClick={make}>
         お気に入りに保存して追加
       </Button>

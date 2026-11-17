@@ -13,6 +13,9 @@ import {
 import {
   DEFAULT_LISTS,
   ENGINE_LABEL,
+  ENGINE_NAME,
+  engineTargets,
+  type Engine,
   EMPTY_DETAIL,
   EMPTY_PERIOD,
   INITIAL_CHIPS,
@@ -185,6 +188,33 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       });
     });
   }, []);
+
+  /**
+   * 保存した検索（お気に入り・いつものエゴサの中身）を、それぞれの検索先で開いたものとして履歴に残す。
+   * 「両方」は X と Yahoo!リアルタイム検索の2件。開いたタブの数を返す。
+   */
+  const logSaved = useCallback(
+    (
+      items: { query: string; period: Period; engine: Engine }[],
+      source: string,
+    ) => {
+      const entries: HistoryItem[] = items.flatMap((item) =>
+        engineTargets(item.engine).map((engine) => ({
+          id: nid("h"),
+          at: NOW,
+          word: "",
+          query: savedText(item),
+          engine,
+          source,
+          chipLabels: [],
+        })),
+      );
+      // 新しい順：最後に開いたものが先頭
+      setHistory((h) => [...entries.reverse(), ...h].slice(0, LIMITS.history));
+      return entries.length;
+    },
+    [],
+  );
 
   const query = useMemo(
     () => buildQuery({ word, exact, chips, detail, period, extra: sugOn }),
@@ -426,46 +456,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     runFav: (id, source) => {
       const f = live.current.favs.find((x) => x.id === id);
       if (!f) return;
-      setHistory((h) =>
-        [
-          {
-            id: nid("h"),
-            at: NOW,
-            word: "",
-            query: savedText(f),
-            engine: "X" as const,
-            source: source ?? `お気に入り「${f.name}」`,
-            chipLabels: [],
-          },
-          ...h,
-        ].slice(0, LIMITS.history),
-      );
+      logSaved([f], source ?? `お気に入り「${f.name}」`);
       setFavs((fs) => fs.map((x) => (x.id === id ? { ...x, last: "今" } : x)));
-      say(`「${f.name}」を開きました（ダミー）`);
+      say(`「${f.name}」を${ENGINE_NAME[f.engine]}で開きました（ダミー）`);
     },
     runGroup: (id) => {
       const g = live.current.groups.find((x) => x.id === id);
       if (!g) return;
-      g.items.forEach((item) => {
-        setHistory((h) =>
-          [
-            {
-              id: nid("h"),
-              at: NOW,
-              word: "",
-              query: savedText(item),
-              engine: "X" as const,
-              source: `いつものエゴサ「${g.name}」`,
-              chipLabels: [],
-            },
-            ...h,
-          ].slice(0, LIMITS.history),
-        );
-      });
+      const tabs = logSaved(g.items, `いつものエゴサ「${g.name}」`);
       setGroups((gs) =>
         gs.map((x) => (x.id === id ? { ...x, doneToday: true } : x)),
       );
-      say(`「${g.name}」：${g.items.length}個のタブを開きました（ダミー）`);
+      say(`「${g.name}」：${tabs}個のタブを開きました（ダミー）`);
     },
     clearHistory: () => setHistory([]),
     resetDetail: () => {

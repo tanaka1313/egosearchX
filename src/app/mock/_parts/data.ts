@@ -104,13 +104,10 @@ export type Detail = {
   minFaves: string;
   minRt: string;
   minReplies: string;
-  engine: Engine;
   live: boolean;
   /** 共通（条件ボタン）の項目ごとの無効化。無効にした Cond の id */
   disabledConds: string[];
-  /** 構造ビューで OFF にしたノード（トークン文字列） */
-  offTokens: string[];
-  /** テキスト編集で足した生トークン */
+  /** テキストで足した生トークン */
   raw: string;
 };
 
@@ -138,10 +135,8 @@ export const EMPTY_DETAIL: Detail = {
   minFaves: "",
   minRt: "",
   minReplies: "",
-  engine: "x",
   live: false,
   disabledConds: [],
-  offTokens: [],
   raw: "",
 };
 
@@ -430,6 +425,27 @@ export const ENGINE_LABEL = {
   X: "X",
   Yahoo: "Yahoo!リアルタイム検索",
 } as const;
+
+/** 保存した検索の検索先の名前（選択肢・説明で使う正式名） */
+export const ENGINE_NAME: Record<Engine, string> = {
+  x: ENGINE_LABEL.X,
+  yahoo: ENGINE_LABEL.Yahoo,
+  both: `${ENGINE_LABEL.X}と${ENGINE_LABEL.Yahoo}の両方`,
+};
+
+/**
+ * 検索先の短縮名。お気に入りの管理の行のバッジ（ただの識別子）にだけ使う。
+ * スマホで行が溢れないよう、正式名ではなく短く書く（ユーザーが許可した例外）。
+ */
+export const ENGINE_SHORT: Record<Engine, string> = {
+  x: "X",
+  yahoo: "Yahoo",
+  both: "X＋Yahoo",
+};
+
+/** 検索先で開く順（両方なら X → Yahoo） */
+export const engineTargets = (e: Engine): ("X" | "Yahoo")[] =>
+  e === "both" ? ["X", "Yahoo"] : e === "x" ? ["X"] : ["Yahoo"];
 
 /**
  * メニューの項目。manage：追加・編集・削除・並べ替えをする管理ページ（メニューでは歯車のアイコンで示す。

@@ -3,7 +3,14 @@
 import { Copy, Ellipsis, Star } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ENGINE_LABEL, LIMITS, favToItem, type Favorite } from "./data";
+import {
+  ENGINE_LABEL,
+  LIMITS,
+  favToItem,
+  type Engine,
+  type Favorite,
+} from "./data";
+import { EnginePicker } from "./engine-picker";
 import { periodInverted, queryWithoutPeriod } from "./query";
 import { useSearchScope } from "./search-scope";
 import { nid, useStore } from "./store";
@@ -226,6 +233,7 @@ export function OpenBar() {
 function SaveSheet({ onClose }: { onClose: () => void }) {
   const s = useStore();
   const [name, setName] = useState(s.word ? `${s.word} の検索` : "新しい検索");
+  const [engine, setEngine] = useState<Engine>("x");
   const [target, setTarget] = useState<string>("none");
   // 新しいいつものエゴサの名前は、触るまでお気に入りの名前と同じ（入力は実質1回）
   const [newGroup, setNewGroup] = useState<string | null>(null);
@@ -245,7 +253,7 @@ function SaveSheet({ onClose }: { onClose: () => void }) {
       name: name.trim(),
       query: queryOnly,
       period: s.period,
-      engine: s.detail.engine,
+      engine,
       last: "未実行",
     };
     s.saveFav(fav);
@@ -279,6 +287,7 @@ function SaveSheet({ onClose }: { onClose: () => void }) {
       <p className="text-xs text-muted-foreground">
         検索文字列そのものを保存します（期間は実行時の日付で計算）。条件ボタンを後から直しても、保存したものは変わりません。
       </p>
+      <EnginePicker value={engine} onChange={setEngine} />
       <fieldset className="space-y-1 text-sm">
         <legend className="font-medium">
           いつものエゴサに追加（まとめて実行できます）

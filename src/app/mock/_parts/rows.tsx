@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import type { Favorite } from "./data";
 import { buildQuery, periodText, savedText } from "./query";
-import { EMPTY_DETAIL, EMPTY_PERIOD, ENGINE_LABEL } from "./data";
+import { EMPTY_DETAIL, EMPTY_PERIOD, ENGINE_NAME, ENGINE_SHORT } from "./data";
 import { useStore } from "./store";
 
 /** お気に入りの実行時の検索文字列と、Yahoo!リアルタイム検索での警告 */
@@ -39,17 +39,25 @@ export function FavoriteRow({
     <li className="space-y-1 rounded-lg border p-2 text-sm">
       <div className="flex items-center gap-2">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1 font-medium">
-            {fav.name}
-            <span className="rounded border px-1 text-xs whitespace-nowrap">
-              {fav.engine === "both"
-                ? `X／${ENGINE_LABEL.Yahoo}`
-                : fav.engine === "x"
-                  ? ENGINE_LABEL.X
-                  : ENGINE_LABEL.Yahoo}
+          <div className="flex min-w-0 items-center gap-1 font-medium">
+            {/* 長い名前は「…」で省略（全文は title）。バッジと⚠は縮めない */}
+            <span className="min-w-0 truncate" title={fav.name}>
+              {fav.name}
+            </span>
+            {/* 検索先はただの識別子なので短縮名（正式名は title と読み上げ） */}
+            <span
+              title={`検索先：${ENGINE_NAME[fav.engine]}`}
+              aria-label={`検索先：${ENGINE_NAME[fav.engine]}`}
+              className="shrink-0 rounded border px-1 text-xs whitespace-nowrap"
+            >
+              {ENGINE_SHORT[fav.engine]}
             </span>
             {q.warnings.length > 0 && (
-              <span title={q.warnings.join(" / ")} aria-label="警告あり">
+              <span
+                title={q.warnings.join(" / ")}
+                aria-label="警告あり"
+                className="shrink-0"
+              >
                 ⚠
               </span>
             )}
