@@ -69,7 +69,8 @@ export default function HistoryPage() {
                       name: h.word ? `${h.word}（履歴から）` : "履歴から",
                       query: h.query,
                       period: EMPTY_PERIOD,
-                      engine: "x",
+                      // 実行したときの検索先を引き継ぐ（あとでお気に入りの編集で直せる）
+                      engine: h.engine === "Yahoo" ? "yahoo" : "x",
                       last: "未実行",
                     });
                   }}

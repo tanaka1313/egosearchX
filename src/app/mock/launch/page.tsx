@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { ENGINE_LABEL } from "../_parts/data";
+import { ENGINE_NAME } from "../_parts/data";
 import { useStore } from "../_parts/store";
 import { savedText } from "../_parts/query";
 import { EmptyState } from "../_parts/ui";
@@ -69,8 +69,7 @@ export default function LaunchPage() {
             <span>{i + 1}.</span>
             <div className="min-w-0 flex-1">
               <div className="font-medium">
-                {f.label}（
-                {f.engine === "yahoo" ? ENGINE_LABEL.Yahoo : ENGINE_LABEL.X}）
+                {f.label}（{ENGINE_NAME[f.engine]}）
               </div>
               <div className="truncate font-mono text-xs text-muted-foreground">
                 {savedText(f)}

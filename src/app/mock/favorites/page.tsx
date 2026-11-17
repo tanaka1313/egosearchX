@@ -6,7 +6,8 @@ import { useSortable } from "@dnd-kit/react/sortable";
 import { GripVertical } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ENGINE_LABEL, type Engine, type Favorite } from "../_parts/data";
+import { type Favorite } from "../_parts/data";
+import { EnginePicker } from "../_parts/engine-picker";
 import { PeriodPicker } from "../_parts/period-picker";
 import { periodInverted } from "../_parts/query";
 import { FavoriteRow } from "../_parts/rows";
@@ -124,18 +125,10 @@ function FavEditor({ fav, onClose }: { fav: Favorite; onClose: () => void }) {
         value={f.period}
         onChange={(p) => setF({ ...f, period: p })}
       />
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">エンジン</span>
-        <select
-          value={f.engine}
-          onChange={(ev) => setF({ ...f, engine: ev.target.value as Engine })}
-          className="w-full rounded-lg border px-2 py-2"
-        >
-          <option value="x">X</option>
-          <option value="yahoo">{ENGINE_LABEL.Yahoo}</option>
-          <option value="both">両方</option>
-        </select>
-      </label>
+      <EnginePicker
+        value={f.engine}
+        onChange={(engine) => setF({ ...f, engine })}
+      />
       {err && (
         <p role="alert" className="text-sm font-medium">
           ⚠ {err}

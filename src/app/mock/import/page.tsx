@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { EMPTY_PERIOD } from "../_parts/data";
+import { EMPTY_PERIOD, type Engine } from "../_parts/data";
 import { nid, useStore } from "../_parts/store";
 import { PageHead } from "../_parts/ui";
 
@@ -11,22 +11,30 @@ const SAMPLE =
   "https://x.com/search?q=%22%E3%83%A1%E3%83%B3%E3%83%90%E3%83%BCA%22%20-filter%3Aretweets%20foo%3Abar&f=live";
 
 /** 簡易解析（モック）。本実装のパーサーではない */
-function parse(url: string): { tokens: string[]; err?: string } {
+function parse(url: string): {
+  tokens: string[];
+  engine: Engine;
+  err?: string;
+} {
   let u: URL;
   try {
     u = new URL(url.trim());
   } catch {
-    return { tokens: [], err: "URL として読み取れません" };
+    return { tokens: [], engine: "x", err: "URL として読み取れません" };
   }
   const host = u.hostname.replace(/^www\./, "");
   if (!["x.com", "twitter.com", "search.yahoo.co.jp"].includes(host))
     return {
       tokens: [],
+      engine: "x",
       err: "X または Yahoo!リアルタイム検索の URL ではありません",
     };
+  // 保存するお気に入りの検索先は、貼った URL の検索先を引き継ぐ
+  const engine: Engine = host === "search.yahoo.co.jp" ? "yahoo" : "x";
   const q = u.searchParams.get("q") ?? u.searchParams.get("p");
-  if (!q) return { tokens: [], err: "検索語（q / p）が含まれていません" };
-  return { tokens: q.split(/\s+/).filter(Boolean) };
+  if (!q)
+    return { tokens: [], engine, err: "検索語（q / p）が含まれていません" };
+  return { tokens: q.split(/\s+/).filter(Boolean), engine };
 }
 
 export default function ImportPage() {
@@ -96,7 +104,7 @@ export default function ImportPage() {
               name: "取り込んだ検索",
               query: r.tokens.join(" "),
               period: EMPTY_PERIOD,
-              engine: "x",
+              engine: r.engine,
               last: "未実行",
             })
           }
