@@ -54,7 +54,8 @@ export function ToggleChip({ chip }: { chip: Chip }) {
  * `<button>` の中に入力欄は置けないので、外枠を span にして「切替ボタン＋入力欄＋接尾語」を並べる。
  * - 切替ボタン（アイコン枠＋ラベル）と接尾語を押すと ON/OFF。
  * - 入力欄で値を変えると、値をボタンに保存して自動で ON にする。
- * - 入力欄の幅は固定（値の桁数や ON/OFF でボタンの幅を変えない）。高さはふつうの条件ボタンと同じ（入力欄＝1行の高さ）。
+ * - 入力欄の幅は固定（値の桁数や ON/OFF でボタンの幅を変えない）。数値は4桁、日付は YYYY-MM-DD とカレンダーのアイコンが入る幅。
+ *   数値の標準の上下ボタンは globals.css で消す（固定幅を食って値が見切れるため）。高さはふつうの条件ボタンと同じ（入力欄＝1行の高さ）。
  * - 期間を指定中は、日付の条件を持つボタンを無効の表示にする（期間を優先。ON/OFF の状態は残す）。
  */
 function ParamChip({ chip }: { chip: Chip }) {
@@ -108,7 +109,7 @@ function ParamChip({ chip }: { chip: Chip }) {
                 setCondValue(chip.id, c.id, ev.target.value);
                 setOn(chip.id, true);
               }}
-              className={`h-5 rounded border px-0.5 font-mono text-xs text-foreground tabular-nums focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed ${def.type === "number" ? "w-[4.5ch] text-right" : "w-[7.5rem]"}`}
+              className={`h-5 rounded border px-0.5 font-mono text-xs text-foreground tabular-nums focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed ${def.type === "number" ? "w-[5ch] text-right" : "w-[6.75rem]"}`}
             />
             {/* 接尾語は押すと ON/OFF（マウス用。キーボードは切替ボタンで操作する） */}
             <span
@@ -159,7 +160,8 @@ function SuggestChip({ token }: { token: string }) {
 
 /**
  * 条件ボタン列。「表示」にしたボタンだけを並べ、先頭 LIMITS.foldChips 個を超える分は［もっと開く（+N）］で隠す
- * （隠したボタンは描画しないのでフォーカスも当たらない）。
+ * （隠したボタンは描画しないのでフォーカスも当たらない）。N は開くと出てくるもの全部（隠れたボタン＋サジェスト）。
+ * ボタンが少なくても、サジェストがあれば［もっと開く］を出す（サジェストに届く道を無くさない）。
  * 開いた後は［閉じる］を出さず、サジェスト検索条件を下に出す。「ボタンを編集 →」は並びの最後の行の右端に置く。
  */
 export function ChipRow() {
@@ -167,7 +169,9 @@ export function ChipRow() {
   const [expanded, setExpanded] = useState(false);
   const visible = chips.filter((c) => c.visible);
   const shown = expanded ? visible : visible.slice(0, LIMITS.foldChips);
-  const hidden = visible.length - shown.length;
+  const hidden = expanded
+    ? 0
+    : visible.length - shown.length + suggestions.length;
 
   return (
     <div className="space-y-2">

@@ -1,6 +1,15 @@
 "use client";
 // MOCK: 破棄予定（#61）
-import { Check, Info, Menu, Play, Plus, Search, X } from "lucide-react";
+import {
+  Check,
+  Info,
+  Menu,
+  Play,
+  Plus,
+  Search,
+  Settings2,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -8,6 +17,14 @@ import { VersionDialog } from "@/components/common/version-dialog";
 import { APP_FEATURE, LIMITS, MENU } from "./data";
 import { InterestPicker } from "./interest-picker";
 import { useStore } from "./store";
+
+const CUR_PATH_KEY = "mock:curPath:v1";
+const PREV_PATH_KEY = "mock:prevPath:v1";
+
+/** 直前に開いていたアプリ内のページ（無ければ fallback）。キャンセルの戻り先に使う */
+export function previousPath(fallback: string): string {
+  return sessionStorage.getItem(PREV_PATH_KEY) ?? fallback;
+}
 
 function MenuList({
   onNavigate,
@@ -28,9 +45,20 @@ function MenuList({
               href={m.href}
               onClick={onNavigate}
               aria-current={here ? "page" : undefined}
+              aria-label={m.manage ? `${m.label}の管理` : undefined}
+              title={
+                m.manage ? `${m.label}の管理（追加・編集・削除）` : undefined
+              }
               className={`flex items-center gap-2 rounded-lg px-3 py-3 text-base hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring ${here ? "bg-muted font-bold" : ""}`}
             >
               <span className="flex-1">{m.label}</span>
+              {/* 管理ページの印（歯車）。文言を足さずに「管理する場所」だと示す */}
+              {m.manage && (
+                <Settings2
+                  className="size-4 shrink-0 text-muted-foreground"
+                  aria-hidden
+                />
+              )}
               {m.label === "削除済み" && trash.length > 0 && (
                 <span className="rounded-full border px-2 text-xs">
                   {trash.length}
@@ -179,6 +207,13 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   // ランチャーは画面に集中させるため、フッターを出さない（いつものエゴサは全ページに出す）
   const launcher = path === "/mock/launch";
+
+  // 直前に開いていたアプリ内のページを記録する（キャンセルで遷移前の画面へ戻るため。外部サイトへは戻らない）
+  useEffect(() => {
+    const cur = sessionStorage.getItem(CUR_PATH_KEY);
+    if (cur && cur !== path) sessionStorage.setItem(PREV_PATH_KEY, cur);
+    sessionStorage.setItem(CUR_PATH_KEY, path);
+  }, [path]);
 
   useEffect(() => {
     const onKey = (ev: KeyboardEvent) => {

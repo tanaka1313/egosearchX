@@ -1,6 +1,6 @@
 "use client";
 // MOCK: 破棄予定（#61）
-import { Ellipsis, Star } from "lucide-react";
+import { Copy, Ellipsis, Star } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LIMITS, favToItem, type Favorite } from "./data";
@@ -9,7 +9,7 @@ import { useSearchScope } from "./search-scope";
 import { nid, useStore } from "./store";
 import { Sheet } from "./ui";
 
-/** ［⋯］：コピー系の操作。自前の小さなポップオーバー（Esc／外側クリックで閉じる） */
+/** ［⋯］：リンクのコピー。自前の小さなポップオーバー（Esc／外側クリックで閉じる） */
 function MoreMenu() {
   const s = useStore();
   const [open, setOpen] = useState(false);
@@ -86,80 +86,127 @@ function MoreMenu() {
           >
             リンクをコピー（Yahoo）
           </button>
-          <button
-            role="menuitem"
-            className={item}
-            onClick={act(() => {
-              void navigator.clipboard?.writeText(text);
-              s.say("クエリをコピーしました");
-            })}
-          >
-            クエリをコピー
-          </button>
+          {/* クエリのコピーは、クエリ表示の横の［コピー］で行う */}
         </div>
       )}
     </div>
   );
 }
 
-/**
- * クエリ表示（1行固定・横スクロール。スクロールバーは文字の下の帯に出し、文字に重ねない）＋⚠（件数）。
- * SearchScope の検索を表示するので、ホームでもいつものエゴサの編集でも同じ部品を使う。
- * 警告は⚠アイコンの件数に集約し（URL 長の警告も含む）、空の行を確保しない。
- * text：表示する文字列を差し替える（例：期間を末尾に付けた保存用の表示）。
- */
-export function QueryPreview({ text }: { text?: string }) {
+/** 組み立てた検索の警告（URL 長の警告を含む）。表示は「条件」の枠の一番下（WarningNote） */
+function useQueryWarnings(): string[] {
   const { query: q } = useSearchScope();
-  const [warnOpen, setWarnOpen] = useState(false);
-  const shown = text ?? q.text;
-  const warnings =
-    shown.length > LIMITS.urlWarn
-      ? [
-          ...q.warnings,
-          `クエリが${LIMITS.urlWarn}文字を超えています（上限は未確認）`,
-        ]
-      : q.warnings;
+  return q.text.length > LIMITS.urlWarn
+    ? [
+        ...q.warnings,
+        `クエリが${LIMITS.urlWarn}文字を超えています（上限は未確認）`,
+      ]
+    : q.warnings;
+}
+
+/**
+ * 警告欄。「条件」の枠の一番下に、小さく薄い文字で出す（無いときは出さない）。
+ * Yahoo だけに関係する警告もあるので、クエリの横のような目立つ場所には置かない。
+ * 出入りで動くのは枠より下だけ（押したボタン・クエリ表示・開くボタンは動かない）。
+ */
+export function WarningNote() {
+  const warnings = useQueryWarnings();
+  if (warnings.length === 0) return null;
   return (
-    <div className="space-y-1">
-      <div className="flex items-start gap-2">
-        <code
-          tabIndex={0}
-          aria-label="組み立てた検索クエリ（長いときは横にスクロール）"
-          className="scroll-x block min-w-0 flex-1 rounded bg-muted font-mono text-xs focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {shown || "（検索語か条件ボタンを選んでください）"}
-        </code>
-        {warnings.length > 0 ? (
-          <button
-            aria-expanded={warnOpen}
-            aria-label={`警告 ${warnings.length}件`}
-            onClick={() => setWarnOpen((v) => !v)}
-            className="h-10 w-12 shrink-0 rounded border px-2 text-sm focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            ⚠ {warnings.length}
-          </button>
-        ) : (
-          <span className="w-12 shrink-0" aria-hidden />
-        )}
-      </div>
-      {warnOpen && warnings.length > 0 && (
-        <ul className="space-y-1 rounded border p-2 text-xs">
-          {warnings.map((w) => (
-            <li key={w}>⚠ {w}</li>
-          ))}
-        </ul>
-      )}
+    <ul
+      role="note"
+      aria-label="注意"
+      className="space-y-0.5 border-t pt-2 text-xs text-muted-foreground"
+    >
+      {warnings.map((w) => (
+        <li key={w}>⚠ {w}</li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * クエリ表示（1行固定・横スクロール。スクロールバーは下の余白に収まる細さ）＋［コピー］。
+ * SearchScope の検索を表示するので、ホームでもいつものエゴサの編集でも同じ部品を使う。
+ * コピーボタンの場所は常にあるので、クエリの有無で幅が変わらない（空のときは押せない）。
+ */
+export function QueryPreview() {
+  const { query: q } = useSearchScope();
+  const { say } = useStore();
+  return (
+    <div className="flex items-start gap-2">
+      <code
+        tabIndex={0}
+        aria-label="組み立てた検索クエリ（長いときは横にスクロール）"
+        className="scroll-x block min-w-0 flex-1 rounded bg-muted font-mono text-xs focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        {q.text || "（検索語か条件ボタンを選んでください）"}
+      </code>
+      <button
+        aria-label="クエリをコピー"
+        title="クエリをコピー"
+        disabled={!q.text}
+        onClick={() => {
+          void navigator.clipboard?.writeText(q.text);
+          say("クエリをコピーしました");
+        }}
+        className="flex h-10 w-12 shrink-0 items-center justify-center rounded border hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        <Copy className="size-4" />
+      </button>
     </div>
   );
 }
 
 /**
- * 組み立てた検索を確かめて開くところ：クエリ表示（1行固定）＋⚠＋［X で開く］［Yahoo で開く］［☆ 保存］［⋯］。
+ * ［X で開く］［Yahoo で開く］。SearchScope の検索を開く（ホームでもいつものエゴサの編集でも同じ部品）。
+ * Yahoo で除外される条件があるときは、［Yahoo で開く］に小さな⚠を重ねる（幅は変えない）。
+ * primary：X を青の塗りつぶしにするか（その画面の一番大事な操作のときだけ）。
+ */
+export function OpenButtons({ primary = true }: { primary?: boolean }) {
+  const { run, query } = useSearchScope();
+  const yahooWarn = query.yahooWarnings.length > 0;
+  const yahooNote = "Yahoo では一部の条件が除外されます（条件の枠の下を参照）";
+  return (
+    <>
+      {/* 一番大事な操作。塗りつぶしの青で、ON の条件ボタン（枠＋薄い塗り）と区別する */}
+      <Button
+        size="lg"
+        variant={primary ? "default" : "outline"}
+        className={`min-w-0 flex-1 ${primary ? "text-base font-bold" : ""}`}
+        onClick={() => run("X")}
+      >
+        X で開く
+      </Button>
+      {/* Yahoo でも検索できることを、すぐ横に見せる（主ボタンの青は X だけ） */}
+      <Button
+        size="lg"
+        variant="outline"
+        className="relative shrink-0 whitespace-nowrap"
+        title={yahooWarn ? yahooNote : undefined}
+        aria-description={yahooWarn ? yahooNote : undefined}
+        onClick={() => run("Yahoo")}
+      >
+        Yahoo で開く
+        {yahooWarn && (
+          <span
+            aria-hidden
+            className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-amber-300 text-[10px] leading-none font-bold text-amber-950"
+          >
+            !
+          </span>
+        )}
+      </Button>
+    </>
+  );
+}
+
+/**
+ * 組み立てた検索を確かめて開くところ：クエリ表示（1行固定）＋［コピー］＋［X で開く］［Yahoo で開く］［☆ 保存］［⋯］。
  * ホームの入力欄の直下と、詳細条件の末尾の2か所に置く（同じ状態・同じ処理。機能は1つ）。
- * 警告は⚠アイコンの件数に集約し（URL 長の警告も含む）、空の行を確保しない。
+ * 警告は「条件」の枠の一番下（WarningNote）に出す。
  */
 export function OpenBar() {
-  const s = useStore();
   const [saveOpen, setSaveOpen] = useState(false);
 
   return (
@@ -167,23 +214,7 @@ export function OpenBar() {
       <QueryPreview />
 
       <div className="flex gap-2">
-        {/* 一番大事な操作。塗りつぶしの青で、ON の条件ボタン（枠＋薄い塗り）と区別する */}
-        <Button
-          size="lg"
-          className="min-w-0 flex-1 text-base font-bold"
-          onClick={() => s.run("X", "ホーム")}
-        >
-          X で開く
-        </Button>
-        {/* Yahoo でも検索できることを、すぐ横に見せる（主ボタンの青は X だけ） */}
-        <Button
-          size="lg"
-          variant="outline"
-          className="shrink-0 whitespace-nowrap"
-          onClick={() => s.run("Yahoo", "ホーム")}
-        >
-          Yahoo で開く
-        </Button>
+        <OpenButtons />
         <Button
           size="lg"
           variant="outline"

@@ -159,14 +159,30 @@
 
 /*
  * 1行固定の横スクロール（クエリのプレビューなど）。
- * 高さを固定したまま、上に文字の行、下にスクロールバーの帯を取り、バーが文字に重ならないようにする。
- * 文字が短くてバーが出ないときも同じ高さ（ガタつかない）。
+ * 高さを固定し、文字の上下の余白を同じにする（バーが出ないときも上下が釣り合って見える）。
+ * スクロールバーは下の余白（10px）の中に収まる細さ（4px）にして、出ても文字に重ねない。高さは変わらない。
  */
 @utility scroll-x {
   overflow-x: auto;
   overflow-y: hidden;
   white-space: nowrap;
   height: 2.5rem;
-  padding: 0.375rem 0.5rem 0.625rem;
+  padding: 0.625rem 0.5rem;
   line-height: 1.25rem;
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+}
+
+/* 数値の入力欄に標準の上下ボタンを出さない（固定幅の入力欄で値が見切れるため。値は直接入力する） */
+@layer base {
+  input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
 }

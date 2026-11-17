@@ -34,6 +34,9 @@ import { buildQuery, chipTokens, savedText } from "./query";
 
 type Toast = { id: string; msg: string; undo?: () => void };
 
+/** 開く検索（履歴に残す中身） */
+export type BuiltSearch = { word: string; text: string; chipLabels: string[] };
+
 export type Store = {
   chips: Chip[];
   favs: Favorite[];
@@ -78,7 +81,8 @@ export type Store = {
   purge: (tid: string) => void;
   purgeKind: (kind: TrashItem["kind"]) => void;
   purgeAll: () => void;
-  run: (engine: "X" | "Yahoo", source: string) => void;
+  /** 開く（ダミー）。built を渡すとその検索を、省略するとホームの検索を履歴に残す */
+  run: (engine: "X" | "Yahoo", source: string, built?: BuiltSearch) => void;
   runFav: (id: string, source?: string) => void;
   runGroup: (id: string) => void;
   clearHistory: () => void;
@@ -396,19 +400,22 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     purge: (tid) => setTrash((t) => t.filter((x) => x.tid !== tid)),
     purgeKind: (kind) => setTrash((t) => t.filter((x) => x.kind !== kind)),
     purgeAll: () => setTrash([]),
-    run: (engine, source) => {
-      const q = buildQuery({ word, exact, chips, detail, period });
-      const labels = chips.filter((c) => c.on && c.visible).map((c) => c.label);
+    run: (engine, source, built) => {
+      const b: BuiltSearch = built ?? {
+        word,
+        text: buildQuery({ word, exact, chips, detail, period }).text,
+        chipLabels: chips.filter((c) => c.on && c.visible).map((c) => c.label),
+      };
       setHistory((h) =>
         [
           {
             id: nid("h"),
             at: NOW,
-            word,
-            query: q.text,
+            word: b.word,
+            query: b.text,
             engine,
             source,
-            chipLabels: labels,
+            chipLabels: b.chipLabels,
           },
           ...h,
         ].slice(0, LIMITS.history),

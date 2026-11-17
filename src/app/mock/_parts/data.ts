@@ -422,16 +422,20 @@ export const INITIAL_HISTORY: HistoryItem[] = [
   },
 ];
 
-export const MENU = [
+/**
+ * メニューの項目。manage：追加・編集・削除・並べ替えをする管理ページ（メニューでは歯車のアイコンで示す。
+ * 「管理」の文言は足さない：英語で長くなるため）。
+ */
+export const MENU: readonly { href: string; label: string; manage?: true }[] = [
   { href: "/mock", label: "ホーム" },
-  { href: "/mock/buttons", label: "条件ボタン" },
-  { href: "/mock/favorites", label: "お気に入り" },
-  { href: "/mock/groups", label: "いつものエゴサ" },
+  { href: "/mock/buttons", label: "条件ボタン", manage: true },
+  { href: "/mock/favorites", label: "お気に入り", manage: true },
+  { href: "/mock/groups", label: "いつものエゴサ", manage: true },
   { href: "/mock/history", label: "履歴" },
   { href: "/mock/trash", label: "削除済み" },
   { href: "/mock/import", label: "URL解析" },
   { href: "/mock/about", label: "このサイトについて" },
-] as const;
+];
 
 /** 削除済みの初期ダミー（3種類。画面を確かめやすくする） */
 export const INITIAL_TRASH: TrashItem[] = [
