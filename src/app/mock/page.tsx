@@ -6,7 +6,6 @@ import { useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import { ChipRow } from "./_parts/chips";
 import { DetailPanel } from "./_parts/detail-panel";
-import { Onboarding } from "./_parts/onboarding";
 import { OpenBar } from "./_parts/open-bar";
 import { PeriodPicker } from "./_parts/period-picker";
 import { favQuery } from "./_parts/rows";
@@ -94,10 +93,10 @@ export default function MockHome() {
 
   return (
     <main className="mx-auto max-w-2xl space-y-4 p-3 md:p-4">
-      {/* このサイトでできること（1文）。くわしくはメニューの「このサイトについて」 */}
+      {/* このサイトを作った理由（1〜2文）。くわしくはメニューの「このサイトについて」 */}
       <p className="text-sm text-muted-foreground">
-        名前やタグから X／Yahoo
-        の検索を組み立てて開くツールです。保存した検索は、まとめて1タップで開けます。
+        SNS
+        の検索は毎日するのに、検索コマンドを覚えておく場所がない。その負担を減らしたくて作りました。
         <Link
           href="/mock/about"
           className="ml-1 whitespace-nowrap underline underline-offset-4"
@@ -105,8 +104,6 @@ export default function MockHome() {
           詳しく →
         </Link>
       </p>
-
-      {s.onboardOpen && <Onboarding />}
 
       {/* 入力 → クエリ → 開くボタン を1かたまりにして、つながりを見せる */}
       <section aria-label="検索" className="space-y-2">

@@ -4,7 +4,6 @@ import { move } from "@dnd-kit/helpers";
 import { DragDropProvider } from "@dnd-kit/react";
 import { useSortable } from "@dnd-kit/react/sortable";
 import { GripVertical } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChipEditor } from "../_parts/chip-editor";
@@ -96,7 +95,6 @@ function Row({
 
 export default function ButtonsPage() {
   const s = useStore();
-  const router = useRouter();
   const [editing, setEditing] = useState<Chip | "new" | null>(null);
   const full = s.chips.length >= LIMITS.chips;
   return (
@@ -108,17 +106,6 @@ export default function ButtonsPage() {
             <span className="text-sm">
               {s.chips.length}/{LIMITS.chips}
             </span>
-            <Button
-              size="sm"
-              variant="outline"
-              title="ホロライブ・にじさんじなど、興味のあるところを選び直します（ホームで開きます）"
-              onClick={() => {
-                s.setOnboardOpen(true);
-                router.push("/mock");
-              }}
-            >
-              興味を選び直す
-            </Button>
             <Button
               size="sm"
               variant="outline"

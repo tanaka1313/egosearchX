@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useStore } from "./store";
 
-/** 上部の「モックです」バナー。初回の見え方を確かめるボタン付き */
+/** 上部の「モックです」バナー。データなし・興味はホロライブの状態を確かめるボタン付き */
 export function MockBanner() {
   const { startFresh } = useStore();
   const router = useRouter();
@@ -24,7 +24,7 @@ export function MockBanner() {
           }}
           className="underline underline-offset-2 focus-visible:ring-2 focus-visible:ring-amber-950"
         >
-          初回の状態で見る
+          データなしの状態で見る
         </button>
         {/* 再読み込みで、使い込んだ状態の初期データに戻す */}
         <button

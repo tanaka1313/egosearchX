@@ -13,10 +13,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// サイト名・title・description の根拠は docs/requirements.md「SEO」の章。
+// en の文言は i18n の辞書ができる M5 で入れる。
 export const metadata: Metadata = {
-  title: "EgoSearch Studio",
+  applicationName: "Hololive EgoSearch",
+  title: {
+    default:
+      "ホロライブのエゴサ用 X（Twitter）検索コマンド保存｜Hololive EgoSearch",
+    template: "%s｜Hololive EgoSearch",
+  },
   description:
-    "X と Yahoo!リアルタイム検索のエゴサ用クエリを保存・修正・一括実行する",
+    "ホロライブの推しを X（Twitter）でエゴサする検索コマンドを保存して、毎日の検索をワンタップで開けます。Yahoo!リアルタイム検索にも対応。ログイン不要、ファンが作った非公式ツールです。",
 };
 
 export default function RootLayout({

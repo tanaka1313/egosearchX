@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { VersionDialog } from "@/components/common/version-dialog";
 import { APP_FEATURE, LIMITS, MENU } from "./data";
 import { EgosaEditor } from "./egosa-editor";
+import { InterestPicker } from "./interest-picker";
 import { useStore } from "./store";
 
 function MenuList({
@@ -213,7 +214,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         aria-label="メニュー（常時表示）"
         className="hidden w-64 shrink-0 border-r p-3 xl:block"
       >
-        <p className="mb-3 px-3 font-bold">EgoSearch Studio</p>
+        <p className="mb-3 px-3 font-bold">Hololive EgoSearch</p>
         <MenuList onPalette={() => setPalette(true)} />
       </aside>
 
@@ -230,6 +231,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
           >
             <Menu className="size-6" />
           </button>
+          {/* サイト名 ＝ ［興味の対象▾］ EgoSearch。興味の対象はここでいつでも切り替える */}
+          <InterestPicker />
           <Link href="/mock" className="shrink-0 font-bold">
             EgoSearch
           </Link>
@@ -253,7 +256,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             className="flex h-full w-[70%] max-w-[22.5rem] flex-col overflow-auto border-r bg-background p-3 shadow-xl"
           >
             <div className="mb-3 flex items-center justify-between">
-              <span className="font-bold">EgoSearch Studio</span>
+              <span className="font-bold">Hololive EgoSearch</span>
               <button
                 ref={closeRef}
                 aria-label="メニューを閉じる"
