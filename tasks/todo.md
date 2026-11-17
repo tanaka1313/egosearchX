@@ -8,7 +8,7 @@
    - [x] DAO（`src/lib/storage`：schema／types／kv-adapter／kv-dao／migrate）と `lib/limits.ts`、テスト。zod を導入
    - [x] 要件定義書（F1・F2・F4〜F8・F11・F12・5〜7章、新10〜13章）、画面仕様書（S3-E など）、実装計画、CLAUDE.md、design-lessons
    - [x] Issue #70（プリセットとサジェスト規則のデータ整備）を作成、#69 から「その他」を外す
-   - [ ] 検証 → コミット → main にマージ → push
+   - [x] 検証（tsc／test 103件／lint／build）→ コミット → main にマージ → push
 3. Verification: tsc／test／lint／build。古い用語（「期間を文字列に入れず」「コピー」「default-lists」）の grep。
 4. Review:
    - 判断：「DAO を作成」は設計（要件定義書 12章）＋コード（`src/lib/storage`）と解釈。画面とはまだつないでいない（M4）。
