@@ -129,3 +129,16 @@
    - [ ] make check、ルートの疎通確認、PR → main にマージ
 3. Verification: make check、dev で全ルートが 200 かつバナーと一覧への戻りリンクを含むこと、全ファイルにマーカーがあること。
 4. Review: 新規テストは書かない（破棄前提の例外）。検索結果は表示しない。実在の名前は使わない。
+
+# 要件・画面仕様書の改訂（mock6 の方針）と文書の同期
+
+1. Goal: mock1〜5 への感想を反映して要件定義書・画面仕様書を改訂し、mock6 を作る。実装計画・調査資料の旧用語を新仕様に合わせる。
+2. Plan:
+   - [x] `docs/requirements.md`（F1〜F12、付録B 旧→新対応）、`docs/screen-spec.md`（S1〜S9、M1〜M3）を全面改訂
+   - [x] CLAUDE.md の最小修正、`tasks/design-lessons.md` の新規作成
+   - [x] mock6 を `src/app/mock/mock6/` に追加（`@dnd-kit/react` 導入）。PR #65 でマージ
+   - [x] `docs/implementation-plan.md`（構成・データ構造・M0〜M7 の内容）と `docs/research-phase0.md` を新仕様に同期
+3. Verification: make check 相当（tsc / test / lint / build）と CI。mock6 は全ルート 200 と、削除→削除済み→復元の使い捨てテストで確認。360px／1280px の目視は未実施。
+4. Review:
+   - 上の #60 の記述（S1〜S4・M1〜M3）は mock1 当時の旧画面番号。履歴として残す。
+   - GitHub の Issue #12〜#41 は未更新（指示により触っていない）。旧番号・旧内容（プリセット、メンバー選択、スタジオなど）のままなので、実装に着手する前に新仕様へ書き直す必要がある。
