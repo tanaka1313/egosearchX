@@ -27,6 +27,11 @@ const MOCKS = [
     name: "mock5　配信者目線のアイデア集",
     note: "配信後エゴサ、タグまとめ開き、ネタバレ除外など「あったら嬉しい」を詰めた案。",
   },
+  {
+    href: "/mock/mock6",
+    name: "mock6　決定案（mock3 を土台に全機能を集約）",
+    note: "条件ボタン（編集・並べ替え・削除済み・履歴から自動追加）＋エゴサグループ＋左メニュー70%＋詳細設定。要件・画面仕様書の基準。ランチャーは /mock/mock6/launch。",
+  },
 ];
 
 export default function MockIndex() {
