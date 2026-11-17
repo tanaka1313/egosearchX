@@ -23,6 +23,9 @@
 | `/mock/mock3` | X 検索特化のトップ＋お気に入り（条件を触って保存、再利用、編集） |
 | `/mock/mock4` | Bento Grid＋コマンドパレット（Ctrl/⌘+K） |
 | `/mock/mock5` | 配信者目線のアイデア集（MVP 対象外のものはバッジ付き） |
+| `/mock/mock6` | 決定案。mock3 を土台に全機能を集約（`docs/requirements.md`・`docs/screen-spec.md` の基準）。画面は `buttons` `favorites` `groups` `history` `trash` `import` `settings` `launch` |
+
+mock6 は並べ替えに `@dnd-kit/react` を使い、状態は `mock6/_parts/store.tsx` の React state だけで持つ（再読み込みで初期状態に戻る）。仕様の既定リスト（ホロライブ・にじさんじ）には、ユーザーが提示した実在のリスト ID を使っている。
 
 mock4 の出典（2026年のトレンド）：
 - https://clay.global/blog/web-design-guide/web-design-trends
