@@ -1,14 +1,14 @@
 "use client";
 // MOCK: 破棄予定（#61）
 import { Calendar, Check, Circle, X } from "lucide-react";
-import { EMPTY_PERIOD, type Period, type PeriodKind } from "./data";
 import {
+  EMPTY_PERIOD,
   REL_PERIODS,
-  addDay,
-  periodInverted,
-  periodText,
-  periodTokens,
-} from "./query";
+  type Period,
+  type PeriodKind,
+} from "./data";
+import { periodInverted, periodText, runText } from "./query";
+import { periodToTokens } from "./query-model";
 
 /**
  * 枠の中のセグメント。ON は青の枠＋薄い塗り＋✓（アイコン側）。OFF も枠線の太さを同じにして透明にし、
@@ -42,12 +42,15 @@ export function PeriodPicker({
     onChange(value.kind === kind ? EMPTY_PERIOD : { ...EMPTY_PERIOD, kind });
   const isDate = value.kind === "date";
   const inverted = periodInverted(value);
+  // 保存する文字列（相対期間は記号のまま）と、開くときの文字列（日付に展開）
+  const stored = periodToTokens(value).join(" ");
+  const opened = runText(stored);
   const note = inverted
     ? "⚠ 開始日が終了日より後です"
     : [
         periodText(value),
-        showOutput && periodTokens(value).length > 0
-          ? `出力：${periodTokens(value).join(" ")}${value.to ? `（until は終了日の翌日 ${addDay(value.to, 1)} に変換）` : ""}`
+        showOutput && stored
+          ? `出力：${stored}${opened !== stored ? `（開くときは ${opened}）` : ""}${value.to ? "（until は終了日の翌日）" : ""}`
           : "",
       ]
         .filter(Boolean)

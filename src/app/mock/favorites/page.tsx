@@ -4,15 +4,12 @@ import { move } from "@dnd-kit/helpers";
 import { DragDropProvider } from "@dnd-kit/react";
 import { useSortable } from "@dnd-kit/react/sortable";
 import { GripVertical } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { type Favorite } from "../_parts/data";
-import { EnginePicker } from "../_parts/engine-picker";
-import { PeriodPicker } from "../_parts/period-picker";
-import { periodInverted } from "../_parts/query";
 import { FavoriteRow } from "../_parts/rows";
 import { useStore } from "../_parts/store";
-import { EmptyState, PageHead, Sheet } from "../_parts/ui";
+import { EmptyState, PageHead } from "../_parts/ui";
 
 function SortableFav({
   fav,
@@ -47,15 +44,15 @@ function SortableFav({
 
 export default function FavoritesPage() {
   const s = useStore();
+  const router = useRouter();
   const [filter, setFilter] = useState("");
-  const [editing, setEditing] = useState<Favorite | null>(null);
   const hits = s.favs.filter((f) => f.name.includes(filter));
 
   return (
     <main className="mx-auto max-w-3xl space-y-3 p-3 md:p-4">
       <PageHead title="お気に入り" />
       <p className="text-sm text-muted-foreground">
-        保存した検索です。検索文字列そのものを持つので、条件ボタンやいつものエゴサを直しても変わりません。削除しても、いつものエゴサには影響しません（削除済みから戻せます）。
+        保存した検索です。検索文字列そのものを持つので、条件ボタンを直しても変わりません。［編集］では文字列を条件ボタンと詳細条件に展開して直せます。編集すると、同じ検索文字列を持ついつものエゴサの項目も一緒に更新されます。削除しても、いつものエゴサには影響しません（削除済みから戻せます）。
       </p>
       <input
         value={filter}
@@ -83,7 +80,7 @@ export default function FavoritesPage() {
                 key={f.id}
                 fav={f}
                 index={i}
-                onEdit={() => setEditing(f)}
+                onEdit={() => router.push(`/mock/favorites/edit?id=${f.id}`)}
               />
             ))}
           </div>
@@ -94,77 +91,6 @@ export default function FavoritesPage() {
           絞り込み中は並べ替えを反映しません
         </p>
       )}
-      {editing && <FavEditor fav={editing} onClose={() => setEditing(null)} />}
     </main>
-  );
-}
-
-function FavEditor({ fav, onClose }: { fav: Favorite; onClose: () => void }) {
-  const s = useStore();
-  const [f, setF] = useState<Favorite>(fav);
-  const [err, setErr] = useState("");
-  return (
-    <Sheet title="お気に入りを編集" onClose={onClose}>
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">名前</span>
-        <input
-          value={f.name}
-          onChange={(ev) => setF({ ...f, name: ev.target.value })}
-          className="w-full rounded-lg border px-3 py-2"
-        />
-      </label>
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">検索文字列（期間を除く）</span>
-        <textarea
-          value={f.query}
-          onChange={(ev) => setF({ ...f, query: ev.target.value })}
-          className="h-20 w-full rounded-lg border px-3 py-2 font-mono text-sm"
-        />
-      </label>
-      <PeriodPicker
-        value={f.period}
-        onChange={(p) => setF({ ...f, period: p })}
-      />
-      <EnginePicker
-        value={f.engine}
-        onChange={(engine) => setF({ ...f, engine })}
-      />
-      {err && (
-        <p role="alert" className="text-sm font-medium">
-          ⚠ {err}
-        </p>
-      )}
-      <div className="flex justify-between gap-2">
-        <Button
-          variant="outline"
-          onClick={() => {
-            s.saveFav({
-              ...f,
-              id: `f${Date.now()}`,
-              name: `${f.name}（複製）`,
-            });
-            onClose();
-          }}
-        >
-          複製
-        </Button>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={onClose}>
-            キャンセル
-          </Button>
-          <Button
-            onClick={() => {
-              if (!f.name.trim()) return setErr("名前を入力してください");
-              if (periodInverted(f.period))
-                return setErr("開始日が終了日より後です");
-              s.saveFav({ ...f, name: f.name.trim() });
-              onClose();
-            }}
-          >
-            保存
-          </Button>
-        </div>
-      </div>
-    </Sheet>
   );
 }

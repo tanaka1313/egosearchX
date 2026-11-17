@@ -11,18 +11,16 @@ import { Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ConditionFrame } from "../../_parts/condition-frame";
 import {
+  ENGINE_SHORT,
   favToItem,
   type Engine,
   type Group,
-  type SavedSearch,
+  type GroupItem,
 } from "../../_parts/data";
 import { EnginePicker } from "../../_parts/engine-picker";
 import { OpenButtons, QueryPreview } from "../../_parts/open-bar";
-import {
-  periodInverted,
-  queryWithoutPeriod,
-  savedText,
-} from "../../_parts/query";
+import { periodInverted } from "../../_parts/query";
+import { itemLabel } from "../../_parts/rows";
 import { LocalScopeProvider, useSearchScope } from "../../_parts/search-scope";
 import { previousPath } from "../../_parts/shell";
 import { nid, useStore } from "../../_parts/store";
@@ -58,7 +56,7 @@ function GroupEditor({ group }: { group: Group | null }) {
   const s = useStore();
   const router = useRouter();
   const [name, setName] = useState(group?.name ?? "");
-  const [items, setItems] = useState<SavedSearch[]>(group?.items ?? []);
+  const [items, setItems] = useState<GroupItem[]>(group?.items ?? []);
   const [err, setErr] = useState("");
   // 作り終えたら組み立てを空に戻す（LocalScopeProvider を作り直す）
   const [makerKey, setMakerKey] = useState(0);
@@ -132,47 +130,59 @@ function GroupEditor({ group }: { group: Group | null }) {
           </p>
         )}
         <ol className="space-y-1">
-          {items.map((it, i) => (
-            <li
-              key={`${it.label}${i}`}
-              className="flex items-center gap-1 rounded border px-2 py-1"
-            >
-              <span className="min-w-0 flex-1">
-                <span className="block truncate">
-                  {i + 1}. {it.label}
+          {items.map((it, i) => {
+            // 項目は名前を持たない。一致するお気に入りの名前（無ければ文字列）を出す
+            const label = itemLabel(it, s.favs);
+            return (
+              <li
+                key={`${it.query}${i}`}
+                className="flex items-center gap-1 rounded border px-2 py-1"
+              >
+                <span className="min-w-0 flex-1">
+                  <span className="flex min-w-0 items-center gap-1">
+                    <span className="min-w-0 truncate">
+                      {i + 1}. {label}
+                    </span>
+                    <span
+                      title={`検索先：${ENGINE_SHORT[it.engine]}`}
+                      className="shrink-0 rounded border px-1 text-xs whitespace-nowrap"
+                    >
+                      {ENGINE_SHORT[it.engine]}
+                    </span>
+                  </span>
+                  <span className="block truncate font-mono text-xs text-muted-foreground">
+                    {it.query || "（条件なし）"}
+                  </span>
                 </span>
-                <span className="block truncate font-mono text-xs text-muted-foreground">
-                  {savedText(it) || "（条件なし）"}
-                </span>
-              </span>
-              <button
-                aria-label={`${it.label}を上へ`}
-                onClick={() => move(i, -1)}
-                className="px-1 focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                ↑
-              </button>
-              <button
-                aria-label={`${it.label}を下へ`}
-                onClick={() => move(i, 1)}
-                className="px-1 focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                ↓
-              </button>
-              <button
-                aria-label={`${it.label}を外す`}
-                onClick={() => setItems(items.filter((_, j) => j !== i))}
-                className="px-1 focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                ×
-              </button>
-            </li>
-          ))}
+                <button
+                  aria-label={`${label}を上へ`}
+                  onClick={() => move(i, -1)}
+                  className="px-1 focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  ↑
+                </button>
+                <button
+                  aria-label={`${label}を下へ`}
+                  onClick={() => move(i, 1)}
+                  className="px-1 focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  ↓
+                </button>
+                <button
+                  aria-label={`${label}を外す`}
+                  onClick={() => setItems(items.filter((_, j) => j !== i))}
+                  className="px-1 focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  ×
+                </button>
+              </li>
+            );
+          })}
         </ol>
       </section>
 
       <section aria-label="お気に入りから追加" className="space-y-1 text-sm">
-        <h2 className="font-medium">①お気に入りから追加（コピーします）</h2>
+        <h2 className="font-medium">①お気に入りから追加</h2>
         {s.favs.length === 0 && (
           <p className="text-muted-foreground">
             お気に入りがありません。下の②で作れます。
@@ -220,7 +230,7 @@ function NewSearchMaker({
   onMade,
 }: {
   groupName: string;
-  onMade: (item: SavedSearch) => void;
+  onMade: (item: GroupItem) => void;
 }) {
   const s = useStore();
   const scope = useSearchScope();
@@ -234,11 +244,11 @@ function NewSearchMaker({
     if (!scope.query.text)
       return setErr("検索語か条件ボタンを1つ以上選んでください");
     if (periodInverted(scope.period)) return setErr("開始日が終了日より後です");
+    // 保存するのは検索文字列（相対期間は記号のまま）
     const fav = {
       id: nid("f"),
       name: autoName || "新しい検索",
-      query: queryWithoutPeriod(scope.query, scope.period),
-      period: scope.period,
+      query: scope.query.stored,
       engine,
       last: "未実行",
     };

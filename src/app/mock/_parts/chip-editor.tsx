@@ -17,6 +17,7 @@ import {
   type ParamOp,
 } from "./data";
 import { condToken, parseListId } from "./query";
+import { chipConds, condsToQuery } from "./query-model";
 import { useStore } from "./store";
 import { Sheet } from "./ui";
 
@@ -107,7 +108,10 @@ function CondRow({
   );
 }
 
-/** M1：条件ボタンの編集（ラベルと中身。1つのボタンに複数の条件） */
+/**
+ * M1：条件ボタンの編集（ラベルと中身。1つのボタンに複数の条件）。
+ * 本体は検索文字列。編集のときだけ条件の行に分け（chipConds）、保存で文字列に戻す（condsToQuery）。
+ */
 export function ChipEditor({
   chip,
   onClose,
@@ -115,11 +119,11 @@ export function ChipEditor({
   chip: Chip | null;
   onClose: () => void;
 }) {
-  const { saveChip, chips } = useStore();
+  const { saveChip, chips, interest } = useStore();
   const isNew = !chip;
   const [label, setLabel] = useState(chip?.label ?? "");
-  const [conds, setConds] = useState<Cond[]>(
-    chip?.conds ?? [{ id: cid(), kind: "word", value: "" }],
+  const [conds, setConds] = useState<Cond[]>(() =>
+    chip ? chipConds(chip) : [{ id: cid(), kind: "word", value: "" }],
   );
   const [listInput, setListInput] = useState("");
   const [err, setErr] = useState("");
@@ -165,12 +169,13 @@ export function ChipEditor({
       );
     const out: Chip = {
       id: chip?.id ?? `u${cid()}`,
+      interestId: chip?.interestId ?? interest,
       label: name,
-      conds: filled,
+      query: condsToQuery(filled),
       on: chip?.on ?? false,
       visible: chip?.visible ?? true,
       isNew: false,
-      isDefault: chip?.isDefault,
+      isPreset: chip?.isPreset,
     };
     const msg = saveChip(out);
     if (msg) return setErr(msg);
@@ -257,7 +262,7 @@ export function ChipEditor({
 
       {chip && (
         <p className="text-sm text-muted-foreground">
-          保存済みのお気に入り・いつものエゴサには反映されません（検索文字列のコピーを持っているため）。
+          保存済みのお気に入り・いつものエゴサには反映されません（それぞれが検索文字列を持っているため）。
         </p>
       )}
       {isNew && chips.length >= LIMITS.chips && (

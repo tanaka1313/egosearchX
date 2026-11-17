@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { FILTERS, type Detail, type Tri } from "./data";
 import { PeriodPicker } from "./period-picker";
 import { chipTokens, detailTokens } from "./query";
+import { disabledKey } from "./query-model";
 import { useSearchScope } from "./search-scope";
 import { Section, TagInput, toggleClass } from "./ui";
 
@@ -214,21 +215,22 @@ export function DetailPanel({ footer }: { footer?: React.ReactNode }) {
           {usedChips.map((ch) => (
             <fieldset key={ch.id} className="space-y-1">
               <legend className="text-sm font-medium">{ch.label}</legend>
-              {ch.conds.map((c) => (
-                <label key={c.id} className="flex items-center gap-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={!detail.disabledConds.includes(c.id)}
-                    onChange={() => toggleCond(c.id)}
-                  />
-                  <code className="font-mono text-xs">
-                    {chipTokens({ ...ch, conds: [c] })[0] ?? "（空）"}
-                  </code>
-                  {detail.disabledConds.includes(c.id) && (
-                    <span className="text-xs">この検索では無効</span>
-                  )}
-                </label>
-              ))}
+              {/* 項目はトークンで指す（ボタンの本体が文字列のため。キーは `<ボタンID>::<トークン>`） */}
+              {chipTokens(ch).map((t) => {
+                const key = disabledKey(ch.id, t);
+                const off = detail.disabledConds.includes(key);
+                return (
+                  <label key={key} className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={!off}
+                      onChange={() => toggleCond(key)}
+                    />
+                    <code className="font-mono text-xs">{t}</code>
+                    {off && <span className="text-xs">この検索では無効</span>}
+                  </label>
+                );
+              })}
             </fieldset>
           ))}
         </Section>

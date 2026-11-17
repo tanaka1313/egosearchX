@@ -7,8 +7,9 @@ import { GripVertical } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChipEditor } from "../_parts/chip-editor";
-import { LIMITS, type Chip } from "../_parts/data";
+import { INTERESTS, LIMITS, type Chip } from "../_parts/data";
 import { chipTokens } from "../_parts/query";
+import { chipConds } from "../_parts/query-model";
 import { useStore } from "../_parts/store";
 import { EmptyState, PageHead } from "../_parts/ui";
 
@@ -38,8 +39,8 @@ function Row({
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1 font-medium">
           {chip.label}
-          {chip.isDefault && (
-            <span className="rounded border px-1 text-xs">既定</span>
+          {chip.isPreset && (
+            <span className="rounded border px-1 text-xs">プリセット</span>
           )}
           {chip.isNew && (
             <span className="rounded bg-amber-300 px-1 text-xs font-bold text-amber-950">
@@ -50,7 +51,7 @@ function Row({
             <span className="rounded border px-1 text-xs">非表示</span>
           )}
           <span className="text-xs text-muted-foreground">
-            {chip.conds.length}条件
+            {chipConds(chip).length}条件
           </span>
         </div>
         <div className="truncate font-mono text-xs text-muted-foreground">
@@ -110,15 +111,15 @@ export default function ButtonsPage() {
               size="sm"
               variant="outline"
               onClick={() => {
-                const n = s.addDefaultChips();
+                const n = s.addPresets();
                 s.say(
                   n
-                    ? `既定のボタンを${n}件追加しました`
-                    : "既定のボタンはすべて登録済みです",
+                    ? `プリセットのボタンを${n}件追加しました`
+                    : "プリセットのボタンはすべて登録済みです",
                 );
               }}
             >
-              既定のボタンを追加
+              プリセットを追加
             </Button>
             <Button size="sm" disabled={full} onClick={() => setEditing("new")}>
               ＋ 追加
@@ -127,7 +128,10 @@ export default function ButtonsPage() {
         }
       />
       <p className="text-sm text-muted-foreground">
-        ホームに並ぶボタンです。ドラッグ（キーボードは Space＋矢印）で並べ替え、
+        ホームに並ぶボタンです（いま選んでいる「
+        {INTERESTS[s.interest]?.label}
+        」の並び。ヘッダーで切り替えると別の並びになります）。ドラッグ（キーボードは
+        Space＋矢印）で並べ替え、
         ラベルと中身（複数の条件）を編集できます。［コピー］で条件の文字列をクリップボードにコピーできます。「表示」を外すと、ホームには出ません（削除はされません）。削除すると「削除済み」に移り、復元できます。
       </p>
       {full && (
@@ -141,11 +145,11 @@ export default function ButtonsPage() {
           <Button
             size="sm"
             onClick={() => {
-              const n = s.addDefaultChips();
-              s.say(`既定のボタンを${n}件追加しました`);
+              const n = s.addPresets();
+              s.say(`プリセットのボタンを${n}件追加しました`);
             }}
           >
-            既定のボタン（ホロライブ・にじさんじ）を追加
+            プリセット（{INTERESTS[s.interest]?.label}）を追加
           </Button>
         </EmptyState>
       ) : (

@@ -11,7 +11,7 @@ import {
   type Favorite,
 } from "./data";
 import { EnginePicker } from "./engine-picker";
-import { periodInverted, queryWithoutPeriod } from "./query";
+import { periodInverted } from "./query";
 import { useSearchScope } from "./search-scope";
 import { nid, useStore } from "./store";
 import { Sheet } from "./ui";
@@ -240,19 +240,16 @@ function SaveSheet({ onClose }: { onClose: () => void }) {
   const groupName = newGroup ?? name;
   const [err, setErr] = useState("");
 
-  // 保存するのは「期間を除いた検索文字列」と期間。条件ボタンの参照は持たない
-  const queryOnly = queryWithoutPeriod(s.query, s.period);
-
   const save = () => {
     if (!name.trim()) return setErr("名前を入力してください");
     if (target === "new" && !groupName.trim())
       return setErr("いつものエゴサの名前を入力してください");
     if (periodInverted(s.period)) return setErr("開始日が終了日より後です");
+    // 保存するのは検索文字列（相対期間は since:yesterday などの記号のまま）。条件ボタンの参照は持たない
     const fav: Favorite = {
       id: nid("f"),
       name: name.trim(),
-      query: queryOnly,
-      period: s.period,
+      query: s.query.stored,
       engine,
       last: "未実行",
     };
@@ -282,10 +279,11 @@ function SaveSheet({ onClose }: { onClose: () => void }) {
         />
       </label>
       <code className="block rounded bg-muted p-2 font-mono text-xs break-all">
-        {s.query.text || "（条件なし）"}
+        {s.query.stored || "（条件なし）"}
       </code>
       <p className="text-xs text-muted-foreground">
-        検索文字列そのものを保存します（期間は実行時の日付で計算）。条件ボタンを後から直しても、保存したものは変わりません。
+        この検索文字列を保存します。「昨日から」などは since:yesterday
+        のまま保存し、開くときの日付で計算します。条件ボタンを後から直しても、保存したものは変わりません。
       </p>
       <EnginePicker value={engine} onChange={setEngine} />
       <fieldset className="space-y-1 text-sm">

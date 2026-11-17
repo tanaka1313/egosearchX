@@ -2,9 +2,8 @@
 // MOCK: 破棄予定（#61）
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LIMITS, type TrashItem } from "../_parts/data";
-import { chipTokens, savedText } from "../_parts/query";
-import { favQuery } from "../_parts/rows";
+import { INTERESTS, LIMITS, type TrashItem } from "../_parts/data";
+import { favQuery, itemLabel } from "../_parts/rows";
 import { useStore } from "../_parts/store";
 import { Confirm, EmptyState, PageHead, toggleClass } from "../_parts/ui";
 
@@ -30,13 +29,15 @@ export default function TrashPage() {
 
   const count = (k: Kind) => s.trash.filter((t) => t.kind === k).length;
   const shown = s.trash.filter((t) => tab === "all" || t.kind === tab);
-  const chipFull = s.chips.length >= LIMITS.chips;
+  // 条件ボタンの上限は、削除したときの興味の対象で数える
+  const chipFull = (interestId: string) =>
+    (s.chipsByInterest[interestId] ?? []).length >= LIMITS.chips;
 
   const detail = (t: TrashItem): React.ReactNode => {
     if (t.kind === "chip")
       return (
         <code className="font-mono text-xs break-all">
-          {chipTokens(t.data).join(" ") || "（中身なし）"}
+          {t.data.query || "（中身なし）"}
         </code>
       );
     if (t.kind === "fav")
@@ -48,9 +49,9 @@ export default function TrashPage() {
     return (
       <ul className="list-inside list-disc text-xs">
         {t.data.items.map((it, i) => (
-          <li key={`${it.label}${i}`}>
-            {it.label}
-            <code className="ml-1 font-mono break-all">{savedText(it)}</code>
+          <li key={`${it.query}${i}`}>
+            {itemLabel(it, s.favs)}
+            <code className="ml-1 font-mono break-all">{it.query}</code>
           </li>
         ))}
       </ul>
@@ -127,7 +128,7 @@ export default function TrashPage() {
       ) : (
         <ul className="space-y-2">
           {shown.map((t) => {
-            const blocked = t.kind === "chip" && chipFull;
+            const blocked = t.kind === "chip" && chipFull(t.data.interestId);
             const isOpen = open.includes(t.tid);
             return (
               <li
@@ -137,6 +138,9 @@ export default function TrashPage() {
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="rounded border px-1 text-xs">
                     {KIND[t.kind]}
+                    {/* 条件ボタンは興味の対象ごと。どの並びに戻るかを示す */}
+                    {t.kind === "chip" &&
+                      `（${INTERESTS[t.data.interestId]?.label ?? t.data.interestId}）`}
                   </span>
                   <span className="min-w-0 flex-1 font-medium">{t.name}</span>
                   <span className="text-xs text-muted-foreground">

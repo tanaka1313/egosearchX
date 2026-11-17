@@ -2,7 +2,7 @@
 // MOCK: 破棄予定（#61）
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { EMPTY_PERIOD, ENGINE_LABEL, LIMITS } from "../_parts/data";
+import { ENGINE_LABEL, LIMITS } from "../_parts/data";
 import { nid, useStore } from "../_parts/store";
 import { Confirm, EmptyState, PageHead } from "../_parts/ui";
 
@@ -67,8 +67,8 @@ export default function HistoryPage() {
                     s.saveFav({
                       id: nid("f"),
                       name: h.word ? `${h.word}（履歴から）` : "履歴から",
+                      // 履歴は日付に展開した後の文字列なので、期間は日付のまま保存される
                       query: h.query,
-                      period: EMPTY_PERIOD,
                       // 実行したときの検索先を引き継ぐ（あとでお気に入りの編集で直せる）
                       engine: h.engine === "Yahoo" ? "yahoo" : "x",
                       last: "未実行",

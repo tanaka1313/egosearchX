@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LIMITS, type Group } from "../_parts/data";
+import { itemLabel } from "../_parts/rows";
 import { useStore } from "../_parts/store";
 import { EmptyState, PageHead, Sheet } from "../_parts/ui";
 
@@ -22,7 +23,7 @@ export default function GroupsPage() {
     <main className="mx-auto max-w-3xl space-y-3 p-3 md:p-4">
       <PageHead title="いつものエゴサ" right={addButton} />
       <p className="text-sm text-muted-foreground">
-        エゴサのタイミング（配信後・毎朝など）ごとに、複数の検索をまとめて一括で開けます。先頭2件はどのページでもヘッダー下の帯に並びます。追加は、お気に入りを選んでまとめる方法と、条件を指定して新しく作る方法の2つです。中身は検索文字列のコピーなので、元のお気に入りを直しても変わりません。
+        エゴサのタイミング（配信後・毎朝など）ごとに、複数の検索をまとめて一括で開けます。先頭2件はどのページでもヘッダー下の帯に並びます。追加は、お気に入りを選んでまとめる方法と、条件を指定して新しく作る方法の2つです。中身は検索文字列の並びです。お気に入りを編集すると、同じ検索文字列の項目も一緒に更新されます（お気に入りを削除しても、ここからは消えません）。
       </p>
       {s.groups.length === 0 ? (
         <EmptyState text="いつものエゴサがありません。「配信後エゴサ」などを作ってみましょう">
@@ -31,7 +32,7 @@ export default function GroupsPage() {
       ) : (
         <ul className="space-y-2">
           {s.groups.map((g) => {
-            const names = g.items.map((i) => i.label);
+            const names = g.items.map((i) => itemLabel(i, s.favs));
             return (
               <li
                 key={g.id}
@@ -93,7 +94,7 @@ function IssueSheet({ group, onClose }: { group: Group; onClose: () => void }) {
     <Sheet title={`ブックマークURLを発行：${group.name}`} onClose={onClose}>
       <ul className="list-inside list-disc text-sm">
         {group.items.map((item, i) => (
-          <li key={`${item.label}${i}`}>{item.label}</li>
+          <li key={`${item.query}${i}`}>{itemLabel(item, s.favs)}</li>
         ))}
       </ul>
       <code className="block rounded bg-muted p-2 font-mono text-xs break-all">

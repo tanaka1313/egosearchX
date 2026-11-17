@@ -3,7 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { EMPTY_PERIOD, type Engine } from "../_parts/data";
+import { type Engine } from "../_parts/data";
+import { tokenize } from "../_parts/query-model";
 import { nid, useStore } from "../_parts/store";
 import { PageHead } from "../_parts/ui";
 
@@ -34,7 +35,7 @@ function parse(url: string): {
   const q = u.searchParams.get("q") ?? u.searchParams.get("p");
   if (!q)
     return { tokens: [], engine, err: "検索語（q / p）が含まれていません" };
-  return { tokens: q.split(/\s+/).filter(Boolean), engine };
+  return { tokens: tokenize(q), engine };
 }
 
 export default function ImportPage() {
@@ -85,10 +86,10 @@ export default function ImportPage() {
         <Button
           disabled={!!r.err}
           onClick={() => {
-            s.setWord("");
-            s.setDetail((d) => ({ ...d, raw: r.tokens.join(" ") }));
+            // お気に入りの編集と同じ規則で、条件ボタン・検索語・詳細条件・期間に展開する
+            s.loadIntoHome(r.tokens.join(" "));
             s.setNotice(
-              "URL を解析しました（詳細条件の生トークンに入っています）",
+              "URL を解析しました（一致する条件ボタンを ON にし、残りは詳細条件に入れました）",
             );
             router.push("/mock");
           }}
@@ -103,7 +104,6 @@ export default function ImportPage() {
               id: nid("f"),
               name: "取り込んだ検索",
               query: r.tokens.join(" "),
-              period: EMPTY_PERIOD,
               engine: r.engine,
               last: "未実行",
             })

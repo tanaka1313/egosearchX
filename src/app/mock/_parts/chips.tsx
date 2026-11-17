@@ -11,6 +11,7 @@ import {
   type ParamOp,
 } from "./data";
 import { chipTokens, periodActive } from "./query";
+import { chipConds } from "./query-model";
 import { useSearchScope } from "./search-scope";
 import { useStore } from "./store";
 import { toggleClass } from "./ui";
@@ -22,7 +23,7 @@ import { toggleClass } from "./ui";
  */
 export function ToggleChip({ chip }: { chip: Chip }) {
   const { isOn, toggle } = useSearchScope();
-  if (chip.conds.some(isParamCond)) return <ParamChip chip={chip} />;
+  if (chipConds(chip).some(isParamCond)) return <ParamChip chip={chip} />;
   const on = isOn(chip.id);
   return (
     <button
@@ -62,8 +63,9 @@ function ParamChip({ chip }: { chip: Chip }) {
   const { setCondValue } = useStore();
   const { isOn, toggle, setOn, period } = useSearchScope();
   const on = isOn(chip.id);
-  const blocked =
-    periodActive(period) && chip.conds.some((c) => c.kind === "date");
+  // 本体は文字列。値の入力欄は、文字列を分けた条件の行から出す（値を変えると文字列を組み立て直して保存）
+  const conds = chipConds(chip);
+  const blocked = periodActive(period) && conds.some((c) => c.kind === "date");
   const reasonId = `chip-${chip.id}-reason`;
   const tokens = chipTokens(chip).join(" ");
   return (
@@ -91,7 +93,7 @@ function ParamChip({ chip }: { chip: Chip }) {
         </span>
         {chip.label}
       </button>
-      {chip.conds.filter(isParamCond).map((c) => {
+      {conds.filter(isParamCond).map((c) => {
         const op = c.op as ParamOp;
         const def = PARAM_OPS[op];
         const disabled = blocked && c.kind === "date";

@@ -61,21 +61,59 @@ export const PARAM_OP_KEYS = Object.keys(PARAM_OPS) as ParamOp[];
 export const paramOpsOf = (type: "number" | "date"): ParamOp[] =>
   PARAM_OP_KEYS.filter((k) => PARAM_OPS[k].type === type);
 
-/** kind が number／date のときだけ op を持つ（値は value。数値は正の整数、日付は YYYY-MM-DD） */
+/**
+ * 条件ボタンの中身の1項目（表示・編集用のモデル。保存はしない）。
+ * 条件ボタンの本体は検索文字列（Chip.query）で、画面で使うときに chipConds() で分ける。
+ * kind が number／date のときだけ op を持つ（値は value。数値は正の整数、日付は YYYY-MM-DD。
+ * 「以前」（until）の value は画面の「含む日」で、文字列では翌日の until: になる）。
+ */
 export type Cond = { id: string; kind: CondKind; value: string; op?: ParamOp };
 
 export const isParamCond = (c: Cond): boolean =>
   (c.kind === "number" || c.kind === "date") && !!c.op;
+
+/**
+ * 興味の対象。今後増える前提で、ID をキーにした1か所の定義に集める（実装では JSON＋zod。Map で扱う）。
+ * list：その対象の既定リスト（F1）。条件ボタンのプリセットになる。無い対象（その他）は null。
+ */
+export type InterestId = string;
+export type Interest = {
+  label: string;
+  list: { label: string; listId: string } | null;
+};
+export const INTERESTS: Record<InterestId, Interest> = {
+  hololive: {
+    label: "ホロライブ",
+    list: { label: "ホロメンから", listId: "1412278227767218179" },
+  },
+  nijisanji: {
+    label: "にじさんじ",
+    list: { label: "にじさんじから", listId: "1478366370727608323" },
+  },
+  other: { label: "その他", list: null },
+};
+/** 表示順（ヘッダーの切替の並び） */
+export const INTEREST_IDS: InterestId[] = Object.keys(INTERESTS);
+/** 既定の興味の対象（静的 HTML もこれで出す） */
+export const DEFAULT_INTEREST: InterestId = "hololive";
+
+/**
+ * 条件ボタン。本体は検索文字列（query）。興味の対象ごとに別の並びを持つ（interestId）。
+ * お気に入り・いつものエゴサはこのボタンを参照しない（ボタンを直しても保存済みには波及しない）。
+ */
 export type Chip = {
   id: string;
+  interestId: InterestId;
   label: string;
-  conds: Cond[];
+  /** 本体の検索文字列（例：`-ネタバレ語A -ネタバレ語B`、`min_faves:50`） */
+  query: string;
   /** ホームで押されている（検索に使う）状態 */
   on: boolean;
   /** ホームに出す。false なら、ホームの並び・件数・クエリのどれにも入れない */
   visible: boolean;
   isNew?: boolean;
-  isDefault?: boolean;
+  /** 開発者が用意したプリセットから作ったボタン（編集・削除はできる） */
+  isPreset?: boolean;
 };
 
 /** 昨日から／3日前から／1週間前から／日付（以降・以前・範囲） */
@@ -105,7 +143,10 @@ export type Detail = {
   minRt: string;
   minReplies: string;
   live: boolean;
-  /** 共通（条件ボタン）の項目ごとの無効化。無効にした Cond の id */
+  /**
+   * 共通（条件ボタン）の項目ごとの無効化。`<ボタンID>::<トークン>` の配列（disabledKey）。
+   * ボタンの本体が文字列なので、項目は ID ではなくトークンで指す。
+   */
   disabledConds: string[];
   /** テキストで足した生トークン */
   raw: string;
@@ -142,35 +183,42 @@ export const EMPTY_DETAIL: Detail = {
 
 export const EMPTY_PERIOD: Period = { kind: "none", from: "", to: "" };
 
-const per = (kind: PeriodKind): Period => ({ ...EMPTY_PERIOD, kind });
+/**
+ * 相対期間の記号。保存する検索文字列にはこの記号のまま入れ、開く時点の日付で `since:YYYY-MM-DD` に展開する
+ * （X／Yahoo!リアルタイム検索の URL とコピーには記号を出さない）。
+ */
+export const REL_PERIODS = [
+  { kind: "d1", label: "昨日から", token: "since:yesterday", days: 1 },
+  { kind: "d3", label: "3日前から", token: "since:3days_ago", days: 3 },
+  { kind: "d7", label: "1週間前から", token: "since:1week_ago", days: 7 },
+] as const;
 
 /**
- * 保存した検索。お気に入り・いつものエゴサは、条件ボタンを参照せず
- * 「検索文字列」を実体として持つ（条件ボタンを直しても、保存済みには反映されない）。
- * 期間だけは、相対指定（昨日から…）を実行時に解決するため文字列に入れず別に持つ。
+ * お気に入り。本体は検索文字列（期間の記号を含む）と検索先。条件ボタンを参照しない。
+ * 編集するときは、文字列を条件ボタン・詳細条件に展開する（parseToScope）。
  */
-export type SavedSearch = {
-  label: string;
-  /** 期間を含まない検索文字列 */
-  query: string;
-  period: Period;
-  engine: Engine;
-};
-
 export type Favorite = {
   id: string;
   name: string;
+  /** 例：`"メンバーA" -filter:retweets since:yesterday` */
   query: string;
-  period: Period;
   engine: Engine;
+  /** 最後に開いた日時（モックは表示用の文字列。本実装は ISO 形式） */
   last: string;
 };
+
+/**
+ * いつものエゴサの1項目：検索文字列＋検索先。名前は持たない
+ * （正規化した文字列が一致するお気に入りがあれば、その名前を表示する。favNameFor）。
+ */
+export type GroupItem = { query: string; engine: Engine };
 
 export type Group = {
   id: string;
   name: string;
-  /** お気に入りからコピーした検索（元のお気に入りを直しても変わらない） */
-  items: SavedSearch[];
+  /** 開く順の検索。お気に入りを編集すると、正規化した文字列が一致する項目も更新される（applyFavEdit） */
+  items: GroupItem[];
+  /** 今日は実行済み（本実装は履歴から求める） */
   doneToday: boolean;
 };
 
@@ -197,177 +245,152 @@ export type TrashItem =
   | (TrashBase & { kind: "fav"; data: Favorite })
   | (TrashBase & { kind: "group"; data: Group });
 
-/** 既定リスト（requirements F1）。ID は開発者が確認した値のみ。 */
-export const DEFAULT_LISTS = [
-  {
-    id: "d-holo",
-    name: "ホロメンから",
-    interest: "ホロライブ",
-    listId: "1412278227767218179",
+/**
+ * 条件ボタンのプリセット（開発者が決める。中身は仮の値。本番の値は Issue「プリセットとサジェスト規則」で決める）。
+ * 興味の対象ごとに、初回に入るボタンの並びを持つ。共通のものは COMMON から入れる（同じ定義を2回書かない）。
+ * 既定リストのボタンは INTERESTS の list から作る。その他は共通だけ。
+ */
+type Preset = {
+  key: string;
+  label: string;
+  query: string;
+  on?: boolean;
+  visible?: boolean;
+};
+const COMMON = {
+  rt: { key: "rt", label: "RTを除く", query: "-filter:retweets", on: true },
+  faves: { key: "faves", label: "ファボ", query: "min_faves:50" },
+  since: { key: "since", label: "日付", query: "since:2026-11-07" },
+  img: { key: "img", label: "画像つき", query: "filter:images" },
+  reply: { key: "reply", label: "返信のみ", query: "filter:replies" },
+  jp: { key: "jp", label: "日本語のみ", query: "lang:ja" },
+  nolink: {
+    key: "nolink",
+    label: "リンクなし",
+    query: "-filter:links",
+    visible: false,
   },
-  {
-    id: "d-niji",
-    name: "にじさんじから",
-    interest: "にじさんじ",
-    listId: "1478366370727608323",
-  },
-];
+} satisfies Record<string, Preset>;
 
-const c = (id: string, kind: CondKind, value: string): Cond => ({
-  id,
-  kind,
-  value,
-});
+const listPreset = (id: InterestId): Preset[] => {
+  const l = INTERESTS[id]?.list;
+  return l ? [{ key: "list", label: l.label, query: `list:${l.listId}` }] : [];
+};
 
-export function defaultChips(): Chip[] {
-  return DEFAULT_LISTS.map((l) => ({
-    id: l.id,
-    label: l.name,
-    on: false,
-    visible: true,
-    isDefault: true,
-    conds: [c(`${l.id}-c`, "list", l.listId)],
+export const PRESETS: Record<InterestId, Preset[]> = {
+  hololive: [
+    COMMON.rt,
+    ...listPreset("hololive"),
+    {
+      key: "spoil",
+      label: "ネタバレ除外",
+      query: "-ネタバレ語A -ネタバレ語B",
+      on: true,
+    },
+    COMMON.faves,
+    COMMON.since,
+    COMMON.img,
+    COMMON.reply,
+    { key: "haishin", label: "配信タグ", query: "#配信タグA" },
+    { key: "fanart", label: "ファンアート", query: "#ファンアートタグA" },
+    { key: "clip", label: "切り抜き", query: "#切り抜きタグA" },
+    COMMON.jp,
+    COMMON.nolink,
+  ],
+  nijisanji: [
+    COMMON.rt,
+    ...listPreset("nijisanji"),
+    COMMON.faves,
+    COMMON.since,
+    COMMON.img,
+    COMMON.reply,
+    COMMON.jp,
+    COMMON.nolink,
+  ],
+  other: [
+    COMMON.rt,
+    COMMON.faves,
+    COMMON.since,
+    COMMON.img,
+    COMMON.reply,
+    COMMON.jp,
+    COMMON.nolink,
+  ],
+};
+
+/** プリセットから条件ボタンを作る。ID は興味の対象ごとに一意（`<興味>:<key>`） */
+export function presetChips(interest: InterestId): Chip[] {
+  return (PRESETS[interest] ?? []).map((p) => ({
+    id: `${interest}:${p.key}`,
+    interestId: interest,
+    label: p.label,
+    query: p.query,
+    on: p.on ?? false,
+    visible: p.visible ?? true,
+    isPreset: true,
   }));
 }
 
-export const INITIAL_CHIPS: Chip[] = [
+/** 初回の条件ボタン（興味の対象ごとの並び） */
+export function initialChips(): Record<InterestId, Chip[]> {
+  return Object.fromEntries(INTEREST_IDS.map((id) => [id, presetChips(id)]));
+}
+
+/**
+ * サジェストの規則（開発者が決める。中身は仮の値）。検索文字列に when のどれか1語が含まれていれば、
+ * suggest の条件をサジェストの先頭に出す（例：タレント名 → その人のファンアートタグ・エゴサワード）。
+ */
+export type SuggestRule = { when: string[]; suggest: string[] };
+export const SUGGEST_RULES: SuggestRule[] = [
   {
-    id: "k-rt",
-    label: "RTを除く",
-    on: true,
-    visible: true,
-    conds: [c("k-rt-1", "filter", "-filter:retweets")],
+    when: ["メンバーA", "愛称A"],
+    suggest: ["#ファンアートタグA", "#配信タグA", "愛称A"],
   },
-  ...defaultChips(),
-  {
-    id: "k-spoil",
-    label: "ネタバレ除外",
-    on: true,
-    visible: true,
-    conds: [
-      c("k-spoil-1", "exclude", "ネタバレ語A"),
-      c("k-spoil-2", "exclude", "ネタバレ語B"),
-    ],
-  },
-  // 値付きの条件ボタン：ホームのボタンの中で値を変えられる（変えた値はボタンに保存）
-  {
-    id: "k-faves",
-    label: "ファボ",
-    on: false,
-    visible: true,
-    conds: [{ id: "k-faves-1", kind: "number", op: "min_faves", value: "50" }],
-  },
-  {
-    id: "k-since",
-    label: "日付",
-    on: false,
-    visible: true,
-    conds: [
-      { id: "k-since-1", kind: "date", op: "since", value: "2026-11-07" },
-    ],
-  },
-  {
-    id: "k-img",
-    label: "画像つき",
-    on: false,
-    visible: true,
-    conds: [c("k-img-1", "filter", "filter:images")],
-  },
-  {
-    id: "k-reply",
-    label: "返信のみ",
-    on: false,
-    visible: true,
-    conds: [c("k-reply-1", "filter", "filter:replies")],
-  },
-  {
-    id: "k-haishin",
-    label: "配信タグ",
-    on: false,
-    visible: true,
-    conds: [c("k-haishin-1", "word", "#配信タグA")],
-  },
-  {
-    id: "k-fanart",
-    label: "ファンアート",
-    on: false,
-    visible: true,
-    conds: [c("k-fanart-1", "word", "#ファンアートタグA")],
-  },
-  {
-    id: "k-clip",
-    label: "切り抜き",
-    on: false,
-    visible: true,
-    conds: [c("k-clip-1", "word", "#切り抜きタグA")],
-  },
-  {
-    id: "k-jp",
-    label: "日本語のみ",
-    on: false,
-    visible: true,
-    conds: [c("k-jp-1", "filter", "lang:ja")],
-  },
-  {
-    id: "k-nolink",
-    label: "リンクなし",
-    on: false,
-    visible: false,
-    conds: [c("k-nolink-1", "filter", "-filter:links")],
-  },
+  { when: ["メンバーB"], suggest: ["#ファンアートタグB", "#配信タグB"] },
 ];
 
 export const INITIAL_FAVORITES: Favorite[] = [
   {
     id: "f-name",
     name: "名前エゴサ",
-    query: '"メンバーA" -filter:retweets -ネタバレ語A -ネタバレ語B',
-    period: per("d1"),
+    query:
+      '"メンバーA" -filter:retweets -ネタバレ語A -ネタバレ語B since:yesterday',
     engine: "x",
     last: "昨日 22:30",
   },
   {
     id: "f-tag",
     name: "配信タグ",
-    query: "#配信タグA -ネタバレ語A -ネタバレ語B",
-    period: per("d1"),
+    query: "#配信タグA -ネタバレ語A -ネタバレ語B since:yesterday",
     engine: "x",
     last: "昨日 22:35",
   },
   {
     id: "f-art",
     name: "ファンアート",
-    query: "#ファンアートタグA filter:images",
-    period: per("d3"),
+    query: "#ファンアートタグA filter:images since:3days_ago",
     engine: "x",
     last: "3日前",
   },
   {
     id: "f-clip",
     name: "切り抜き",
-    query: "#切り抜きタグA",
-    period: per("d3"),
+    query: "#切り抜きタグA since:3days_ago",
     engine: "x",
     last: "3日前",
   },
   {
     id: "f-reply",
     name: "ホロメンからのリプライ",
-    query: "list:1412278227767218179 to:sample_id",
-    period: per("d7"),
+    query: "list:1412278227767218179 to:sample_id since:1week_ago",
     engine: "both",
     last: "未実行",
   },
 ];
 
-/** お気に入りを、いつものエゴサに入れる検索（コピー）にする */
-export function favToItem(f: Favorite): SavedSearch {
-  return {
-    label: f.name,
-    query: f.query,
-    period: f.period,
-    engine: f.engine,
-  };
+/** お気に入りを、いつものエゴサの項目（文字列＋検索先）にする */
+export function favToItem(f: Favorite): GroupItem {
+  return { query: f.query, engine: f.engine };
 }
 
 export const INITIAL_GROUPS: Group[] = [
@@ -471,11 +494,12 @@ export const INITIAL_TRASH: TrashItem[] = [
     name: "ネタバレ注意",
     index: 3,
     data: {
-      id: "k-old1",
+      id: "hololive:old1",
+      interestId: "hololive",
       label: "ネタバレ注意",
+      query: "-ネタバレ",
       on: false,
       visible: true,
-      conds: [c("k-old1-1", "exclude", "ネタバレ")],
     },
   },
   {
@@ -487,8 +511,7 @@ export const INITIAL_TRASH: TrashItem[] = [
     data: {
       id: "f-collab",
       name: "コラボ告知",
-      query: "コラボ -filter:retweets",
-      period: per("d1"),
+      query: "コラボ -filter:retweets since:yesterday",
       engine: "x",
       last: "3日前",
     },
@@ -503,12 +526,7 @@ export const INITIAL_TRASH: TrashItem[] = [
       id: "g-collab",
       name: "コラボ日エゴサ",
       items: [
-        {
-          label: "コラボ告知",
-          query: "コラボ -filter:retweets",
-          period: per("d1"),
-          engine: "x",
-        },
+        { query: "コラボ -filter:retweets since:yesterday", engine: "x" },
       ],
       doneToday: false,
     },

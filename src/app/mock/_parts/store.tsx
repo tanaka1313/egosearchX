@@ -11,30 +11,40 @@ import {
   useSyncExternalStore,
 } from "react";
 import {
-  DEFAULT_LISTS,
+  DEFAULT_INTEREST,
   ENGINE_LABEL,
   ENGINE_NAME,
   engineTargets,
-  type Engine,
   EMPTY_DETAIL,
   EMPTY_PERIOD,
-  INITIAL_CHIPS,
   INITIAL_FAVORITES,
   INITIAL_GROUPS,
   INITIAL_HISTORY,
   INITIAL_TRASH,
+  INTERESTS,
   LIMITS,
+  SUGGEST_RULES,
   SUGGEST_SEEDS,
-  defaultChips,
+  initialChips,
+  presetChips,
   type Chip,
   type Detail,
   type Favorite,
   type Group,
+  type GroupItem,
   type HistoryItem,
+  type InterestId,
   type Period,
   type TrashItem,
 } from "./data";
-import { buildQuery, chipTokens, savedText } from "./query";
+import { buildQuery, chipTokens, runText } from "./query";
+import {
+  applyFavEdit,
+  chipConds,
+  condsToQuery,
+  parseToScope,
+  suggestFromRules,
+} from "./query-model";
 
 type Toast = { id: string; msg: string; undo?: () => void };
 
@@ -42,7 +52,10 @@ type Toast = { id: string; msg: string; undo?: () => void };
 export type BuiltSearch = { word: string; text: string; chipLabels: string[] };
 
 export type Store = {
+  /** 今の興味の対象の条件ボタン（興味の対象ごとに別の並び） */
   chips: Chip[];
+  /** 興味の対象ごとの条件ボタン（削除済みの復元で、戻す先の上限を見る） */
+  chipsByInterest: Record<InterestId, Chip[]>;
   favs: Favorite[];
   groups: Group[];
   history: HistoryItem[];
@@ -75,9 +88,14 @@ export type Store = {
   toggleVisible: (id: string) => void;
   saveChip: (chip: Chip) => string | null;
   deleteChip: (id: string) => void;
-  addDefaultChips: () => number;
+  /** 今の興味の対象のプリセットのうち、無いものを足す。足した数を返す */
+  addPresets: () => number;
+  /**
+   * お気に入りを保存する。既存を編集したときは、編集前の文字列（正規化）と一致する
+   * いつものエゴサの項目も更新する（トーストで件数を知らせ、［元に戻す］で両方戻す）。
+   */
   saveFav: (fav: Favorite) => void;
-  /** お気に入りは実体（検索文字列）を持つので、いつものエゴサには影響しない */
+  /** 削除はいつものエゴサに連動しない（項目は文字列を持っているため） */
   deleteFav: (id: string) => void;
   saveGroup: (g: Group) => void;
   deleteGroup: (id: string) => void;
@@ -95,11 +113,16 @@ export type Store = {
   setNotice: (m: string) => void;
   usedChips: Chip[];
   query: ReturnType<typeof buildQuery>;
-  /** 興味の対象（既定リストの ID。既定はホロライブ）。ヘッダーでいつでも切り替える */
-  interest: string;
-  /** 選んだ対象の既定リストだけホームに出す。端末内（localStorage）にだけ保存する */
-  setInterest: (id: string) => void;
-  /** 初回の状態（既定リストのみ・保存なし・興味はホロライブ）にする */
+  /** 興味の対象（INTERESTS のキー。既定はホロライブ）。ヘッダーでいつでも切り替える */
+  interest: InterestId;
+  /** 条件ボタンの並びを切り替える。端末内（localStorage）にだけ保存する */
+  setInterest: (id: InterestId) => void;
+  /**
+   * 検索文字列をホームの検索に展開する（URL解析の［ホームで編集する］）。
+   * お気に入りの編集と同じ規則（parseToScope）で、今の興味の対象の条件ボタンを ON にし、残りを詳細条件に入れる。
+   */
+  loadIntoHome: (q: string) => void;
+  /** 初回の状態（プリセットのみ・保存なし・興味はホロライブ）にする */
   startFresh: () => void;
 };
 
@@ -115,12 +138,7 @@ let seq = 100;
 export const nid = (p: string) => `${p}${++seq}`;
 const NOW = "今";
 
-const DEFAULT_INTEREST = DEFAULT_LISTS[0].id;
-const INTEREST_KEY = "mock:interest:v1";
-
-/** 既定リストの条件ボタンは、興味の対象のものだけ「表示」にする */
-const withInterest = (cs: Chip[], interest: string): Chip[] =>
-  cs.map((c) => (c.isDefault ? { ...c, visible: c.id === interest } : c));
+const INTEREST_KEY = "mock:interest:v2";
 
 // 興味の対象は localStorage（端末内のみ）に持つ。静的 HTML は既定（ホロライブ）で出す
 const interestListeners = new Set<() => void>();
@@ -131,11 +149,9 @@ const subscribeInterest = (fn: () => void) => {
   };
 };
 const notifyInterest = () => interestListeners.forEach((fn) => fn());
-const readInterest = (): string => {
+const readInterest = (): InterestId => {
   const saved = localStorage.getItem(INTEREST_KEY);
-  return DEFAULT_LISTS.some((l) => l.id === saved)
-    ? (saved as string)
-    : DEFAULT_INTEREST;
+  return saved && saved in INTERESTS ? saved : DEFAULT_INTEREST;
 };
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
@@ -144,15 +160,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     readInterest,
     () => DEFAULT_INTEREST,
   );
-  const [appliedInterest, setAppliedInterest] = useState(DEFAULT_INTEREST);
-  const [chips, setChips] = useState<Chip[]>(() =>
-    withInterest(INITIAL_CHIPS, DEFAULT_INTEREST),
+  // 条件ボタンは興味の対象ごとに別の並び（キーは INTERESTS の ID。本実装は DAO の listByInterest）
+  const [chipsByInterest, setChipsByInterest] =
+    useState<Record<InterestId, Chip[]>>(initialChips);
+  const chips = useMemo(
+    () => chipsByInterest[interest] ?? [],
+    [chipsByInterest, interest],
   );
-  // 興味の対象が変わったら、描画の中で条件ボタンの表示を合わせる（effect を使わない）
-  if (appliedInterest !== interest) {
-    setAppliedInterest(interest);
-    setChips((cs) => withInterest(cs, interest));
-  }
+  /** 指定した興味の対象の条件ボタンを更新する */
+  const updateChips = useCallback(
+    (id: InterestId, f: (cs: Chip[]) => Chip[]) =>
+      setChipsByInterest((m) => ({ ...m, [id]: f(m[id] ?? []) })),
+    [],
+  );
   const [favs, setFavs] = useState<Favorite[]>(INITIAL_FAVORITES);
   const [groups, setGroups] = useState<Group[]>(INITIAL_GROUPS);
   const [history, setHistory] = useState<HistoryItem[]>(INITIAL_HISTORY);
@@ -167,9 +187,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // 最新値を操作関数から読むための ref（クロージャの古い値を避ける）
-  const live = useRef({ chips, favs, groups, trash, history });
+  const live = useRef({ chips, chipsByInterest, favs, groups, trash, history });
   useEffect(() => {
-    live.current = { chips, favs, groups, trash, history };
+    live.current = { chips, chipsByInterest, favs, groups, trash, history };
   });
 
   const say = useCallback((msg: string, undo?: () => void) => {
@@ -193,49 +213,47 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
    * 保存した検索（お気に入り・いつものエゴサの中身）を、それぞれの検索先で開いたものとして履歴に残す。
    * 「両方」は X と Yahoo!リアルタイム検索の2件。開いたタブの数を返す。
    */
-  const logSaved = useCallback(
-    (
-      items: { query: string; period: Period; engine: Engine }[],
-      source: string,
-    ) => {
-      const entries: HistoryItem[] = items.flatMap((item) =>
-        engineTargets(item.engine).map((engine) => ({
-          id: nid("h"),
-          at: NOW,
-          word: "",
-          query: savedText(item),
-          engine,
-          source,
-          chipLabels: [],
-        })),
-      );
-      // 新しい順：最後に開いたものが先頭
-      setHistory((h) => [...entries.reverse(), ...h].slice(0, LIMITS.history));
-      return entries.length;
-    },
-    [],
-  );
+  const logSaved = useCallback((items: GroupItem[], source: string) => {
+    const entries: HistoryItem[] = items.flatMap((item) =>
+      engineTargets(item.engine).map((engine) => ({
+        id: nid("h"),
+        at: NOW,
+        word: "",
+        // 履歴には、相対期間を日付に展開した後の文字列を残す
+        query: runText(item.query),
+        engine,
+        source,
+        chipLabels: [],
+      })),
+    );
+    // 新しい順：最後に開いたものが先頭
+    setHistory((h) => [...entries.reverse(), ...h].slice(0, LIMITS.history));
+    return entries.length;
+  }, []);
 
   const query = useMemo(
     () => buildQuery({ word, exact, chips, detail, period, extra: sugOn }),
     [word, exact, chips, detail, period, sugOn],
   );
-  // サジェスト：直近の検索（履歴）の条件から、条件ボタンに無いものを最大 LIMITS.suggest 件
+  // サジェスト：①規則（今の検索に含まれる語から。例：タレント名 → ファンアートタグ）
+  // ②直近の検索（履歴）の条件。条件ボタンに無いものを最大 LIMITS.suggest 件
   const suggestions = useMemo(() => {
     const have = new Set(chips.flatMap((c) => chipTokens(c)));
-    const fromHistory = history.flatMap((h) => h.query.split(/\s+/));
-    return [...new Set([...fromHistory, ...SUGGEST_SEEDS])]
-      .filter((t) => /[:#()-]/.test(t) && !t.startsWith("since:"))
+    const fromRules = suggestFromRules(query.stored, SUGGEST_RULES);
+    const fromHistory = history
+      .flatMap((h) => h.query.split(/\s+/))
+      .filter((t) => /[:#()-]/.test(t) && !/^(since|until):/.test(t));
+    return [...new Set([...fromRules, ...fromHistory, ...SUGGEST_SEEDS])]
       .filter((t) => !have.has(t))
       .slice(0, LIMITS.suggest);
-  }, [chips, history]);
+  }, [chips, history, query.stored]);
   const usedChips = useMemo(
     () => chips.filter((c) => c.on && c.visible),
     [chips],
   );
 
-  const setInterest = useCallback((id: string) => {
-    if (!DEFAULT_LISTS.some((l) => l.id === id)) return;
+  const setInterest = useCallback((id: InterestId) => {
+    if (!(id in INTERESTS)) return;
     localStorage.setItem(INTEREST_KEY, id);
     notifyInterest();
   }, []);
@@ -243,8 +261,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const startFresh = useCallback(() => {
     localStorage.removeItem(INTEREST_KEY);
     notifyInterest();
-    setAppliedInterest(DEFAULT_INTEREST);
-    setChips(withInterest(defaultChips(), DEFAULT_INTEREST));
+    setChipsByInterest(initialChips());
     setFavs([]);
     setGroups([]);
     setHistory([]);
@@ -261,10 +278,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const item = live.current.trash.find((t) => t.tid === tid);
       if (!item) return "見つかりません";
       if (item.kind === "chip") {
-        if (live.current.chips.length >= LIMITS.chips)
+        // 条件ボタンは、削除したときの興味の対象の並びへ戻す（上限もその対象で数える）
+        const target = live.current.chipsByInterest[item.data.interestId] ?? [];
+        if (target.length >= LIMITS.chips)
           return `条件ボタンが上限（${LIMITS.chips}件）のため復元できません。不要なボタンを削除してください`;
-        const at = Math.min(item.index, live.current.chips.length);
-        setChips((c) => [...c.slice(0, at), item.data, ...c.slice(at)]);
+        const at = Math.min(item.index, target.length);
+        updateChips(item.data.interestId, (c) => [
+          ...c.slice(0, at),
+          item.data,
+          ...c.slice(at),
+        ]);
       } else if (item.kind === "fav") {
         setFavs((f) => [...f, item.data]);
       } else {
@@ -273,11 +296,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setTrash((t) => t.filter((x) => x.tid !== tid));
       return null;
     },
-    [setChips],
+    [updateChips],
   );
 
   const store: Store = {
     chips,
+    chipsByInterest,
     favs,
     groups,
     history,
@@ -302,53 +326,58 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       if (live.current.chips.length >= LIMITS.chips)
         return `上限（${LIMITS.chips}件）です。不要なボタンを削除してください`;
       const label = token.length > 14 ? `${token.slice(0, 13)}…` : token;
-      setChips((cs) => [
+      updateChips(interest, (cs) => [
         ...cs,
         {
           id: nid("sg"),
+          interestId: interest,
           label,
+          query: token,
           on: false,
           isNew: true,
           visible: true,
-          conds: [{ id: nid("sgc"), kind: "raw", value: token }],
         },
       ]);
       setSugOn((v) => v.filter((x) => x !== token));
       say(`条件ボタン「${label}」に追加しました`);
       return null;
     },
-    setChips,
+    setChips: (cs) => updateChips(interest, () => cs),
     toggleChip: (id) =>
-      setChips((cs) =>
+      updateChips(interest, (cs) =>
         cs.map((c) => (c.id === id ? { ...c, on: !c.on, isNew: false } : c)),
       ),
     setChipOn: (id, on) =>
-      setChips((cs) =>
+      updateChips(interest, (cs) =>
         cs.map((c) => (c.id === id ? { ...c, on, isNew: false } : c)),
       ),
+    // 値を変えたら、本体の文字列を組み立て直して保存する
     setCondValue: (chipId, condId, value) =>
-      setChips((cs) =>
+      updateChips(interest, (cs) =>
         cs.map((c) =>
           c.id === chipId
             ? {
                 ...c,
                 isNew: false,
-                conds: c.conds.map((x) =>
-                  x.id === condId ? { ...x, value } : x,
+                query: condsToQuery(
+                  chipConds(c).map((x) =>
+                    x.id === condId ? { ...x, value } : x,
+                  ),
                 ),
               }
             : c,
         ),
       ),
     toggleVisible: (id) =>
-      setChips((cs) =>
+      updateChips(interest, (cs) =>
         cs.map((c) => (c.id === id ? { ...c, visible: !c.visible } : c)),
       ),
     saveChip: (chip) => {
-      const exists = live.current.chips.some((c) => c.id === chip.id);
-      if (!exists && live.current.chips.length >= LIMITS.chips)
+      const list = live.current.chipsByInterest[chip.interestId] ?? [];
+      const exists = list.some((c) => c.id === chip.id);
+      if (!exists && list.length >= LIMITS.chips)
         return `上限（${LIMITS.chips}件）です。不要なボタンを削除してください`;
-      setChips((cs) =>
+      updateChips(chip.interestId, (cs) =>
         exists ? cs.map((c) => (c.id === chip.id ? chip : c)) : [...cs, chip],
       );
       say(exists ? "条件ボタンを保存しました" : "条件ボタンを追加しました");
@@ -359,7 +388,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       const chip = live.current.chips[index];
       if (!chip) return;
       const tid = nid("tr");
-      setChips((cs) => cs.filter((c) => c.id !== id));
+      updateChips(chip.interestId, (cs) => cs.filter((c) => c.id !== id));
       pushTrash({
         tid,
         at: NOW,
@@ -372,29 +401,44 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         restore(tid);
       });
     },
-    addDefaultChips: () => {
-      let added = 0;
+    addPresets: () => {
       const have = live.current.chips.map((c) => c.id);
       const room = LIMITS.chips - live.current.chips.length;
-      const add = defaultChips()
+      const add = presetChips(interest)
         .filter((c) => !have.includes(c.id))
         .slice(0, Math.max(room, 0));
-      added = add.length;
-      if (added) setChips((cs) => [...cs, ...add]);
-      return added;
+      if (add.length) updateChips(interest, (cs) => [...cs, ...add]);
+      return add.length;
     },
     saveFav: (fav) => {
-      const exists = live.current.favs.some((f) => f.id === fav.id);
+      const before = live.current.favs.find((f) => f.id === fav.id);
+      const prevFavs = live.current.favs;
+      const prevGroups = live.current.groups;
       setFavs((fs) =>
-        exists ? fs.map((f) => (f.id === fav.id ? fav : f)) : [...fs, fav],
+        before ? fs.map((f) => (f.id === fav.id ? fav : f)) : [...fs, fav],
       );
-      say(`お気に入り「${fav.name}」を保存しました`);
+      // 編集したときは、編集前の文字列と一致する、いつものエゴサの項目も更新する
+      const { groups: nextGroups, count } = before
+        ? applyFavEdit(prevGroups, before, fav)
+        : { groups: prevGroups, count: 0 };
+      if (count === 0) {
+        say(`お気に入り「${fav.name}」を保存しました`);
+        return;
+      }
+      setGroups(nextGroups);
+      say(
+        `お気に入り「${fav.name}」を保存し、いつものエゴサの${count}件の項目も更新しました`,
+        () => {
+          setFavs(prevFavs);
+          setGroups(prevGroups);
+        },
+      );
     },
     deleteFav: (id) => {
       const index = live.current.favs.findIndex((f) => f.id === id);
       const fav = live.current.favs[index];
       if (!fav) return;
-      // いつものエゴサはコピーを持っているので、何も連動しない
+      // いつものエゴサの項目は検索文字列を持っているので、削除は連動しない（編集だけが連動する）
       const tid = nid("tr");
       setFavs((fs) => fs.filter((f) => f.id !== id));
       pushTrash({
@@ -482,6 +526,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     },
     say,
     setNotice,
+    loadIntoHome: (q) => {
+      const p = parseToScope(q, live.current.chips);
+      updateChips(interest, (cs) =>
+        cs.map((c) => ({ ...c, on: p.onIds.includes(c.id) })),
+      );
+      setWord(p.word);
+      setExact(p.exact);
+      setDetailState(p.detail);
+      setPeriod(p.period);
+      setSugOn([]);
+    },
     usedChips,
     query,
     interest,
@@ -491,5 +546,3 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;
 }
-
-export { DEFAULT_LISTS };

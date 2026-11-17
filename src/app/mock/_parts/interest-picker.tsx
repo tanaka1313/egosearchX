@@ -2,19 +2,20 @@
 // MOCK: 破棄予定（#61）
 import { Check, ChevronDown } from "lucide-react";
 import { useRef, useState } from "react";
-import { DEFAULT_LISTS } from "./data";
+import { DEFAULT_INTEREST, INTEREST_IDS, INTERESTS } from "./data";
 import { useStore } from "./store";
 
 /**
  * 興味の対象の切替（ヘッダーのサイト名の一部：［ホロライブ▾］EgoSearch）。
- * 既定はホロライブ。にじさんじに切り替えられる。選んだ内容は端末内（localStorage）にだけ保存する。
+ * 既定はホロライブ。にじさんじ・その他に切り替えられる（対象は INTERESTS に1件足すだけで増やせる）。
+ * 切り替わるのは条件ボタンの並び（興味の対象ごと）。選んだ内容は端末内（localStorage）にだけ保存する。
  * 常に同じ場所に出し、モーダルにしない。幅は一番長い名前に固定して、切り替えてもガタつかない。
  */
 export function InterestPicker() {
   const { interest, setInterest } = useStore();
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const current = DEFAULT_LISTS.find((l) => l.id === interest);
+  const current = INTERESTS[interest] ?? INTERESTS[DEFAULT_INTEREST];
 
   const close = () => {
     setOpen(false);
@@ -35,11 +36,11 @@ export function InterestPicker() {
         ref={buttonRef}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={`興味の対象：${current?.interest ?? ""}（押して切り替え）`}
+        aria-label={`興味の対象：${current.label}（押して切り替え）`}
         onClick={() => setOpen((v) => !v)}
         className="flex min-w-[6.75rem] items-center justify-between gap-1 rounded-full border-2 border-primary/60 bg-primary/10 px-2.5 py-0.5 text-sm font-bold focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <span>{current?.interest}</span>
+        <span>{current.label}</span>
         <ChevronDown className="size-4 shrink-0" aria-hidden />
       </button>
 
@@ -57,16 +58,16 @@ export function InterestPicker() {
             aria-label="興味の対象"
             className="absolute top-full left-0 z-40 mt-1 w-48 rounded-lg border bg-background p-1 shadow-lg"
           >
-            {DEFAULT_LISTS.map((l) => {
-              const on = l.id === interest;
+            {INTEREST_IDS.map((id) => {
+              const on = id === interest;
               return (
                 <button
-                  key={l.id}
+                  key={id}
                   role="menuitemradio"
                   aria-checked={on}
                   autoFocus={on}
                   onClick={() => {
-                    setInterest(l.id);
+                    setInterest(id);
                     close();
                   }}
                   className="flex w-full items-center gap-2 rounded px-2 py-2 text-left text-sm hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
@@ -74,12 +75,14 @@ export function InterestPicker() {
                   <span className="flex size-4 shrink-0 items-center justify-center">
                     {on && <Check className="size-4" aria-hidden />}
                   </span>
-                  <span className={on ? "font-bold" : ""}>{l.interest}</span>
+                  <span className={on ? "font-bold" : ""}>
+                    {INTERESTS[id].label}
+                  </span>
                 </button>
               );
             })}
             <p className="px-2 pt-1 pb-1 text-xs text-muted-foreground">
-              選んだ対象の条件ボタンだけをホームに出します。この端末にだけ保存します。
+              条件ボタンを、選んだ対象のものに切り替えます（お気に入り・いつものエゴサは共通）。この端末にだけ保存します。
             </p>
           </div>
         </>

@@ -16,6 +16,7 @@ import {
   type Period,
 } from "./data";
 import { buildQuery } from "./query";
+import type { ParsedScope } from "./query-model";
 import { useStore } from "./store";
 
 export type SearchScope = {
@@ -75,21 +76,28 @@ export function HomeScopeProvider({ children }: { children: React.ReactNode }) {
   return <Ctx.Provider value={scope}>{children}</Ctx.Provider>;
 }
 
-/** ページの中だけの検索の組み立て（初期値は空。ホームの状態はコピーしない） */
+/**
+ * ページの中だけの検索の組み立て（ホームの状態はコピーしない）。
+ * initial：初期状態。お気に入りの編集では、保存した文字列を parseToScope で展開したものを渡す。省略すると空。
+ */
 export function LocalScopeProvider({
   source,
+  initial,
   children,
 }: {
   /** 開いたときに履歴に残す出どころ（例：いつものエゴサの編集） */
   source: string;
+  initial?: ParsedScope;
   children: React.ReactNode;
 }) {
   const { chips, say, run } = useStore();
-  const [word, setWord] = useState("");
-  const [exact, setExact] = useState(false);
-  const [onIds, setOnIds] = useState<string[]>([]);
-  const [detail, setDetailState] = useState<Detail>(EMPTY_DETAIL);
-  const [period, setPeriod] = useState<Period>(EMPTY_PERIOD);
+  const [word, setWord] = useState(initial?.word ?? "");
+  const [exact, setExact] = useState(initial?.exact ?? false);
+  const [onIds, setOnIds] = useState<string[]>(initial?.onIds ?? []);
+  const [detail, setDetailState] = useState<Detail>(
+    initial?.detail ?? EMPTY_DETAIL,
+  );
+  const [period, setPeriod] = useState<Period>(initial?.period ?? EMPTY_PERIOD);
   const [sugOn, setSugOn] = useState<string[]>([]);
 
   const query = useMemo(

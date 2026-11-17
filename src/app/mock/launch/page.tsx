@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ENGINE_NAME } from "../_parts/data";
+import { runText } from "../_parts/query";
+import { itemLabel } from "../_parts/rows";
 import { useStore } from "../_parts/store";
-import { savedText } from "../_parts/query";
 import { EmptyState } from "../_parts/ui";
 
 /** S9 ランチャー。ページを開いただけではタブを開かず、［すべて開く］のクリックを起点にする */
@@ -25,8 +26,9 @@ export default function LaunchPage() {
         </EmptyState>
       </main>
     );
-  // いつものエゴサは検索文字列のコピーを持つので、お気に入りの削除・変更の影響を受けない
-  const favs = g.items;
+  // URL には項目（検索文字列＋検索先）だけが入る。相対期間は記号のまま入れ、開く時点の日付に展開する。
+  // 名前は、この端末のお気に入りと文字列が一致すればその名前、無ければ文字列を出す
+  const favs = g.items.map((it) => ({ ...it, label: itemLabel(it, s.favs) }));
 
   return (
     <main className="mx-auto max-w-xl space-y-3 p-4">
@@ -72,7 +74,7 @@ export default function LaunchPage() {
                 {f.label}（{ENGINE_NAME[f.engine]}）
               </div>
               <div className="truncate font-mono text-xs text-muted-foreground">
-                {savedText(f)}
+                {runText(f.query)}
               </div>
             </div>
             <Button
