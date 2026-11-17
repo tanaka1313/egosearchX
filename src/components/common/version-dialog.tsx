@@ -1,15 +1,25 @@
 "use client";
 import { Dialog } from "radix-ui";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { BUILD_INFO, formatBuildTime, type BuildInfo } from "@/lib/build-info";
 
-export function VersionDialog({ info = BUILD_INFO }: { info?: BuildInfo }) {
+export function VersionDialog({
+  info = BUILD_INFO,
+  trigger,
+}: {
+  info?: BuildInfo;
+  /** 開くボタンを差し替える（メニュー内など）。省略時はフッター用の小さなボタン */
+  trigger?: ReactNode;
+}) {
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
-        <Button variant="ghost" size="sm" className="text-xs">
-          バージョン情報
-        </Button>
+        {trigger ?? (
+          <Button variant="ghost" size="sm" className="text-xs">
+            バージョン情報
+          </Button>
+        )}
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/40" />

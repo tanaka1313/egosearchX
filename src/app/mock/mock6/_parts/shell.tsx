@@ -1,9 +1,10 @@
 "use client";
 // MOCK: 破棄予定（#61）
-import { Check, Menu, Play, Search, X } from "lucide-react";
+import { Check, Info, Menu, Play, Search, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { VersionDialog } from "@/components/common/version-dialog";
 import { LIMITS, MENU } from "./data";
 import { useStore } from "./store";
 
@@ -51,6 +52,16 @@ function MenuList({
           <span className="flex-1">コマンドパレット</span>
           <kbd className="rounded border px-1 text-xs">Ctrl/⌘+K</kbd>
         </button>
+      </li>
+      <li>
+        <VersionDialog
+          trigger={
+            <button className="flex w-full items-center gap-2 rounded-lg px-3 py-3 text-left text-base hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring">
+              <Info className="size-4" />
+              <span className="flex-1">バージョン情報</span>
+            </button>
+          }
+        />
       </li>
     </ul>
   );
