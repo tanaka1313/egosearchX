@@ -1,88 +1,52 @@
 "use client";
 // MOCK: 破棄予定（#61）
-import { move } from "@dnd-kit/helpers";
-import { DragDropProvider } from "@dnd-kit/react";
-import { useSortable } from "@dnd-kit/react/sortable";
-import { GripVertical, List, Pencil, X } from "lucide-react";
+import { Check, Circle, List } from "lucide-react";
+import Link from "next/link";
 import { useLayoutEffect, useRef, useState } from "react";
 import { LIMITS, type Chip } from "./data";
 import { chipTokens } from "./query";
 import { useStore } from "./store";
 
-export function SortableChip({
-  chip,
-  index,
-  onEdit,
-  compact,
-}: {
-  chip: Chip;
-  index: number;
-  onEdit: (c: Chip) => void;
-  compact?: boolean;
-}) {
-  const { toggleChip, deleteChip } = useStore();
-  const { ref, handleRef, isDragging } = useSortable({ id: chip.id, index });
+/**
+ * 条件ボタン。押すと ON/OFF が切り替わるだけ（編集・削除・並べ替えは「条件ボタンの編集」ページ）。
+ * ON/OFF でボタンの大きさが変わらないよう、アイコン枠・枠線の太さ・文字の太さを揃える。
+ * 「新」バッジは重ねて置き、幅に含めない。
+ */
+export function ToggleChip({ chip }: { chip: Chip }) {
+  const { toggleChip } = useStore();
   const hasList = chip.conds.some((c) => c.kind === "list");
   return (
-    <div
-      ref={ref}
+    <button
       data-chip={chip.id}
-      className={`inline-flex items-center rounded-full border ${chip.on ? "border-foreground bg-foreground text-background" : "bg-background"} ${isDragging ? "opacity-60 shadow-lg" : ""}`}
+      aria-pressed={chip.on}
+      onClick={() => toggleChip(chip.id)}
+      title={chipTokens(chip).join(" ")}
+      className={`relative inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm focus-visible:ring-2 focus-visible:ring-ring ${chip.on ? "border-foreground bg-foreground text-background" : "border-border bg-background text-muted-foreground"}`}
     >
-      <button
-        ref={handleRef}
-        aria-label={`${chip.label}を並べ替え（Space で持ち上げ、矢印で移動）`}
-        className="cursor-grab touch-none rounded-l-full py-1.5 pr-0.5 pl-1.5 opacity-70 focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <GripVertical className="size-3.5" />
-      </button>
-      <button
-        aria-pressed={chip.on}
-        onClick={() => toggleChip(chip.id)}
-        title={chipTokens(chip).join(" ")}
-        className="flex items-center gap-1 px-1.5 py-1.5 text-sm focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        {chip.on ? "✓" : "＋"}
-        {hasList && <List className="size-3.5" aria-label="リスト" />}
-        {chip.label}
-        {chip.conds.length > 1 && (
-          <span className="text-xs opacity-70">×{chip.conds.length}</span>
+      <span className="flex size-4 shrink-0 items-center justify-center">
+        {chip.on ? (
+          <Check className="size-4" aria-label="ON" />
+        ) : (
+          <Circle className="size-3.5" aria-label="OFF" />
         )}
-        {chip.isNew && (
-          <span className="rounded bg-amber-300 px-1 text-xs font-bold text-amber-950">
-            新
-          </span>
-        )}
-      </button>
-      {!compact && (
-        <button
-          aria-label={`${chip.label}を編集`}
-          onClick={() => onEdit(chip)}
-          className="p-1 opacity-70 hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <Pencil className="size-3" />
-        </button>
+      </span>
+      {hasList && <List className="size-3.5 shrink-0" aria-label="リスト" />}
+      {chip.label}
+      {chip.conds.length > 1 && (
+        <span className="text-xs opacity-70">×{chip.conds.length}</span>
       )}
-      <button
-        aria-label={`${chip.label}を削除`}
-        onClick={() => deleteChip(chip.id)}
-        className="rounded-r-full py-1.5 pr-2 pl-0.5 opacity-70 hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <X className="size-3" />
-      </button>
-    </div>
+      {chip.isNew && (
+        <span className="absolute -top-1.5 right-2 rounded bg-amber-300 px-1 text-[10px] leading-4 font-bold text-amber-950">
+          新
+        </span>
+      )}
+    </button>
   );
 }
 
 /** 条件ボタン列。3行目以降は［もっと開く］で隠し、隠れた分は inert にする */
-export function ChipRow({
-  onEdit,
-  fold = true,
-}: {
-  onEdit: (c: Chip) => void;
-  fold?: boolean;
-}) {
-  const { chips, setChips } = useStore();
+export function ChipRow() {
+  const { chips } = useStore();
   const [expanded, setExpanded] = useState(false);
   const [hidden, setHidden] = useState(0);
   const [clip, setClip] = useState<number | null>(null);
@@ -96,7 +60,7 @@ export function ChipRow({
       const tops = [...new Set(kids.map((k) => k.offsetTop))].sort(
         (a, b) => a - b,
       );
-      const limit = fold ? tops[LIMITS.foldRows] : undefined;
+      const limit = tops[LIMITS.foldRows];
       let n = 0;
       kids.forEach((k) => {
         const h = limit !== undefined && k.offsetTop >= limit;
@@ -104,43 +68,44 @@ export function ChipRow({
         k.inert = !expanded && h;
       });
       setHidden(n);
-      setClip(limit !== undefined ? limit - 8 : null);
+      setClip(limit !== undefined ? limit - 4 : null);
     };
     calc();
     const ro = new ResizeObserver(calc);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [chips, expanded, fold]);
+  }, [chips, expanded]);
 
   return (
-    <div>
-      <DragDropProvider
-        onDragEnd={(ev) => {
-          if (ev.canceled) return;
-          setChips(move(chips, ev));
-        }}
+    <div className="space-y-2">
+      <div
+        ref={boxRef}
+        role="group"
+        aria-label="条件ボタン"
+        style={!expanded && clip ? { maxHeight: clip } : undefined}
+        className="relative flex flex-wrap gap-2 overflow-hidden pt-2"
       >
-        <div
-          ref={boxRef}
-          role="group"
-          aria-label="条件ボタン"
-          style={!expanded && clip ? { maxHeight: clip } : undefined}
-          className="relative flex flex-wrap gap-2 overflow-hidden"
+        {chips.map((c) => (
+          <ToggleChip key={c.id} chip={c} />
+        ))}
+      </div>
+      <div className="flex items-center gap-3 text-sm">
+        {(hidden > 0 || expanded) && (
+          <button
+            aria-expanded={expanded}
+            onClick={() => setExpanded((v) => !v)}
+            className="rounded-full border border-dashed px-3 py-1 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {expanded ? "閉じる" : `もっと開く（+${hidden}）`}
+          </button>
+        )}
+        <Link
+          href="/mock/mock6/buttons"
+          className="ml-auto text-muted-foreground underline underline-offset-4"
         >
-          {chips.map((c, i) => (
-            <SortableChip key={c.id} chip={c} index={i} onEdit={onEdit} />
-          ))}
-        </div>
-      </DragDropProvider>
-      {fold && (hidden > 0 || expanded) && (
-        <button
-          aria-expanded={expanded}
-          onClick={() => setExpanded((v) => !v)}
-          className="mt-2 rounded-full border border-dashed px-3 py-1 text-sm hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {expanded ? "閉じる" : `もっと開く（+${hidden}）`}
-        </button>
-      )}
+          ボタンを編集 →
+        </Link>
+      </div>
     </div>
   );
 }

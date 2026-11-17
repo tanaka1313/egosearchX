@@ -60,7 +60,7 @@ export function DetailPanel() {
   return (
     <details className="group rounded-xl border">
       <summary className="cursor-pointer px-3 py-3 font-medium focus-visible:ring-2 focus-visible:ring-ring">
-        詳細設定（この検索だけ）
+        詳細条件
         {nodes.length > 0 && (
           <span className="ml-2 rounded-full border px-2 text-xs">
             個別 {nodes.length}

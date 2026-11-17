@@ -1,13 +1,19 @@
 "use client";
 // MOCK: 破棄予定（#61）
-import { Menu, Search, X } from "lucide-react";
+import { Check, Menu, Play, Search, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { MENU } from "./data";
+import { LIMITS, MENU } from "./data";
 import { useStore } from "./store";
 
-function MenuList({ onNavigate }: { onNavigate?: () => void }) {
+function MenuList({
+  onNavigate,
+  onPalette,
+}: {
+  onNavigate?: () => void;
+  onPalette: () => void;
+}) {
   const path = usePathname();
   const { trash } = useStore();
   return (
@@ -33,7 +39,100 @@ function MenuList({ onNavigate }: { onNavigate?: () => void }) {
           </li>
         );
       })}
+      <li>
+        <button
+          onClick={() => {
+            onNavigate?.();
+            onPalette();
+          }}
+          className="flex w-full items-center gap-2 rounded-lg px-3 py-3 text-left text-base hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Search className="size-4" />
+          <span className="flex-1">コマンドパレット</span>
+          <kbd className="rounded border px-1 text-xs">Ctrl/⌘+K</kbd>
+        </button>
+      </li>
     </ul>
+  );
+}
+
+/** ヘッダーの「いつものエゴサ」。先頭の数件だけ並べ、名前は省略する（例：配信後エ…(3)） */
+function HeaderGroups() {
+  const { groups, runGroup } = useStore();
+  const shown = groups.slice(0, LIMITS.headerGroups);
+  if (groups.length === 0)
+    return (
+      <Link
+        href="/mock/mock6/groups"
+        className="min-w-0 truncate text-sm text-muted-foreground underline underline-offset-4"
+      >
+        いつものエゴサを登録
+      </Link>
+    );
+  return (
+    <div
+      role="group"
+      aria-label="いつものエゴサ"
+      className="flex min-w-0 flex-1 items-center gap-1.5"
+    >
+      {shown.map((g) => (
+        <button
+          key={g.id}
+          onClick={() => runGroup(g.id)}
+          title={`${g.name}（${g.favIds.length}）${g.doneToday ? "：今日は済" : ""}`}
+          aria-label={`${g.name}（${g.favIds.length}個）を実行${g.doneToday ? "（今日は済）" : ""}`}
+          className="flex min-w-0 items-center gap-1 rounded-full border-2 px-2.5 py-1 text-sm font-medium hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Play className="size-3.5 shrink-0" />
+          <span className="max-w-[4.5rem] truncate sm:max-w-[9rem]">
+            {g.name}
+          </span>
+          <span className="shrink-0">({g.favIds.length})</span>
+          {g.doneToday && <Check className="size-3.5 shrink-0" />}
+        </button>
+      ))}
+      <Link
+        href="/mock/mock6/groups"
+        className="ml-auto hidden shrink-0 text-sm text-muted-foreground underline underline-offset-4 sm:inline"
+      >
+        一覧
+      </Link>
+    </div>
+  );
+}
+
+/** フッター：最後の履歴を1件だけ固定表示する */
+function Footer() {
+  const { history, say } = useStore();
+  const last = history[0];
+  return (
+    <footer className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-2 border-t bg-background px-3 py-2 text-xs">
+      <span className="shrink-0 text-muted-foreground">前回</span>
+      {last ? (
+        <>
+          <span className="shrink-0">{last.at}</span>
+          <span className="min-w-0 flex-1 truncate font-mono">
+            {last.word || last.query}
+          </span>
+          <button
+            onClick={() => say("再実行しました（ダミー）")}
+            className="shrink-0 rounded border px-2 py-1 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            再実行
+          </button>
+        </>
+      ) : (
+        <span className="flex-1 text-muted-foreground">
+          実行するとここに残ります
+        </span>
+      )}
+      <Link
+        href="/mock/mock6/history"
+        className="shrink-0 underline underline-offset-4"
+      >
+        履歴 →
+      </Link>
+    </footer>
   );
 }
 
@@ -43,6 +142,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const toggleRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const { toast } = useStore();
+  const path = usePathname();
+  // ランチャーは画面に集中させるため、いつものエゴサとフッターを出さない
+  const launcher = path === "/mock/mock6/launch";
 
   useEffect(() => {
     const onKey = (ev: KeyboardEvent) => {
@@ -78,10 +180,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
         className="hidden w-64 shrink-0 border-r p-3 xl:block"
       >
         <p className="mb-3 px-3 font-bold">EgoSearch Studio</p>
-        <MenuList />
+        <MenuList onPalette={() => setPalette(true)} />
       </aside>
 
-      <div className="min-w-0 flex-1">
+      <div className={`min-w-0 flex-1 ${launcher ? "" : "pb-14"}`}>
         {/* ヘッダーは sticky にしない（バナーの下に潜らせない） */}
         <header className="flex items-center gap-2 border-b px-3 py-2">
           <button
@@ -94,23 +196,14 @@ export function Shell({ children }: { children: React.ReactNode }) {
           >
             <Menu className="size-6" />
           </button>
-          <Link href="/mock/mock6" className="font-bold">
+          <Link href="/mock/mock6" className="shrink-0 font-bold">
             EgoSearch
           </Link>
-          <button
-            onClick={() => setPalette(true)}
-            aria-label="コマンドパレットを開く（Ctrl/⌘+K）"
-            className="ml-auto flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <Search className="size-4" />
-            <span className="hidden sm:inline">検索・実行</span>
-            <kbd className="hidden rounded border px-1 text-xs md:inline">
-              Ctrl/⌘+K
-            </kbd>
-          </button>
+          {!launcher && <HeaderGroups />}
         </header>
         {children}
       </div>
+      {!launcher && <Footer />}
 
       {open && (
         <div className="fixed inset-0 z-[60] flex xl:hidden">
@@ -130,7 +223,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 <X className="size-5" />
               </button>
             </div>
-            <MenuList onNavigate={() => setOpen(false)} />
+            <MenuList
+              onNavigate={() => setOpen(false)}
+              onPalette={() => setPalette(true)}
+            />
           </nav>
           <button
             aria-label="メニューの外を押して閉じる"
@@ -146,7 +242,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       {toast && (
         <div
           role="status"
-          className="fixed inset-x-3 bottom-3 z-[70] mx-auto flex max-w-md items-center gap-3 rounded-lg border bg-foreground px-4 py-3 text-sm text-background shadow-xl"
+          className="fixed inset-x-3 bottom-14 z-[70] mx-auto flex max-w-md items-center gap-3 rounded-lg border bg-foreground px-4 py-3 text-sm text-background shadow-xl"
         >
           <span className="flex-1">{toast.msg}</span>
           {toast.undo && (
