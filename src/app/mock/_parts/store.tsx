@@ -21,6 +21,7 @@ import {
   LIMITS,
   SUGGEST_SEEDS,
   defaultChips,
+  favToItem,
   type Chip,
   type Detail,
   type Favorite,
@@ -79,6 +80,13 @@ export type Store = {
   setNotice: (m: string) => void;
   usedChips: Chip[];
   query: ReturnType<typeof buildQuery>;
+  /** 初回カード（好みの選択）を出すか */
+  onboardOpen: boolean;
+  setOnboardOpen: (v: boolean) => void;
+  /** 選んだ既定リストだけ表示し、入力した名前・タグから「推しエゴサ」を作る（端末内のみ） */
+  applyOnboarding: (listIds: string[], names: string[]) => void;
+  /** 初回の状態（既定リストのみ・保存なし・好み未選択）にする */
+  startFresh: () => void;
 };
 
 const Ctx = createContext<Store | null>(null);
@@ -106,6 +114,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [sugOn, setSugOn] = useState<string[]>([]);
   const [toast, setToast] = useState<Toast | null>(null);
   const [notice, setNotice] = useState("");
+  const [onboardOpen, setOnboardOpen] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // 最新値を操作関数から読むための ref（クロージャの古い値を避ける）
@@ -148,6 +157,20 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     () => chips.filter((c) => c.on && c.visible),
     [chips],
   );
+
+  const startFresh = useCallback(() => {
+    setChips(defaultChips());
+    setFavs([]);
+    setGroups([]);
+    setHistory([]);
+    setTrash([]);
+    setWord("");
+    setExact(false);
+    setDetailState(EMPTY_DETAIL);
+    setPeriod(EMPTY_PERIOD);
+    setSugOn([]);
+    setOnboardOpen(true);
+  }, []);
 
   const restore = useCallback(
     (tid: string): string | null => {
@@ -384,6 +407,48 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setNotice,
     usedChips,
     query,
+    onboardOpen,
+    setOnboardOpen,
+    startFresh,
+    applyOnboarding: (listIds, names) => {
+      // 既定リストは、選んだものだけホームに出す（何も選ばなければ変えない）
+      if (listIds.length > 0)
+        setChips((cs) =>
+          cs.map((c) =>
+            c.isDefault ? { ...c, visible: listIds.includes(c.id) } : c,
+          ),
+        );
+      const terms = names.map((n) => n.trim()).filter(Boolean);
+      if (terms.length > 0) {
+        // 名前はお気に入りとして保存し、そのコピーを「推しエゴサ」にまとめる
+        const created: Favorite[] = terms.map((t) => ({
+          id: nid("f"),
+          name: t,
+          query: /^[#@]/.test(t) ? t : `"${t}"`,
+          period: { ...EMPTY_PERIOD, kind: "d1" },
+          engine: "x",
+          last: "未実行",
+        }));
+        setFavs((fs) => [...fs, ...created]);
+        setGroups((gs) => [
+          ...gs,
+          {
+            id: nid("g"),
+            name: "推しエゴサ",
+            items: created.map(favToItem),
+            doneToday: false,
+          },
+        ]);
+        const first = terms[0];
+        if (first && !/^[#@]/.test(first)) setWord(first);
+      }
+      setOnboardOpen(false);
+      say(
+        terms.length > 0
+          ? `「推しエゴサ（${terms.length}個）」を作りました。帯のボタンでまとめて開けます`
+          : "好みを反映しました",
+      );
+    },
   };
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;

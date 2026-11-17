@@ -9,7 +9,17 @@ import {
   periodText,
   periodTokens,
 } from "./query";
-import { toggleClass } from "./ui";
+
+/**
+ * 枠の中のセグメント。ON は青の枠＋薄い塗り＋✓（アイコン側）。OFF も枠線の太さを同じにして透明にし、
+ * 押しても大きさが変わらないようにする。
+ */
+const segClass = (on: boolean) =>
+  `border focus-visible:ring-2 focus-visible:ring-ring ${
+    on
+      ? "border-primary bg-primary/20 text-foreground"
+      : "border-transparent text-muted-foreground hover:bg-muted"
+  }`;
 
 /**
  * 期間の入力（制御コンポーネント）。ホーム・詳細条件・いつものエゴサの追加・お気に入りの編集で共通。
@@ -45,43 +55,46 @@ export function PeriodPicker({
 
   return (
     <div className="space-y-1" role="group" aria-label={label}>
-      <div className="flex flex-wrap items-center gap-1">
-        <span className="mr-1 text-sm font-medium">{label}</span>
-        {REL_PERIODS.map((r) => {
-          const on = value.kind === r.kind;
-          return (
-            <button
-              key={r.kind}
-              aria-pressed={on}
-              onClick={() => pick(r.kind)}
-              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm ${toggleClass(on)}`}
-            >
-              <span className="flex size-4 shrink-0 items-center justify-center">
-                {on ? (
-                  <Check className="size-4" />
-                ) : (
-                  <Circle className="size-3.5" />
-                )}
-              </span>
-              {r.label}
-            </button>
-          );
-        })}
-        <button
-          aria-pressed={isDate}
-          aria-expanded={isDate}
-          onClick={() => pick("date")}
-          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm ${toggleClass(isDate)}`}
-        >
-          <span className="flex size-4 shrink-0 items-center justify-center">
-            {isDate ? (
-              <Check className="size-4" />
-            ) : (
-              <Calendar className="size-3.5" />
-            )}
-          </span>
-          日付
-        </button>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm font-medium">{label}</span>
+        {/* 4つの選択肢を1つの枠にまとめ、条件ボタンとは別のまとまりに見せる（狭い幅では枠の中で折り返す） */}
+        <div className="flex flex-wrap gap-1 rounded-2xl border bg-background p-1">
+          {REL_PERIODS.map((r) => {
+            const on = value.kind === r.kind;
+            return (
+              <button
+                key={r.kind}
+                aria-pressed={on}
+                onClick={() => pick(r.kind)}
+                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm ${segClass(on)}`}
+              >
+                <span className="flex size-4 shrink-0 items-center justify-center">
+                  {on ? (
+                    <Check className="size-4" />
+                  ) : (
+                    <Circle className="size-3.5" />
+                  )}
+                </span>
+                {r.label}
+              </button>
+            );
+          })}
+          <button
+            aria-pressed={isDate}
+            aria-expanded={isDate}
+            onClick={() => pick("date")}
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-sm ${segClass(isDate)}`}
+          >
+            <span className="flex size-4 shrink-0 items-center justify-center">
+              {isDate ? (
+                <Check className="size-4" />
+              ) : (
+                <Calendar className="size-3.5" />
+              )}
+            </span>
+            日付
+          </button>
+        </div>
       </div>
       {isDate && (
         <div className="flex items-center gap-1.5">
@@ -111,8 +124,8 @@ export function PeriodPicker({
           </button>
         </div>
       )}
-      {/* 注記は2行分の高さを常に確保する */}
-      <p className="min-h-8 text-xs text-muted-foreground">{note}</p>
+      {/* 注記は1行分の高さを常に確保する（空の行を増やさない） */}
+      <p className="min-h-4 text-xs text-muted-foreground">{note}</p>
     </div>
   );
 }
