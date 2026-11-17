@@ -139,10 +139,16 @@
     background-color: var(--field);
     border-color: var(--input);
   }
-  /* スクロールバー：細く、半透明のつまみだけを出す（ダークの背景になじませる） */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--scroll-thumb) transparent;
+  /*
+   * スクロールバー：細く、半透明のつまみだけを出す（ダークの背景になじませる）。
+   * Chrome 121 以降は scrollbar-width／scrollbar-color を指定すると ::-webkit-scrollbar を無視するので、
+   * 標準のプロパティは ::-webkit-scrollbar が使えないブラウザ（Firefox）だけに付ける。
+   */
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--scroll-thumb) transparent;
+    }
   }
   ::-webkit-scrollbar {
     width: 6px;
