@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FILTERS, type Detail, type Engine, type Tri } from "./data";
-import { OpenBar } from "./open-bar";
 import { PeriodPicker } from "./period-picker";
 import { chipTokens, detailTokens } from "./query";
-import { useStore } from "./store";
+import { useSearchScope } from "./search-scope";
 import { Section, TagInput, toggleClass } from "./ui";
 
 const TRI: { v: Tri; l: string }[] = [
@@ -44,10 +43,13 @@ function Field({
   );
 }
 
-/** 詳細設定（個別設定）。初期は閉じた開閉エリア */
-export function DetailPanel() {
+/**
+ * 詳細条件（個別設定）。初期は閉じた開閉エリア。状態は SearchScope から読む（ホーム・いつものエゴサの編集で共通）。
+ * footer：末尾に置く操作（ホームは開くボタン群、いつものエゴサの編集は［お気に入りに保存して追加］）。
+ */
+export function DetailPanel({ footer }: { footer?: React.ReactNode }) {
   const { detail, setDetail, period, setPeriod, usedChips, resetDetail } =
-    useStore();
+    useSearchScope();
   const [tab, setTab] = useState<"gui" | "text">("gui");
   const patch = (p: Partial<Detail>) => setDetail((d) => ({ ...d, ...p }));
   const nodes = detailTokens(detail);
@@ -320,8 +322,8 @@ export function DetailPanel() {
           )}
         </Section>
 
-        {/* 詳細条件を触ったその場で開けるよう、ホームと同じ OpenBar を末尾に置く */}
-        <OpenBar />
+        {/* 詳細条件を触ったその場で次の操作ができるよう、末尾に画面ごとの操作を置く */}
+        {footer}
 
         <div className="flex justify-end">
           <Button size="sm" variant="outline" onClick={resetDetail}>

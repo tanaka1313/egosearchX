@@ -3,8 +3,9 @@
 import { Ellipsis, Star } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { EMPTY_PERIOD, LIMITS, favToItem, type Favorite } from "./data";
-import { buildQuery, periodInverted } from "./query";
+import { LIMITS, favToItem, type Favorite } from "./data";
+import { periodInverted, queryWithoutPeriod } from "./query";
+import { useSearchScope } from "./search-scope";
 import { nid, useStore } from "./store";
 import { Sheet } from "./ui";
 
@@ -102,55 +103,68 @@ function MoreMenu() {
 }
 
 /**
+ * クエリ表示（1行固定・横スクロール。スクロールバーは文字の下の帯に出し、文字に重ねない）＋⚠（件数）。
+ * SearchScope の検索を表示するので、ホームでもいつものエゴサの編集でも同じ部品を使う。
+ * 警告は⚠アイコンの件数に集約し（URL 長の警告も含む）、空の行を確保しない。
+ * text：表示する文字列を差し替える（例：期間を末尾に付けた保存用の表示）。
+ */
+export function QueryPreview({ text }: { text?: string }) {
+  const { query: q } = useSearchScope();
+  const [warnOpen, setWarnOpen] = useState(false);
+  const shown = text ?? q.text;
+  const warnings =
+    shown.length > LIMITS.urlWarn
+      ? [
+          ...q.warnings,
+          `クエリが${LIMITS.urlWarn}文字を超えています（上限は未確認）`,
+        ]
+      : q.warnings;
+  return (
+    <div className="space-y-1">
+      <div className="flex items-start gap-2">
+        <code
+          tabIndex={0}
+          aria-label="組み立てた検索クエリ（長いときは横にスクロール）"
+          className="scroll-x block min-w-0 flex-1 rounded bg-muted font-mono text-xs focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {shown || "（検索語か条件ボタンを選んでください）"}
+        </code>
+        {warnings.length > 0 ? (
+          <button
+            aria-expanded={warnOpen}
+            aria-label={`警告 ${warnings.length}件`}
+            onClick={() => setWarnOpen((v) => !v)}
+            className="h-10 w-12 shrink-0 rounded border px-2 text-sm focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            ⚠ {warnings.length}
+          </button>
+        ) : (
+          <span className="w-12 shrink-0" aria-hidden />
+        )}
+      </div>
+      {warnOpen && warnings.length > 0 && (
+        <ul className="space-y-1 rounded border p-2 text-xs">
+          {warnings.map((w) => (
+            <li key={w}>⚠ {w}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/**
  * 組み立てた検索を確かめて開くところ：クエリ表示（1行固定）＋⚠＋［X で開く］［Yahoo で開く］［☆ 保存］［⋯］。
  * ホームの入力欄の直下と、詳細条件の末尾の2か所に置く（同じ状態・同じ処理。機能は1つ）。
  * 警告は⚠アイコンの件数に集約し（URL 長の警告も含む）、空の行を確保しない。
  */
 export function OpenBar() {
   const s = useStore();
-  const [warnOpen, setWarnOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
-  const q = s.query;
-  const warnings =
-    q.text.length > LIMITS.urlWarn
-      ? [
-          ...q.warnings,
-          `クエリが${LIMITS.urlWarn}文字を超えています（上限は未確認）`,
-        ]
-      : q.warnings;
 
   return (
     <div className="space-y-2">
-      <div className="space-y-1">
-        <div className="flex items-start gap-2">
-          <code
-            tabIndex={0}
-            aria-label="組み立てた検索クエリ（長いときは横にスクロール）"
-            className="block h-9 min-w-0 flex-1 overflow-x-auto rounded bg-muted px-2 py-2 font-mono text-xs leading-5 whitespace-nowrap focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            {q.text || "（検索語か条件ボタンを選んでください）"}
-          </code>
-          {warnings.length > 0 ? (
-            <button
-              aria-expanded={warnOpen}
-              aria-label={`警告 ${warnings.length}件`}
-              onClick={() => setWarnOpen((v) => !v)}
-              className="w-12 shrink-0 rounded border px-2 py-1 text-sm focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              ⚠ {warnings.length}
-            </button>
-          ) : (
-            <span className="w-12 shrink-0" aria-hidden />
-          )}
-        </div>
-        {warnOpen && warnings.length > 0 && (
-          <ul className="space-y-1 rounded border p-2 text-xs">
-            {warnings.map((w) => (
-              <li key={w}>⚠ {w}</li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <QueryPreview />
 
       <div className="flex gap-2">
         {/* 一番大事な操作。塗りつぶしの青で、ON の条件ボタン（枠＋薄い塗り）と区別する */}
@@ -199,14 +213,7 @@ function SaveSheet({ onClose }: { onClose: () => void }) {
   const [err, setErr] = useState("");
 
   // 保存するのは「期間を除いた検索文字列」と期間。条件ボタンの参照は持たない
-  const queryOnly = buildQuery({
-    word: s.word,
-    exact: s.exact,
-    chips: s.chips,
-    detail: s.detail,
-    period: EMPTY_PERIOD,
-    extra: s.sugOn,
-  }).text;
+  const queryOnly = queryWithoutPeriod(s.query, s.period);
 
   const save = () => {
     if (!name.trim()) return setErr("名前を入力してください");
@@ -243,7 +250,7 @@ function SaveSheet({ onClose }: { onClose: () => void }) {
         <input
           value={name}
           onChange={(ev) => setName(ev.target.value)}
-          className="w-full rounded-lg border bg-background px-3 py-2"
+          className="w-full rounded-lg border px-3 py-2"
         />
       </label>
       <code className="block rounded bg-muted p-2 font-mono text-xs break-all">
@@ -291,7 +298,7 @@ function SaveSheet({ onClose }: { onClose: () => void }) {
             onChange={(ev) => setNewGroup(ev.target.value)}
             aria-label="新しいいつものエゴサの名前（初期値はお気に入りの名前）"
             placeholder="例：配信後エゴサ"
-            className="w-full rounded-lg border bg-background px-3 py-2"
+            className="w-full rounded-lg border px-3 py-2"
           />
         )}
       </fieldset>

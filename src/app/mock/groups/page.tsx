@@ -1,35 +1,32 @@
 "use client";
 // MOCK: 破棄予定（#61）
+import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LIMITS, type Group } from "../_parts/data";
-import { EgosaEditor } from "../_parts/egosa-editor";
 import { useStore } from "../_parts/store";
 import { EmptyState, PageHead, Sheet } from "../_parts/ui";
 
+/** 追加・編集は専用ページ（/mock/groups/edit）。詳細条件まで使うので、シートにしない */
+const addButton = (
+  <Button size="sm" asChild>
+    <Link href="/mock/groups/edit">＋ 追加</Link>
+  </Button>
+);
+
 export default function GroupsPage() {
   const s = useStore();
-  const [editing, setEditing] = useState<Group | "new" | null>(null);
   const [issue, setIssue] = useState<Group | null>(null);
 
   return (
     <main className="mx-auto max-w-3xl space-y-3 p-3 md:p-4">
-      <PageHead
-        title="いつものエゴサ"
-        right={
-          <Button size="sm" onClick={() => setEditing("new")}>
-            ＋ 追加
-          </Button>
-        }
-      />
+      <PageHead title="いつものエゴサ" right={addButton} />
       <p className="text-sm text-muted-foreground">
         エゴサのタイミング（配信後・毎朝など）ごとに、複数の検索をまとめて一括で開けます。先頭2件はどのページでもヘッダー下の帯に並びます。追加は、お気に入りを選んでまとめる方法と、条件を指定して新しく作る方法の2つです。中身は検索文字列のコピーなので、元のお気に入りを直しても変わりません。
       </p>
       {s.groups.length === 0 ? (
         <EmptyState text="いつものエゴサがありません。「配信後エゴサ」などを作ってみましょう">
-          <Button size="sm" onClick={() => setEditing("new")}>
-            ＋ 追加
-          </Button>
+          {addButton}
         </EmptyState>
       ) : (
         <ul className="space-y-2">
@@ -62,12 +59,8 @@ export default function GroupsPage() {
                     >
                       ブックマークURL
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setEditing(g)}
-                    >
-                      編集
+                    <Button size="sm" variant="outline" asChild>
+                      <Link href={`/mock/groups/edit?id=${g.id}`}>編集</Link>
                     </Button>
                     <button
                       aria-label={`${g.name}を削除`}
@@ -85,12 +78,6 @@ export default function GroupsPage() {
             );
           })}
         </ul>
-      )}
-      {editing && (
-        <EgosaEditor
-          group={editing === "new" ? null : editing}
-          onClose={() => setEditing(null)}
-        />
       )}
       {issue && <IssueSheet group={issue} onClose={() => setIssue(null)} />}
     </main>

@@ -11,6 +11,7 @@ import {
   type ParamOp,
 } from "./data";
 import { chipTokens, periodActive } from "./query";
+import { useSearchScope } from "./search-scope";
 import { useStore } from "./store";
 import { toggleClass } from "./ui";
 
@@ -20,18 +21,19 @@ import { toggleClass } from "./ui";
  * 「新」バッジは重ねて置き、幅に含めない。
  */
 export function ToggleChip({ chip }: { chip: Chip }) {
-  const { toggleChip } = useStore();
+  const { isOn, toggle } = useSearchScope();
   if (chip.conds.some(isParamCond)) return <ParamChip chip={chip} />;
+  const on = isOn(chip.id);
   return (
     <button
       data-chip={chip.id}
-      aria-pressed={chip.on}
-      onClick={() => toggleChip(chip.id)}
+      aria-pressed={on}
+      onClick={() => toggle(chip.id)}
       title={chipTokens(chip).join(" ")}
-      className={`relative inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm ${toggleClass(chip.on)}`}
+      className={`relative inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm ${toggleClass(on)}`}
     >
       <span className="flex size-4 shrink-0 items-center justify-center">
-        {chip.on ? (
+        {on ? (
           <Check className="size-4" aria-label="ON" />
         ) : (
           <Circle className="size-3.5" aria-label="OFF" />
@@ -52,11 +54,13 @@ export function ToggleChip({ chip }: { chip: Chip }) {
  * `<button>` の中に入力欄は置けないので、外枠を span にして「切替ボタン＋入力欄＋接尾語」を並べる。
  * - 切替ボタン（アイコン枠＋ラベル）と接尾語を押すと ON/OFF。
  * - 入力欄で値を変えると、値をボタンに保存して自動で ON にする。
- * - 入力欄の幅は固定（値の桁数や ON/OFF でボタンの幅を変えない）。
+ * - 入力欄の幅は固定（値の桁数や ON/OFF でボタンの幅を変えない）。高さはふつうの条件ボタンと同じ（入力欄＝1行の高さ）。
  * - 期間を指定中は、日付の条件を持つボタンを無効の表示にする（期間を優先。ON/OFF の状態は残す）。
  */
 function ParamChip({ chip }: { chip: Chip }) {
-  const { toggleChip, setCondValue, period } = useStore();
+  const { setCondValue } = useStore();
+  const { isOn, toggle, setOn, period } = useSearchScope();
+  const on = isOn(chip.id);
   const blocked =
     periodActive(period) && chip.conds.some((c) => c.kind === "date");
   const reasonId = `chip-${chip.id}-reason`;
@@ -67,18 +71,18 @@ function ParamChip({ chip }: { chip: Chip }) {
       aria-label={chip.label}
       data-chip={chip.id}
       title={blocked ? `期間を指定中のため無効（${tokens}）` : tokens}
-      className={`relative inline-flex items-center gap-1 rounded-full py-1 pr-3 pl-1 text-sm ${toggleClass(chip.on)} ${blocked ? "opacity-60" : ""}`}
+      className={`relative inline-flex items-center gap-1 rounded-full py-1.5 pr-3 pl-1 text-sm ${toggleClass(on)} ${blocked ? "opacity-60" : ""}`}
     >
       <button
-        aria-pressed={chip.on}
+        aria-pressed={on}
         aria-describedby={blocked ? reasonId : undefined}
-        onClick={() => toggleChip(chip.id)}
-        className="inline-flex items-center gap-1.5 rounded-full py-0.5 pl-2 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+        onClick={() => toggle(chip.id)}
+        className="inline-flex items-center gap-1.5 rounded-full pl-2 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
       >
         <span className="flex size-4 shrink-0 items-center justify-center">
           {blocked ? (
             <Ban className="size-3.5" aria-label="無効" />
-          ) : chip.on ? (
+          ) : on ? (
             <Check className="size-4" aria-label="ON" />
           ) : (
             <Circle className="size-3.5" aria-label="OFF" />
@@ -91,7 +95,7 @@ function ParamChip({ chip }: { chip: Chip }) {
         const def = PARAM_OPS[op];
         const disabled = blocked && c.kind === "date";
         return (
-          <span key={c.id} className="inline-flex items-center gap-1">
+          <span key={c.id} className="inline-flex items-center gap-0.5">
             <input
               type={def.type}
               inputMode={def.type === "number" ? "numeric" : undefined}
@@ -99,13 +103,17 @@ function ParamChip({ chip }: { chip: Chip }) {
               value={c.value}
               disabled={disabled}
               aria-label={`${chip.label}の${def.label}`}
-              onChange={(ev) => setCondValue(chip.id, c.id, ev.target.value)}
-              className={`h-6 rounded border border-border bg-background px-1 font-mono text-sm text-foreground tabular-nums focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed ${def.type === "number" ? "w-[6ch] text-right" : "w-[8.75rem]"}`}
+              onChange={(ev) => {
+                // 値はボタンに保存し、この検索の組み立てでは ON にする
+                setCondValue(chip.id, c.id, ev.target.value);
+                setOn(chip.id, true);
+              }}
+              className={`h-5 rounded border px-0.5 font-mono text-xs text-foreground tabular-nums focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed ${def.type === "number" ? "w-[4.5ch] text-right" : "w-[7.5rem]"}`}
             />
             {/* 接尾語は押すと ON/OFF（マウス用。キーボードは切替ボタンで操作する） */}
             <span
               aria-hidden
-              onClick={() => toggleChip(chip.id)}
+              onClick={() => toggle(chip.id)}
               className="cursor-pointer select-none"
             >
               {def.suffix}
@@ -129,7 +137,7 @@ function ParamChip({ chip }: { chip: Chip }) {
 
 /** サジェスト検索条件。条件ボタンと同じ大きさで ON/OFF（この検索にだけ足す。破線枠で区別する） */
 function SuggestChip({ token }: { token: string }) {
-  const { sugOn, toggleSuggestion } = useStore();
+  const { sugOn, toggleSuggestion } = useSearchScope();
   const on = sugOn.includes(token);
   return (
     <button

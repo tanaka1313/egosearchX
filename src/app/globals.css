@@ -101,7 +101,8 @@
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
+  /* 入力欄の枠。背景（--field）と合わせて、入力できる場所だと分かる濃さにする */
+  --input: oklch(1 0 0 / 22%);
   --ring: oklch(0.556 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
@@ -116,6 +117,9 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  /* 入力欄の面（ページの背景 0.145 より明るく、「条件」の枠よりも明るい） */
+  --field: oklch(0.225 0 0);
+  --scroll-thumb: oklch(1 0 0 / 22%);
 }
 
 @layer base {
@@ -128,4 +132,41 @@
   html {
     @apply font-sans;
   }
+  /* 入力欄はページの背景より少し明るい面にして、入力できる場所だと分かるようにする（色はトークン1か所） */
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    background-color: var(--field);
+    border-color: var(--input);
+  }
+  /* スクロールバー：細く、半透明のつまみだけを出す（ダークの背景になじませる） */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scroll-thumb);
+    border-radius: 9999px;
+  }
+}
+
+/*
+ * 1行固定の横スクロール（クエリのプレビューなど）。
+ * 高さを固定したまま、上に文字の行、下にスクロールバーの帯を取り、バーが文字に重ならないようにする。
+ * 文字が短くてバーが出ないときも同じ高さ（ガタつかない）。
+ */
+@utility scroll-x {
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  height: 2.5rem;
+  padding: 0.375rem 0.5rem 0.625rem;
+  line-height: 1.25rem;
 }

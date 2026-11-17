@@ -6,7 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { VersionDialog } from "@/components/common/version-dialog";
 import { APP_FEATURE, LIMITS, MENU } from "./data";
-import { EgosaEditor } from "./egosa-editor";
 import { InterestPicker } from "./interest-picker";
 import { useStore } from "./store";
 
@@ -74,7 +73,7 @@ function MenuList({
  * 先頭の数件だけ並べ、名前は省略する（例：配信後エ…(3)）。
  * 今日済みの✓は枠を常に確保し、押しても幅が変わらないようにする。
  */
-function GroupStrip({ onAdd }: { onAdd: () => void }) {
+function GroupStrip() {
   const { groups, runGroup } = useStore();
   const shown = groups.slice(0, LIMITS.headerGroups);
   return (
@@ -83,14 +82,15 @@ function GroupStrip({ onAdd }: { onAdd: () => void }) {
         <span className="shrink-0 text-xs text-muted-foreground">
           いつものエゴサ
         </span>
-        <button
+        {/* 追加は専用ページ（詳細条件まで使うので、シートにしない） */}
+        <Link
+          href="/mock/groups/edit"
           aria-label="いつものエゴサを追加"
           title="いつものエゴサを追加"
-          onClick={onAdd}
           className="flex size-7 shrink-0 items-center justify-center rounded-full border hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Plus className="size-4" />
-        </button>
+        </Link>
         {groups.length === 0 ? (
           <span
             title="保存した検索を、1タップでまとめて開けます（［＋］で作成）"
@@ -173,7 +173,6 @@ function Footer() {
 export function Shell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [palette, setPalette] = useState(false);
-  const [addEgosa, setAddEgosa] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const { toast } = useStore();
@@ -243,7 +242,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             {APP_FEATURE}
           </span>
         </header>
-        <GroupStrip onAdd={() => setAddEgosa(true)} />
+        <GroupStrip />
         {children}
       </div>
       {!launcher && <Footer />}
@@ -281,9 +280,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
       )}
 
       {palette && <Palette onClose={() => setPalette(false)} />}
-      {addEgosa && (
-        <EgosaEditor group={null} onClose={() => setAddEgosa(false)} />
-      )}
 
       {toast && (
         <div
