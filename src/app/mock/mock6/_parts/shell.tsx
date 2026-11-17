@@ -56,47 +56,60 @@ function MenuList({
   );
 }
 
-/** ヘッダーの「いつものエゴサ」。先頭の数件だけ並べ、名前は省略する（例：配信後エ…(3)） */
-function HeaderGroups() {
+/**
+ * 「いつものエゴサ」の帯。ヘッダーの下、全ページ（ランチャー含む）に出す。
+ * 先頭の数件だけ並べ、名前は省略する（例：配信後エ…(3)）。
+ * 今日済みの✓は枠を常に確保し、押しても幅が変わらないようにする。
+ */
+function GroupStrip() {
   const { groups, runGroup } = useStore();
   const shown = groups.slice(0, LIMITS.headerGroups);
-  if (groups.length === 0)
-    return (
-      <Link
-        href="/mock/mock6/groups"
-        className="min-w-0 truncate text-sm text-muted-foreground underline underline-offset-4"
-      >
-        いつものエゴサを登録
-      </Link>
-    );
   return (
-    <div
-      role="group"
-      aria-label="いつものエゴサ"
-      className="flex min-w-0 flex-1 items-center gap-1.5"
-    >
-      {shown.map((g) => (
-        <button
-          key={g.id}
-          onClick={() => runGroup(g.id)}
-          title={`${g.name}（${g.favIds.length}）${g.doneToday ? "：今日は済" : ""}`}
-          aria-label={`${g.name}（${g.favIds.length}個）を実行${g.doneToday ? "（今日は済）" : ""}`}
-          className="flex min-w-0 items-center gap-1 rounded-full border-2 px-2.5 py-1 text-sm font-medium hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          <Play className="size-3.5 shrink-0" />
-          <span className="max-w-[4.5rem] truncate sm:max-w-[9rem]">
-            {g.name}
-          </span>
-          <span className="shrink-0">({g.favIds.length})</span>
-          {g.doneToday && <Check className="size-3.5 shrink-0" />}
-        </button>
-      ))}
-      <Link
-        href="/mock/mock6/groups"
-        className="ml-auto hidden shrink-0 text-sm text-muted-foreground underline underline-offset-4 sm:inline"
-      >
-        一覧
-      </Link>
+    <div className="border-b">
+      <div className="mx-auto flex h-12 max-w-2xl items-center gap-2 px-3 md:px-4">
+        <span className="shrink-0 text-xs text-muted-foreground">
+          いつものエゴサ
+        </span>
+        {groups.length === 0 ? (
+          <Link
+            href="/mock/mock6/groups"
+            className="min-w-0 truncate text-sm text-muted-foreground underline underline-offset-4"
+          >
+            登録する
+          </Link>
+        ) : (
+          <div
+            role="group"
+            aria-label="いつものエゴサ"
+            className="flex min-w-0 flex-1 items-center gap-1.5"
+          >
+            {shown.map((g) => (
+              <button
+                key={g.id}
+                onClick={() => runGroup(g.id)}
+                title={`${g.name}（${g.favIds.length}）${g.doneToday ? "：今日は済" : ""}`}
+                aria-label={`${g.name}（${g.favIds.length}個）を実行${g.doneToday ? "（今日は済）" : ""}`}
+                className="flex min-w-0 items-center gap-1 rounded-full border-2 px-2.5 py-1 text-sm font-medium hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <Play className="size-3.5 shrink-0" />
+                <span className="max-w-[4rem] truncate sm:max-w-[9rem]">
+                  {g.name}
+                </span>
+                <span className="shrink-0">({g.favIds.length})</span>
+                <span className="flex size-3.5 shrink-0 items-center justify-center">
+                  {g.doneToday && <Check className="size-3.5" />}
+                </span>
+              </button>
+            ))}
+            <Link
+              href="/mock/mock6/groups"
+              className="ml-auto hidden shrink-0 text-sm text-muted-foreground underline underline-offset-4 sm:inline"
+            >
+              一覧
+            </Link>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -143,7 +156,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const { toast } = useStore();
   const path = usePathname();
-  // ランチャーは画面に集中させるため、いつものエゴサとフッターを出さない
+  // ランチャーは画面に集中させるため、フッターを出さない（いつものエゴサは全ページに出す）
   const launcher = path === "/mock/mock6/launch";
 
   useEffect(() => {
@@ -199,8 +212,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <Link href="/mock/mock6" className="shrink-0 font-bold">
             EgoSearch
           </Link>
-          {!launcher && <HeaderGroups />}
         </header>
+        <GroupStrip />
         {children}
       </div>
       {!launcher && <Footer />}

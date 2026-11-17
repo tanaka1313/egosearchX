@@ -1,6 +1,6 @@
 "use client";
 // MOCK: 破棄予定（#61）
-import { Check, Circle, List } from "lucide-react";
+import { Check, Circle } from "lucide-react";
 import Link from "next/link";
 import { useLayoutEffect, useRef, useState } from "react";
 import { LIMITS, type Chip } from "./data";
@@ -14,7 +14,6 @@ import { useStore } from "./store";
  */
 export function ToggleChip({ chip }: { chip: Chip }) {
   const { toggleChip } = useStore();
-  const hasList = chip.conds.some((c) => c.kind === "list");
   return (
     <button
       data-chip={chip.id}
@@ -30,11 +29,7 @@ export function ToggleChip({ chip }: { chip: Chip }) {
           <Circle className="size-3.5" aria-label="OFF" />
         )}
       </span>
-      {hasList && <List className="size-3.5 shrink-0" aria-label="リスト" />}
       {chip.label}
-      {chip.conds.length > 1 && (
-        <span className="text-xs opacity-70">×{chip.conds.length}</span>
-      )}
       {chip.isNew && (
         <span className="absolute -top-1.5 right-2 rounded bg-amber-300 px-1 text-[10px] leading-4 font-bold text-amber-950">
           新
