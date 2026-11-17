@@ -13,20 +13,12 @@
 2. `MOCK: 破棄予定` と `app/mock` を全文検索して 0 件を確認する
 3. 型チェック・テスト・lint・build を通す
 
-## デザイン案（mock1〜5）
-`/mock` が一覧。各モックから「← モック一覧」で戻れる。
+## 最終案（2026-11-17 4巡目で mock1〜5 を削除し、旧 mock6 をここに昇格）
+画面イメージは `/mock`。画面は `buttons` `favorites` `groups` `history` `trash` `import` `launch`（`docs/requirements.md`・`docs/screen-spec.md` の基準）。
 
-| ルート | 案 |
-|---|---|
-| `/mock/mock1` | 現行（上部ナビで4画面。`studio` `launch` `settings` を含む） |
-| `/mock/mock2` | 左上の開閉ボタンのドロワーに項目を集約 |
-| `/mock/mock3` | X 検索特化のトップ＋お気に入り（条件を触って保存、再利用、編集） |
-| `/mock/mock4` | Bento Grid＋コマンドパレット（Ctrl/⌘+K） |
-| `/mock/mock5` | 配信者目線のアイデア集（MVP 対象外のものはバッジ付き） |
-| `/mock/mock6` | 決定案。mock3 を土台に全機能を集約し、2026-11-17 に簡素化（押すだけの条件ボタン、ヘッダーにグループ2件、フッターに最後の履歴、編集はメニューのページへ）（`docs/requirements.md`・`docs/screen-spec.md` の基準）。画面は `buttons` `favorites` `groups` `history` `trash` `import` `settings` `launch` |
+- ダークモード固定。主ボタン（［X で開く］）は塗りつぶしの青、ON の条件ボタンは青の枠＋薄い塗り＋✓
+- 条件ボタンはホームに先頭8個（`LIMITS.foldChips`）、続きは［もっと開く］。条件ボタンのページの「表示」を外すとホームから隠せる
+- 期間は［昨日から］［3日前から］［1週間前から］［日付］。同じ状態を詳細条件の期間と共有する（`_parts/period-picker.tsx`）
+- お気に入り・いつものエゴサは、条件ボタンを参照せず**検索文字列（＋期間）を実体として持つ**（`_parts/data.ts` の `SavedSearch`）
 
-mock6 は並べ替えに `@dnd-kit/react` を使い、状態は `mock6/_parts/store.tsx` の React state だけで持つ（再読み込みで初期状態に戻る）。仕様の既定リスト（ホロライブ・にじさんじ）には、ユーザーが提示した実在のリスト ID を使っている。
-
-mock4 の出典（2026年のトレンド）：
-- https://clay.global/blog/web-design-guide/web-design-trends
-- https://www.designrush.com/agency/website-design-development/trends/web-design-trends
+並べ替えに `@dnd-kit/react` を使い、状態は `_parts/store.tsx` の React state だけで持つ（再読み込みで初期状態に戻る）。仕様の既定リスト（ホロライブ・にじさんじ）には、ユーザーが提示した実在のリスト ID を使っている。
