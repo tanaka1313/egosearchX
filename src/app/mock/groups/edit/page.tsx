@@ -239,7 +239,7 @@ function NewSearchMaker({
     onMade(favToItem(fav));
   };
 
-  // 追加の前に、保存せずに X／Yahoo で開いて結果を確かめられる（この画面の主な操作は追加なので、青は追加だけ）
+  // 追加の前に、保存せずに X／Yahoo!リアルタイム検索で開いて結果を確かめられる（この画面の主な操作は追加なので、青は追加だけ）
   const action = (
     <div className="space-y-2">
       <div className="flex gap-2">

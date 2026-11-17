@@ -163,9 +163,9 @@ export default function ButtonsPage() {
         </DragDropProvider>
       )}
       <section aria-label="サジェスト検索条件" className="space-y-2 pt-2">
-        <h2 className="font-bold">サジェスト（直近の検索から）</h2>
+        <h2 className="font-bold">サジェスト（直近の検索などから）</h2>
         <p className="text-sm text-muted-foreground">
-          最近の検索で使った条件から作った候補です（最大{LIMITS.suggest}
+          最近の検索などから作った候補です（最大{LIMITS.suggest}
           件）。気に入ったものを条件ボタンに追加できます。候補の表示順は変えられません。
         </p>
         {s.suggestions.length === 0 ? (

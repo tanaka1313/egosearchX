@@ -423,6 +423,15 @@ export const INITIAL_HISTORY: HistoryItem[] = [
 ];
 
 /**
+ * 検索先の表示名。Yahoo は正式名「Yahoo!リアルタイム検索」で書く。
+ * 省略してよいのはボタン（［Yahoo で開く］）と［⋯］のメニュー項目だけ（そこは直書き）。
+ */
+export const ENGINE_LABEL = {
+  X: "X",
+  Yahoo: "Yahoo!リアルタイム検索",
+} as const;
+
+/**
  * メニューの項目。manage：追加・編集・削除・並べ替えをする管理ページ（メニューでは歯車のアイコンで示す。
  * 「管理」の文言は足さない：英語で長くなるため）。
  */

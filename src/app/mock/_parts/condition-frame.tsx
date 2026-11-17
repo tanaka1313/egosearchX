@@ -40,7 +40,7 @@ export function ConditionFrame({ footer }: { footer?: React.ReactNode }) {
 
       <DetailPanel footer={footer} />
 
-      {/* 注意（Yahoo で除外される条件など）。枠の一番下に小さく出す */}
+      {/* 注意（Yahoo!リアルタイム検索で除外される条件など）。枠の一番下に小さく出す */}
       <WarningNote />
     </section>
   );

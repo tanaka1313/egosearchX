@@ -109,7 +109,7 @@ function ParamChip({ chip }: { chip: Chip }) {
                 setCondValue(chip.id, c.id, ev.target.value);
                 setOn(chip.id, true);
               }}
-              className={`h-5 rounded border px-0.5 font-mono text-xs text-foreground tabular-nums focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed ${def.type === "number" ? "w-[5ch] text-right" : "w-[6.75rem]"}`}
+              className={`h-5 rounded border px-0.5 font-mono text-xs text-foreground tabular-nums focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed text-center ${def.type === "number" ? "w-[5ch]" : "w-[6.75rem]"}`}
             />
             {/* 接尾語は押すと ON/OFF（マウス用。キーボードは切替ボタンで操作する） */}
             <span
@@ -200,9 +200,10 @@ export function ChipRow() {
         </Link>
       </div>
       {expanded && (
-        <section aria-label="サジェスト検索条件" className="space-y-1.5">
+        // 条件ボタンの並びと詰まって見えないよう、上に余白を取る（枠線は足さない）
+        <section aria-label="サジェスト検索条件" className="space-y-2 pt-3">
           <p className="text-xs text-muted-foreground">
-            サジェスト（直近の検索から・この検索にだけ足せます）
+            サジェスト（直近の検索などから・この検索にだけ足せます）
           </p>
           {suggestions.length === 0 ? (
             <p className="text-sm text-muted-foreground">

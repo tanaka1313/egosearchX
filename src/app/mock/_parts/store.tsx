@@ -12,6 +12,7 @@ import {
 } from "react";
 import {
   DEFAULT_LISTS,
+  ENGINE_LABEL,
   EMPTY_DETAIL,
   EMPTY_PERIOD,
   INITIAL_CHIPS,
@@ -420,7 +421,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           ...h,
         ].slice(0, LIMITS.history),
       );
-      say(`${engine} で開きました（ダミー）`);
+      say(`${ENGINE_LABEL[engine]}で開きました（ダミー）`);
     },
     runFav: (id, source) => {
       const f = live.current.favs.find((x) => x.id === id);
