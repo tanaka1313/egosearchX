@@ -2,7 +2,13 @@
 // MOCK: 破棄予定（#61）
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FILTERS, type Detail, type Engine, type Tri } from "./data";
+import {
+  ENGINE_LABEL,
+  FILTERS,
+  type Detail,
+  type Engine,
+  type Tri,
+} from "./data";
 import { PeriodPicker } from "./period-picker";
 import { chipTokens, detailTokens } from "./query";
 import { useSearchScope } from "./search-scope";
@@ -202,7 +208,7 @@ export function DetailPanel({ footer }: { footer?: React.ReactNode }) {
             {(
               [
                 ["x", "X"],
-                ["yahoo", "Yahoo"],
+                ["yahoo", ENGINE_LABEL.Yahoo],
                 ["both", "両方"],
               ] as [Engine, string][]
             ).map(([v, l]) => (

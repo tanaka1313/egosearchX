@@ -6,7 +6,7 @@ import { useSortable } from "@dnd-kit/react/sortable";
 import { GripVertical } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import type { Engine, Favorite } from "../_parts/data";
+import { ENGINE_LABEL, type Engine, type Favorite } from "../_parts/data";
 import { PeriodPicker } from "../_parts/period-picker";
 import { periodInverted } from "../_parts/query";
 import { FavoriteRow } from "../_parts/rows";
@@ -132,7 +132,7 @@ function FavEditor({ fav, onClose }: { fav: Favorite; onClose: () => void }) {
           className="w-full rounded-lg border px-2 py-2"
         >
           <option value="x">X</option>
-          <option value="yahoo">Yahoo</option>
+          <option value="yahoo">{ENGINE_LABEL.Yahoo}</option>
           <option value="both">両方</option>
         </select>
       </label>

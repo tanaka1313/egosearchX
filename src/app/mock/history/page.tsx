@@ -2,7 +2,7 @@
 // MOCK: 破棄予定（#61）
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { EMPTY_PERIOD, LIMITS } from "../_parts/data";
+import { EMPTY_PERIOD, ENGINE_LABEL, LIMITS } from "../_parts/data";
 import { nid, useStore } from "../_parts/store";
 import { Confirm, EmptyState, PageHead } from "../_parts/ui";
 
@@ -37,7 +37,9 @@ export default function HistoryPage() {
             <li key={h.id} className="space-y-1 rounded-lg border p-3 text-sm">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs text-muted-foreground">{h.at}</span>
-                <span className="rounded border px-1 text-xs">{h.engine}</span>
+                <span className="rounded border px-1 text-xs whitespace-nowrap">
+                  {ENGINE_LABEL[h.engine]}
+                </span>
                 <span className="text-xs text-muted-foreground">
                   {h.source}
                 </span>

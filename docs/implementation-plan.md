@@ -90,7 +90,7 @@ type HistoryItem = { id: string; at: string; query: string; source: string; note
 type TrashItem = { tid: string; at: string; kind: 'chip' | 'favorite' | 'group'; data: Chip | Favorite | Group; index: number };
 ```
 - ホームの状態（検索語、完全一致、「表示」かつ ON の条件ボタン、詳細条件、期間）は `merge.ts` で「共通（無効化した項目を除く）AND 個別」に合成して**検索文字列**にする。お気に入り・いつものエゴサは、保存時に合成した文字列（期間を除く）と期間を保持し、**条件ボタンを参照しない**（ボタンを直しても保存済みは変わらない）。
-- `serialize-*` は純粋関数で、`{ text, warnings }` を返す。警告は画面のどこに出すかを知らない。表示はUI側（「条件」の枠の一番下の警告欄・［Yahoo で開く］の印・プレビュー・カードのアイコン）で行い、モーダルは使わない。
+- `serialize-*` は純粋関数で、`{ text, warnings }` を返す。警告は画面のどこに出すかを知らない。表示はUI側（「条件」の枠の一番下の警告欄・プレビュー・カードのアイコン）で行い、モーダルは使わない。
 - 削除済みは `index` を持ち、復元時に元の位置へ戻す。合計が上限を超えたら古い順に捨てる（`lib/trash`）。
 
 ## 4. 実験的な項目の扱い

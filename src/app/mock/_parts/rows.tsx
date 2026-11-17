@@ -3,10 +3,10 @@
 import { Button } from "@/components/ui/button";
 import type { Favorite } from "./data";
 import { buildQuery, periodText, savedText } from "./query";
-import { EMPTY_DETAIL, EMPTY_PERIOD } from "./data";
+import { EMPTY_DETAIL, EMPTY_PERIOD, ENGINE_LABEL } from "./data";
 import { useStore } from "./store";
 
-/** お気に入りの実行時の検索文字列と、Yahoo での警告 */
+/** お気に入りの実行時の検索文字列と、Yahoo!リアルタイム検索での警告 */
 export function favQuery(f: Favorite) {
   const text = savedText(f);
   const warnings = buildQuery({
@@ -41,12 +41,12 @@ export function FavoriteRow({
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1 font-medium">
             {fav.name}
-            <span className="rounded border px-1 text-xs">
+            <span className="rounded border px-1 text-xs whitespace-nowrap">
               {fav.engine === "both"
-                ? "X/Yahoo"
+                ? `X／${ENGINE_LABEL.Yahoo}`
                 : fav.engine === "x"
-                  ? "X"
-                  : "Yahoo"}
+                  ? ENGINE_LABEL.X
+                  : ENGINE_LABEL.Yahoo}
             </span>
             {q.warnings.length > 0 && (
               <span title={q.warnings.join(" / ")} aria-label="警告あり">

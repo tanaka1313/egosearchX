@@ -3,7 +3,7 @@
 import { Copy, Ellipsis, Star } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LIMITS, favToItem, type Favorite } from "./data";
+import { ENGINE_LABEL, LIMITS, favToItem, type Favorite } from "./data";
 import { periodInverted, queryWithoutPeriod } from "./query";
 import { useSearchScope } from "./search-scope";
 import { nid, useStore } from "./store";
@@ -80,7 +80,7 @@ function MoreMenu() {
                 `https://search.yahoo.co.jp/realtime/search?p=${encodeURIComponent(text)}`,
               );
               s.say(
-                "Yahoo の検索リンクをコピーしました（OR→(A B) などの変換は本実装で行います）",
+                `${ENGINE_LABEL.Yahoo}の検索リンクをコピーしました（OR→(A B) などの変換は本実装で行います）`,
               );
             })}
           >
@@ -106,7 +106,7 @@ function useQueryWarnings(): string[] {
 
 /**
  * 警告欄。「条件」の枠の一番下に、小さく薄い文字で出す（無いときは出さない）。
- * Yahoo だけに関係する警告もあるので、クエリの横のような目立つ場所には置かない。
+ * Yahoo!リアルタイム検索だけに関係する警告もあるので、クエリの横のような目立つ場所には置かない。
  * 出入りで動くのは枠より下だけ（押したボタン・クエリ表示・開くボタンは動かない）。
  */
 export function WarningNote() {
@@ -160,13 +160,11 @@ export function QueryPreview() {
 
 /**
  * ［X で開く］［Yahoo で開く］。SearchScope の検索を開く（ホームでもいつものエゴサの編集でも同じ部品）。
- * Yahoo で除外される条件があるときは、［Yahoo で開く］に小さな⚠を重ねる（幅は変えない）。
+ * ［Yahoo で開く］は Yahoo!リアルタイム検索で開く（ボタンだけは短い名前を使う）。警告の印は付けない（警告は「条件」の枠の一番下）。
  * primary：X を青の塗りつぶしにするか（その画面の一番大事な操作のときだけ）。
  */
 export function OpenButtons({ primary = true }: { primary?: boolean }) {
-  const { run, query } = useSearchScope();
-  const yahooWarn = query.yahooWarnings.length > 0;
-  const yahooNote = "Yahoo では一部の条件が除外されます（条件の枠の下を参照）";
+  const { run } = useSearchScope();
   return (
     <>
       {/* 一番大事な操作。塗りつぶしの青で、ON の条件ボタン（枠＋薄い塗り）と区別する */}
@@ -178,24 +176,15 @@ export function OpenButtons({ primary = true }: { primary?: boolean }) {
       >
         X で開く
       </Button>
-      {/* Yahoo でも検索できることを、すぐ横に見せる（主ボタンの青は X だけ） */}
+      {/* Yahoo!リアルタイム検索でも検索できることを、すぐ横に見せる（主ボタンの青は X だけ） */}
       <Button
         size="lg"
         variant="outline"
-        className="relative shrink-0 whitespace-nowrap"
-        title={yahooWarn ? yahooNote : undefined}
-        aria-description={yahooWarn ? yahooNote : undefined}
+        className="shrink-0 whitespace-nowrap"
+        title={`${ENGINE_LABEL.Yahoo}で開く`}
         onClick={() => run("Yahoo")}
       >
         Yahoo で開く
-        {yahooWarn && (
-          <span
-            aria-hidden
-            className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-amber-300 text-[10px] leading-none font-bold text-amber-950"
-          >
-            !
-          </span>
-        )}
       </Button>
     </>
   );

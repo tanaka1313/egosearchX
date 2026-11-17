@@ -9,11 +9,11 @@ const FEATURES: { title: string; body: string }[] = [
   },
   {
     title: "X と Yahoo!リアルタイム検索の両方で開く",
-    body: "同じ条件を、X と Yahoo の両方で開けます。Yahoo で使えない演算子は、黙って消さずに警告でお知らせします。",
+    body: "同じ条件を、X と Yahoo!リアルタイム検索の両方で開けます。Yahoo!リアルタイム検索で使えない演算子は、黙って消さずに警告でお知らせします。",
   },
   {
     title: "条件ボタンを自分用に育てる",
-    body: "よく使う条件をボタンにして、並べ替え・コピーができます。最近の検索から、ボタン候補（サジェスト）も出ます。",
+    body: "よく使う条件をボタンにして、並べ替え・コピーができます。最近の検索などから、ボタン候補（サジェスト）も出ます。",
   },
   {
     title: "保存して、いつものエゴサでまとめて開く",
@@ -21,7 +21,7 @@ const FEATURES: { title: string; body: string }[] = [
   },
   {
     title: "履歴・削除済み・URL解析",
-    body: "前回の検索をすぐ再実行。消したものは削除済みから戻せます。X や Yahoo の検索 URL を貼ると、条件に分解してホームで編集できます。",
+    body: "前回の検索をすぐ再実行。消したものは削除済みから戻せます。X や Yahoo!リアルタイム検索の URL を貼ると、条件に分解してホームで編集できます。",
   },
 ];
 
@@ -46,8 +46,8 @@ export default function AboutPage() {
         </p>
         <p className="text-sm text-muted-foreground">
           <strong>検索結果はこのサイトには表示しません。</strong>
-          検索の URL を作って、X（Twitter）や Yahoo!
-          リアルタイム検索のページを開くだけです。
+          検索の URL を作って、X（Twitter）や
+          Yahoo!リアルタイム検索のページを開くだけです。
         </p>
       </section>
 

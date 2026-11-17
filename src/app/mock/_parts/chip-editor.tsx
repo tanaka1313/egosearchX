@@ -249,7 +249,8 @@ export function ChipEditor({
         </code>
         {yahooWarn && (
           <p className="text-xs">
-            ⚠ list: / filter: は Yahoo では使えません（Yahoo では除外されます）
+            ⚠ list: / filter: は
+            Yahoo!リアルタイム検索では使えません（Yahoo!リアルタイム検索では除外されます）
           </p>
         )}
       </div>
