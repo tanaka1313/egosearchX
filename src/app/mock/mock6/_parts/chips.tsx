@@ -39,35 +39,70 @@ export function ToggleChip({ chip }: { chip: Chip }) {
   );
 }
 
-/** 条件ボタン列。3行目以降は［もっと開く］で隠し、隠れた分は inert にする */
+/** サジェスト検索条件。条件ボタンと同じ大きさで ON/OFF（この検索にだけ足す。破線枠で区別する） */
+function SuggestChip({ token }: { token: string }) {
+  const { sugOn, toggleSuggestion } = useStore();
+  const on = sugOn.includes(token);
+  return (
+    <button
+      aria-pressed={on}
+      onClick={() => toggleSuggestion(token)}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-sm focus-visible:ring-2 focus-visible:ring-ring ${on ? "border-foreground bg-foreground text-background" : "border-dashed border-border bg-background text-muted-foreground"}`}
+    >
+      <span className="flex size-4 shrink-0 items-center justify-center">
+        {on ? (
+          <Check className="size-4" aria-label="ON" />
+        ) : (
+          <Circle className="size-3.5" aria-label="OFF" />
+        )}
+      </span>
+      {token}
+    </button>
+  );
+}
+
+/**
+ * 条件ボタン列。3行目以降は［もっと開く（+N）］で隠す。
+ * 閉じた状態では、2行目の末尾に［もっと開く］と「ボタンを編集 →」が収まるよう、入りきらないボタンを隠す
+ * （隠したボタンは display:none なのでフォーカスも当たらない）。
+ * 開いた後は［閉じる］を出さず、サジェスト検索条件を下に出す。「ボタンを編集 →」は常に、並びの最後の行の右端に置く。
+ */
 export function ChipRow() {
-  const { chips } = useStore();
+  const { chips, suggestions } = useStore();
   const [expanded, setExpanded] = useState(false);
   const [hidden, setHidden] = useState(0);
-  const [clip, setClip] = useState<number | null>(null);
   const boxRef = useRef<HTMLDivElement>(null);
+  const moreRef = useRef<HTMLButtonElement>(null);
+  const editRef = useRef<HTMLAnchorElement>(null);
 
   useLayoutEffect(() => {
-    const el = boxRef.current;
-    if (!el) return;
+    const box = boxRef.current;
+    const more = moreRef.current;
+    const edit = editRef.current;
+    if (!box || !more || !edit) return;
     const calc = () => {
-      const kids = Array.from(el.children) as HTMLElement[];
-      const tops = [...new Set(kids.map((k) => k.offsetTop))].sort(
-        (a, b) => a - b,
-      );
-      const limit = tops[LIMITS.foldRows];
-      let n = 0;
-      kids.forEach((k) => {
-        const h = limit !== undefined && k.offsetTop >= limit;
-        if (h) n++;
-        k.inert = !expanded && h;
-      });
-      setHidden(n);
-      setClip(limit !== undefined ? limit - 4 : null);
+      const kids = Array.from(box.querySelectorAll<HTMLElement>("[data-chip]"));
+      const rows = (els: HTMLElement[]) =>
+        new Set(els.map((k) => k.offsetTop)).size;
+      kids.forEach((k) => (k.style.display = ""));
+      more.style.display = "none";
+      if (expanded || rows([...kids, edit]) <= LIMITS.foldRows) {
+        setHidden(0);
+        return;
+      }
+      // 2行に収まらない：隠す数を、［もっと開く］と編集リンクも2行に収まるまで増やす
+      more.style.display = "";
+      let n = kids.length;
+      while (n > 0) {
+        kids.forEach((k, i) => (k.style.display = i < n ? "" : "none"));
+        if (rows([...kids.slice(0, n), more, edit]) <= LIMITS.foldRows) break;
+        n--;
+      }
+      setHidden(kids.length - n);
     };
     calc();
     const ro = new ResizeObserver(calc);
-    ro.observe(el);
+    ro.observe(box);
     return () => ro.disconnect();
   }, [chips, expanded]);
 
@@ -77,30 +112,45 @@ export function ChipRow() {
         ref={boxRef}
         role="group"
         aria-label="条件ボタン"
-        style={!expanded && clip ? { maxHeight: clip } : undefined}
-        className="relative flex flex-wrap gap-2 overflow-hidden pt-2"
+        className="relative flex flex-wrap items-center gap-2 pt-2"
       >
         {chips.map((c) => (
           <ToggleChip key={c.id} chip={c} />
         ))}
-      </div>
-      <div className="flex items-center gap-3 text-sm">
-        {(hidden > 0 || expanded) && (
-          <button
-            aria-expanded={expanded}
-            onClick={() => setExpanded((v) => !v)}
-            className="rounded-full border border-dashed px-3 py-1 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            {expanded ? "閉じる" : `もっと開く（+${hidden}）`}
-          </button>
-        )}
+        <button
+          ref={moreRef}
+          aria-expanded={expanded}
+          onClick={() => setExpanded(true)}
+          className="rounded-full border border-dashed px-3 py-1 text-sm hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          もっと開く（+{hidden}）
+        </button>
         <Link
+          ref={editRef}
           href="/mock/mock6/buttons"
-          className="ml-auto text-muted-foreground underline underline-offset-4"
+          className="ml-auto text-sm text-muted-foreground underline underline-offset-4"
         >
           ボタンを編集 →
         </Link>
       </div>
+      {expanded && (
+        <section aria-label="サジェスト検索条件" className="space-y-1.5">
+          <p className="text-xs text-muted-foreground">
+            サジェスト（直近の検索から・この検索にだけ足せます）
+          </p>
+          {suggestions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              検索するとここに候補が出ます
+            </p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {suggestions.map((t) => (
+                <SuggestChip key={t} token={t} />
+              ))}
+            </div>
+          )}
+        </section>
+      )}
     </div>
   );
 }

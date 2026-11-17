@@ -104,7 +104,7 @@ export type BuildInput = {
   chips: Chip[];
   detail: Detail;
   period: Period;
-  /** チップの on を無視して、このIDだけを使う（お気に入り・グループ実行用） */
+  /** チップの on を無視して、このIDだけを使う（お気に入り・いつものエゴサの実行用） */
   onlyChipIds?: string[];
   extra?: string[];
 };

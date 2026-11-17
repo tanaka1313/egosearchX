@@ -1,10 +1,12 @@
 "use client";
 // MOCK: 破棄予定（#61）
-import { Check, Menu, Play, Search, X } from "lucide-react";
+import { Check, Info, Menu, Play, Plus, Search, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { LIMITS, MENU } from "./data";
+import { VersionDialog } from "@/components/common/version-dialog";
+import { APP_FEATURE, LIMITS, MENU } from "./data";
+import { EgosaEditor } from "./egosa-editor";
 import { useStore } from "./store";
 
 function MenuList({
@@ -52,6 +54,16 @@ function MenuList({
           <kbd className="rounded border px-1 text-xs">Ctrl/⌘+K</kbd>
         </button>
       </li>
+      <li>
+        <VersionDialog
+          trigger={
+            <button className="flex w-full items-center gap-2 rounded-lg px-3 py-3 text-left text-base hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring">
+              <Info className="size-4" />
+              <span className="flex-1">バージョン情報</span>
+            </button>
+          }
+        />
+      </li>
     </ul>
   );
 }
@@ -61,7 +73,7 @@ function MenuList({
  * 先頭の数件だけ並べ、名前は省略する（例：配信後エ…(3)）。
  * 今日済みの✓は枠を常に確保し、押しても幅が変わらないようにする。
  */
-function GroupStrip() {
+function GroupStrip({ onAdd }: { onAdd: () => void }) {
   const { groups, runGroup } = useStore();
   const shown = groups.slice(0, LIMITS.headerGroups);
   return (
@@ -70,13 +82,18 @@ function GroupStrip() {
         <span className="shrink-0 text-xs text-muted-foreground">
           いつものエゴサ
         </span>
+        <button
+          aria-label="いつものエゴサを追加"
+          title="いつものエゴサを追加"
+          onClick={onAdd}
+          className="flex size-7 shrink-0 items-center justify-center rounded-full border hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <Plus className="size-4" />
+        </button>
         {groups.length === 0 ? (
-          <Link
-            href="/mock/mock6/groups"
-            className="min-w-0 truncate text-sm text-muted-foreground underline underline-offset-4"
-          >
-            登録する
-          </Link>
+          <span className="min-w-0 truncate text-sm text-muted-foreground">
+            まだありません
+          </span>
         ) : (
           <div
             role="group"
@@ -152,6 +169,7 @@ function Footer() {
 export function Shell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [palette, setPalette] = useState(false);
+  const [addEgosa, setAddEgosa] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const { toast } = useStore();
@@ -212,8 +230,14 @@ export function Shell({ children }: { children: React.ReactNode }) {
           <Link href="/mock/mock6" className="shrink-0 font-bold">
             EgoSearch
           </Link>
+          <span
+            aria-label={`機能：${APP_FEATURE}`}
+            className="min-w-0 truncate rounded-full border px-2.5 py-0.5 text-sm"
+          >
+            {APP_FEATURE}
+          </span>
         </header>
-        <GroupStrip />
+        <GroupStrip onAdd={() => setAddEgosa(true)} />
         {children}
       </div>
       {!launcher && <Footer />}
@@ -251,6 +275,9 @@ export function Shell({ children }: { children: React.ReactNode }) {
       )}
 
       {palette && <Palette onClose={() => setPalette(false)} />}
+      {addEgosa && (
+        <EgosaEditor group={null} onClose={() => setAddEgosa(false)} />
+      )}
 
       {toast && (
         <div
@@ -282,7 +309,7 @@ function Palette({ onClose }: { onClose: () => void }) {
   const items = [
     ...groups.map((g) => ({
       key: `g${g.id}`,
-      label: `▶ グループ：${g.name}（${g.favIds.length}個）`,
+      label: `▶ いつものエゴサ：${g.name}（${g.favIds.length}個）`,
       run: () => runGroup(g.id),
     })),
     ...favs.map((f) => ({

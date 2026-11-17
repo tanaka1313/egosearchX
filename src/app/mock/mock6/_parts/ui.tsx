@@ -64,7 +64,7 @@ export function Confirm({
   onClose,
 }: {
   title: string;
-  body: string;
+  body: React.ReactNode;
   action: string;
   onYes: () => void;
   onClose: () => void;
@@ -89,7 +89,7 @@ export function Confirm({
         onClick={(ev) => ev.stopPropagation()}
       >
         <h2 className="font-bold">{title}</h2>
-        <p className="text-sm">{body}</p>
+        <div className="space-y-2 text-sm">{body}</div>
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={onClose} autoFocus>
             キャンセル

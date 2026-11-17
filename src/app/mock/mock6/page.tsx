@@ -302,7 +302,7 @@ export default function Mock6Home() {
   );
 }
 
-/** ☆ 保存：お気に入りに保存し、同時にグループへ追加できる */
+/** ☆ 保存：お気に入りに保存し、同時にいつものエゴサへ追加できる */
 function SaveSheet({ onClose }: { onClose: () => void }) {
   const s = useStore();
   const [name, setName] = useState(s.word ? `${s.word} の検索` : "新しい検索");
@@ -313,7 +313,7 @@ function SaveSheet({ onClose }: { onClose: () => void }) {
   const save = () => {
     if (!name.trim()) return setErr("名前を入力してください");
     if (target === "new" && !newGroup.trim())
-      return setErr("グループ名を入力してください");
+      return setErr("いつものエゴサの名前を入力してください");
     const id = `f${Date.now()}`;
     s.saveFav({
       id,
@@ -357,7 +357,7 @@ function SaveSheet({ onClose }: { onClose: () => void }) {
       </code>
       <fieldset className="space-y-1 text-sm">
         <legend className="font-medium">
-          グループに追加（まとめて実行できます）
+          いつものエゴサに追加（まとめて実行できます）
         </legend>
         <label className="flex items-center gap-2">
           <input
@@ -386,13 +386,13 @@ function SaveSheet({ onClose }: { onClose: () => void }) {
             checked={target === "new"}
             onChange={() => setTarget("new")}
           />
-          新しいグループを作る
+          新しいいつものエゴサを作る
         </label>
         {target === "new" && (
           <input
             value={newGroup}
             onChange={(ev) => setNewGroup(ev.target.value)}
-            aria-label="新しいグループ名"
+            aria-label="新しいいつものエゴサの名前"
             placeholder="例：配信後エゴサ"
             className="w-full rounded-lg border px-3 py-2"
           />

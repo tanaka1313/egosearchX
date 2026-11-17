@@ -1,8 +1,10 @@
 "use client";
 // MOCK: 破棄予定（#61）
+import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LIMITS, type Group } from "../_parts/data";
+import { EgosaEditor } from "../_parts/egosa-editor";
 import { useStore } from "../_parts/store";
 import { EmptyState, PageHead, Sheet } from "../_parts/ui";
 
@@ -14,20 +16,20 @@ export default function GroupsPage() {
   return (
     <main className="mx-auto max-w-3xl space-y-3 p-3 md:p-4">
       <PageHead
-        title="エゴサグループ"
+        title="いつものエゴサ"
         right={
           <Button size="sm" onClick={() => setEditing("new")}>
-            ＋ 新しいグループ
+            ＋ 追加
           </Button>
         }
       />
       <p className="text-sm text-muted-foreground">
-        エゴサのタイミング（配信後・毎朝など）ごとに、お気に入りをまとめて一括で開けます。ホームの一番上に並びます。
+        エゴサのタイミング（配信後・毎朝など）ごとに、お気に入りをまとめて一括で開けます。先頭2件はどのページでもヘッダー下の帯に並びます。追加は、お気に入りを選んでまとめる方法と、条件を指定して新しく作る方法の2つです。
       </p>
       {s.groups.length === 0 ? (
-        <EmptyState text="グループがありません。「配信後エゴサ」などを作ってみましょう">
+        <EmptyState text="いつものエゴサがありません。「配信後エゴサ」などを作ってみましょう">
           <Button size="sm" onClick={() => setEditing("new")}>
-            ＋ 新しいグループ
+            ＋ 追加
           </Button>
         </EmptyState>
       ) : (
@@ -36,6 +38,7 @@ export default function GroupsPage() {
             const names = g.favIds
               .map((id) => s.favs.find((f) => f.id === id)?.name)
               .filter(Boolean);
+            const lost = g.favIds.length - names.length;
             return (
               <li
                 key={g.id}
@@ -78,130 +81,27 @@ export default function GroupsPage() {
                 <p className="text-xs text-muted-foreground">
                   {names.join("／") || "（お気に入りがありません）"}
                 </p>
+                {lost > 0 && (
+                  <p className="text-xs">
+                    ⚠ 削除済みのお気に入りが{lost}件あり、実行では飛ばします。{" "}
+                    <Link href="/mock/mock6/trash" className="underline">
+                      削除済みで復元
+                    </Link>
+                  </p>
+                )}
               </li>
             );
           })}
         </ul>
       )}
       {editing && (
-        <GroupEditor
+        <EgosaEditor
           group={editing === "new" ? null : editing}
           onClose={() => setEditing(null)}
         />
       )}
       {issue && <IssueSheet group={issue} onClose={() => setIssue(null)} />}
     </main>
-  );
-}
-
-function GroupEditor({
-  group,
-  onClose,
-}: {
-  group: Group | null;
-  onClose: () => void;
-}) {
-  const s = useStore();
-  const [name, setName] = useState(group?.name ?? "");
-  const [sel, setSel] = useState<string[]>(group?.favIds ?? []);
-  const [err, setErr] = useState("");
-  const move = (i: number, d: number) => {
-    const j = i + d;
-    if (j < 0 || j >= sel.length) return;
-    const n = [...sel];
-    [n[i], n[j]] = [n[j], n[i]];
-    setSel(n);
-  };
-  return (
-    <Sheet
-      title={group ? "グループを編集" : "グループを作る"}
-      onClose={onClose}
-    >
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">グループ名</span>
-        <input
-          value={name}
-          onChange={(ev) => setName(ev.target.value)}
-          placeholder="例：配信後エゴサ"
-          className="w-full rounded-lg border px-3 py-2"
-        />
-      </label>
-      <fieldset className="space-y-1 text-sm">
-        <legend className="font-medium">含めるお気に入り</legend>
-        {s.favs.map((f) => (
-          <label key={f.id} className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={sel.includes(f.id)}
-              onChange={() =>
-                setSel(
-                  sel.includes(f.id)
-                    ? sel.filter((x) => x !== f.id)
-                    : [...sel, f.id],
-                )
-              }
-            />
-            {f.name}
-          </label>
-        ))}
-      </fieldset>
-      {sel.length > 1 && (
-        <div className="space-y-1 text-sm">
-          <div className="font-medium">開く順</div>
-          <ol className="space-y-1">
-            {sel.map((id, i) => (
-              <li
-                key={id}
-                className="flex items-center gap-1 rounded border px-2 py-1"
-              >
-                <span className="flex-1">
-                  {i + 1}. {s.favs.find((f) => f.id === id)?.name}
-                </span>
-                <button
-                  aria-label="上へ"
-                  onClick={() => move(i, -1)}
-                  className="px-1"
-                >
-                  ↑
-                </button>
-                <button
-                  aria-label="下へ"
-                  onClick={() => move(i, 1)}
-                  className="px-1"
-                >
-                  ↓
-                </button>
-              </li>
-            ))}
-          </ol>
-        </div>
-      )}
-      {err && (
-        <p role="alert" className="text-sm font-medium">
-          ⚠ {err}
-        </p>
-      )}
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onClose}>
-          キャンセル
-        </Button>
-        <Button
-          onClick={() => {
-            if (!name.trim()) return setErr("グループ名を入力してください");
-            if (!sel.length) return setErr("お気に入りを1つ以上選んでください");
-            s.saveGroup({
-              id: group?.id ?? `g${Date.now()}`,
-              name: name.trim(),
-              favIds: sel,
-              doneToday: group?.doneToday ?? false,
-            });
-            onClose();
-          }}
-        >
-          保存
-        </Button>
-      </div>
-    </Sheet>
   );
 }
 
