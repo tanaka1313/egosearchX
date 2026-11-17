@@ -162,7 +162,10 @@ export type BuildInput = {
 
 export function buildQuery(i: BuildInput): {
   text: string;
+  /** すべての警告（yahooWarnings を含む） */
   warnings: string[];
+  /** Yahoo で開くときだけ関係する警告 */
+  yahooWarnings: string[];
   tokens: string[];
 } {
   const w = i.word.trim();
@@ -192,15 +195,22 @@ export function buildQuery(i: BuildInput): {
       `期間を指定中のため、日付ボタン「${ch.label}」は使われません（期間を優先）`,
     ),
   );
+  // Yahoo で開くときだけ関係する警告（Yahoo を使わない人には関係しないので、［Yahoo で開く］にも印を付ける）
+  const yahooWarnings: string[] = [];
   if (tokens.some((x) => x.includes("list:")))
-    warnings.push("list: は Yahoo では使えません（Yahoo では除外されます）");
+    yahooWarnings.push(
+      "list: は Yahoo では使えません（Yahoo では除外されます）",
+    );
   if (tokens.some((x) => x.includes("filter:")))
-    warnings.push("filter: は Yahoo では使えません（Yahoo では除外されます）");
+    yahooWarnings.push(
+      "filter: は Yahoo では使えません（Yahoo では除外されます）",
+    );
   if (tokens.some((x) => x.startsWith("-from:")))
-    warnings.push(
+    yahooWarnings.push(
       "-from: は Yahoo では使えません。Yahoo のミュート機能を使ってください",
     );
-  return { text: tokens.join(" "), warnings, tokens };
+  warnings.push(...yahooWarnings);
+  return { text: tokens.join(" "), warnings, yahooWarnings, tokens };
 }
 
 /** `https://x.com/i/lists/<ID>?s=20` か数字だけの文字列からリスト ID を取り出す */

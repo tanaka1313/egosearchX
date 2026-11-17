@@ -11,13 +11,14 @@ import { Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ConditionFrame } from "../../_parts/condition-frame";
 import { favToItem, type Group, type SavedSearch } from "../../_parts/data";
-import { QueryPreview } from "../../_parts/open-bar";
+import { OpenButtons, QueryPreview } from "../../_parts/open-bar";
 import {
   periodInverted,
   queryWithoutPeriod,
   savedText,
 } from "../../_parts/query";
 import { LocalScopeProvider, useSearchScope } from "../../_parts/search-scope";
+import { previousPath } from "../../_parts/shell";
 import { nid, useStore } from "../../_parts/store";
 import { EmptyState, PageHead } from "../../_parts/ui";
 
@@ -84,8 +85,13 @@ function GroupEditor({ group }: { group: Group | null }) {
           ⚠ {err}
         </p>
       )}
-      <Button size="sm" variant="outline" asChild>
-        <Link href="/mock/groups">キャンセル</Link>
+      {/* 遷移前の画面へ戻る（帯の［＋］から来たらそのページへ。直接開いたときは一覧へ） */}
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => router.push(previousPath("/mock/groups"))}
+      >
+        キャンセル
       </Button>
       <Button size="sm" onClick={save}>
         保存
@@ -182,7 +188,7 @@ function GroupEditor({ group }: { group: Group | null }) {
 
       <section aria-label="条件を指定して新しく作る" className="space-y-2">
         <h2 className="text-sm font-medium">②条件を指定して新しく作る</h2>
-        <LocalScopeProvider key={makerKey}>
+        <LocalScopeProvider key={makerKey} source="いつものエゴサの編集">
           <NewSearchMaker
             groupName={name}
             onMade={(item) => {
@@ -201,7 +207,7 @@ function GroupEditor({ group }: { group: Group | null }) {
 
 /**
  * ②の検索の組み立て。ホームと同じ並び（入力 → クエリ表示 → 操作）と同じ「条件」の枠を使う。
- * 操作は［お気に入りに保存して追加］（ホームの開くボタン群の代わり）。詳細条件の末尾にも同じ操作を置く。
+ * 操作は［X で開く］［Yahoo で開く］（保存せずに試す。ホームと同じ部品）＋［お気に入りに保存して追加］。詳細条件の末尾にも同じ操作を置く。
  */
 function NewSearchMaker({
   groupName,
@@ -233,8 +239,12 @@ function NewSearchMaker({
     onMade(favToItem(fav));
   };
 
+  // 追加の前に、保存せずに X／Yahoo で開いて結果を確かめられる（この画面の主な操作は追加なので、青は追加だけ）
   const action = (
-    <div className="space-y-1">
+    <div className="space-y-2">
+      <div className="flex gap-2">
+        <OpenButtons primary={false} />
+      </div>
       <Button className="w-full" onClick={make}>
         お気に入りに保存して追加
       </Button>

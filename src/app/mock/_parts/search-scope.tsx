@@ -38,6 +38,8 @@ export type SearchScope = {
   query: ReturnType<typeof buildQuery>;
   /** ON かつ「表示」の条件ボタン */
   usedChips: Chip[];
+  /** この画面の検索を開く（ダミー。履歴に残す） */
+  run: (engine: "X" | "Yahoo") => void;
 };
 
 const Ctx = createContext<SearchScope | null>(null);
@@ -68,17 +70,21 @@ export function HomeScopeProvider({ children }: { children: React.ReactNode }) {
     toggleSuggestion: s.toggleSuggestion,
     query: s.query,
     usedChips: s.usedChips,
+    run: (engine) => s.run(engine, "ホーム"),
   };
   return <Ctx.Provider value={scope}>{children}</Ctx.Provider>;
 }
 
 /** ページの中だけの検索の組み立て（初期値は空。ホームの状態はコピーしない） */
 export function LocalScopeProvider({
+  source,
   children,
 }: {
+  /** 開いたときに履歴に残す出どころ（例：いつものエゴサの編集） */
+  source: string;
   children: React.ReactNode;
 }) {
-  const { chips, say } = useStore();
+  const { chips, say, run } = useStore();
   const [word, setWord] = useState("");
   const [exact, setExact] = useState(false);
   const [onIds, setOnIds] = useState<string[]>([]);
@@ -138,6 +144,12 @@ export function LocalScopeProvider({
       ),
     query,
     usedChips,
+    run: (engine) =>
+      run(engine, source, {
+        word,
+        text: query.text,
+        chipLabels: usedChips.map((c) => c.label),
+      }),
   };
   return <Ctx.Provider value={scope}>{children}</Ctx.Provider>;
 }
