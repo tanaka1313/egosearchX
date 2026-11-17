@@ -1,6 +1,6 @@
 # 実装計画（技術設計）
 
-関連文書：`docs/requirements.md`（F1〜F12）、`docs/screen-spec.md`（S1〜S9、M1〜M3）、`docs/research-phase0.md`。画面イメージは `/mock/mock6`（破棄予定のモック）。
+関連文書：`docs/requirements.md`（F1〜F12）、`docs/screen-spec.md`（S1〜S9、M1〜M3）、`docs/research-phase0.md`。画面イメージは `/mock`（破棄予定のモック）。
 注意：マイルストーン M0〜M7 は GitHub のマイルストーン名で、画面仕様書のダイアログ M1〜M3 とは別物。
 
 ## 1. 技術スタック
@@ -11,7 +11,7 @@
 | UI | Tailwind CSS 4 + shadcn/ui（Sheet、Dialog、Tooltip、Collapsible 等） | 指定。左メニューとシートは shadcn の Sheet を基にする |
 | 状態管理 | zustand（persist ミドルウェアで localStorage） | 軽量。バージョンと移行処理を持てる |
 | スキーマ検証 | zod | 既定リストJSON・保存データ・ランチャーURLの検証 |
-| 並べ替え | `@dnd-kit/react`（`useSortable`、`@dnd-kit/helpers` の `move`） | 条件ボタン・お気に入り・条件の並べ替え。タッチとキーボードに対応（mock6 で導入済み） |
+| 並べ替え | `@dnd-kit/react`（`useSortable`、`@dnd-kit/helpers` の `move`） | 条件ボタン・お気に入り・条件の並べ替え。タッチとキーボードに対応（mock で導入済み） |
 | URL圧縮 | ブラウザ標準の `CompressionStream('deflate-raw')` + base64url | 依存を増やさない |
 | テスト | Vitest（ロジック）+ Testing Library（主要コンポーネント） | |
 | パッケージ管理 | npm | CLAUDE.md のコマンドに合わせる |
@@ -53,7 +53,7 @@ src/
     chips/
       suggest.ts          サジェスト検索条件（履歴のトークンから候補を作る。重複除外、上限20）
     trash/                削除済みの追加・復元・上限超過時の完全削除
-    limits.ts             上限値の定数（条件ボタン30、削除済み20、履歴100、表示行数2、URL警告500文字）
+    limits.ts             上限値の定数（条件ボタン30、削除済み20、履歴100、折りたたみ前の条件ボタン8個、URL警告500文字）
     launch/codec.ts       いつものエゴサ ⇄ `/launch#v1.<base64url>`
     storage/              ストアの定義、バージョン、移行処理
   data/
@@ -74,22 +74,19 @@ type Node =
 // 除外は各ノードの negate: boolean で表す
 
 // 条件ボタン（requirements F6）
-type Chip = { id: string; label: string; conds: Node[]; on: boolean; isNew?: boolean; isDefault?: boolean };
+type Chip = { id: string; label: string; conds: Node[]; on: boolean; visible: boolean; isNew?: boolean; isDefault?: boolean };
 
-// 検索（ホームの状態＝お気に入りの中身）
-type SearchSpec = {
-  word: string; exact: boolean;
-  chipIds: string[];                    // 参照。ONの条件ボタン
-  detail: GroupNode;                    // 詳細条件（個別）
-  disabledCondIds: string[];            // 共通の項目ごとの無効化
-  period: PeriodSpec; engine: 'x' | 'yahoo' | 'both';
-};
-type Favorite = { id: string; name: string; spec: SearchSpec; lastRunAt?: string };
-type Group = { id: string; name: string; favoriteIds: string[] };
-type HistoryItem = { id: string; at: string; spec: SearchSpec; query: string; source: string; note?: string };
+// 期間：昨日から／3日前から／1週間前から／日付（以降・以前・範囲）。相対指定は文字列に入れず、実行時に解決する
+type PeriodSpec = { kind: 'none' | 'd1' | 'd3' | 'd7' | 'date'; from?: string; to?: string };
+
+// 保存した検索（お気に入り・いつものエゴサの1件）。条件ボタンを参照せず、検索文字列を実体として持つ
+type SavedSearch = { label: string; query: string; period: PeriodSpec; engine: 'x' | 'yahoo' | 'both' };
+type Favorite = { id: string; name: string; query: string; period: PeriodSpec; engine: 'x' | 'yahoo' | 'both'; lastRunAt?: string };
+type Group = { id: string; name: string; items: SavedSearch[] };   // お気に入りからコピーして入れる
+type HistoryItem = { id: string; at: string; query: string; source: string; note?: string };
 type TrashItem = { tid: string; at: string; kind: 'chip' | 'favorite' | 'group'; data: Chip | Favorite | Group; index: number };
 ```
-- 共通（ONの条件ボタン）は `merge.ts` で「共通（無効化したIDを除く）AND 個別」に合成する。お気に入りは条件ボタンを**ID参照**で持つ。参照先が削除済みなら合成から外し、警告を返す（黙って内容を変えない）。
+- ホームの状態（検索語、完全一致、「表示」かつ ON の条件ボタン、詳細条件、期間）は `merge.ts` で「共通（無効化した項目を除く）AND 個別」に合成して**検索文字列**にする。お気に入り・いつものエゴサは、保存時に合成した文字列（期間を除く）と期間を保持し、**条件ボタンを参照しない**（ボタンを直しても保存済みは変わらない）。
 - `serialize-*` は純粋関数で、`{ text, warnings }` を返す。警告は画面のどこに出すかを知らない。表示はUI側（クエリ表示の警告アイコン・プレビュー・カードのアイコン）で行い、モーダルは使わない。
 - 削除済みは `index` を持ち、復元時に元の位置へ戻す。合計が上限を超えたら古い順に捨てる（`lib/trash`）。
 
@@ -107,18 +104,18 @@ GitHub のマイルストーン名（M0〜M7）はそのまま使う。内容は
 | # | 内容 | 完了条件 |
 |---|---|---|
 | M0 | 雛形：`create-next-app`、shadcn/ui、Vitest、ESLint、`git init` | tsc / test / lint / build が通る |
-| M1 | クエリの中核（ast, tokenizer, parse-x, serialize-x/yahoo, merge, dates）をテスト先行で作る | 往復テスト、Yahoo変換表、until の翌日変換、条件ボタンと個別設定の合成（無効化、削除済み参照）のテストが通る |
+| M1 | クエリの中核（ast, tokenizer, parse-x, serialize-x/yahoo, merge, dates）をテスト先行で作る | 往復テスト、Yahoo変換表、until の翌日変換、条件ボタンと個別設定の合成（無効化）のテストが通る |
 | M2 | URLの生成と解析、リストID の取り出し、ランチャーの codec | X/YahooのURLの往復、壊れたハッシュの検出、`x.com/i/lists/<ID>?s=20` から ID を取り出すテスト |
 | M3 | 既定リスト（zodスキーマ、`default-lists.json`）、条件ボタンの既定登録 | 不正JSONでビルドが失敗する。ホロライブ・にじさんじの既定ボタンが初回に入る |
-| M4 | 永続化ストア（バージョン付き。条件ボタン・お気に入り・いつものエゴサ・履歴・削除済み・表示言語） | 再読み込み後もデータが残る。移行処理のテスト。削除済み（種類ごとに20件）・ボタン30件・履歴100件の上限のテスト、お気に入り削除の連動（いつものエゴサも同じ batch で移る・まとめて復元）のテスト |
-| M5 | S1 ホームの検索の組み立て（押すだけの条件ボタン、折りたたみ、詳細条件、高度な編集、プレビュー、警告、［⋯］）、S2 条件ボタンの編集（M1 シート、並べ替え）、S7 URL解析 | 画面仕様書 3章・S2・S7 の操作が一通りできる |
+| M4 | 永続化ストア（バージョン付き。条件ボタン・お気に入り・いつものエゴサ・履歴・削除済み・表示言語） | 再読み込み後もデータが残る。移行処理のテスト。削除済み（種類ごとに20件）・ボタン30件・履歴100件の上限のテスト、お気に入りといつものエゴサが独立していること（お気に入りを削除してもいつものエゴサが変わらない）のテスト |
+| M5 | S1 ホームの検索の組み立て（押すだけの条件ボタン、折りたたみ、詳細条件、高度な編集、プレビュー、警告、［⋯］）、S2 条件ボタン（M1 シート、並べ替え、複製、表示）、S7 URL解析 | 画面仕様書 3章・S2・S7 の操作が一通りできる |
 | M6 | いつものエゴサ（ヘッダー下の帯に先頭2件。全ページ）、お気に入り、履歴（フッターに最後の1件）、サジェスト検索条件、削除済み、M2 発行、S9 ランチャー、コマンドパレット | ブックマークURLから全タブを開ける。ブロック時にリンク一覧が出る。削除→復元→上限超過が動く |
 | M7 | スマホ・PC表示（左メニュー70%、1カラム）、**日本語・英語の両対応（i18n）**、キーボード操作、Vercelデプロイ | 360px幅と1280px幅で、日本語・英語の両方で操作できる。本番URLで動く |
 
 - **i18n**：文言は言語ごとの辞書（置き場所は `src/messages/ja.ts`・`en.ts` を想定）から出し、画面のコードに直書きしない。ライブラリ（例：next-intl）を使うかは未決定。静的書き出しのため、言語はクライアント側で切り替える（初期値はブラウザの言語、切替はメニューの下部、保存先は localStorage。設定画面は置かない。要件定義書 F12）。**辞書の型は `ja` から導き、`en` に欠けがあればビルドで検出する。**
 
-- **実装時の注意：検索の組み立ては共通コンポーネントにする。** 検索語・完全一致・条件ボタン・期間（と詳細条件）の組み立ては、ホーム、いつものエゴサの追加シート（「条件を指定して新しく作る」）、お気に入りの編集で何度も使う。モック（`src/app/mock/mock6/_parts/egosa-editor.tsx`）は直書きだが、本実装では `SearchBuilder`（仮称）として1つにし、値と変更通知を props で受ける。保存はお気に入りの保存処理に一本化する。
-- **実装時の注意：お気に入りの削除はいつものエゴサと紐づく。** いつものエゴサは `favIds`（参照）を持つため、お気に入りを消すと参照が切れる。削除の流れは、①使っているいつものエゴサを列挙（`groupsUsing(favId)`）②確認（2件以上は再確認）③お気に入りと該当のいつものエゴサを**同じ `batch` で削除済みへ移す**（完全には消さない）④［元に戻す］・削除済みの［まとめて復元］で `batch` ごと戻す。削除済みは種類ごとに20件で、超えたらその種類の古いものから完全削除する（`pushTrash`）。**一気に完全削除する経路を作らない。**
+- **実装時の注意：検索の組み立てと期間の入力は共通コンポーネントにする。** 検索語・完全一致・条件ボタン・期間（と詳細条件）の組み立ては、ホーム、いつものエゴサの追加シート（「条件を指定して新しく作る」）、お気に入りの編集（検索文字列と期間だけ）で使う。検索の組み立てはホームと追加シートで共通、期間の入力はホーム・詳細条件・追加シート・お気に入りの編集で共通にする。期間は特に、ホームと詳細条件が**同じ状態を共有する**。モック（`src/app/mock/_parts/egosa-editor.tsx`、`period-picker.tsx`）は組み立てが直書きだが、本実装では `SearchBuilder`（仮称）と `PeriodPicker` として1つにし、値と変更通知を props で受ける。保存はお気に入りの保存処理に一本化する。
+- **実装時の注意：お気に入りといつものエゴサは独立している。** いつものエゴサは `items`（検索のコピー）を持ち、お気に入りを参照しないので、削除に連動も確認も要らない。削除は削除済みへ移すだけ（［元に戻す］で戻す）。削除済みは種類ごとに20件で、超えたらその種類の古いものから完全削除する（`pushTrash`）。**一気に完全削除する経路を作らない。** 以前の案（`favIds` の参照、`batch`、`groupsUsing`、［まとめて復元］、2段確認）は廃案。
 - **実装時の注意：機能タイトルは差し替え前提。** ヘッダーの機能タイトル（「X（Twitter）」）は定数にまとめる。YouTube／TikTok の同様のツールは今後の予定で、まだ作らない（Issue も作らない）。
 - 既定リストのJSONには、確認済みのリストID（ホロライブ・にじさんじ）だけを入れる。ほかのリストIDやハンドルは推測で埋めず、開発者が確認して追加する。
 
@@ -132,4 +129,4 @@ GitHub のマイルストーン名（M0〜M7）はそのまま使う。内容は
 ## 7. リスク
 - `list:`+`to:` が使えなかった場合、リストを使うボタンの併用は `(from:a OR from:b ...) to:<ハンドル>` に切り替える。ただしリストのメンバーが多いとクエリ長の上限に当たりやすく、メンバーを個別に持たない方針とも合わないため、その場合は「リスト単体の検索のみ」に縮退する案を用意しておく。
 - `CompressionStream` は非同期で比較的新しいAPI。対応していないブラウザでは非圧縮のbase64urlに切り替える。
-- 条件ボタンの参照方式では、ボタンを直す・削除すると、それを使うお気に入りの内容が変わる。削除済みの参照は警告し、復元の導線を出す（`docs/requirements.md` 7章）。
+- お気に入り・いつものエゴサは検索文字列を実体として持つため、条件ボタンを直しても保存済みの検索には反映されない（`docs/requirements.md` 7章）。反面、参照切れ・連動削除は起きない。
