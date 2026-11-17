@@ -222,3 +222,13 @@
    - 判断：「条件のコピー」は複製と解釈。「いつものエゴサの追加」の②で作るお気に入りは自動命名。
    - 既存の dev サーバー（ポート 3111、前のセッションのもの）は残っている。`.next` を build で更新したため 500 を返す。再起動が必要。
    - 変数名・型名（`groups`、`Group`）は mock のためそのまま。
+
+# 脆弱性の修正と条件ボタンの［コピー］
+
+1. Goal: Dependabot の minimatch の脆弱性（moderate）を解消し、条件ボタンの［複製］をクリップボードへの［コピー］に直す。
+2. Plan:
+   - [x] `package.json` の `overrides` に `"minimatch@^10.0.0": "^11.0.1"`（eslint・typescript-eslint・ts-morph 経由。3.x は対象外のため触らない）
+   - [x] 条件ボタンの［複製］を［コピー］（条件の文字列をクリップボードへ）に変更。`duplicateChip` を削除し、文書を更新
+   - [x] tsc / test / lint / build、`npm audit`、main へマージして push
+3. Verification: `npm audit` が 0 件、`npm ls minimatch` に 10.x が残らない。
+4. Review: 「条件のコピー」の解釈を取り違えた（複製と解釈）。ユーザーの訂正で修正。

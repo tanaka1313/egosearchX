@@ -58,8 +58,6 @@ export type Store = {
   toggleChip: (id: string) => void;
   /** ホームに出す／隠す */
   toggleVisible: (id: string) => void;
-  /** 元のすぐ後ろに複製する。上限のときは理由を返す */
-  duplicateChip: (id: string) => string | null;
   saveChip: (chip: Chip) => string | null;
   deleteChip: (id: string) => void;
   addDefaultChips: () => number;
@@ -221,26 +219,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setChips((cs) =>
         cs.map((c) => (c.id === id ? { ...c, visible: !c.visible } : c)),
       ),
-    duplicateChip: (id) => {
-      const cur = live.current.chips;
-      const at = cur.findIndex((c) => c.id === id);
-      if (at < 0) return "見つかりません";
-      if (cur.length >= LIMITS.chips)
-        return `上限（${LIMITS.chips}件）です。不要なボタンを削除してください`;
-      const src = cur[at];
-      const copy: Chip = {
-        ...src,
-        id: nid("cp"),
-        label: `${src.label}（コピー）`.slice(0, 20),
-        on: false,
-        isNew: false,
-        isDefault: false,
-        conds: src.conds.map((x) => ({ ...x, id: nid("cpc") })),
-      };
-      setChips((cs) => [...cs.slice(0, at + 1), copy, ...cs.slice(at + 1)]);
-      say(`「${copy.label}」を作りました`);
-      return null;
-    },
     saveChip: (chip) => {
       const exists = live.current.chips.some((c) => c.id === chip.id);
       if (!exists && live.current.chips.length >= LIMITS.chips)
