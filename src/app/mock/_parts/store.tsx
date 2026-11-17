@@ -8,6 +8,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import {
   DEFAULT_LISTS,
@@ -21,7 +22,6 @@ import {
   LIMITS,
   SUGGEST_SEEDS,
   defaultChips,
-  favToItem,
   type Chip,
   type Detail,
   type Favorite,
@@ -80,12 +80,11 @@ export type Store = {
   setNotice: (m: string) => void;
   usedChips: Chip[];
   query: ReturnType<typeof buildQuery>;
-  /** 初回カード（好みの選択）を出すか */
-  onboardOpen: boolean;
-  setOnboardOpen: (v: boolean) => void;
-  /** 選んだ既定リストだけ表示し、入力した名前・タグから「推しエゴサ」を作る（端末内のみ） */
-  applyOnboarding: (listIds: string[], names: string[]) => void;
-  /** 初回の状態（既定リストのみ・保存なし・好み未選択）にする */
+  /** 興味の対象（既定リストの ID。既定はホロライブ）。ヘッダーでいつでも切り替える */
+  interest: string;
+  /** 選んだ対象の既定リストだけホームに出す。端末内（localStorage）にだけ保存する */
+  setInterest: (id: string) => void;
+  /** 初回の状態（既定リストのみ・保存なし・興味はホロライブ）にする */
   startFresh: () => void;
 };
 
@@ -101,8 +100,44 @@ let seq = 100;
 export const nid = (p: string) => `${p}${++seq}`;
 const NOW = "今";
 
+const DEFAULT_INTEREST = DEFAULT_LISTS[0].id;
+const INTEREST_KEY = "mock:interest:v1";
+
+/** 既定リストの条件ボタンは、興味の対象のものだけ「表示」にする */
+const withInterest = (cs: Chip[], interest: string): Chip[] =>
+  cs.map((c) => (c.isDefault ? { ...c, visible: c.id === interest } : c));
+
+// 興味の対象は localStorage（端末内のみ）に持つ。静的 HTML は既定（ホロライブ）で出す
+const interestListeners = new Set<() => void>();
+const subscribeInterest = (fn: () => void) => {
+  interestListeners.add(fn);
+  return () => {
+    interestListeners.delete(fn);
+  };
+};
+const notifyInterest = () => interestListeners.forEach((fn) => fn());
+const readInterest = (): string => {
+  const saved = localStorage.getItem(INTEREST_KEY);
+  return DEFAULT_LISTS.some((l) => l.id === saved)
+    ? (saved as string)
+    : DEFAULT_INTEREST;
+};
+
 export function StoreProvider({ children }: { children: React.ReactNode }) {
-  const [chips, setChips] = useState<Chip[]>(INITIAL_CHIPS);
+  const interest = useSyncExternalStore(
+    subscribeInterest,
+    readInterest,
+    () => DEFAULT_INTEREST,
+  );
+  const [appliedInterest, setAppliedInterest] = useState(DEFAULT_INTEREST);
+  const [chips, setChips] = useState<Chip[]>(() =>
+    withInterest(INITIAL_CHIPS, DEFAULT_INTEREST),
+  );
+  // 興味の対象が変わったら、描画の中で条件ボタンの表示を合わせる（effect を使わない）
+  if (appliedInterest !== interest) {
+    setAppliedInterest(interest);
+    setChips((cs) => withInterest(cs, interest));
+  }
   const [favs, setFavs] = useState<Favorite[]>(INITIAL_FAVORITES);
   const [groups, setGroups] = useState<Group[]>(INITIAL_GROUPS);
   const [history, setHistory] = useState<HistoryItem[]>(INITIAL_HISTORY);
@@ -114,7 +149,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [sugOn, setSugOn] = useState<string[]>([]);
   const [toast, setToast] = useState<Toast | null>(null);
   const [notice, setNotice] = useState("");
-  const [onboardOpen, setOnboardOpen] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // 最新値を操作関数から読むための ref（クロージャの古い値を避ける）
@@ -158,8 +192,17 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     [chips],
   );
 
+  const setInterest = useCallback((id: string) => {
+    if (!DEFAULT_LISTS.some((l) => l.id === id)) return;
+    localStorage.setItem(INTEREST_KEY, id);
+    notifyInterest();
+  }, []);
+
   const startFresh = useCallback(() => {
-    setChips(defaultChips());
+    localStorage.removeItem(INTEREST_KEY);
+    notifyInterest();
+    setAppliedInterest(DEFAULT_INTEREST);
+    setChips(withInterest(defaultChips(), DEFAULT_INTEREST));
     setFavs([]);
     setGroups([]);
     setHistory([]);
@@ -169,7 +212,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setDetailState(EMPTY_DETAIL);
     setPeriod(EMPTY_PERIOD);
     setSugOn([]);
-    setOnboardOpen(true);
   }, []);
 
   const restore = useCallback(
@@ -407,48 +449,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setNotice,
     usedChips,
     query,
-    onboardOpen,
-    setOnboardOpen,
+    interest,
+    setInterest,
     startFresh,
-    applyOnboarding: (listIds, names) => {
-      // 既定リストは、選んだものだけホームに出す（何も選ばなければ変えない）
-      if (listIds.length > 0)
-        setChips((cs) =>
-          cs.map((c) =>
-            c.isDefault ? { ...c, visible: listIds.includes(c.id) } : c,
-          ),
-        );
-      const terms = names.map((n) => n.trim()).filter(Boolean);
-      if (terms.length > 0) {
-        // 名前はお気に入りとして保存し、そのコピーを「推しエゴサ」にまとめる
-        const created: Favorite[] = terms.map((t) => ({
-          id: nid("f"),
-          name: t,
-          query: /^[#@]/.test(t) ? t : `"${t}"`,
-          period: { ...EMPTY_PERIOD, kind: "d1" },
-          engine: "x",
-          last: "未実行",
-        }));
-        setFavs((fs) => [...fs, ...created]);
-        setGroups((gs) => [
-          ...gs,
-          {
-            id: nid("g"),
-            name: "推しエゴサ",
-            items: created.map(favToItem),
-            doneToday: false,
-          },
-        ]);
-        const first = terms[0];
-        if (first && !/^[#@]/.test(first)) setWord(first);
-      }
-      setOnboardOpen(false);
-      say(
-        terms.length > 0
-          ? `「推しエゴサ（${terms.length}個）」を作りました。帯のボタンでまとめて開けます`
-          : "好みを反映しました",
-      );
-    },
   };
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;

@@ -249,3 +249,16 @@
    - [x] tsc / test / lint / build、`npm audit`、main へマージして push
 3. Verification: `npm audit` が 0 件、`npm ls minimatch` に 10.x が残らない。
 4. Review: 「条件のコピー」の解釈を取り違えた（複製と解釈）。ユーザーの訂正で修正。
+
+# ホロライブ前提への変更（興味の切替・作った理由・サイト名と SEO）
+
+1. Goal: 初回カードをやめ、ホロライブ前提＋ヘッダーで興味の対象を切り替える形にし、サイト名を「Hololive EgoSearch」に変えて、説明を「作った理由」にする。
+2. Plan:
+   - [x] テスト先行：`page.test.tsx`（見出し）と `site-footer.test.tsx`（非公式の表示）を Red → Green
+   - [x] 実アプリ：`page.tsx`、`layout.tsx` の metadata（title の default／template、description）、`SiteFooter` に非公式の1行
+   - [x] モック：`interest-picker.tsx`（ヘッダーの［ホロライブ▾］）、store の `interest`、初回カードと推しエゴサの自動作成を削除、about を「作った理由」に
+   - [x] 仕様書：requirements（1章・F6・F11・7章・9章 SEO・付録A）、screen-spec、implementation-plan、CLAUDE.md、README
+   - [x] design-lessons を改訂・追加
+   - [ ] make check、画面確認、grep、コミット、main へマージして push
+3. Verification: make check、`out/index.html` の title・description、dev で［ホロライブ▾］の切替（キーボード、リロード後の保持、360px）、旧用語の grep。
+4. Review: 数字の根拠は aramakijake.jp の推定値（Yahoo は Google の1/4の固定比で独立根拠ではない。X 系の語は過小評価の可能性）。公式誤認のリスクは requirements 7章に記録。説明文の「検索出来なかった」は「保存してまとめて実行できなかった」と中立に書いた。

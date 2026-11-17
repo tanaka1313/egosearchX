@@ -1,8 +1,5 @@
 "use client";
 // MOCK: 破棄予定（#61）
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { useStore } from "../_parts/store";
 import { PageHead } from "../_parts/ui";
 
 const FEATURES: { title: string; body: string }[] = [
@@ -35,17 +32,24 @@ const STEPS = [
 ];
 
 export default function AboutPage() {
-  const s = useStore();
-  const router = useRouter();
   return (
     <main className="mx-auto max-w-2xl space-y-5 p-3 md:p-4">
       <PageHead title="このサイトについて" />
-      <p className="text-sm">
-        EgoSearch
-        Studio（X（Twitter））は、自分や推しの名前・タグを「エゴサ」するための検索を、組み立てて・保存して・まとめて開くための道具です。
-        <strong>検索結果はこのサイトには表示しません。</strong>
-        検索の URL を作って、X や Yahoo のページを開くだけです。
-      </p>
+      <section aria-label="このサイトを作った理由" className="space-y-2">
+        <h2 className="font-bold">このサイトを作った理由</h2>
+        <p className="text-sm">
+          SNS
+          の検索は毎日のことなのに、検索コマンドを覚えておく機能がありません。毎日いくつも検索するのに、その検索を保存してまとめて実行することもできませんでした。そんな負担を減らしたくて、このサイトを作りました。
+        </p>
+        <p className="text-sm">
+          そこで、何度でも使える検索ボタン（条件ボタン）を用意し、毎日の調べ物のために「お気に入り」と「いつものエゴサ」の機能を加えました。
+        </p>
+        <p className="text-sm text-muted-foreground">
+          <strong>検索結果はこのサイトには表示しません。</strong>
+          検索の URL を作って、X（Twitter）や Yahoo!
+          リアルタイム検索のページを開くだけです。
+        </p>
+      </section>
 
       <section aria-label="使い方" className="space-y-2">
         <h2 className="font-bold">使い方（3ステップ）</h2>
@@ -81,23 +85,10 @@ export default function AboutPage() {
             保存した内容（条件ボタン・お気に入り・履歴など）は、この端末のブラウザにだけ保存します。サーバーには送りません。
           </li>
           <li>履歴や閲覧内容を、勝手に読み取ることはしません。</li>
+          <li>
+            ホロライブ（カバー株式会社）とは関係のない、ファンが作った非公式のツールです。
+          </li>
         </ul>
-      </section>
-
-      <section aria-label="好みの選び直し" className="space-y-2">
-        <h2 className="font-bold">好みを選び直す</h2>
-        <p className="text-sm text-muted-foreground">
-          ホロライブ・にじさんじなど、興味のあるところを選ぶと、条件ボタンがあなた向けに整います。
-        </p>
-        <Button
-          variant="outline"
-          onClick={() => {
-            s.setOnboardOpen(true);
-            router.push("/mock");
-          }}
-        >
-          興味を選び直す
-        </Button>
       </section>
     </main>
   );
