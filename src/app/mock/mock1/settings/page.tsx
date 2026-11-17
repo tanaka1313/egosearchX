@@ -2,7 +2,7 @@
 // MOCK: 破棄予定（#61）
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { MockDialog } from "../_components/mock-dialog";
+import { MockDialog } from "../../_components/mock-dialog";
 
 export default function MockSettings() {
   const [confirm, setConfirm] = useState(false);

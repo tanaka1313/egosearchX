@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { PRESETS } from "../_components/dummy";
+import { PRESETS } from "../../_components/dummy";
 
 type State = "ok" | "blocked" | "broken" | "unknown";
 
@@ -38,7 +38,7 @@ export default function MockLaunch() {
       {state === "broken" && (
         <section className="rounded border p-4">
           <p>ブックマークURLを読み込めませんでした</p>
-          <Link href="/mock" className="underline">
+          <Link href="/mock/mock1" className="underline">
             クイック実行へ
           </Link>
         </section>
@@ -78,7 +78,7 @@ export default function MockLaunch() {
             ))}
           </ol>
           <Link
-            href="/mock/studio"
+            href="/mock/mock1/studio"
             className={buttonVariants({ variant: "outline" })}
           >
             スタジオで編集
