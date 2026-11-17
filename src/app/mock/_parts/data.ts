@@ -170,8 +170,18 @@ export type TrashItem =
 
 /** 既定リスト（requirements F1）。ID は開発者が確認した値のみ。 */
 export const DEFAULT_LISTS = [
-  { id: "d-holo", name: "ホロメンから", listId: "1412278227767218179" },
-  { id: "d-niji", name: "にじさんじから", listId: "1478366370727608323" },
+  {
+    id: "d-holo",
+    name: "ホロメンから",
+    interest: "ホロライブ",
+    listId: "1412278227767218179",
+  },
+  {
+    id: "d-niji",
+    name: "にじさんじから",
+    interest: "にじさんじ",
+    listId: "1478366370727608323",
+  },
 ];
 
 const c = (id: string, kind: CondKind, value: string): Cond => ({
@@ -376,6 +386,7 @@ export const MENU = [
   { href: "/mock/history", label: "履歴" },
   { href: "/mock/trash", label: "削除済み" },
   { href: "/mock/import", label: "URL解析" },
+  { href: "/mock/about", label: "このサイトについて" },
 ] as const;
 
 /** 削除済みの初期ダミー（3種類。画面を確かめやすくする） */

@@ -91,8 +91,11 @@ function GroupStrip({ onAdd }: { onAdd: () => void }) {
           <Plus className="size-4" />
         </button>
         {groups.length === 0 ? (
-          <span className="min-w-0 truncate text-sm text-muted-foreground">
-            まだありません
+          <span
+            title="保存した検索を、1タップでまとめて開けます（［＋］で作成）"
+            className="min-w-0 truncate text-sm text-muted-foreground"
+          >
+            まとめて1タップで開けます
           </span>
         ) : (
           <div

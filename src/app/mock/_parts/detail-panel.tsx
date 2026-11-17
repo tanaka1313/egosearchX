@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FILTERS, type Detail, type Engine, type Tri } from "./data";
+import { OpenBar } from "./open-bar";
 import { PeriodPicker } from "./period-picker";
 import { chipTokens, detailTokens } from "./query";
 import { useStore } from "./store";
@@ -59,8 +60,8 @@ export function DetailPanel() {
     });
 
   return (
-    <details className="group rounded-xl border">
-      <summary className="cursor-pointer px-3 py-3 font-medium focus-visible:ring-2 focus-visible:ring-ring">
+    <details className="group border-t pt-1">
+      <summary className="cursor-pointer py-2 font-medium focus-visible:ring-2 focus-visible:ring-ring">
         詳細条件
         {nodes.length > 0 && (
           <span className="ml-2 rounded-full border px-2 text-xs">
@@ -68,7 +69,7 @@ export function DetailPanel() {
           </span>
         )}
       </summary>
-      <div className="space-y-2 border-t p-3">
+      <div className="space-y-2 pt-2">
         <Section title="語">
           <TagInput
             label="完全一致の語"
@@ -318,6 +319,9 @@ export function DetailPanel() {
             </label>
           )}
         </Section>
+
+        {/* 詳細条件を触ったその場で開けるよう、ホームと同じ OpenBar を末尾に置く */}
+        <OpenBar />
 
         <div className="flex justify-end">
           <Button size="sm" variant="outline" onClick={resetDetail}>
