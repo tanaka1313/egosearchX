@@ -19,7 +19,15 @@ export const APP_FEATURE = "X（Twitter）";
 export const TODAY = "2026-11-17";
 
 export type CondKind =
-  "word" | "exact" | "exclude" | "list" | "account" | "filter" | "raw";
+  | "word"
+  | "exact"
+  | "exclude"
+  | "list"
+  | "account"
+  | "filter"
+  | "raw"
+  | "number"
+  | "date";
 
 export const COND_KINDS: { kind: CondKind; label: string; hint: string }[] = [
   { kind: "word", label: "語（通常）", hint: "ぺこら" },
@@ -29,9 +37,35 @@ export const COND_KINDS: { kind: CondKind; label: string; hint: string }[] = [
   { kind: "account", label: "アカウント", hint: "from:ID / to:ID" },
   { kind: "filter", label: "フィルタ", hint: "-filter:retweets" },
   { kind: "raw", label: "生トークン", hint: "foo:bar" },
+  { kind: "number", label: "数値", hint: "50" },
+  { kind: "date", label: "日付", hint: "2026-11-07" },
 ];
 
-export type Cond = { id: string; kind: CondKind; value: string };
+/**
+ * 値付きの条件（数値・日付）の演算子。ホームの条件ボタンの中に入力欄を出し、値をその場で変えられる。
+ * 演算子を足すときはここに1件足すだけで、編集シートとホームのボタンに反映される。
+ */
+export const PARAM_OPS = {
+  min_faves: { type: "number", suffix: "件以上", label: "ファボ数" },
+  min_retweets: { type: "number", suffix: "件以上", label: "RT数" },
+  min_replies: { type: "number", suffix: "件以上", label: "リプ数" },
+  since: { type: "date", suffix: "以降", label: "開始日" },
+  until: { type: "date", suffix: "以前", label: "終了日（含む）" },
+} as const satisfies Record<
+  string,
+  { type: "number" | "date"; suffix: string; label: string }
+>;
+export type ParamOp = keyof typeof PARAM_OPS;
+export const PARAM_OP_KEYS = Object.keys(PARAM_OPS) as ParamOp[];
+/** 種類（数値／日付）ごとの演算子 */
+export const paramOpsOf = (type: "number" | "date"): ParamOp[] =>
+  PARAM_OP_KEYS.filter((k) => PARAM_OPS[k].type === type);
+
+/** kind が number／date のときだけ op を持つ（値は value。数値は正の整数、日付は YYYY-MM-DD） */
+export type Cond = { id: string; kind: CondKind; value: string; op?: ParamOp };
+
+export const isParamCond = (c: Cond): boolean =>
+  (c.kind === "number" || c.kind === "date") && !!c.op;
 export type Chip = {
   id: string;
   label: string;
@@ -220,6 +254,23 @@ export const INITIAL_CHIPS: Chip[] = [
       c("k-spoil-2", "exclude", "ネタバレ語B"),
     ],
   },
+  // 値付きの条件ボタン：ホームのボタンの中で値を変えられる（変えた値はボタンに保存）
+  {
+    id: "k-faves",
+    label: "ファボ",
+    on: false,
+    visible: true,
+    conds: [{ id: "k-faves-1", kind: "number", op: "min_faves", value: "50" }],
+  },
+  {
+    id: "k-since",
+    label: "日付",
+    on: false,
+    visible: true,
+    conds: [
+      { id: "k-since-1", kind: "date", op: "since", value: "2026-11-07" },
+    ],
+  },
   {
     id: "k-img",
     label: "画像つき",
@@ -254,13 +305,6 @@ export const INITIAL_CHIPS: Chip[] = [
     on: false,
     visible: true,
     conds: [c("k-clip-1", "word", "#切り抜きタグA")],
-  },
-  {
-    id: "k-faves",
-    label: "反応100以上",
-    on: false,
-    visible: true,
-    conds: [c("k-faves-1", "filter", "min_faves:100")],
   },
   {
     id: "k-jp",

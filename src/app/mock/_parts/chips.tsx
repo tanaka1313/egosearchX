@@ -1,10 +1,16 @@
 "use client";
 // MOCK: 破棄予定（#61）
-import { Check, Circle } from "lucide-react";
+import { Ban, Check, Circle } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { LIMITS, type Chip } from "./data";
-import { chipTokens } from "./query";
+import {
+  LIMITS,
+  PARAM_OPS,
+  isParamCond,
+  type Chip,
+  type ParamOp,
+} from "./data";
+import { chipTokens, periodActive } from "./query";
 import { useStore } from "./store";
 import { toggleClass } from "./ui";
 
@@ -15,6 +21,7 @@ import { toggleClass } from "./ui";
  */
 export function ToggleChip({ chip }: { chip: Chip }) {
   const { toggleChip } = useStore();
+  if (chip.conds.some(isParamCond)) return <ParamChip chip={chip} />;
   return (
     <button
       data-chip={chip.id}
@@ -37,6 +44,86 @@ export function ToggleChip({ chip }: { chip: Chip }) {
         </span>
       )}
     </button>
+  );
+}
+
+/**
+ * 値付きの条件ボタン（例：［✓ ファボ [50] 件以上］［○ 日付 [2026-11-07] 以降］）。
+ * `<button>` の中に入力欄は置けないので、外枠を span にして「切替ボタン＋入力欄＋接尾語」を並べる。
+ * - 切替ボタン（アイコン枠＋ラベル）と接尾語を押すと ON/OFF。
+ * - 入力欄で値を変えると、値をボタンに保存して自動で ON にする。
+ * - 入力欄の幅は固定（値の桁数や ON/OFF でボタンの幅を変えない）。
+ * - 期間を指定中は、日付の条件を持つボタンを無効の表示にする（期間を優先。ON/OFF の状態は残す）。
+ */
+function ParamChip({ chip }: { chip: Chip }) {
+  const { toggleChip, setCondValue, period } = useStore();
+  const blocked =
+    periodActive(period) && chip.conds.some((c) => c.kind === "date");
+  const reasonId = `chip-${chip.id}-reason`;
+  const tokens = chipTokens(chip).join(" ");
+  return (
+    <span
+      role="group"
+      aria-label={chip.label}
+      data-chip={chip.id}
+      title={blocked ? `期間を指定中のため無効（${tokens}）` : tokens}
+      className={`relative inline-flex items-center gap-1 rounded-full py-1 pr-3 pl-1 text-sm ${toggleClass(chip.on)} ${blocked ? "opacity-60" : ""}`}
+    >
+      <button
+        aria-pressed={chip.on}
+        aria-describedby={blocked ? reasonId : undefined}
+        onClick={() => toggleChip(chip.id)}
+        className="inline-flex items-center gap-1.5 rounded-full py-0.5 pl-2 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      >
+        <span className="flex size-4 shrink-0 items-center justify-center">
+          {blocked ? (
+            <Ban className="size-3.5" aria-label="無効" />
+          ) : chip.on ? (
+            <Check className="size-4" aria-label="ON" />
+          ) : (
+            <Circle className="size-3.5" aria-label="OFF" />
+          )}
+        </span>
+        {chip.label}
+      </button>
+      {chip.conds.filter(isParamCond).map((c) => {
+        const op = c.op as ParamOp;
+        const def = PARAM_OPS[op];
+        const disabled = blocked && c.kind === "date";
+        return (
+          <span key={c.id} className="inline-flex items-center gap-1">
+            <input
+              type={def.type}
+              inputMode={def.type === "number" ? "numeric" : undefined}
+              min={def.type === "number" ? 1 : undefined}
+              value={c.value}
+              disabled={disabled}
+              aria-label={`${chip.label}の${def.label}`}
+              onChange={(ev) => setCondValue(chip.id, c.id, ev.target.value)}
+              className={`h-6 rounded border border-border bg-background px-1 font-mono text-sm text-foreground tabular-nums focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed ${def.type === "number" ? "w-[6ch] text-right" : "w-[8.75rem]"}`}
+            />
+            {/* 接尾語は押すと ON/OFF（マウス用。キーボードは切替ボタンで操作する） */}
+            <span
+              aria-hidden
+              onClick={() => toggleChip(chip.id)}
+              className="cursor-pointer select-none"
+            >
+              {def.suffix}
+            </span>
+          </span>
+        );
+      })}
+      {blocked && (
+        <span id={reasonId} className="sr-only">
+          期間を指定中のため無効です（期間を優先します）
+        </span>
+      )}
+      {chip.isNew && (
+        <span className="absolute -top-1.5 right-2 rounded bg-amber-300 px-1 text-[10px] leading-4 font-bold text-amber-950">
+          新
+        </span>
+      )}
+    </span>
   );
 }
 

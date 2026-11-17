@@ -13,6 +13,13 @@ export function condToken(c: Cond): string {
   const v = c.value.trim();
   if (!v) return "";
   switch (c.kind) {
+    case "number":
+      // 正の整数だけを出力する（空・不正な値はトークンにしない）
+      return c.op && /^[1-9]\d*$/.test(v) ? `${c.op}:${v}` : "";
+    case "date":
+      if (!c.op || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return "";
+      // 「以前」は終了日を含む指定 → until は翌日へ変換（requirements F2）
+      return c.op === "until" ? `until:${addDay(v, 1)}` : `${c.op}:${v}`;
     case "exact":
       return `"${v}"`;
     case "exclude":
@@ -24,13 +31,24 @@ export function condToken(c: Cond): string {
   }
 }
 
-/** 共通：ON の条件ボタンの中身（個別設定で無効にした項目を除く） */
-export function chipTokens(chip: Chip, disabled: string[] = []): string[] {
+/**
+ * 共通：ON の条件ボタンの中身（個別設定で無効にした項目を除く）。
+ * 期間を指定しているときは、日付の条件を除く（期間を優先する。requirements F6）。
+ */
+export function chipTokens(
+  chip: Chip,
+  disabled: string[] = [],
+  opts: { periodActive?: boolean } = {},
+): string[] {
   return chip.conds
     .filter((c) => !disabled.includes(c.id))
+    .filter((c) => !(opts.periodActive && c.kind === "date"))
     .map(condToken)
     .filter(Boolean);
 }
+
+/** 期間（昨日から・日付指定など）が有効か。有効なら日付の条件ボタンは使わない */
+export const periodActive = (p: Period): boolean => periodTokens(p).length > 0;
 
 export function addDay(date: string, n: number): string {
   const d = new Date(`${date}T00:00:00Z`);
@@ -142,13 +160,26 @@ export function buildQuery(i: BuildInput): {
     (ch) =>
       ch.visible && (i.onlyChipIds ? i.onlyChipIds.includes(ch.id) : ch.on),
   );
-  used.forEach((ch) => tokens.push(...chipTokens(ch, i.detail.disabledConds)));
+  const pActive = periodActive(i.period);
+  used.forEach((ch) =>
+    tokens.push(
+      ...chipTokens(ch, i.detail.disabledConds, { periodActive: pActive }),
+    ),
+  );
+  const skippedDate = pActive
+    ? used.filter((ch) => ch.conds.some((c) => c.kind === "date"))
+    : [];
   tokens.push(
     ...detailTokens(i.detail).filter((x) => !i.detail.offTokens.includes(x)),
   );
   tokens.push(...(i.extra ?? []));
   tokens.push(...periodTokens(i.period));
   const warnings: string[] = [];
+  skippedDate.forEach((ch) =>
+    warnings.push(
+      `期間を指定中のため、日付ボタン「${ch.label}」は使われません（期間を優先）`,
+    ),
+  );
   if (tokens.some((x) => x.includes("list:")))
     warnings.push("list: は Yahoo では使えません（Yahoo では除外されます）");
   if (tokens.some((x) => x.includes("filter:")))
