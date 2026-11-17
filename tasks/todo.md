@@ -118,3 +118,14 @@
 4. Review:
    - main の CI は Dependabot の eslint-config-next 16 への更新以降 lint が失敗していた（FlatCompat 経由の読み込みが循環参照で壊れる）。`eslint.config.mjs` を flat config の直読みに直した。
    - コメントは `<!-- vercel-preview -->` の目印で更新し、push のたびに増やさない。
+
+# #60 モックの別デザイン案（mock1〜5）
+
+1. Goal: 現行モックを mock1 とし、別デザインの mock2〜5 を追加して、`/mock` の一覧から比べられるようにする（破棄は #61）。
+2. Plan:
+   - [x] 現行を `src/app/mock/mock1/` へ移動、一覧ページと戻りリンクを追加
+   - [x] mock2（左ドロワー）、mock3（お気に入り）、mock4（Bento＋パレット）、mock5（配信者目線）
+   - [x] README と todo を更新
+   - [ ] make check、ルートの疎通確認、PR → main にマージ
+3. Verification: make check、dev で全ルートが 200 かつバナーと一覧への戻りリンクを含むこと、全ファイルにマーカーがあること。
+4. Review: 新規テストは書かない（破棄前提の例外）。検索結果は表示しない。実在の名前は使わない。

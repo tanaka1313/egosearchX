@@ -6,15 +6,15 @@ import {
   ImportDialog,
   IssueDialog,
   MemberDialog,
-} from "../_components/dialogs";
+} from "../../_components/dialogs";
 import {
   PRESETS,
   QUERY_X,
   QUERY_YAHOO,
   URL_X,
   URL_YAHOO,
-} from "../_components/dummy";
-import { Mono } from "../_components/mock-dialog";
+} from "../../_components/dummy";
+import { Mono } from "../../_components/mock-dialog";
 
 const NODES = [
   "語：メンバーA（完全一致）",
