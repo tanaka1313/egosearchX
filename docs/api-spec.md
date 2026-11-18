@@ -2,7 +2,7 @@
 
 ## 0. 前提
 - **これは HTTP の API ではない。** アプリは静的書き出しのままで、サーバーを持たない。ここでいう「フロントエンド」と「バックエンド」は、**同じブラウザの中で動くコードの2つの層**である。層を分けるのは、画面を作り直しても規則・保存を触らずに済み、規則・保存先を差し替えても画面を触らずに済むようにするため。両者の境界（インターフェース）をこの文書で決める。
-- 関連文書：`docs/requirements.md`（機能 F1〜F12、データ構造 11章、DAO 12章）、`docs/screen-spec.md`（S1〜S10、D1〜D3）、`docs/implementation-plan.md`（ファイル構成、AST）、`docs/research-phase0.md`（URL 形式の確度）。**意味と規則はそちらが正で、この文書には写さない。** ここには、境界をまたぐ関数の形・型・エラーの形だけを書く。
+- 関連文書：`docs/requirements.md`（機能 F1〜F12、データ構造 11章、DAO 12章）、`docs/screen-spec.md`（S1〜S10、D1〜D4）、`docs/implementation-plan.md`（ファイル構成、AST）、`docs/research-phase0.md`（URL 形式の確度）。**意味と規則はそちらが正で、この文書には写さない。** ここには、境界をまたぐ関数の形・型・エラーの形だけを書く。
 - 正にするもの：保存データの型と DAO は作成済みの `src/lib/storage`、検索文字列の規則は `src/app/mock/_parts/query-model.ts`（モックが正。要件定義書 10.4）。**既存のシグネチャは変えない**（変えるときは、先にこの文書を直す）。
 - 各項目の状態の凡例：**作成済み**（コードがある）／**予定（#番号）**（Issue がある。書かれていない挙動は書かない）／**決定**（この文書で決めた）／**未決定**（7.3。推測で埋めない）。
 - 用語：検索先は「X」「Yahoo!リアルタイム検索」。コード中の識別子 `'x'`・`'yahoo'` は、そのまま書く。複数の検索をまとめたものは「いつものエゴサ」。
@@ -137,7 +137,10 @@ type RunSource = HistoryItem["source"] & { groupId?: string };  // groupId：い
 type ParsedUrl = { engine: "x" | "yahoo"; query: string; tokens: { text: string; raw: boolean }[] };
 type LauncherPayload = { name: string; items: PlanItem[] };   // zod スキーマも契約が持つ
 type Interest = { id: InterestId; label: { ja: string; en: string }; list: { label: string; listId: string } | null };
+type Word = { label: string; query: string; starter: boolean };                  // 検索ワード集の1件。query が本体（興味の対象の中で重複しない）
+type WordGroup = { name: { ja: string; en: string }; words: Word[] };           // チャンネル単位。配列の順が表示順
 ```
+- 検索ワード集（`Word`・`WordGroup`）は、マスタ JSON（`src/data/word-set.json`。興味の対象 ID をキーにした Record）から読む。保存はしない。ワードの ON は、サジェストと同じく `SearchState.suggestionTokens`（その検索だけ）に入る。
 - `ParamOp`・`FilterKey` は、**契約が持つ定数**（`PARAM_OP_TYPES: Record<ParamOp, "number" | "date">`、`FILTER_KEYS`）から導く。ラベル・接尾語などの文言は辞書が持つ。`operators.ts`（エンジン別の対応と `status`）は、この定数を import して、キーを1か所に揃える（**決定**）。
 - `onChipIds` は、モックの `onIds` を改名したもの（モックは破棄予定）。
 - `OpenTarget.query` は、開く時点の保存形（記号を日付に展開済み。X の構文）。履歴にはこれを残す（要件定義書 11.4「開く」。**決定**）。`url` だけが、検索先ごとの変換を受ける。
@@ -160,6 +163,8 @@ interface EgoSearchApi {
 | メソッド | 戻り値 | 説明 |
 |---|---|---|
 | `interests()` | `Map<InterestId, Interest>` | ヘッダーの切替。JSON に1件足すだけで増える（要件定義書 11.2） |
+| `wordSet(interest: InterestId)` | `WordGroup[]` | 検索ワード集（D4）の全件。グループ名は ja／en の両方を返し、どちらを出すかは画面が言語で選ぶ。対象が無い・空のときは `[]`（**決定**。#89） |
+- 検索ワード集の全件は `master.wordSet` で読み、**履歴0件のときにホームに出す分の選び方**は `query.starters`（規則はバックエンドが持つ）。
 - 条件ボタンのプリセットとサジェストの規則は、**バックエンドの内部**に置く（画面は `data.chips.addPresets` と `query.suggest` を通して使う）。
 
 ### 4.2 `query`（同期・純粋。**予定** #71・#12〜#17。規則は要件定義書 F2・F3・F6・11.3・11.4）
@@ -174,6 +179,7 @@ interface EgoSearchApi {
 | `chipConds(chip)`／`condsToQuery(conds)` | `Cond[]`／`string` | 条件ボタンの本体 ⇄ 条件の行（D1） |
 | `validateChip(label: string, conds: Cond[])` | `Result<{ label: string; query: string }>` | D1 の保存前の検証。ラベルが空でも数値・日付の条件があれば演算子名をラベルにする（画面仕様書 D1）。上限は見ない |
 | `favName(query, favorites)` | `string \| null` | いつものエゴサの項目の表示名（`favNameFor`） |
+| `starters(input: { interest: InterestId; chips: Chip[]; history: HistoryItem[] })` | `string[]` | 履歴が**0件のときだけ**、今の対象の `starter` の `Word.query` を、グループ順・ワード順に、条件ボタンにあるものを除いて最大 `LIMITS.wordSetStarter` 件返す。履歴が1件でもあれば `[]`（**決定**。#89。モックの `starterWords`） |
 | `suggest(input: { text: string; chips: Chip[]; history: HistoryItem[] })` | `string[]` | 規則 → 履歴のトークンの順。条件ボタンにあるもの・検索に入っているものを除き、最大 `LIMITS.suggest`。履歴からは、**期間（`since:`／`until:`）だけを除き、検索語も条件も候補にする**（**決定**。#80） |
 - `applyFavEdit`（お気に入りの編集 → いつものエゴサ）は契約に出さない。`data.favorites.update` の中で使う。
 
@@ -281,18 +287,18 @@ type TrashDetail =
 | ヘッダー・メニュー | `master.interests` | `data.prefs.set({ interest, lang })` | 辞書の切替、メニューの開閉 |
 | 帯（全ページ） | `url.plan` | `data.history.record`（source: group、`groupId`） | `window.open`、「今日は実行済み」を `Group.lastRunAt`・`clock.today()` から求める（4.5）。保存データが壊れているときの共通の表示と［データを初期化する］（`data.reset`。画面仕様書 2.7） |
 | フッター | — | `data.history.record`（再実行） | 最後の1件を `history` から表示 |
-| **S1 ホーム** | `query.build`、`query.suggest`、`query.expand`、`url.plan` | `data.chips.setOn`／`setValue`、`data.saveSearch`（☆ 保存）、`data.history.record`（source: home）、`data.favorites`（［▶ 実行］は `url.plan`＋`record`）、`data.prefs.set({ favOpen })` | 入力中の検索語・詳細条件・期間の状態、`window.open`、クリップボード、保存シート |
+| **S1 ホーム** | `query.build`、`query.suggest`、`query.starters`、`master.wordSet`（D4）、`query.expand`、`url.plan` | `data.chips.setOn`／`setValue`、`data.saveSearch`（☆ 保存）、`data.history.record`（source: home）、`data.favorites`（［▶ 実行］は `url.plan`＋`record`）、`data.prefs.set({ favOpen })` | 入力中の検索語・詳細条件・期間の状態、`window.open`、クリップボード、保存シート |
 | **S2 条件ボタン・D1** | `query.chipConds`／`condsToQuery`／`validateChip`、`url.listId`、`query.suggest` | `data.chips.save`／`setVisible`／`reorder`／`remove`／`addPresets`／`adoptSuggestion` | 並べ替えの操作、コピー（クリップボード） |
 | **S3 お気に入り** | `url.plan` | `data.favorites.reorder`／`remove`、`record`（source: favorite） | 名前の絞り込み、`window.open`、行の「前回」（`Favorite.lastRunAt`）の表示 |
-| **S3-E お気に入りの編集** | `query.parse`、`query.build`、`query.normalize`（関連するいつものエゴサの表示）、`url.plan` | `data.favorites.update`／`duplicate` | ページ内の検索の組み立ての状態、トーストの［元に戻す］（`undo`） |
+| **S3-E お気に入りの編集** | `query.parse`、`query.starters`、`master.wordSet`（D4）、`query.build`、`query.normalize`（関連するいつものエゴサの表示）、`url.plan` | `data.favorites.update`／`duplicate` | ページ内の検索の組み立ての状態、トーストの［元に戻す］（`undo`） |
 | **S4 いつものエゴサ** | `url.plan`、`query.favName` | `data.groups.remove`、`launcher.encode`（D2）、`record`（source: group、`groupId`） | 一括の `window.open` とブロック時の表示、URL のコピー |
-| **S4-E 追加・編集** | `query.build`、`query.favName`、`url.plan` | `data.groups.save`、`data.favorites.save`（② お気に入りに保存して追加） | ページ内の項目の並び（保存まで持つ）、検索の組み立ての状態 |
+| **S4-E 追加・編集** | `query.build`、`query.starters`、`master.wordSet`（D4）、`query.favName`、`url.plan` | `data.groups.save`、`data.favorites.save`（② お気に入りに保存して追加） | ページ内の項目の並び（保存まで持つ）、検索の組み立ての状態 |
 | **S5 履歴** | `url.plan` | `data.history.clear`（D3）、`data.favorites.save`（検索先は履歴の `engine` を引き継ぐ）、`record` | 一覧の表示、`window.open` |
 | **S6 削除済み・D3** | — | `data.trash.list`／`detail`／`restore`／`purge`／`purgeKind`／`purgeAll` | 種類のタブ、確認ダイアログ |
 | **S7 URL解析** | `url.parse`、`query.parse`（ホームで編集する） | `data.favorites.save`（検索先は貼った URL のもの） | 貼り付けの入力、ホームの状態への展開、`location` |
 | **S9 ランチャー** | `url.plan`、`query.favName` | `launcher.decode`（ページを開いたとき）、`record`（source: launch） | `window.open`、ブロック時の表示、［ホームへ］ |
 | S10 このサイトについて | — | — | 静的な文言だけ |
-- 画面仕様書の S1〜S10・D1〜D3 の操作は、すべて上のどれかの呼び出しに対応させた。対応できない操作が見つかったときは、画面ではなく、この表と4章を直す。
+- 画面仕様書の S1〜S10・D1〜D4 の操作は、すべて上のどれかの呼び出しに対応させた。対応できない操作が見つかったときは、画面ではなく、この表と4章を直す。
 
 ## 7. 実装の状態
 
@@ -305,7 +311,7 @@ type TrashDetail =
 | AST・演算子・パーサー・シリアライザー・合成・期間 | 予定 | #12・#13・#14・#15・#16・#17（`query.build`・`url.plan` の下位） |
 | URL の生成・解析・リスト ID | 予定 | #18・#19。モックの `parseListId` が元 |
 | ランチャーの codec | 予定 | #20 |
-| マスタ JSON と zod | 予定 | #21（プリセットとサジェストの中身は #70） |
+| マスタ JSON と zod | 予定 | #21（`word-set.json` を含む。プリセット・サジェスト・検索ワード集の中身は #70） |
 | ストア ⇄ バックエンド | 予定 | #24（「ストア⇄DAO」から「ストア⇄API」へ直す） |
 | 辞書（ja／en） | 予定 | #72（`Issue` のコードを辞書で文言にする） |
 | **契約の型・`createBackend`・import の制限** | 予定（新しい Issue） | この文書の実装。7.2 |
@@ -325,3 +331,4 @@ type TrashDetail =
 | いつものエゴサの `lastRunAt` | `GroupSchema` に足し、`SCHEMA_VERSION` を2にして `migrate.ts` に移行を書く |
 | 保存データが壊れたときの初期化 | `data.reset()`、DAO・KV の全消去、全ページ共通の表示と D3（画面仕様書 2.7） |
 | `LIMITS.launcherUrlWarn` | ブックマーク URL 全体の警告水準（暫定2000文字）。契約の実装 Issue で足す |
+| `LIMITS.wordSetStarter` | 履歴0件のときホームに出す検索ワード集の数（暫定60）。#88 で足す。検索ワード集の型（`Word`・`WordGroup`）も #88 |

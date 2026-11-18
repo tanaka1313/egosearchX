@@ -8,7 +8,7 @@
 | 文書 | 読むとき |
 |---|---|
 | `docs/requirements.md` | 機能（F1〜F12）、対象内／対象外、MVP の範囲、データ構造（11章）、DAO（12章） |
-| `docs/screen-spec.md` | 画面（S1〜S10）とダイアログ（D1〜D3）。画面イメージは `/mock` |
+| `docs/screen-spec.md` | 画面（S1〜S10）とダイアログ（D1〜D4）。画面イメージは `/mock` |
 | `docs/implementation-plan.md` | ファイル構成、AST の型、マイルストーン（M0〜M7） |
 | `docs/api-spec.md` | フロントエンドとバックエンドの境界（`@/api`）：関数の形、型、エラー・警告のコード、画面ごとの呼び出し |
 | `docs/research-phase0.md` | X／Yahoo の演算子・URL 形式（項目ごとに確度あり） |

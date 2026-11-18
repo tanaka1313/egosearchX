@@ -1,6 +1,6 @@
 # 実装計画（技術設計）
 
-関連文書：`docs/requirements.md`（F1〜F12）、`docs/screen-spec.md`（S1〜S10、D1〜D3）、`docs/research-phase0.md`。画面イメージは `/mock`（破棄予定のモック）。
+関連文書：`docs/requirements.md`（F1〜F12）、`docs/screen-spec.md`（S1〜S10、D1〜D4）、`docs/research-phase0.md`。画面イメージは `/mock`（破棄予定のモック）。
 
 ## 1. 技術スタック
 | 用途 | 採用 | 理由 |
@@ -55,7 +55,8 @@ src/
     query/model.ts        検索文字列の規則（分割・正規化・相対期間の記号・文字列⇄条件の行・お気に入りの展開・編集の連動）。モックの `_parts/query-model.ts` とテストを移す
     chips/
       suggest.ts          サジェスト検索条件（規則→履歴のトークンの順。重複除外、上限20）
-    limits.ts             上限値の定数（作成済み。条件ボタン＝興味の対象ごとに30、削除済み20、履歴100、折りたたみ前の条件ボタン8個、URL警告500文字）
+      starters.ts         検索ワード集のうち、履歴0件のときホームに出す分（`starter` の印、条件ボタンにあるものを除く、上限60）。モックの `starterWords`
+    limits.ts             上限値の定数（作成済み。条件ボタン＝興味の対象ごとに30、削除済み20、履歴100、折りたたみ前の条件ボタン8個、履歴なしのときホームに出す検索ワード集60件、URL警告500文字）
     launch/codec.ts       いつものエゴサ ⇄ `/launch#v1.<base64url>`（相対期間は記号のまま入れる）
     storage/              DAO（作成済み。要件定義書 12章）
       schema.ts           保存データの zod スキーマと SCHEMA_VERSION
@@ -70,6 +71,7 @@ src/
     interests.json        興味の対象（ID・表示名・既定リスト）。ID をキーにした Map で扱う
     presets.json          興味の対象ごとの条件ボタンのプリセット（中身は Issue #70）
     suggest-rules.json    サジェストの規則（中身は Issue #70）
+    word-set.json         検索ワード集（興味の対象ごと。チャンネル単位のグループ、グループ名は ja／en。約200件。中身は Issue #70、画面は Issue #89）
     schema.ts             マスタ JSON の zod スキーマ
 ```
 
@@ -112,9 +114,9 @@ GitHub のマイルストーン（M0〜M7）と対応する（名前：M3 マス
 | M0 | 雛形：`create-next-app`、shadcn/ui、Vitest、ESLint、`git init` | tsc / test / lint / build が通る |
 | M1 | 契約の型（`src/api`：型・`IssueCode`・`LIMITS`・zod スキーマ。Issue #88。`docs/api-spec.md`）と、クエリの中核（ast, tokenizer, parse-x, serialize-x/yahoo, merge, dates）をテスト先行で作る | 往復テスト、Yahoo変換表、until が終了日をそのまま出すこと（Yahoo の uts は翌日0時）、条件ボタンと個別設定の合成（無効化）のテストが通る |
 | M2 | URLの生成と解析、リストID の取り出し、ランチャーの codec | X/YahooのURLの往復、壊れたハッシュの検出、`x.com/i/lists/<ID>?s=20` から ID を取り出すテスト |
-| M3 | マスタ JSON（`interests.json`・`presets.json`・`suggest-rules.json`）と zod スキーマ、興味の対象ごとのプリセットの登録 | 不正JSONでビルドが失敗する。初回に、興味の対象ごとのプリセットが条件ボタンとして入り、ヘッダーの切替で並びが切り替わる（既定はホロライブ）。プリセットの中身は Issue #70 |
+| M3 | マスタ JSON（`interests.json`・`presets.json`・`suggest-rules.json`・`word-set.json`）と zod スキーマ、興味の対象ごとのプリセットの登録 | 不正JSONでビルドが失敗する。初回に、興味の対象ごとのプリセットが条件ボタンとして入り、ヘッダーの切替で並びが切り替わる（既定はホロライブ）。プリセットの中身は Issue #70 |
 | M4 | **i18n の基盤（辞書 ja／en、型は ja から、言語切替。画面より先に作る）**、バックエンドの束ね（`createBackend`、`data` のユースケース、import の制限）、ストア（zustand）と契約（`@/api`）の接続（DAO は作成済み）。条件ボタン（興味の対象ごと）・お気に入り・いつものエゴサ・履歴・削除済み・設定 | 再読み込み後もデータが残る。DAO のテスト（移行、壊れたデータ、削除済み＝種類ごとに20件、ボタン＝対象ごとに30件、履歴100件）は作成済み。お気に入りを削除してもいつものエゴサが変わらないこと、お気に入りを編集すると一致する項目が更新されることのテスト |
-| M5 | S1 ホームの検索の組み立て（押すだけの条件ボタン、折りたたみ、詳細条件（テキストで追加を含む）、プレビュー、警告、［⋯］）、S2 条件ボタン（D1 シート、並べ替え、条件のコピー、表示）、S7 URL解析、ヘッダーの興味の対象の切替、**SEO（要件定義書 9章）：言語辞書の ja／en の title・description、ホームだけに置く WebSite の JSON-LD（`name`／`alternateName`／`url`）** | 画面仕様書 4章・S2・S7 の操作が一通りできる。`out/index.html` に title・description・JSON-LD が入っている |
+| M5 | S1 ホームの検索の組み立て（押すだけの条件ボタン、折りたたみ、詳細条件（テキストで追加を含む）、プレビュー、警告、［⋯］）、S2 条件ボタン（D1 シート、並べ替え、条件のコピー、表示）、S7 URL解析、ヘッダーの興味の対象の切替、検索ワード集（D4 と、履歴0件のときのホームの続き。Issue #89）、**SEO（要件定義書 9章）：言語辞書の ja／en の title・description、ホームだけに置く WebSite の JSON-LD（`name`／`alternateName`／`url`）** | 画面仕様書 4章・S2・S7・D4 の操作が一通りできる。`out/index.html` に title・description・JSON-LD が入っている |
 | M6 | いつものエゴサ（ヘッダー下の帯に先頭2件。全ページ）、お気に入り、履歴（フッターに最後の1件）、サジェスト検索条件、削除済み、D2 発行、S9 ランチャー、コマンドパレット | ブックマークURLから全タブを開ける。ブロック時にリンク一覧が出る。削除→復元→上限超過が動く |
 | M7 | スマホ・PC表示（左メニュー70%、1カラム）、全画面の文言の網羅と英語の確定、キーボード操作、モックの破棄、Vercelデプロイ | 360px幅と1280px幅で、日本語・英語の両方で操作できる。本番URLで動く |
 
