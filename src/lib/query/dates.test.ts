@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { localMidnightSec } from "./dates";
+import { localDate, localMidnightSec } from "./dates";
 
 /** 日本時間の0時（UNIX 秒）。day に 0 を渡すと前月末日になる */
 const jst = (y: number, m: number, d: number) =>
@@ -43,5 +43,18 @@ describe("localMidnightSec", () => {
     "20261107",
   ])("日付として読めない %j は null", (v) => {
     expect(localMidnightSec(v)).toBeNull();
+  });
+});
+
+describe("localDate（開く時点の現地の日付。相対期間の基準日）", () => {
+  it("日本時間の0時の直前は前日、0時ちょうどは翌日（UTC では前日のまま）", () => {
+    expect(localDate(new Date("2026-11-17T14:59:59Z"))).toBe("2026-11-17");
+    expect(localDate(new Date("2026-11-17T15:00:00Z"))).toBe("2026-11-18");
+  });
+  it("年末をまたぐ", () => {
+    expect(localDate(new Date("2026-12-31T15:00:00Z"))).toBe("2027-01-01");
+  });
+  it("月・日は0埋めする", () => {
+    expect(localDate(new Date("2026-02-02T03:00:00Z"))).toBe("2026-02-02");
   });
 });

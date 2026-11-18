@@ -315,7 +315,7 @@ type TrashDetail =
 | AST・演算子（`ast.ts`・`operators.ts`）、X パーサー（`tokenizer.ts`・`parse-x.ts`） | **作成済み**（#12・#13） | `query.parse`・`url.parse` の下位 |
 | X・Yahoo のシリアライザー（`serialize-x.ts`・`serialize-yahoo.ts`・`dates.ts` の `localMidnightSec`） | **作成済み**（#14・#15） | Yahoo は `{ text, warnings, lts?, uts? }`。`url.plan` の下位 |
 | 合成（`merge.ts`） | **作成済み**（#16） | `query.build` の下位 |
-| 相対期間の展開の境界テスト | 予定 | #17（`expandRelative` は model.ts にある。月末・年末のテストを足す） |
+| 相対期間の展開（`expandRelative`）の境界テストと、基準日 `localDate`（`dates.ts`） | **作成済み**（#17） | 月末・年末・うるう日のテストあり。`clock.today()` は `localDate(new Date())` を使う（`toISOString` は UTC なので使わない。#85） |
 | URL の生成・解析・リスト ID | 予定 | #18・#19。モックの `parseListId` が元 |
 | ランチャーの codec | 予定 | #20 |
 | マスタ JSON と zod | 予定 | #21（`word-set.json` を含む。プリセット・サジェスト・検索ワード集の中身は #70） |

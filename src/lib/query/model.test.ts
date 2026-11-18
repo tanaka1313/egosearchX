@@ -69,6 +69,40 @@ describe("expandRelative（相対期間の記号を実行日で日付にする�
       "since:2026-12-27",
     );
   });
+  it("年末：元日の昨日は前年の12-31", () => {
+    expect(expandRelative("since:yesterday", "2027-01-01")).toBe(
+      "since:2026-12-31",
+    );
+    expect(expandRelative("since:3days_ago", "2027-01-02")).toBe(
+      "since:2026-12-30",
+    );
+  });
+  it("月末：30日の月・31日の月をまたぐ", () => {
+    expect(expandRelative("since:3days_ago", "2026-12-01")).toBe(
+      "since:2026-11-28",
+    );
+    expect(expandRelative("since:1week_ago", "2026-11-03")).toBe(
+      "since:2026-10-27",
+    );
+  });
+  it("うるう年の2月29日をまたぐ", () => {
+    expect(expandRelative("since:yesterday", "2028-03-01")).toBe(
+      "since:2028-02-29",
+    );
+    expect(expandRelative("since:1week_ago", "2028-03-03")).toBe(
+      "since:2028-02-25",
+    );
+  });
+  it("ほかのトークンと混在しても、記号だけを展開して順序を保つ", () => {
+    expect(
+      expandRelative('"a b" -filter:retweets since:yesterday c', "2026-11-18"),
+    ).toBe('"a b" -filter:retweets since:2026-11-17 c');
+  });
+  it("until: は展開で変わらない（終了日そのまま）。until:yesterday は記号ではない", () => {
+    expect(
+      expandRelative("until:2026-11-10 until:yesterday", "2026-11-18"),
+    ).toBe("until:2026-11-10 until:yesterday");
+  });
   it("記号でないトークンは変えない（日付・未知の記号）", () => {
     expect(
       expandRelative("since:2026-11-01 since:tomorrow", "2026-11-18"),

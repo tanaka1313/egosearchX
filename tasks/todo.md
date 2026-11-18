@@ -1,3 +1,17 @@
+# #17 相対期間の展開と until の出力
+
+1. Goal: 相対期間（`since:yesterday` など）が月末・年末・うるう日でも正しい日付に展開され、`until:` が終了日そのままになることをテストで保証し、展開の基準日（現地の今日）を求める `localDate` を置く。
+2. Plan:
+   - [x] ブランチ `feature/relative-period`
+   - [x] `model.test.ts`（年末・月末・うるう日・混在・until）、`merge.test.ts`（元日の展開）、`dates.test.ts`（`localDate` の境界。Red を確認）
+   - [x] `dates.ts` に `localDate`、冒頭コメントと docs（implementation-plan 2章、api-spec 7.1）を同期
+   - [x] make check・format:check、main へマージして push、#17 を閉じる
+3. Verification: `make check`、`npm run format:check`。
+4. Review:
+   - 展開の本体（`expandRelative`／`addDay`）は #71 で model.ts に移済みで、バグは無かった。足したのは境界テストと、基準日 `localDate`。
+   - `localDate` は `toISOString` を使わない。UTC だと日本時間の 0:00〜8:59 に前日になり、［昨日から］が一昨日に展開される。
+   - **次に壊れやすい点**：#85 の `clock.today()` が `localDate` を通ること（`toISOString().slice(0,10)` で書くと上の不具合になる）。`tokenize` は括弧を1語として扱うので、`(a OR since:yesterday)` の中の記号は展開されない（Yahoo では `yahoo.rawUnverified`）。
+
 # #15 Yahoo シリアライザーと変換警告
 
 1. Goal: AST から Yahoo!リアルタイム検索のクエリ文字列を `{ text, warnings, lts?, uts? }` で返す純粋関数を作る。使えない演算子は黙って消さず警告する。
