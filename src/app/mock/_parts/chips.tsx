@@ -2,7 +2,7 @@
 // MOCK: 破棄予定（#61）
 import { Ban, Check, Circle } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   LIMITS,
   PARAM_OPS,
@@ -15,6 +15,7 @@ import { chipConds } from "./query-model";
 import { useSearchScope } from "./search-scope";
 import { useStore } from "./store";
 import { toggleClass } from "./ui";
+import { WordButton, WordSetDialog } from "./word-set-dialog";
 
 /**
  * 条件ボタン。押すと ON/OFF が切り替わるだけ（編集・コピー・削除・並べ替え・表示の切替は「条件ボタン」ページ）。
@@ -167,13 +168,19 @@ function SuggestChip({ token }: { token: string }) {
  * 開いた後は［閉じる］を出さず、サジェスト検索条件を下に出す。「ボタンを編集 →」は並びの最後の行の右端に置く。
  */
 export function ChipRow() {
-  const { chips, suggestions } = useStore();
+  const { chips, suggestions: sug, starters } = useStore();
   const [expanded, setExpanded] = useState(false);
+  const [wordSet, setWordSet] = useState(false);
+  const wordSetRef = useRef<HTMLButtonElement>(null);
+  // 履歴なしのときは、条件ボタンの続きに検索ワード集の約60件を区別なくつなげる（同じ折りたたみに入る）
+  const suggestions = sug.filter((t) => !starters.includes(t));
   const visible = chips.filter((c) => c.visible);
-  const shown = expanded ? visible : visible.slice(0, LIMITS.foldChips);
-  const hidden = expanded
-    ? 0
-    : visible.length - shown.length + suggestions.length;
+  const all: { key: string; chip?: Chip; word?: string }[] = [
+    ...visible.map((c) => ({ key: c.id, chip: c })),
+    ...starters.map((t) => ({ key: "w:" + t, word: t })),
+  ];
+  const shown = expanded ? all : all.slice(0, LIMITS.foldChips);
+  const hidden = expanded ? 0 : all.length - shown.length + suggestions.length;
 
   return (
     <div className="space-y-2">
@@ -182,9 +189,13 @@ export function ChipRow() {
         aria-label="条件ボタン"
         className="relative flex flex-wrap items-center gap-2 pt-2"
       >
-        {shown.map((c) => (
-          <ToggleChip key={c.id} chip={c} />
-        ))}
+        {shown.map((x) =>
+          x.chip ? (
+            <ToggleChip key={x.key} chip={x.chip} />
+          ) : (
+            <WordButton key={x.key} label={x.word!} query={x.word!} />
+          ),
+        )}
         {hidden > 0 && (
           <button
             aria-expanded={expanded}
@@ -194,6 +205,14 @@ export function ChipRow() {
             もっと開く（+{hidden}）
           </button>
         )}
+        <button
+          ref={wordSetRef}
+          onClick={() => setWordSet(true)}
+          aria-haspopup="dialog"
+          className="rounded-full border px-3 py-1 text-sm hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          検索ワード集
+        </button>
         <Link
           href="/mock/buttons"
           className="ml-auto text-sm text-muted-foreground underline underline-offset-4"
@@ -201,6 +220,14 @@ export function ChipRow() {
           ボタンを編集 →
         </Link>
       </div>
+      {wordSet && (
+        <WordSetDialog
+          onClose={() => {
+            setWordSet(false);
+            wordSetRef.current?.focus();
+          }}
+        />
+      )}
       {expanded && (
         // 条件ボタンの並びと詰まって見えないよう、上に余白を取る（枠線は足さない）
         <section aria-label="サジェスト検索条件" className="space-y-2 pt-3">

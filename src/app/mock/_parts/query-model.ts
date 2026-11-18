@@ -17,6 +17,7 @@ import {
   type Detail,
   type Engine,
   type Group,
+  type WordSetItem,
   type GroupItem,
   type ParamOp,
   type Period,
@@ -332,6 +333,21 @@ export function suggestFromRules(q: string, rules: SuggestRule[]): string[] {
     if (!r.when.some((w) => q.includes(w))) continue;
     for (const s of r.suggest)
       if (!have.has(s) && !out.includes(s)) out.push(s);
+  }
+  return out;
+}
+
+/** 履歴なしのときホームに出す検索ワード集：starter だけ、すでにあるものを除き、上限まで（元の順） */
+export function starterWords(
+  items: WordSetItem[],
+  have: Set<string>,
+  limit: number,
+): string[] {
+  const out: string[] = [];
+  for (const it of items) {
+    if (out.length >= limit) break;
+    if (!it.starter || have.has(it.query) || out.includes(it.query)) continue;
+    out.push(it.query);
   }
   return out;
 }

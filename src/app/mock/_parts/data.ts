@@ -7,6 +7,8 @@ export const LIMITS = {
   history: 100,
   /** サジェスト検索条件の表示数（「もっと開く」の後だけ表示） */
   suggest: 20,
+  /** 履歴なしのとき、ホームに出す検索ワード集の数 */
+  wordSetStarter: 60,
   /** ホームで［もっと開く］の前に出す条件ボタンの数 */
   foldChips: 8,
   headerGroups: 2,
@@ -565,3 +567,50 @@ export const SUGGEST_SEEDS: string[] = [
   "-filter:links",
   "min_retweets:50",
 ];
+
+/**
+ * 検索ワード集（開発者が Excel で決める。中身は架空の値）。チャンネル単位でグループ分けし、
+ * グループ名は日本語・英語の対応表を持つ。starter は、履歴がないときホームの条件ボタンの続きに出す印（約60件）。
+ */
+/** 検索ワード集の項目。チャンネル単位のグループ付き。starter は履歴がないときホームの並びに出す印 */
+export type WordSetItem = {
+  groupId: string;
+  label: string;
+  query: string;
+  starter: boolean;
+};
+export type WordSetGroup = { id: string; ja: string; en: string };
+export const WORD_SET_GROUPS: Record<InterestId, WordSetGroup[]> =
+  Object.fromEntries(
+    INTEREST_IDS.map((i) => [
+      i,
+      Array.from({ length: 8 }, (_, n) => {
+        const c = String.fromCharCode(65 + n);
+        return { id: `${i}-ch${c}`, ja: `チャンネル${c}`, en: `Channel ${c}` };
+      }),
+    ]),
+  );
+const WORD_SET_KINDS = [
+  { label: "名前", q: (c: string) => `チャンネル${c}` },
+  { label: "ファンアート", q: (c: string) => `#ファンアートタグ${c}` },
+  { label: "配信", q: (c: string) => `#配信タグ${c}` },
+  { label: "切り抜き", q: (c: string) => `#切り抜きタグ${c}` },
+  { label: "推しマーク", q: (c: string) => `推しマーク${c}` },
+] as const;
+export const WORD_SET: Record<InterestId, WordSetItem[]> = Object.fromEntries(
+  INTEREST_IDS.map((i) => [
+    i,
+    WORD_SET_GROUPS[i].flatMap((g, n) => {
+      const c = String.fromCharCode(65 + n);
+      return WORD_SET_KINDS.flatMap((k, ki) =>
+        // 各チャンネル 5 種 × 5 件 ≒ 200 件。先頭の 2 種（名前・ファンアート）×先頭6チャンネル＝60 件を starter に
+        Array.from({ length: 5 }, (_, m) => ({
+          groupId: g.id,
+          label: m === 0 ? `${k.label}${c}` : `${k.label}${c}${m + 1}`,
+          query: m === 0 ? k.q(c) : `${k.q(c)}${m + 1}`,
+          starter: ki < 2 && n < 6,
+        })),
+      );
+    }),
+  ]),
+);
