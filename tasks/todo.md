@@ -389,3 +389,17 @@
    - [ ] make check、画面確認、grep、コミット、main へマージして push
 3. Verification: make check、`out/index.html` の title・description、dev で［ホロライブ▾］の切替（キーボード、リロード後の保持、360px）、旧用語の grep。
 4. Review: 数字の根拠は aramakijake.jp の推定値（Yahoo は Google の1/4の固定比で独立根拠ではない。X 系の語は過小評価の可能性）。公式誤認のリスクは requirements 7章に記録。説明文の「検索出来なかった」は「保存してまとめて実行できなかった」と中立に書いた。
+
+# X のリスト除外（-list:）の削除と、アカウント除外の実機検証結果の反映
+
+1. Goal: X でエラーになる `-list:` をモック・文書から外し、`-from:`／`-to:`／`-@` を実機確認済み（stable）にする。
+2. Plan:
+   - [x] テスト先行：`-list:123` は除外の欄に入らず raw に入る（Red を確認 → Green）
+   - [x] モック：`exList` の型・初期値・解析・出力・詳細条件の欄を削除
+   - [x] 文書：research-phase0（5章 #6、6章 E6）、requirements F3、screen-spec（詳細条件・未確定事項）、implementation-plan 4章
+   - [x] make check
+   - [ ] コミット（承認待ち）
+3. Verification: make check（テスト109件）、`-list:`／`exList` の grep で記録とテスト以外に残らないこと。
+4. Review:
+   - `-filter:follows` はもともと文書・コードに無く、E6 に「使わない」とだけ記録した。
+   - **未確認**：ブラウザでの目視（詳細条件の除外が3欄になった並び）。

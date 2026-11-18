@@ -94,7 +94,7 @@ type PeriodSpec = { kind: 'none' | 'd1' | 'd3' | 'd7' | 'date'; from?: string; t
 
 ## 4. 実験的な項目の扱い
 - `operators.ts` の各定義に `status: 'stable' | 'experimental'` を持たせる。
-  - experimental：現時点では無し。`list:` と `to:` の併用、`since_time:`／`until_time:`、Yahooの `lts`／`uts` は実機で確認して stable にした（`docs/research-phase0.md` 6章）。今後の仕様変更に備えて仕組みは残す。
+  - experimental：現時点では無し。`list:` と `to:` の併用、`since_time:`／`until_time:`、Yahooの `lts`／`uts`、Xのアカウント除外（`-from:`／`-to:`／`-@`）は実機で確認して stable にした（`docs/research-phase0.md` 6章）。`-list:` は X で検索がエラーになるため定義しない。今後の仕様変更に備えて仕組みは残す。
   - 公式の記載が無く実機だけを根拠にした定義には、根拠と代替手段をコメントで残す（`docs/requirements.md` 7章のリスク）。
 - experimental の要素を含む検索は、プレビューとカードに「実験的」バッジを付ける（非モーダル）。
 - 実機確認の結果は、`operators.ts` の status とURL長の警告水準の定数を変えるだけで反映できるようにする。

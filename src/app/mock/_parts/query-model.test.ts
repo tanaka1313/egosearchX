@@ -201,16 +201,21 @@ describe("parseToScope（お気に入りを条件ボタンと詳細条件に展�
     expect(s.detail.raw).toBe("from:b");
   });
 
-  it("アカウントの除外（-from: -to: -@ -list:）は除外の欄に入り、除外の語には入らない", () => {
-    const s = parseToScope("a -from:x -to:y -@z -list:123456", []);
+  it("アカウントの除外（-from: -to: -@）は除外の欄に入り、除外の語には入らない", () => {
+    const s = parseToScope("a -from:x -to:y -@z", []);
     expect(s.detail).toMatchObject({
       exFrom: "x",
       exTo: "y",
       exMention: "z",
-      exList: "123456",
       exclude: [],
       raw: "",
     });
+  });
+  it("-list:（X では検索がエラーになる）は除外の欄にも除外の語にも入らず、テキストで追加へ", () => {
+    const s = parseToScope("a -list:123456", []);
+    expect(s.detail.exclude).toEqual([]);
+    expect(s.detail.raw).toBe("-list:123456");
+    expect(s.detail).not.toHaveProperty("exList");
   });
   it("アカウントの除外が2回出たら、2つ目はテキストで追加へ", () => {
     const s = parseToScope("a -from:x -from:w", []);
@@ -232,7 +237,8 @@ describe("parseToScope（お気に入りを条件ボタンと詳細条件に展�
   });
 
   it.each([
-    "a -from:x -to:y -@z -list:123456",
+    "a -from:x -to:y -@z",
+    "a -list:123456",
     '"メンバーA" -filter:retweets -ネタバレ語A -ネタバレ語B since:yesterday',
     "#配信タグA -ネタバレ語A since:2026-11-01 until:2026-11-11",
     "list:1412278227767218179 to:sample_id since:1week_ago",

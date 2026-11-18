@@ -73,7 +73,6 @@ export function detailTokens(d: Detail): string[] {
   if (d.exFrom) t.push(`-from:${d.exFrom}`);
   if (d.exTo) t.push(`-to:${d.exTo}`);
   if (d.exMention) t.push(`-@${d.exMention.replace(/^@/, "")}`);
-  if (d.exList) t.push(`-list:${d.exList}`);
   FILTERS.forEach((f) => {
     const v = d.flt[f.key];
     if (v === "inc") t.push(f.op);
@@ -141,7 +140,7 @@ export function buildQuery(i: BuildInput): {
     warnings.push(
       `filter: は${yahoo}では使えません（${yahoo}では除外されます）`,
     );
-  // アカウントの除外は Yahoo!リアルタイム検索で効かない（-list: は上の list: の警告で扱う）
+  // アカウントの除外は Yahoo!リアルタイム検索で効かない
   ["-from:", "-to:", "-@"]
     .filter((op) => tokens.some((x) => x.startsWith(op)))
     .forEach((op) =>
