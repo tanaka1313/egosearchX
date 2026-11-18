@@ -44,9 +44,9 @@ src/
       tokenizer.ts        文字列 → トークン（括弧・OR・否定を区別する字句解析 `lex`。model.ts の `tokenize` とは別）
       parse-x.ts          Xクエリ → AST（未知の演算子は raw ノード。括弧なしの OR は先に結ぶ。E9）
       serialize-x.ts      AST → Xクエリ
-      serialize-yahoo.ts  AST → Yahooクエリ + 警告の配列
+      serialize-yahoo.ts  AST → Yahooクエリ + 警告の配列 + 期間（`lts`／`uts`、UNIX 秒）。括弧は OR なので AND は平らにする
       merge.ts            条件ボタン（共通）と個別設定の合成、項目ごとの無効化
-      dates.ts            相対日付の解決（until は終了日をそのまま出す。日本時間）
+      dates.ts            日付の計算（`localMidnightSec`：現地0時の UNIX 秒。作成済み）と相対日付の解決（#17。until は終了日をそのまま出す。日本時間）
       （警告の型とコードは src/api/issues.ts に置く。ここには置かない。文言は辞書。docs/api-spec.md 2.3）
     url/
       build.ts            AST → X/Yahoo の URL

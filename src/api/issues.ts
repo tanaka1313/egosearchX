@@ -10,6 +10,7 @@ export const ISSUE_CODES = [
   "yahoo.filterUnsupported",
   "yahoo.accountExcludeUnsupported",
   "yahoo.rawUnverified",
+  "yahoo.groupUnverified",
   "yahoo.mentionAsReply",
   "yahoo.langUnsupported",
   "yahoo.minCountUnsupported",
