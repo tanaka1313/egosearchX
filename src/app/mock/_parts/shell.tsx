@@ -17,6 +17,7 @@ import { VersionDialog } from "@/components/common/version-dialog";
 import { APP_FEATURE, LIMITS, MENU } from "./data";
 import { InterestPicker } from "./interest-picker";
 import { useStore } from "./store";
+import { toggleClass } from "./ui";
 
 const CUR_PATH_KEY = "mock:curPath:v1";
 const PREV_PATH_KEY = "mock:prevPath:v1";
@@ -26,12 +27,22 @@ export function previousPath(fallback: string): string {
   return sessionStorage.getItem(PREV_PATH_KEY) ?? fallback;
 }
 
+type Lang = "ja" | "en";
+const LANGS: [Lang, string][] = [
+  ["ja", "日本語"],
+  ["en", "English"],
+];
+
 function MenuList({
   onNavigate,
   onPalette,
+  lang,
+  onLang,
 }: {
   onNavigate?: () => void;
   onPalette: () => void;
+  lang: Lang;
+  onLang: (l: Lang) => void;
 }) {
   const path = usePathname();
   const { trash } = useStore();
@@ -91,6 +102,24 @@ function MenuList({
             </button>
           }
         />
+      </li>
+      {/* 言語の切替（設定画面は置かない）。初期値はブラウザの言語 */}
+      <li
+        role="group"
+        aria-label="言語"
+        className="flex items-center gap-2 px-3 pt-3"
+      >
+        <span className="text-sm text-muted-foreground">言語</span>
+        {LANGS.map(([v, l]) => (
+          <button
+            key={v}
+            aria-pressed={lang === v}
+            onClick={() => onLang(v)}
+            className={`rounded-full px-3 py-1 text-sm ${toggleClass(lang === v)}`}
+          >
+            {l}
+          </button>
+        ))}
       </li>
     </ul>
   );
@@ -163,37 +192,43 @@ function GroupStrip() {
   );
 }
 
-/** フッター：最後の履歴を1件だけ固定表示する */
+/** フッター：最後の履歴を1件だけ固定表示し、その下に非公式の表記を常に出す */
 function Footer() {
   const { history, say } = useStore();
   const last = history[0];
   return (
-    <footer className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-2 border-t bg-background px-3 py-2 text-xs">
-      <span className="shrink-0 text-muted-foreground">前回</span>
-      {last ? (
-        <>
-          <span className="shrink-0">{last.at}</span>
-          <span className="min-w-0 flex-1 truncate font-mono">
-            {last.word || last.query}
+    <footer className="fixed inset-x-0 bottom-0 z-40 border-t bg-background px-3 pt-2 pb-1 text-xs">
+      <div className="flex items-center gap-2">
+        <span className="shrink-0 text-muted-foreground">前回</span>
+        {last ? (
+          <>
+            <span className="shrink-0">{last.at}</span>
+            <span className="min-w-0 flex-1 truncate font-mono">
+              {last.word || last.query}
+            </span>
+            <button
+              onClick={() => say("再実行しました（ダミー）")}
+              className="shrink-0 rounded border px-2 py-1 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              再実行
+            </button>
+          </>
+        ) : (
+          <span className="flex-1 text-muted-foreground">
+            実行するとここに残ります
           </span>
-          <button
-            onClick={() => say("再実行しました（ダミー）")}
-            className="shrink-0 rounded border px-2 py-1 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            再実行
-          </button>
-        </>
-      ) : (
-        <span className="flex-1 text-muted-foreground">
-          実行するとここに残ります
-        </span>
-      )}
-      <Link
-        href="/mock/history"
-        className="shrink-0 underline underline-offset-4"
-      >
-        履歴 →
-      </Link>
+        )}
+        <Link
+          href="/mock/history"
+          className="shrink-0 underline underline-offset-4"
+        >
+          履歴 →
+        </Link>
+      </div>
+      {/* 公式と誤認されないよう、非公式であることを常に示す（CLAUDE.md） */}
+      <p className="truncate pt-1 text-[11px] text-muted-foreground">
+        ファンが作った非公式のツールです
+      </p>
     </footer>
   );
 }
@@ -201,9 +236,16 @@ function Footer() {
 export function Shell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [palette, setPalette] = useState(false);
+  const [lang, setLang] = useState<Lang>("ja");
   const toggleRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const { toast } = useStore();
+  const { toast, say } = useStore();
+  // モックは日本語のみ。選んだ状態だけを持ち、文言は切り替えない
+  const onLang = (l: Lang) => {
+    setLang(l);
+    if (l === "en")
+      say("英語の文言は本実装で切り替わります（モックは日本語のみ）");
+  };
   const path = usePathname();
   // ランチャーは画面に集中させるため、フッターを出さない（いつものエゴサは全ページに出す）
   const launcher = path === "/mock/launch";
@@ -249,10 +291,14 @@ export function Shell({ children }: { children: React.ReactNode }) {
         className="hidden w-64 shrink-0 border-r p-3 xl:block"
       >
         <p className="mb-3 px-3 font-bold">Hololive EgoSearch</p>
-        <MenuList onPalette={() => setPalette(true)} />
+        <MenuList
+          onPalette={() => setPalette(true)}
+          lang={lang}
+          onLang={onLang}
+        />
       </aside>
 
-      <div className={`min-w-0 flex-1 ${launcher ? "" : "pb-14"}`}>
+      <div className={`min-w-0 flex-1 ${launcher ? "" : "pb-20"}`}>
         {/* ヘッダーは sticky にしない（バナーの下に潜らせない） */}
         <header className="flex items-center gap-2 border-b px-3 py-2">
           <button
@@ -303,6 +349,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <MenuList
               onNavigate={() => setOpen(false)}
               onPalette={() => setPalette(true)}
+              lang={lang}
+              onLang={onLang}
             />
           </nav>
           <button
@@ -319,7 +367,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       {toast && (
         <div
           role="status"
-          className="fixed inset-x-3 bottom-14 z-[70] mx-auto flex max-w-md items-center gap-3 rounded-lg border bg-foreground px-4 py-3 text-sm text-background shadow-xl"
+          className="fixed inset-x-3 bottom-20 z-[70] mx-auto flex max-w-md items-center gap-3 rounded-lg border bg-foreground px-4 py-3 text-sm text-background shadow-xl"
         >
           <span className="flex-1">{toast.msg}</span>
           {toast.undo && (

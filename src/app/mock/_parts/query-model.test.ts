@@ -201,7 +201,38 @@ describe("parseToScope（お気に入りを条件ボタンと詳細条件に展�
     expect(s.detail.raw).toBe("from:b");
   });
 
+  it("アカウントの除外（-from: -to: -@ -list:）は除外の欄に入り、除外の語には入らない", () => {
+    const s = parseToScope("a -from:x -to:y -@z -list:123456", []);
+    expect(s.detail).toMatchObject({
+      exFrom: "x",
+      exTo: "y",
+      exMention: "z",
+      exList: "123456",
+      exclude: [],
+      raw: "",
+    });
+  });
+  it("アカウントの除外が2回出たら、2つ目はテキストで追加へ", () => {
+    const s = parseToScope("a -from:x -from:w", []);
+    expect(s.detail.exFrom).toBe("x");
+    expect(s.detail.raw).toBe("-from:w");
+  });
+  it("アカウントの除外は Yahoo!リアルタイム検索で使えない旨を警告する", () => {
+    const w = (exTo: string, exMention: string) =>
+      buildQuery({
+        word: "a",
+        exact: false,
+        chips: [],
+        detail: { ...EMPTY_DETAIL, exTo, exMention },
+        period: { kind: "none", from: "", to: "" },
+      }).warnings;
+    expect(w("y", "").some((m) => m.includes("-to:"))).toBe(true);
+    expect(w("", "z").some((m) => m.includes("-@"))).toBe(true);
+    expect(w("", "")).toEqual([]);
+  });
+
   it.each([
+    "a -from:x -to:y -@z -list:123456",
     '"メンバーA" -filter:retweets -ネタバレ語A -ネタバレ語B since:yesterday',
     "#配信タグA -ネタバレ語A since:2026-11-01 until:2026-11-11",
     "list:1412278227767218179 to:sample_id since:1week_ago",

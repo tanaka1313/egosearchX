@@ -70,6 +70,10 @@ export function detailTokens(d: Detail): string[] {
   if (d.to) t.push(`to:${d.to}`);
   if (d.mention) t.push(`@${d.mention.replace(/^@/, "")}`);
   if (d.list) t.push(`list:${d.list}`);
+  if (d.exFrom) t.push(`-from:${d.exFrom}`);
+  if (d.exTo) t.push(`-to:${d.exTo}`);
+  if (d.exMention) t.push(`-@${d.exMention.replace(/^@/, "")}`);
+  if (d.exList) t.push(`-list:${d.exList}`);
   FILTERS.forEach((f) => {
     const v = d.flt[f.key];
     if (v === "inc") t.push(f.op);
@@ -137,9 +141,13 @@ export function buildQuery(i: BuildInput): {
     warnings.push(
       `filter: は${yahoo}では使えません（${yahoo}では除外されます）`,
     );
-  if (tokens.some((x) => x.startsWith("-from:")))
-    warnings.push(
-      `-from: は${yahoo}では使えません。${yahoo}のミュート機能を使ってください`,
+  // アカウントの除外は Yahoo!リアルタイム検索で効かない（-list: は上の list: の警告で扱う）
+  ["-from:", "-to:", "-@"]
+    .filter((op) => tokens.some((x) => x.startsWith(op)))
+    .forEach((op) =>
+      warnings.push(
+        `${op} は${yahoo}では使えません。${yahoo}のミュート機能を使ってください`,
+      ),
     );
   const stored = tokens.join(" ");
   return { text: runText(stored), stored, warnings, tokens };

@@ -242,6 +242,10 @@ export function parseToScope(q: string, chips: Chip[]): ParsedScope {
       | "to"
       | "mention"
       | "list"
+      | "exFrom"
+      | "exTo"
+      | "exMention"
+      | "exList"
       | "lang"
       | "minFaves"
       | "minRt"
@@ -273,6 +277,10 @@ export function parseToScope(q: string, chips: Chip[]): ParsedScope {
     else if ((m = t.match(/^to:(\S+)$/))) setOnce("to", m[1], t);
     else if ((m = t.match(/^@(\S+)$/))) setOnce("mention", m[1], t);
     else if ((m = t.match(/^list:(\d+)$/))) setOnce("list", m[1], t);
+    else if ((m = t.match(/^-from:(\S+)$/))) setOnce("exFrom", m[1], t);
+    else if ((m = t.match(/^-to:(\S+)$/))) setOnce("exTo", m[1], t);
+    else if ((m = t.match(/^-@(\S+)$/))) setOnce("exMention", m[1], t);
+    else if ((m = t.match(/^-list:(\d+)$/))) setOnce("exList", m[1], t);
     else if ((m = t.match(/^lang:(\w+)$/))) setOnce("lang", m[1], t);
     else if ((m = t.match(/^(min_faves|min_retweets|min_replies):([1-9]\d*)$/)))
       setOnce(numKey[m[1]], m[2], t);

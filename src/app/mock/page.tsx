@@ -54,7 +54,7 @@ function FavoritesFold() {
             <EmptyState text="条件を触って気に入ったら ☆ 保存 でここに入ります" />
           )}
           <ul className="space-y-2">
-            {s.favs.slice(0, 4).map((f) => (
+            {s.favs.map((f) => (
               <li
                 key={f.id}
                 className="flex items-center gap-2 rounded-lg border p-2 text-sm"
