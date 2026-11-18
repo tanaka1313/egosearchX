@@ -137,11 +137,10 @@ export type Detail = {
   to: string;
   mention: string;
   list: string;
-  /** アカウントの除外（-from: -to: -@ -list:）。X の実機で未確認（experimental） */
+  /** アカウントの除外（-from: -to: -@）。X の実機で確認済み。-list: は X で検索がエラーになるので持たない */
   exFrom: string;
   exTo: string;
   exMention: string;
-  exList: string;
   flt: Record<string, Tri>;
   lang: string;
   minFaves: string;
@@ -179,7 +178,6 @@ export const EMPTY_DETAIL: Detail = {
   exFrom: "",
   exTo: "",
   exMention: "",
-  exList: "",
   flt: {},
   lang: "",
   minFaves: "",

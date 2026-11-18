@@ -122,7 +122,7 @@ export function DetailPanel({ footer }: { footer?: React.ReactNode }) {
               placeholder="1412278227767218179"
             />
           </div>
-          {/* 除外は X の実機で未確認（experimental）。Yahoo!リアルタイム検索では効かないので警告する */}
+          {/* 除外は X の実機で確認済み（-list: は X でエラーになるので置かない）。Yahoo!リアルタイム検索では効かないので警告する */}
           <div className="text-sm font-medium">除外</div>
           <div className="grid gap-2 sm:grid-cols-2">
             <Field
@@ -142,12 +142,6 @@ export function DetailPanel({ footer }: { footer?: React.ReactNode }) {
               value={detail.exMention}
               onChange={(v) => patch({ exMention: v })}
               placeholder="sample_id"
-            />
-            <Field
-              label="-list:（このリストを除く）"
-              value={detail.exList}
-              onChange={(v) => patch({ exList: v.replace(/\D/g, "") })}
-              placeholder="1412278227767218179"
             />
           </div>
         </Section>
