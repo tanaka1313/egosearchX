@@ -86,7 +86,7 @@ class ApiError extends Error { code: ApiErrorCode; params?: Record<string, strin
 - 解析できない演算子（`raw`）は、Yahoo!リアルタイム検索の URL にもそのまま入れ、`yahoo.rawUnverified` を出す（**決定**。黙って削除しない。要件定義書 F3・F5）。
 
 ### 2.5 そのほか
-- 日時は ISO 8601、日付は `YYYY-MM-DD`、ID は文字列（新規は UUID。プリセットから作る条件ボタンは `<興味の対象>:<key>`）。ID と日時はバックエンドが付ける（フロントエンドは作らない）。
+- 日時は ISO 8601、日付は `YYYY-MM-DD`、ID は文字列（新規は UUID。プリセットから作る条件ボタンも UUID）。ID と日時はバックエンドが付ける（フロントエンドは作らない）。
 - **ストアはルールを持たない。** 上限・連動・並び順・プリセット・削除済みの上限・名前の一致は、すべてバックエンドが行い、**変わったものを戻り値で返す**。ストアはそれを状態に反映するだけにする。
 - 検索文字列は、**保存形（X の構文。相対期間は `since:yesterday` などの記号のまま）**が基準。Yahoo!リアルタイム検索用の変換は、開くとき（`url.plan`）だけで行う（F5）。
 
@@ -211,7 +211,7 @@ interface DataApi {
     setValue(id: string, condId: string, value: string): Promise<Chip>;   // 値付きの条件。query を書き換え、on にする
     reorder(interestId: InterestId, ids: string[]): Promise<void>;
     remove(id: string): Promise<void>;                          // 削除済みへ
-    addPresets(interestId: InterestId): Promise<Chip[]>;        // 無いものだけ。上限まで。足したものを返す
+    addPresets(interestId: InterestId): Promise<Chip[]>;        // 検索文字列（正規化）が一致するボタンが無いものだけ（削除済みを除く）。上限まで。足したものを返す
     adoptSuggestion(interestId: InterestId, token: string): Promise<Chip>;   // LIMIT
   };
   favorites: {
