@@ -12,7 +12,7 @@
 ### 1.1 責務
 | 層 | 置き場所 | 持つもの | 持たないもの |
 |---|---|---|---|
-| **フロントエンド** | `src/app/`、`src/components/`、`src/store/`（zustand）、`src/messages/`（辞書） | 画面、部品、画面の状態（入力中の検索語・開閉・ページ内の検索の組み立て）、文言（日英）、ブラウザの操作（`window.open`・クリップボード・`location`・`sessionStorage`・トースト・フォーカス） | 検索文字列の規則、URL の組み立て、保存、上限、連動、ID と日時の生成 |
+| **フロントエンド** | `src/app/`、`src/components/`、`src/store/`（zustand）、`src/messages/`（辞書） | 画面、部品、画面の状態（入力中の検索語・開閉・ページ内の検索の組み立て、条件ボタンの「新」印＝ストアのメモリ上だけで持ち、保存しない。再読み込みで消える）、文言（日英）、ブラウザの操作（`window.open`・クリップボード・`location`・`sessionStorage`・トースト・フォーカス） | 検索文字列の規則、URL の組み立て、保存、上限、連動、ID と日時の生成 |
 | **バックエンド** | `src/backend/`（`createBackend`）と、その下の `src/lib/query`・`lib/url`・`lib/launch`・`lib/storage`・`src/data/` | 検索文字列の規則と組み立て（F2・F3・11.3・11.4）、X／Yahoo!リアルタイム検索の URL（F5）、ランチャーの codec（F8）、マスタ JSON、保存（DAO）、上限・連動・削除済み・プリセット、ID と日時 | 画面、文言、ブラウザの操作 |
 | **契約** | `src/api/` | 型、zod スキーマ、`LIMITS`、`EgoSearchApi`（インターフェース）、エラーと警告のコード | 実装 |
 
@@ -54,7 +54,7 @@ type Result<T> = { ok: true; value: T } | { ok: false; error: Issue };
 
 type ApiErrorCode =
   | "LIMIT"            // 上限（params: kind, limit）。LimitError を包む
-  | "CORRUPT"          // 保存データが壊れている（params: key）。StorageCorruptError を包む。上書きしない
+  | "CORRUPT"          // 保存データが壊れている（params: key）。StorageCorruptError を包む。上書きしない（初期化は `data.reset()` だけ。4.5）
   | "NOT_FOUND"        // 指定の ID が無い
   | "INVALID"          // 検証に失敗（params: field）
   | "LAUNCHER_BROKEN"  // ランチャーのデータが読めない（画面仕様書 6章の表）
@@ -74,14 +74,16 @@ class ApiError extends Error { code: ApiErrorCode; params?: Record<string, strin
 | 警告 | `yahoo.listUnsupported` | — | `query.build`、`url.plan` |
 | 警告 | `yahoo.filterUnsupported` | — | 同上 |
 | 警告 | `yahoo.accountExcludeUnsupported` | `op`（`-from:`／`-to:`／`-@`） | 同上 |
+| 警告 | `yahoo.rawUnverified` | `token` | 同上（解析できない演算子 `raw`。URL にはそのまま入れる） |
 | 警告 | `query.tooLong` | `length`、`limit` | `query.build`、`url.plan` |
+| 警告 | `launcher.tooLong` | `length`、`limit`（`LIMITS.launcherUrlWarn`） | `launcher.encode`（ブックマーク URL 全体の長さ） |
 | 止める理由 | `query.empty` | — | `query.build`（`blockers`） |
 | 止める理由 | `period.inverted` | — | `query.build`（`blockers`） |
 | 失敗 | `url.unreadable`／`url.unsupportedHost`／`url.noQuery` | — | `url.parse`（画面仕様書 5.8 の3つの文言に対応） |
 | 失敗 | `list.invalid` | — | `url.listId`（画面仕様書 D1） |
 | 失敗 | `chip.labelRequired`／`chip.labelTooLong`／`chip.empty`／`chip.badNumber`／`chip.badDate` | `index`（行の位置） | `query.validateChip`（画面仕様書 D1 の保存しない理由） |
 - 上限（`LIMITS.chips` など）を超えた追加・復元は、同期では判定せず、async の保存で `ApiError('LIMIT')` になる。画面は、押せない状態にするために `LIMITS` と件数を自分で比べてよい。
-- Yahoo!リアルタイム検索で使えない演算子のうち、**上の3つに無いもの（解析できない演算子 `raw` など）の警告**は未決定（7.3、#15）。「黙って削除しない」（CLAUDE.md）は守る。
+- 解析できない演算子（`raw`）は、Yahoo!リアルタイム検索の URL にもそのまま入れ、`yahoo.rawUnverified` を出す（**決定**。黙って削除しない。要件定義書 F3・F5）。
 
 ### 2.5 そのほか
 - 日時は ISO 8601、日付は `YYYY-MM-DD`、ID は文字列（新規は UUID。プリセットから作る条件ボタンは `<興味の対象>:<key>`）。ID と日時はバックエンドが付ける（フロントエンドは作らない）。
@@ -100,7 +102,6 @@ type Detail = {                        // 詳細条件。EMPTY_DETAIL は契約�
   exFrom: string; exTo: string; exMention: string;   // -from: -to: -@
   flt: Record<FilterKey, Tri>; lang: string;
   minFaves: string; minRt: string; minReplies: string;
-  live: boolean;                       // X の「最新」タブ（f=live）
   disabledConds: string[];             // `<ボタンID>::<トークン>`（disabledKey）
   raw: string;                         // 「テキストで追加」
 };
@@ -125,9 +126,14 @@ type ParsedScope = {                   // query.parse の結果（お気に入�
   word: string; exact: boolean; onChipIds: string[]; detail: Detail; period: Period;
 };
 type PlanItem = { query: string; engine: Engine };            // = GroupItem
-type OpenTarget = { engine: "x" | "yahoo"; url: string; query: string; warnings: Issue[] };
+type OpenTarget = {
+  engine: "x" | "yahoo"; url: string;
+  query: string;                       // 開く時点の文字列（記号を日付に展開済み）。履歴に残す
+  stored: string;                      // 展開前の保存形（PlanItem.query）。お気に入りの lastRunAt の照合に使う
+  warnings: Issue[];
+};
 type RunPlan = { targets: OpenTarget[]; warnings: Issue[] };  // both は x・yahoo の2件。順番が開く順
-type RunSource = HistoryItem["source"] & { favoriteId?: string };
+type RunSource = HistoryItem["source"] & { groupId?: string };  // groupId：いつものエゴサの lastRunAt を更新する（ランチャーは付けない）
 type ParsedUrl = { engine: "x" | "yahoo"; query: string; tokens: { text: string; raw: boolean }[] };
 type LauncherPayload = { name: string; items: PlanItem[] };   // zod スキーマも契約が持つ
 type Interest = { id: InterestId; label: { ja: string; en: string }; list: { label: string; listId: string } | null };
@@ -135,6 +141,7 @@ type Interest = { id: InterestId; label: { ja: string; en: string }; list: { lab
 - `ParamOp`・`FilterKey` は、**契約が持つ定数**（`PARAM_OP_TYPES: Record<ParamOp, "number" | "date">`、`FILTER_KEYS`）から導く。ラベル・接尾語などの文言は辞書が持つ。`operators.ts`（エンジン別の対応と `status`）は、この定数を import して、キーを1か所に揃える（**決定**）。
 - `onChipIds` は、モックの `onIds` を改名したもの（モックは破棄予定）。
 - `OpenTarget.query` は、開く時点の保存形（記号を日付に展開済み。X の構文）。履歴にはこれを残す（要件定義書 11.4「開く」。**決定**）。`url` だけが、検索先ごとの変換を受ける。
+- `Group` に `lastRunAt`（null 可）を足す（**決定**。「今日は実行済み」の判定に使う。スキーマの版を2にし、`migrate.ts` で既存のデータを null にする。実装は Issue）。エンティティの型は `src/lib/storage/schema.ts` が正で、直すのは実装 Issue。
 
 ## 4. API 一覧（`EgoSearchApi`）
 ```ts
@@ -167,23 +174,23 @@ interface EgoSearchApi {
 | `chipConds(chip)`／`condsToQuery(conds)` | `Cond[]`／`string` | 条件ボタンの本体 ⇄ 条件の行（D1） |
 | `validateChip(label: string, conds: Cond[])` | `Result<{ label: string; query: string }>` | D1 の保存前の検証。ラベルが空でも数値・日付の条件があれば演算子名をラベルにする（画面仕様書 D1）。上限は見ない |
 | `favName(query, favorites)` | `string \| null` | いつものエゴサの項目の表示名（`favNameFor`） |
-| `suggest(input: { text: string; chips: Chip[]; history: HistoryItem[] })` | `string[]` | 規則 → 履歴のトークンの順。条件ボタンにあるもの・検索に入っているものを除き、最大 `LIMITS.suggest`。履歴から取る条件の範囲は未決定（7.3、#80） |
+| `suggest(input: { text: string; chips: Chip[]; history: HistoryItem[] })` | `string[]` | 規則 → 履歴のトークンの順。条件ボタンにあるもの・検索に入っているものを除き、最大 `LIMITS.suggest`。履歴からは、**期間（`since:`／`until:`）だけを除き、検索語も条件も候補にする**（**決定**。#80） |
 - `applyFavEdit`（お気に入りの編集 → いつものエゴサ）は契約に出さない。`data.favorites.update` の中で使う。
 
 ### 4.3 `url`（同期・純粋。**予定** #18・#19）
 | メソッド | 戻り値 | 備考 |
 |---|---|---|
-| `plan(items: PlanItem[], options?: { live?: boolean })` | `RunPlan` | 相対期間を展開 → 検索先ごとに URL を作る。`both` は2件。Yahoo!リアルタイム検索で使えない演算子と長さの警告（F5・F8）。URL 形式は5章 |
-| `parse(input: string)` | `Result<ParsedUrl>` | X（`x.com`・`twitter.com`）と Yahoo!リアルタイム検索の URL → 保存形（F4）。解析できない演算子は `raw: true` のトークンとして保つ |
+| `plan(items: PlanItem[])` | `RunPlan` | 相対期間を展開 → 検索先ごとに URL を作る。`both` は2件。Yahoo!リアルタイム検索で使えない演算子と長さの警告（F5・F8）。X は常に「最新」タブ（`f=live`）で開く。URL 形式は5章 |
+| `parse(input: string)` | `Result<ParsedUrl>` | X（`x.com`・`twitter.com`）と Yahoo!リアルタイム検索の URL → 保存形（F4）。保存形は X の構文で、Yahoo!リアルタイム検索の URL は要件定義書 F4 の逆変換の表で戻す。解析できない演算子は `raw: true` のトークンとして保つ |
 | `listId(input: string)` | `Result<string>` | リストの URL または数字 → ID（`parseListId`）。モックは null を返す |
-- `options.live`：画面の「X の『最新』タブで開く」（`Detail.live`）。**お気に入り・いつものエゴサには保存しない**（スキーマに項目が無い。7.3）。
+- 開くタブ：X は常に「最新」（`f=live`）で開く（**決定**）。画面にも保存にも「最新」の設定は持たない。今後変わりうるので、値は X の URL を作る1か所の定数にする。
 
 ### 4.4 `launcher`（async。**予定** #20）
 | メソッド | 戻り値 | エラー |
 |---|---|---|
-| `encode(payload: LauncherPayload)` | `{ hash: string; warnings: Issue[] }` | — |
+| `encode(payload: LauncherPayload)` | `{ hash: string; warnings: Issue[] }` | —（長さの警告 `launcher.tooLong`。ブックマーク URL 全体で、`LIMITS.launcherUrlWarn`＝暫定2000文字。X のクエリの `LIMITS.urlWarn` とは別。**決定**） |
 | `decode(hash: string)` | `LauncherPayload` | `LAUNCHER_BROKEN`（ハッシュが無い・壊れている・スキーマに合わない）、`LAUNCHER_VERSION` |
-- `hash` は `v1.<…>`（`#` を含まない）。**オリジン・パス（`/launch#`）を付けるのはフロントエンド**（`location` を知っているのはそちら）。
+- `hash` は `v1.<…>`（圧縮あり）か `v1u.<…>`（圧縮なし。`CompressionStream` が無いとき。**決定**）で、`#` を含まない。`decode` は接頭辞で見分ける。**オリジン・パス（`/launch#`）を付けるのはフロントエンド**（`location` を知っているのはそちら）。
 - 相対期間は記号のまま入れる。復号しても展開しない（開く時点で `url.plan` が展開する）。
 
 ### 4.5 `data`（async。保存を伴うユースケース）
@@ -196,6 +203,7 @@ type AppData = {
 };
 interface DataApi {
   init(): Promise<AppData>;           // 初回はプリセットを入れる。CORRUPT のときは上書きしない
+  reset(): Promise<AppData>;          // 保存データをすべて破棄してプリセットから作り直す。CORRUPT のとき、ユーザーが D3 で確かめた後だけ呼ぶ（画面仕様書 2.7）
   chips: {
     save(input: ChipInput): Promise<Chip>;                      // 追加・更新。LIMIT
     setOn(id: string, on: boolean): Promise<Chip>;
@@ -247,12 +255,13 @@ type TrashDetail =
 ```
 - `ChipInput`・`FavoriteInput`・`FavoritePatch`・`GroupInput` は、対応するエンティティから `id`・`order`・日時を除いた入力（`id` があれば更新）。**予定**（実装 Issue で型を確定）。
 - 対応する DAO：`chips`・`favorites`・`groups`・`history`・`trash`・`prefs`（**作成済み**。`src/lib/storage/types.ts`）。`data.*` は、これらを束ねて、上の規則（連動・上限・プリセット）を足す。
-- `data.favorites.update`：編集前の文字列と正規化して一致するいつものエゴサの項目を更新する（11.4）。**`undo` は関数で返す**（同じブラウザの中で動く前提。リモートに移すときは見直す。7.3）。
-- `history.record` の `source.favoriteId`：お気に入りの `lastRunAt` を更新するために使う。履歴には保存しない（参照しない）。
+- `data.favorites.update`：編集前の文字列と正規化して一致するいつものエゴサの項目を更新する（11.4）。**`undo` は関数で返す**（**決定**。MVP は同じブラウザの中で動く前提。保存先を移すときは、編集前の値を返す形に直す。要件定義書 12.4）。
+- `history.record` が更新するもの（**決定**）：①`targets[].stored` を正規化して比べ、**一致するお気に入りすべて**の `lastRunAt`（検索先は見ない。ランチャーからの実行でも更新する）、②`source.groupId` があれば、そのいつものエゴサの `lastRunAt`（ランチャーは ID を持たないので更新しない）。履歴にはどちらも保存しない（参照しない）。
+- 「今日は実行済み」は、いつものエゴサの `lastRunAt`（ISO・UTC）を**端末の現地の日付**に直し、`clock.today()` と同じかどうかで決める（履歴は見ない）。
 
 ### 4.6 実行の順番（**決定**）
 1. 通常：クリック → `url.plan(items)`（同期）→ **フロントエンドが `window.open`**（同じクリックの中）→ `data.history.record(plan, source)`（async。待たない）。
-2. ブロックされたとき：開けた数と失敗数・個別リンクを画面の中に出す（F8）。履歴に何を残すか（開けたものだけか、実行した検索すべてか）は未決定（7.3 の8）。
+2. ブロックされたとき：開けた数と失敗数・個別リンクを画面の中に出す（F8）。履歴には、開けなかったものも含め、実行した検索すべてを残す（**決定**）。
 3. S9 ランチャー：`launcher.decode` は async なので、**ページを開いたときに復号し、`url.plan` で `RunPlan` を作っておく**。クリックでは `window.open` だけを呼ぶ。ページを開いただけでは開かない。
 4. 「リンクをコピー」：`url.plan` の `targets[].url` をコピーするだけで、履歴には残さない。
 
@@ -260,9 +269,9 @@ type TrashDetail =
 確度と根拠は `docs/research-phase0.md` 6章。ここには出力の形だけを書く。
 | 検索先 | 形式 | 状態 |
 |---|---|---|
-| X | `https://x.com/search?q=<URLエンコードした検索文字列>`。「最新」は `&f=live`。期間は文字列の中の `since:`／`until:`（`until:` は指定日を含み、日本時間） | **予定**（#18） |
-| Yahoo!リアルタイム検索 | `https://search.yahoo.co.jp/realtime/search?p=<変換後の検索文字列>`。期間は `since:`／`until:` を出さず、`lts`（開始日の0時）・`uts`（**終了日の翌日0時**）にする（UNIX 秒、ブラウザの現地時刻）。`ei=UTF-8` を付けるかは未決定。`rkf`・`ifr`・`utm_*` は付けない | **予定**（#15・#18） |
-| ランチャー | `<オリジン>/launch#v1.<base64url(deflate-raw(JSON))>`。JSON は `LauncherPayload`（zod で検証）。`CompressionStream` が無いときは非圧縮の base64url にする（見分け方は未決定。7.3） | **予定**（#20） |
+| X | `https://x.com/search?q=<URLエンコードした検索文字列>`。常に「最新」タブ（`&f=live`）。期間は文字列の中の `since:`／`until:`（`until:` は指定日を含み、日本時間） | **予定**（#18） |
+| Yahoo!リアルタイム検索 | `https://search.yahoo.co.jp/realtime/search?p=<変換後の検索文字列>`。期間は `since:`／`until:` を出さず、`lts`（開始日の0時）・`uts`（**終了日の翌日0時**）にする（UNIX 秒、ブラウザの現地時刻）。`ei=UTF-8` を付ける（実際の URL で使われていることを確認済み。research-phase0 1章）。`rkf`・`ifr`・`utm_*` は付けない | **予定**（#15・#18） |
+| ランチャー | `<オリジン>/launch#v1.<base64url(deflate-raw(JSON))>`。JSON は `LauncherPayload`（zod で検証）。`CompressionStream` が無いときは `v1u.<base64url(JSON)>`（非圧縮）にする。接頭辞で見分ける | **予定**（#20） |
 - Yahoo!リアルタイム検索への変換は F5 の表のとおり（OR の括りは `(A B)`、`from:` は `ID:`、`to:` は `@`、`list:`・`filter:`・アカウントの除外は警告して除く）。
 
 ## 6. 画面ごとの呼び出し
@@ -270,13 +279,13 @@ type TrashDetail =
 | 画面 | 読む・計算する（同期） | 保存する（async） | フロントで行うこと |
 |---|---|---|---|
 | ヘッダー・メニュー | `master.interests` | `data.prefs.set({ interest, lang })` | 辞書の切替、メニューの開閉 |
-| 帯（全ページ） | `url.plan` | `data.history.record`（source: group） | `window.open`、「今日は実行済み」を `history`・`clock.today()` から求める（定義は未決定。7.3） |
+| 帯（全ページ） | `url.plan` | `data.history.record`（source: group、`groupId`） | `window.open`、「今日は実行済み」を `Group.lastRunAt`・`clock.today()` から求める（4.5）。保存データが壊れているときの共通の表示と［データを初期化する］（`data.reset`。画面仕様書 2.7） |
 | フッター | — | `data.history.record`（再実行） | 最後の1件を `history` から表示 |
 | **S1 ホーム** | `query.build`、`query.suggest`、`query.expand`、`url.plan` | `data.chips.setOn`／`setValue`、`data.saveSearch`（☆ 保存）、`data.history.record`（source: home）、`data.favorites`（［▶ 実行］は `url.plan`＋`record`）、`data.prefs.set({ favOpen })` | 入力中の検索語・詳細条件・期間の状態、`window.open`、クリップボード、保存シート |
 | **S2 条件ボタン・D1** | `query.chipConds`／`condsToQuery`／`validateChip`、`url.listId`、`query.suggest` | `data.chips.save`／`setVisible`／`reorder`／`remove`／`addPresets`／`adoptSuggestion` | 並べ替えの操作、コピー（クリップボード） |
-| **S3 お気に入り** | `url.plan` | `data.favorites.reorder`／`remove`、`record`（source: favorite、`favoriteId`） | 名前の絞り込み、`window.open` |
+| **S3 お気に入り** | `url.plan` | `data.favorites.reorder`／`remove`、`record`（source: favorite） | 名前の絞り込み、`window.open`、行の「前回」（`Favorite.lastRunAt`）の表示 |
 | **S3-E お気に入りの編集** | `query.parse`、`query.build`、`query.normalize`（関連するいつものエゴサの表示）、`url.plan` | `data.favorites.update`／`duplicate` | ページ内の検索の組み立ての状態、トーストの［元に戻す］（`undo`） |
-| **S4 いつものエゴサ** | `url.plan`、`query.favName` | `data.groups.remove`、`launcher.encode`（D2）、`record`（source: group） | 一括の `window.open` とブロック時の表示、URL のコピー |
+| **S4 いつものエゴサ** | `url.plan`、`query.favName` | `data.groups.remove`、`launcher.encode`（D2）、`record`（source: group、`groupId`） | 一括の `window.open` とブロック時の表示、URL のコピー |
 | **S4-E 追加・編集** | `query.build`、`query.favName`、`url.plan` | `data.groups.save`、`data.favorites.save`（② お気に入りに保存して追加） | ページ内の項目の並び（保存まで持つ）、検索の組み立ての状態 |
 | **S5 履歴** | `url.plan` | `data.history.clear`（D3）、`data.favorites.save`（検索先は履歴の `engine` を引き継ぐ）、`record` | 一覧の表示、`window.open` |
 | **S6 削除済み・D3** | — | `data.trash.list`／`detail`／`restore`／`purge`／`purgeKind`／`purgeAll` | 種類のタブ、確認ダイアログ |
@@ -307,18 +316,12 @@ type TrashDetail =
 3. ESLint の `no-restricted-imports`（1.2）と `src/app/providers.tsx`、`useApi()`。
 4. ストア（zustand）は `useApi()` だけを使う（M4）。
 
-### 7.3 未決定（推測で決めない。ユーザーか該当 Issue で決める）
-| # | 項目 | 状況 |
-|---|---|---|
-| 1 | 条件ボタンの「新」印（`isNew`）の保存先 | モックにある（サジェストから追加すると付き、初めて押すと消える）が、`ChipSchema` に項目が無い。保存するならスキーマに足し、版を上げる |
-| 2 | お気に入りの `lastRunAt` の使い道 | 要件定義書 11.2 にあるが、画面仕様書に表示が無い。いつものエゴサの実行でも更新するか。更新するなら `record` の `favoriteId` をどう渡すか |
-| 3 | `Detail.live`（f=live）の保存 | お気に入り・いつものエゴサに保存する項目が無い。保存しないなら実行時は常に「最新」ではない |
-| 4 | Yahoo!リアルタイム検索の URL → 保存形（X の構文）の変換 | `(A B)` は Yahoo!リアルタイム検索では OR、X では AND の括弧。逆変換の規則が文書に無い（#19） |
-| 5 | Yahoo!リアルタイム検索で使えない `raw` トークンの警告 | コードを決めていない（#15） |
-| 6 | 「今日は実行済み」の定義 | 履歴から求めるとあるが、項目の1つでも実行したか、すべてか。日付の境界（日本時間か端末の時刻か）も（#77・#78） |
-| 7 | サジェストの履歴から取る「条件」の範囲 | 履歴の文字列のトークンのうち、検索語・期間をどう除くか（#80） |
-| 8 | ブロックされたときの履歴 | 開けたものだけ残すか、実行した全部を残すか。4.6 は後者としたが、要確認 |
-| 9 | ランチャー URL の長さの警告水準 | `LIMITS.urlWarn` は X のクエリ文字数。ブックマーク URL 全体にも使うのか（D2） |
-| 10 | ランチャーの圧縮の有無の見分け方、`ei=UTF-8` の有無 | #20・#18 で決める |
-| 11 | `CORRUPT`（保存データが壊れている）のときの画面 | 画面仕様書に無い。上書きしない決まりだけがある |
-| 12 | `FavoriteUpdate.undo` が関数であること | 保存先を API に移すときは、スナップショットを返す形に直す |
+### 7.3 未決定
+今は無い（2026-11-18 に12件すべて決めた。決めたことは各章の「**決定**」に書いてある）。新しく出たときは、ここに表で足し、推測で埋めない。
+
+### 7.4 この文書で決めたため、実装 Issue が必要なもの
+| 項目 | 内容 |
+|---|---|
+| いつものエゴサの `lastRunAt` | `GroupSchema` に足し、`SCHEMA_VERSION` を2にして `migrate.ts` に移行を書く |
+| 保存データが壊れたときの初期化 | `data.reset()`、DAO・KV の全消去、全ページ共通の表示と D3（画面仕様書 2.7） |
+| `LIMITS.launcherUrlWarn` | ブックマーク URL 全体の警告水準（暫定2000文字）。契約の実装 Issue で足す |
