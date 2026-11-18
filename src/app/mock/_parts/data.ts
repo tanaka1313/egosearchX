@@ -65,7 +65,7 @@ export const paramOpsOf = (type: "number" | "date"): ParamOp[] =>
  * 条件ボタンの中身の1項目（表示・編集用のモデル。保存はしない）。
  * 条件ボタンの本体は検索文字列（Chip.query）で、画面で使うときに chipConds() で分ける。
  * kind が number／date のときだけ op を持つ（値は value。数値は正の整数、日付は YYYY-MM-DD。
- * 「以前」（until）の value は画面の「含む日」で、文字列では翌日の until: になる）。
+ * 「以前」（until）の value は文字列と同じ日で、指定日を含む）。
  */
 export type Cond = { id: string; kind: CondKind; value: string; op?: ParamOp };
 

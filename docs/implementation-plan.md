@@ -45,7 +45,7 @@ src/
       serialize-x.ts      AST → Xクエリ
       serialize-yahoo.ts  AST → Yahooクエリ + 警告の配列
       merge.ts            条件ボタン（共通）と個別設定の合成、項目ごとの無効化
-      dates.ts            相対日付の解決、until の翌日変換（UTC）
+      dates.ts            相対日付の解決（until は終了日をそのまま出す。日本時間）
       warnings.ts         警告の型と文言
     url/
       build.ts            AST → X/Yahoo の URL
@@ -82,7 +82,7 @@ type Node =
 // 除外は各ノードの negate: boolean で表す
 
 // 期間（画面の状態）：昨日から／3日前から／1週間前から／日付（以降・以前・範囲）。
-// 保存する文字列では、相対指定は記号（since:yesterday／since:3days_ago／since:1week_ago）、日付は since:／until:（含まない）
+// 保存する文字列では、相対指定は記号（since:yesterday／since:3days_ago／since:1week_ago）、日付は since:／until:（until は指定日を含む）
 type PeriodSpec = { kind: 'none' | 'd1' | 'd3' | 'd7' | 'date'; from?: string; to?: string };
 ```
 - **保存データ（条件ボタン・お気に入り・いつものエゴサ・履歴・設定）の型は `src/lib/storage/schema.ts`（zod）が正。** 項目とつながりは要件定義書 11章。本体はすべて検索文字列（`query`）で、互いを ID で参照しない。
@@ -106,7 +106,7 @@ GitHub のマイルストーン（M0〜M7）と対応する（名前：M3 マス
 | # | 内容 | 完了条件 |
 |---|---|---|
 | M0 | 雛形：`create-next-app`、shadcn/ui、Vitest、ESLint、`git init` | tsc / test / lint / build が通る |
-| M1 | クエリの中核（ast, tokenizer, parse-x, serialize-x/yahoo, merge, dates）をテスト先行で作る | 往復テスト、Yahoo変換表、until の翌日変換、条件ボタンと個別設定の合成（無効化）のテストが通る |
+| M1 | クエリの中核（ast, tokenizer, parse-x, serialize-x/yahoo, merge, dates）をテスト先行で作る | 往復テスト、Yahoo変換表、until が終了日をそのまま出すこと（Yahoo の uts は翌日0時）、条件ボタンと個別設定の合成（無効化）のテストが通る |
 | M2 | URLの生成と解析、リストID の取り出し、ランチャーの codec | X/YahooのURLの往復、壊れたハッシュの検出、`x.com/i/lists/<ID>?s=20` から ID を取り出すテスト |
 | M3 | マスタ JSON（`interests.json`・`presets.json`・`suggest-rules.json`）と zod スキーマ、興味の対象ごとのプリセットの登録 | 不正JSONでビルドが失敗する。初回に、興味の対象ごとのプリセットが条件ボタンとして入り、ヘッダーの切替で並びが切り替わる（既定はホロライブ）。プリセットの中身は Issue #70 |
 | M4 | **i18n の基盤（辞書 ja／en、型は ja から、言語切替。画面より先に作る）**、ストア（zustand）と DAO（`lib/storage`。作成済み）の接続。条件ボタン（興味の対象ごと）・お気に入り・いつものエゴサ・履歴・削除済み・設定 | 再読み込み後もデータが残る。DAO のテスト（移行、壊れたデータ、削除済み＝種類ごとに20件、ボタン＝対象ごとに30件、履歴100件）は作成済み。お気に入りを削除してもいつものエゴサが変わらないこと、お気に入りを編集すると一致する項目が更新されることのテスト |
