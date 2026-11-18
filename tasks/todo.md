@@ -1,3 +1,18 @@
+# #14 X シリアライザーと往復テスト
+
+1. Goal: AST から X のクエリ文字列を `{ text, warnings }` で返す純粋関数を作り、parse → serialize → parse で木が変わらないことをテストで保証する。
+2. Plan:
+   - [x] ブランチ `feature/serialize-x`
+   - [x] テスト先行（赤を確認）：往復コーパス・正規形・無効／空ノード・variants・期間・警告
+   - [x] `src/lib/query/serialize-x.ts`、`strip` を `test-utils.ts` に共有
+3. Verification: `make check`（テスト142件を含む）・`format:check` が通る。
+4. Review:
+   - 根以外のグループは、有効な子があれば常に `(…)`（子が1つでも外さない。`(A)` は AND グループ、`-(-A)`→`--A`、`-(list:x)`→`-list:x`（X でエラー）を防ぐ）。
+   - 例外：根の直下の OR が、閉じていない引用符・括弧の raw を含むときだけ括弧なしで出す（`A OR "b` が括弧の `)` を飲み込むため。OR は先に結ばれるので同じ木に戻る）。
+   - 「`since_time:` を出力しない」は、期間（`since`／`until` の日付ノード）から生成しない意味。貼り付けで得た `since_time:` は往復のため保持する（`PARSE_ONLY_OPS`）。
+   - 警告は常に空。`query.tooLong` は #16・#18 が出す。
+   - **次の脆い点**：`swallowsClose` は文字数の数え方（引用符の偶奇・括弧の数）で判定している。パーサーの raw の作り方が変わったら、往復コーパスが先に赤になる。
+
 # 全体計画（新仕様）：作業計画の作り直し
 
 1. Goal: 新仕様（モックが正、検索文字列が本体、DAO 作成済み）に沿って、残りの作業を M0〜M7 の Issue に揃え、ユーザーの作業を先頭に出す。
