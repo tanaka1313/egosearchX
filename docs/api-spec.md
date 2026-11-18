@@ -74,6 +74,9 @@ class ApiError extends Error { code: ApiErrorCode; params?: Record<string, strin
 | 警告 | `yahoo.listUnsupported` | — | `query.build`、`url.plan` |
 | 警告 | `yahoo.filterUnsupported` | — | 同上 |
 | 警告 | `yahoo.accountExcludeUnsupported` | `op`（`-from:`／`-to:`／`-@`） | 同上 |
+| 警告 | `yahoo.mentionAsReply` | — | 同上（`@x` は Yahoo!リアルタイム検索では宛先として扱われる。`@x` のまま出す） |
+| 警告 | `yahoo.langUnsupported` | — | 同上（`lang:` を除く） |
+| 警告 | `yahoo.minCountUnsupported` | `op`（`min_faves`／`min_retweets`／`min_replies`） | 同上（除く） |
 | 警告 | `yahoo.rawUnverified` | `token` | 同上（解析できない演算子 `raw`。URL にはそのまま入れる） |
 | 警告 | `query.tooLong` | `length`、`limit` | `query.build`、`url.plan` |
 | 警告 | `launcher.tooLong` | `length`、`limit`（`LIMITS.launcherUrlWarn`） | `launcher.encode`（ブックマーク URL 全体の長さ） |

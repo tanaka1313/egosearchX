@@ -542,3 +542,18 @@
    - 変えたのは、型と定数の取り先、`onIds` → `onChipIds`、`flt` の初期値と判定だけ。規則は変えていない。
    - **未確認**：`make dev` でモックの画面（お気に入りの編集・URL解析）を目で見る確認はしていない。型・テスト・build で代替。
    - **次に壊れやすい点**：#85 で `@/lib/query` を `no-restricted-imports` で禁止するとき、`src/app/mock/**` を除外する（モックは lib を使う）。#16 で往復テストを lib へ移す。
+
+# #12 AST の型と演算子の定義（operators.ts）
+
+1. Goal: 検索条件モデル（AST）の型と、演算子の定義（エンジン別の対応・status）を `src/lib/query` に1か所で置く。
+2. Plan:
+   - [x] ブランチ `feature/ast-operators`、テスト先行（Red 確認）
+   - [x] `ast.ts`（全ノードに `negate`。期間は契約の `Period` を使う）、`operators.ts`（`PARAM_OP_TYPES`・`FILTER_KEYS` を `satisfies Record` で網羅、`list` は否定不可、`since_time`／`until_time` は生成しない、実機だけが根拠の定義に根拠と代替手段をコメント）
+   - [x] ユーザー決定（2026-11-18）：`@x` は `@` のまま出して `yahoo.mentionAsReply`、`lang:` は `yahoo.langUnsupported`、`min_*` は `yahoo.minCountUnsupported`、`since_time`／`until_time` は `lts`／`uts` へ。`issues.ts`・api-spec 2.4・requirements F5 に反映
+   - [x] implementation-plan（`PeriodSpec`→`Period`、`negate`、`warnings.ts` を削除）
+   - [ ] main へマージして push、#12 を閉じる
+3. Verification: `make check` と `npm run format:check` が通る。
+4. Review:
+   - 変えたのは新規の `ast.ts`・`operators.ts`・テストと、警告コード3件の追加だけ。
+   - **未確認**：Yahoo の `lang:`・`min_*` が実際に効かないかは実機で確かめていない（公式の記載が無いための「除いて警告」）。
+   - **次に壊れやすい点**：#15 の Yahoo シリアライザーと、#72 の辞書が、新しい警告コード3件の文言を持つこと。

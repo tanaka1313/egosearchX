@@ -10,6 +10,9 @@ export const ISSUE_CODES = [
   "yahoo.filterUnsupported",
   "yahoo.accountExcludeUnsupported",
   "yahoo.rawUnverified",
+  "yahoo.mentionAsReply",
+  "yahoo.langUnsupported",
+  "yahoo.minCountUnsupported",
   "query.tooLong",
   "launcher.tooLong",
   // 止める理由
