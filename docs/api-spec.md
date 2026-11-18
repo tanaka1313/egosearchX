@@ -77,7 +77,8 @@ class ApiError extends Error { code: ApiErrorCode; params?: Record<string, strin
 | 警告 | `yahoo.mentionAsReply` | — | 同上（`@x` は Yahoo!リアルタイム検索では宛先として扱われる。`@x` のまま出す） |
 | 警告 | `yahoo.langUnsupported` | — | 同上（`lang:` を除く） |
 | 警告 | `yahoo.minCountUnsupported` | `op`（`min_faves`／`min_retweets`／`min_replies`） | 同上（除く） |
-| 警告 | `yahoo.rawUnverified` | `token` | 同上（解析できない演算子 `raw`。URL にはそのまま入れる） |
+| 警告 | `yahoo.rawUnverified` | `token` | 同上（解析できない演算子 `raw`。URL にはそのまま入れる。展開されていない相対期間の記号など、期間の値が読めないときも同じ） |
+| 警告 | `yahoo.groupUnverified` | — | 同上（Yahoo!リアルタイム検索では括弧が OR になるため、OR の中の AND と否定した AND `-(A B)` は書き方が無い。X の形のまま出す。否定した OR は `-A -B` に直すので警告しない） |
 | 警告 | `query.tooLong` | `length`、`limit` | `query.build`、`url.plan` |
 | 警告 | `launcher.tooLong` | `length`、`limit`（`LIMITS.launcherUrlWarn`） | `launcher.encode`（ブックマーク URL 全体の長さ） |
 | 止める理由 | `query.empty` | — | `query.build`（`blockers`） |
@@ -279,7 +280,7 @@ type TrashDetail =
 | 検索先 | 形式 | 状態 |
 |---|---|---|
 | X | `https://x.com/search?q=<URLエンコードした検索文字列>`。常に「最新」タブ（`&f=live`）。期間は文字列の中の `since:`／`until:`（`until:` は指定日を含み、日本時間） | **予定**（#18） |
-| Yahoo!リアルタイム検索 | `https://search.yahoo.co.jp/realtime/search?p=<変換後の検索文字列>`。期間は `since:`／`until:` を出さず、`lts`（開始日の0時）・`uts`（**終了日の翌日0時**）にする（UNIX 秒、ブラウザの現地時刻）。`ei=UTF-8` を付ける（実際の URL で使われていることを確認済み。research-phase0 1章）。`rkf`・`ifr`・`utm_*` は付けない | **予定**（#15・#18） |
+| Yahoo!リアルタイム検索 | `https://search.yahoo.co.jp/realtime/search?p=<変換後の検索文字列>`。期間は `since:`／`until:` を出さず、`lts`（開始日の0時）・`uts`（**終了日の翌日0時**）にする（UNIX 秒、ブラウザの現地時刻）。`ei=UTF-8` を付ける（実際の URL で使われていることを確認済み。research-phase0 1章）。`rkf`・`ifr`・`utm_*` は付けない | **予定**（#18。変換は #15 で作成済み） |
 | ランチャー | `<オリジン>/launch#v1.<base64url(deflate-raw(JSON))>`。JSON は `LauncherPayload`（zod で検証）。`CompressionStream` が無いときは `v1u.<base64url(JSON)>`（非圧縮）にする。接頭辞で見分ける | **予定**（#20） |
 - Yahoo!リアルタイム検索への変換は F5 の表のとおり（OR の括りは `(A B)`、`from:` は `ID:`、`to:` は `@`、`list:`・`filter:`・アカウントの除外は警告して除く）。
 
@@ -312,7 +313,8 @@ type TrashDetail =
 | 契約の型・`LIMITS`・`IssueCode`・`ApiError`・zod スキーマ（`src/api`） | **作成済み**（#88） | `EgoSearchApi`（インターフェース）と入力型（`ChipInput` など）は #85 で足す |
 | 検索文字列の規則（`src/lib/query/model.ts`・テストあり） | **作成済み**（#71） | `query` の `tokenize`・`normalize`・`expand`・`parse`・`chipConds`・`condsToQuery`・`favName`・`suggest` の元。`parseToScope` の戻りは契約の `ParsedScope`（`onChipIds`）。parse → build の往復テストは #16 で lib へ移す（それまではモックの `query.test.ts`） |
 | AST・演算子（`ast.ts`・`operators.ts`）、X パーサー（`tokenizer.ts`・`parse-x.ts`） | **作成済み**（#12・#13） | `query.parse`・`url.parse` の下位 |
-| シリアライザー・合成・期間 | 予定 | #14・#15・#16・#17（`query.build`・`url.plan` の下位） |
+| X・Yahoo のシリアライザー（`serialize-x.ts`・`serialize-yahoo.ts`・`dates.ts` の `localMidnightSec`） | **作成済み**（#14・#15） | Yahoo は `{ text, warnings, lts?, uts? }`。`url.plan` の下位 |
+| 合成・相対期間の展開 | 予定 | #16・#17（`query.build`・`url.plan` の下位） |
 | URL の生成・解析・リスト ID | 予定 | #18・#19。モックの `parseListId` が元 |
 | ランチャーの codec | 予定 | #20 |
 | マスタ JSON と zod | 予定 | #21（`word-set.json` を含む。プリセット・サジェスト・検索ワード集の中身は #70） |

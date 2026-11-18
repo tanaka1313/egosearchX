@@ -1,3 +1,18 @@
+# #15 Yahoo シリアライザーと変換警告
+
+1. Goal: AST から Yahoo!リアルタイム検索のクエリ文字列を `{ text, warnings, lts?, uts? }` で返す純粋関数を作る。使えない演算子は黙って消さず警告する。
+2. Plan:
+   - [x] ブランチ `feature/serialize-yahoo`、テスト先行（Red 確認：`./serialize-yahoo`・`./dates` が無く失敗）
+   - [x] `dates.ts`（`localMidnightSec`）、`serialize-yahoo.ts`、警告コード `yahoo.groupUnverified`、`vitest.config.mts` で `TZ=Asia/Tokyo` に固定
+   - [x] docs（implementation-plan 2章、api-spec 2.4・7.1、requirements F5）
+   - [ ] make check・format:check、main へマージして push、#15 を閉じる
+3. Verification: `make check`、`npm run format:check`。TZ の固定は `dates.test.ts` の1件で確かめる。
+4. Review:
+   - 決定（ユーザー、2026-11-18）：Yahoo は括弧が OR なので、否定した OR は `-A -B` に直す（警告なし）。OR の中の AND と否定した AND は X の形のまま出して `yahoo.groupUnverified`。期間は OR の中でも `lts`／`uts` へ移す。
+   - 判断：期間が複数あれば共通部分（`lts` は最大、`uts` は最小）。読めない値（未展開の `since:yesterday`、存在しない日付）と否定した期間は、そのまま出して `rawUnverified`。
+   - 相対期間の展開は #17。ここは展開済みの日付を前提にする。
+   - **次に壊れやすい点**：#18 が `lts`／`uts` を URL パラメータにし忘れると期間が黙って消える。#72 の辞書に `yahoo.groupUnverified` の文言が要る。
+
 # #14 X シリアライザーと往復テスト
 
 1. Goal: AST から X のクエリ文字列を `{ text, warnings }` で返す純粋関数を作り、parse → serialize → parse で木が変わらないことをテストで保証する。
