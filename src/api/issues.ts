@@ -15,7 +15,6 @@ export const ISSUE_CODES = [
   "yahoo.langUnsupported",
   "yahoo.minCountUnsupported",
   "query.tooLong",
-  "launcher.tooLong",
   // 止める理由
   "query.empty",
   "period.inverted",

@@ -92,8 +92,8 @@ describe("ISSUE_CODES", () => {
   it("重複が無い", () => {
     expect(new Set(ISSUE_CODES).size).toBe(ISSUE_CODES.length);
   });
-  it("yahoo.rawUnverified と launcher.tooLong を含む", () => {
+  it("yahoo.rawUnverified を含み、ブックマーク URL 全体の長さの警告は無い", () => {
     expect(ISSUE_CODES).toContain("yahoo.rawUnverified");
-    expect(ISSUE_CODES).toContain("launcher.tooLong");
+    expect(ISSUE_CODES).not.toContain("launcher.tooLong");
   });
 });

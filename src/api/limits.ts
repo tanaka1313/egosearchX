@@ -19,6 +19,4 @@ export const LIMITS = {
   headerGroups: 2,
   /** クエリ長の警告水準（X のクエリの文字数。実際の上限は未確認） */
   urlWarn: 500,
-  /** ブックマーク URL 全体の長さの警告水準（暫定。X のクエリの urlWarn とは別） */
-  launcherUrlWarn: 2000,
 } as const;
