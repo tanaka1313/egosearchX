@@ -217,8 +217,7 @@ describe("parseToScope（お気に入りを条件ボタンと詳細条件に展�
     expect(s.detail.exFrom).toBe("x");
     expect(s.detail.raw).toBe("-from:w");
   });
-  // parse → build の往復（組み立ては合成の仕事）は #16（merge.ts）で、ここへ移す。
-  // それまではモックの buildQuery を使う src/app/mock/_parts/query.test.ts が持つ。
+  // parse → build の往復は merge.test.ts が持つ。
 });
 
 describe("applyFavEdit（お気に入りの編集を、いつものエゴサの一致する項目に反映する）", () => {

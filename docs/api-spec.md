@@ -174,7 +174,7 @@ interface EgoSearchApi {
 ### 4.2 `query`（同期・純粋。**予定** #71・#12〜#17。規則は要件定義書 F2・F3・F6・11.3・11.4）
 | メソッド | 戻り値 | 備考 |
 |---|---|---|
-| `build(state: SearchState, chips: Chip[])` | `BuiltQuery` | 共通（ON かつ「表示」の条件ボタン、無効化した項目を除く）と個別の合成。期間を指定中は日付の条件ボタンを除いて警告。モックの `buildQuery` |
+| `build(state: SearchState, chips: Chip[])` | `BuiltQuery` | 共通（ON かつ「表示」の条件ボタン、無効化した項目を除く）と個別の合成。期間を指定中は日付の条件ボタンを除いて警告。モックの `buildQuery`。実装は `lib/query/merge.ts` の `buildQuery(state, chips, today)`（`today` は #85 のバックエンドが clock から渡す。使う条件ボタンは `onChipIds` かつ「表示」で、`chip.on` は見ない） |
 | `parse(stored: string, chips: Chip[])` | `ParsedScope` | 文字列 → 条件ボタンの ON・検索語・期間・詳細条件（11.4）。**内容は欠かさない**。モックの `parseToScope` |
 | `expand(stored: string)` | `string` | 相対期間の記号を `clock` の日付に展開する（`expandRelative`）。詳細条件の「開くときは since:…」に使う |
 | `periodTokens(p: Period)` | `string[]` | 期間 → 保存形のトークン（`periodToTokens`）。`until:` は終了日をそのまま出す |
@@ -311,10 +311,11 @@ type TrashDetail =
 |---|---|---|
 | DAO（`src/lib/storage`：`types.ts`・`schema.ts`・`kv-dao.ts`・`kv-adapter.ts`・`migrate.ts`） | **作成済み**（テストあり） | `data.*` の下位。`Dao.chips`・`favorites`・`groups`・`history`・`trash`・`prefs`。`get` は削除済みの行も返す（`trash.detail` に使える） |
 | 契約の型・`LIMITS`・`IssueCode`・`ApiError`・zod スキーマ（`src/api`） | **作成済み**（#88） | `EgoSearchApi`（インターフェース）と入力型（`ChipInput` など）は #85 で足す |
-| 検索文字列の規則（`src/lib/query/model.ts`・テストあり） | **作成済み**（#71） | `query` の `tokenize`・`normalize`・`expand`・`parse`・`chipConds`・`condsToQuery`・`favName`・`suggest` の元。`parseToScope` の戻りは契約の `ParsedScope`（`onChipIds`）。parse → build の往復テストは #16 で lib へ移す（それまではモックの `query.test.ts`） |
+| 検索文字列の規則（`src/lib/query/model.ts`・テストあり） | **作成済み**（#71） | `query` の `tokenize`・`normalize`・`expand`・`parse`・`chipConds`・`condsToQuery`・`favName`・`suggest` の元。`parseToScope` の戻りは契約の `ParsedScope`（`onChipIds`）。parse → build の往復テストは `merge.test.ts` |
 | AST・演算子（`ast.ts`・`operators.ts`）、X パーサー（`tokenizer.ts`・`parse-x.ts`） | **作成済み**（#12・#13） | `query.parse`・`url.parse` の下位 |
 | X・Yahoo のシリアライザー（`serialize-x.ts`・`serialize-yahoo.ts`・`dates.ts` の `localMidnightSec`） | **作成済み**（#14・#15） | Yahoo は `{ text, warnings, lts?, uts? }`。`url.plan` の下位 |
-| 合成・相対期間の展開 | 予定 | #16・#17（`query.build`・`url.plan` の下位） |
+| 合成（`merge.ts`） | **作成済み**（#16） | `query.build` の下位 |
+| 相対期間の展開の境界テスト | 予定 | #17（`expandRelative` は model.ts にある。月末・年末のテストを足す） |
 | URL の生成・解析・リスト ID | 予定 | #18・#19。モックの `parseListId` が元 |
 | ランチャーの codec | 予定 | #20 |
 | マスタ JSON と zod | 予定 | #21（`word-set.json` を含む。プリセット・サジェスト・検索ワード集の中身は #70） |

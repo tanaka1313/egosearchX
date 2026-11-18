@@ -16,7 +16,7 @@ import {
   type IssueCode,
   type ParamOp,
 } from "@/api";
-import type { AccountOp, ParseOnlyOp } from "./ast";
+import type { AccountOp, FilterNode, ParseOnlyOp } from "./ast";
 
 export type Status = "stable" | "experimental";
 
@@ -194,6 +194,16 @@ export const YAHOO_PERIOD_PARAMS = { from: "lts", to: "uts" } as const;
 
 /** Yahoo の OR は `(A B)`（公式の記載あり）。`A OR B` も動くが出力には使わない（E4-A5） */
 export const YAHOO_OR = { open: "(", close: ")", separator: " " } as const;
+
+/** filter ノード（filter:／lang:／値付き／since_time 系）の定義 */
+export const defOfFilter = (n: FilterNode): OpDef =>
+  n.name === "lang"
+    ? LANG_OP
+    : n.name in PARAM_OPS
+      ? PARAM_OPS[n.name as keyof typeof PARAM_OPS]
+      : n.name in PARSE_ONLY_OPS
+        ? PARSE_ONLY_OPS[n.name as keyof typeof PARSE_ONLY_OPS]
+        : FILTER_OPS[n.name as keyof typeof FILTER_OPS];
 
 /** 全定義を一覧にする（テスト・警告の網羅確認用） */
 export function allOperatorDefs(): (OpDef & { id: string })[] {
