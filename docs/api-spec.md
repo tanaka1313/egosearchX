@@ -33,7 +33,8 @@ flowchart LR
 - **`@/backend` を import してよいのは、組み立ての1か所（`src/app/providers.tsx`）だけ。** そこで `createBackend(...)` を呼び、React のコンテキストに入れる。画面は `useApi()`（`src/store/`）で受け取る。
 - 契約はバックエンドの内部（`lib/*`）を import しない。エンティティの zod スキーマと `LIMITS` は**契約が持ち**、`lib/storage` がそれを import する（定義は1つ。**決定**）。保存の版（`SCHEMA_VERSION`）と移行（`migrate.ts`）は `lib/storage` に残す。
 - テストでは、`createBackend({ kv: new MemoryAdapter(), clock: 固定の日時 })` を渡す。画面のテストは、同じ契約を満たす別の実装に差し替えてもよい。
-- 状態：契約の型と `createBackend` は**予定（新しい Issue。7.2）**。
+- 状態：契約（`src/api/api.ts` の `EgoSearchApi`）、`createBackend`（`src/backend`）、`useApi()`（`src/store/api-context.tsx`）、`providers.tsx`、ESLint の import 制限は**作成済み**（#85）。ただし `data.reset()` は #87、`Group.lastRunAt` と `history.record` による `lastRunAt` の更新は #86。
+- 組み立ての補助：`@/backend` は `createBackend({ kv, clock, newId? })` のほかに、端末の時計 `systemClock`（`today` は `localDate(new Date())`。`toISOString` は UTC なので使わない）と、localStorage 用の `createBrowserBackend()`（`window` が無い事前描画では何も保存しない入れ物にする）を出す。`providers.tsx` はこれだけを使う（`lib/storage` を直接 import しない）。
 
 ## 2. 共通の決まり
 
@@ -54,7 +55,7 @@ type Result<T> = { ok: true; value: T } | { ok: false; error: Issue };
 
 type ApiErrorCode =
   | "LIMIT"            // 上限（params: kind, limit）。LimitError を包む
-  | "CORRUPT"          // 保存データが壊れている（params: key）。StorageCorruptError を包む。上書きしない（初期化は `data.reset()` だけ。4.5）
+  | "CORRUPT"          // 保存データが壊れている（params: key）。StorageCorruptError を包む。今より新しい版のアプリで保存されたデータ・meta の破損も同じ（key は meta）。上書きしない（初期化は `data.reset()` だけ。4.5）
   | "NOT_FOUND"        // 指定の ID が無い
   | "INVALID"          // 検証に失敗（params: field）
   | "LAUNCHER_BROKEN"  // ランチャーのデータが読めない（画面仕様書 6章の表）
@@ -84,7 +85,7 @@ class ApiError extends Error { code: ApiErrorCode; params?: Record<string, strin
 | 止める理由 | `period.inverted` | — | `query.build`（`blockers`） |
 | 失敗 | `url.unreadable`／`url.unsupportedHost`／`url.noQuery` | — | `url.parse`（画面仕様書 5.8 の3つの文言に対応） |
 | 失敗 | `list.invalid` | — | `url.listId`（画面仕様書 D1） |
-| 失敗 | `chip.labelRequired`／`chip.labelTooLong`／`chip.empty`／`chip.badNumber`／`chip.badDate` | `index`（行の位置） | `query.validateChip`（画面仕様書 D1 の保存しない理由） |
+| 失敗 | `chip.labelTooLong`／`chip.empty`／`chip.badNumber`／`chip.badDate` | `index`（行の位置） | `query.validateChip`（画面仕様書 D1 の保存しない理由） |
 - 上限（`LIMITS.chips` など）を超えた追加・復元は、同期では判定せず、async の保存で `ApiError('LIMIT')` になる。画面は、押せない状態にするために `LIMITS` と件数を自分で比べてよい。
 - 解析できない演算子（`raw`）は、Yahoo!リアルタイム検索の URL にもそのまま入れ、`yahoo.rawUnverified` を出す（**決定**。黙って削除しない。要件定義書 F3・F5）。
 
@@ -180,7 +181,7 @@ interface EgoSearchApi {
 | `tokenize(q)`／`normalize(q)` | `string[]`／`string` | 一致の判定は必ず `normalize` で行う（11.3） |
 | `disabledKey(chipId, token)` | `string` | 項目ごとの無効化のキー |
 | `chipConds(chip)`／`condsToQuery(conds)` | `Cond[]`／`string` | 条件ボタンの本体 ⇄ 条件の行（D1） |
-| `validateChip(label: string, conds: Cond[])` | `Result<{ label: string; query: string }>` | D1 の保存前の検証。ラベルが空でも数値・日付の条件があれば演算子名をラベルにする（画面仕様書 D1）。上限は見ない |
+| `validateChip(label: string, conds: Cond[])` | `Result<{ label: string; query: string }>` | D1 の保存前の検証。値が空の行は無視する（`index` は元の行の位置）。ラベルが空なら**検索文字列から作る**（20文字〔`LIMITS.chipLabel`〕を超えたら先頭19文字＋「…」。**決定** 2026-11-19。演算子名を補うと裏側が日本語の名前を作ってしまう）。上限は見ない |
 | `favName(query, favorites)` | `string \| null` | いつものエゴサの項目の表示名（`favNameFor`） |
 | `starters(input: { interest: InterestId; chips: Chip[]; history: HistoryItem[] })` | `string[]` | 履歴が**0件のときだけ**、今の対象の `starter` の `Word.query` を、グループ順・ワード順に、条件ボタンにあるものを除いて最大 `LIMITS.wordSetStarter` 件返す。履歴が1件でもあれば `[]`（**決定**。#89。モックの `starterWords`） |
 | `suggest(input: { text: string; chips: Chip[]; history: HistoryItem[] })` | `string[]` | 規則 → 履歴のトークンの順。条件ボタンにあるもの・検索に入っているものを除き、最大 `LIMITS.suggest`。履歴からは、**期間（`since:`／`until:`）だけを除き、検索語も条件も候補にする**（**決定**。#80） |
@@ -213,7 +214,7 @@ type AppData = {
 };
 interface DataApi {
   init(): Promise<AppData>;           // 初回はプリセットを入れる。CORRUPT のときは上書きしない
-  reset(): Promise<AppData>;          // 保存データをすべて破棄してプリセットから作り直す。CORRUPT のとき、ユーザーが D3 で確かめた後だけ呼ぶ（画面仕様書 2.7）
+  reset(): Promise<AppData>;          // （#87 で足す）保存データをすべて破棄してプリセットから作り直す。CORRUPT のとき、ユーザーが D3 で確かめた後だけ呼ぶ（画面仕様書 2.7）
   chips: {
     save(input: ChipInput): Promise<Chip>;                      // 追加・更新。LIMIT
     setOn(id: string, on: boolean): Promise<Chip>;
@@ -227,7 +228,6 @@ interface DataApi {
   favorites: {
     save(input: FavoriteInput): Promise<Favorite>;              // 新規
     update(id: string, patch: FavoritePatch): Promise<FavoriteUpdate>;
-    duplicate(id: string): Promise<Favorite>;                   // 「<名前>（複製）」。いつものエゴサは更新しない
     reorder(ids: string[]): Promise<void>;
     remove(id: string): Promise<void>;                          // 連動しない
   };
@@ -263,7 +263,10 @@ type SaveSearchInput = {              // ホームの［☆ 保存］（画面�
 type TrashDetail =
   | { kind: "chip"; chip: Chip } | { kind: "favorite"; favorite: Favorite } | { kind: "group"; group: Group };
 ```
-- `ChipInput`・`FavoriteInput`・`FavoritePatch`・`GroupInput` は、対応するエンティティから `id`・`order`・日時を除いた入力（`id` があれば更新）。**予定**（実装 Issue で型を確定）。
+- `ChipInput`・`FavoriteInput`・`FavoritePatch`・`GroupInput` は、対応するエンティティから `id`・`order`・日時を除いた入力（`id` があれば更新。`ChipInput` の `on`・`visible` は省略可）。**作成済み**（`src/api/api.ts`）。
+- **お気に入りの複製は契約に持たない**（**決定** 2026-11-19）。「<名前>（複製）」は日本語の文言で、裏側が作ると英語の画面で直せない。S3-E の［複製］は、画面が辞書で作った名前で `data.favorites.save` を呼ぶ（編集中の内容を新規保存。いつものエゴサは更新しない）。
+- `adoptSuggestion` のラベルは、検索文字列から作る（20文字を超えたら先頭19文字＋「…」。`validateChip` と同じ規則）。
+- `history.record` は、#85 の時点では履歴を書くだけ（`source.groupId` は保存しない）。`lastRunAt` の更新は #86。
 - 対応する DAO：`chips`・`favorites`・`groups`・`history`・`trash`・`prefs`（**作成済み**。`src/lib/storage/types.ts`）。`data.*` は、これらを束ねて、上の規則（連動・上限・プリセット）を足す。
 - `data.favorites.update`：編集前の文字列と正規化して一致するいつものエゴサの項目を更新する（11.4）。**`undo` は関数で返す**（**決定**。MVP は同じブラウザの中で動く前提。保存先を移すときは、編集前の値を返す形に直す。要件定義書 12.4）。
 - `history.record` が更新するもの（**決定**）：①`targets[].stored` を正規化して比べ、**一致するお気に入りすべて**の `lastRunAt`（検索先は見ない。ランチャーからの実行でも更新する）、②`source.groupId` があれば、そのいつものエゴサの `lastRunAt`（ランチャーは ID を持たないので更新しない）。履歴にはどちらも保存しない（参照しない）。
@@ -294,7 +297,7 @@ type TrashDetail =
 | **S1 ホーム** | `query.build`、`query.suggest`、`query.starters`、`master.wordSet`（D4）、`query.expand`、`url.plan` | `data.chips.setOn`／`setValue`、`data.saveSearch`（☆ 保存）、`data.history.record`（source: home）、`data.favorites`（［▶ 実行］は `url.plan`＋`record`）、`data.prefs.set({ favOpen })` | 入力中の検索語・詳細条件・期間の状態、`window.open`、クリップボード、保存シート |
 | **S2 条件ボタン・D1** | `query.chipConds`／`condsToQuery`／`validateChip`、`url.listId`、`query.suggest` | `data.chips.save`／`setVisible`／`reorder`／`remove`／`addPresets`／`adoptSuggestion` | 並べ替えの操作、コピー（クリップボード） |
 | **S3 お気に入り** | `url.plan` | `data.favorites.reorder`／`remove`、`record`（source: favorite） | 名前の絞り込み、`window.open`、行の「前回」（`Favorite.lastRunAt`）の表示 |
-| **S3-E お気に入りの編集** | `query.parse`、`query.starters`、`master.wordSet`（D4）、`query.build`、`query.normalize`（関連するいつものエゴサの表示）、`url.plan` | `data.favorites.update`／`duplicate` | ページ内の検索の組み立ての状態、トーストの［元に戻す］（`undo`） |
+| **S3-E お気に入りの編集** | `query.parse`、`query.starters`、`master.wordSet`（D4）、`query.build`、`query.normalize`（関連するいつものエゴサの表示）、`url.plan` | `data.favorites.update`／`save`（［複製］） | ページ内の検索の組み立ての状態、トーストの［元に戻す］（`undo`） |
 | **S4 いつものエゴサ** | `url.plan`、`query.favName` | `data.groups.remove`、`launcher.encode`（D2）、`record`（source: group、`groupId`） | 一括の `window.open` とブロック時の表示、URL のコピー |
 | **S4-E 追加・編集** | `query.build`、`query.starters`、`master.wordSet`（D4）、`query.favName`、`url.plan` | `data.groups.save`、`data.favorites.save`（② お気に入りに保存して追加） | ページ内の項目の並び（保存まで持つ）、検索の組み立ての状態 |
 | **S5 履歴** | `url.plan` | `data.history.clear`（D3）、`data.favorites.save`（検索先は履歴の `engine` を引き継ぐ）、`record` | 一覧の表示、`window.open` |
@@ -310,7 +313,7 @@ type TrashDetail =
 | 部分 | 状態 | 備考 |
 |---|---|---|
 | DAO（`src/lib/storage`：`types.ts`・`schema.ts`・`kv-dao.ts`・`kv-adapter.ts`・`migrate.ts`） | **作成済み**（テストあり） | `data.*` の下位。`Dao.chips`・`favorites`・`groups`・`history`・`trash`・`prefs`。`get` は削除済みの行も返す（`trash.detail` に使える） |
-| 契約の型・`LIMITS`・`IssueCode`・`ApiError`・zod スキーマ（`src/api`） | **作成済み**（#88） | `EgoSearchApi`（インターフェース）と入力型（`ChipInput` など）は #85 で足す |
+| 契約の型・`LIMITS`・`IssueCode`・`ApiError`・zod スキーマ（`src/api`） | **作成済み**（#88） | `EgoSearchApi`・入力型（`ChipInput` など）は `src/api/api.ts`（#85） |
 | 検索文字列の規則（`src/lib/query/model.ts`・テストあり） | **作成済み**（#71） | `query` の `tokenize`・`normalize`・`expand`・`parse`・`chipConds`・`condsToQuery`・`favName`・`suggest` の元。`parseToScope` の戻りは契約の `ParsedScope`（`onChipIds`）。parse → build の往復テストは `merge.test.ts` |
 | AST・演算子（`ast.ts`・`operators.ts`）、X パーサー（`tokenizer.ts`・`parse-x.ts`） | **作成済み**（#12・#13） | `query.parse`・`url.parse` の下位 |
 | X・Yahoo のシリアライザー（`serialize-x.ts`・`serialize-yahoo.ts`・`dates.ts` の `localMidnightSec`） | **作成済み**（#14・#15） | Yahoo は `{ text, warnings, lts?, uts? }`。`url.plan` の下位 |
@@ -322,16 +325,16 @@ type TrashDetail =
 | マスタ JSON と zod（`src/data`） | **作成済み**（#21） | `interests`・`presets`・`suggest-rules`・`word-set` の4つ。読み出しは `interests()`・`presetsFor(id)`・`suggestRules()`・`wordSet(id)`。`MasterSchema` が対象の実在・重複などを検証し、`prebuild` で走る。中身は仮の値で、本番は #70。束ねて `master`・`data.chips.addPresets`・`query.suggest` にするのは #85 |
 | ストア ⇄ バックエンド | 予定 | #24（「ストア⇄DAO」から「ストア⇄API」へ直す） |
 | 辞書（ja／en） | 予定 | #72（`Issue` のコードを辞書で文言にする） |
-| **契約の型・`createBackend`・import の制限** | 予定（新しい Issue） | この文書の実装。7.2 |
+| **`createBackend`・`useApi()`・import の制限** | **作成済み**（#85） | `src/backend`（`index.ts`・`query.ts`・`data.ts`・`errors.ts`）、`src/store/api-context.tsx`、`src/app/providers.tsx`、`eslint.config.mjs`。`query.validateChip`・`starters`・`suggest` の中身は `lib/query/chip.ts`・`suggest.ts`。DAO は最初の async の呼び出しで1回だけ開き、**初回（meta が無い）のときだけ**すべての興味の対象にプリセットを入れる（条件ボタンが0件かどうかでは判定しない）。下位のエラーは `errors.ts` が `ApiError` に直す |
 
 ### 7.2 実装の順（案。M1〜M4 に組み込む）
-1. 契約：`src/api` に型・zod スキーマ・`LIMITS`・`Issue` のコードを置き、`lib/storage` から import する（**済**：#88。`SCHEMA_VERSION` は `lib/storage/schema.ts` に残る）。`EgoSearchApi` は #85。
+1. 契約：`src/api` に型・zod スキーマ・`LIMITS`・`Issue` のコードを置き、`lib/storage` から import する（**済**：#88。`SCHEMA_VERSION` は `lib/storage/schema.ts` に残る）。`EgoSearchApi` は **済**（#85）。
 2. `createBackend({ kv, clock })`：`query`・`url`・`master` は M1〜M3 でできたものから順に束ねる。`data` は DAO の上に作る。
 3. ESLint の `no-restricted-imports`（1.2）と `src/app/providers.tsx`、`useApi()`。
 4. ストア（zustand）は `useApi()` だけを使う（M4）。
 
 ### 7.3 未決定
-今は無い（2026-11-18 に12件すべて決めた。決めたことは各章の「**決定**」に書いてある）。新しく出たときは、ここに表で足し、推測で埋めない。
+今は無い（2026-11-18 に12件すべて決めた。決めたことは各章の「**決定**」に書いてある）。#85 の実装中に出た4件は、2026-11-19 にユーザーが決めた：①D1 のラベルが空なら検索文字列から作る（4.2）、②`favorites.duplicate` は持たない（4.5）、③今より新しい版の保存データは `CORRUPT`（2.2）、④サジェスト採用のラベルは20文字に収める（4.5）。新しく出たときは、ここに表で足し、推測で埋めない。
 
 ### 7.4 この文書で決めたため、実装 Issue が必要なもの
 | 項目 | 内容 |
