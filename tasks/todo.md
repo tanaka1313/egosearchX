@@ -526,3 +526,19 @@
    - [ ] main へマージして push、#88 を閉じる
 3. Verification: `make check`（テスト124件）と `npm run format:check` は通過。`@/lib` を `src/api` が import していない。
 4. Review: `EgoSearchApi` と入力型は #85 の完了条件のため作らず。`ApiError` は `{ cause }` を受ける。`EMPTY_DETAIL.flt` は全キー `"any"`。
+
+# #71 検索文字列の規則を lib/query/model.ts へ移す
+
+1. Goal: モックの `query-model.ts` とテストを、契約（`@/api`）の型で動く `src/lib/query/model.ts` へ移し、モックはそれを参照する。
+2. Plan:
+   - [x] ブランチ `feature/query-model`、`git mv` で移動
+   - [x] テストを先に契約の型へ直し、赤（import エラー）を確認
+   - [x] model.ts を `@/api` の型・定数へ（`PARAM_OP_TYPES`、`FILTER_KEYS`、`flt` は `"any"` 初期値、`onIds` → `onChipIds`）。`REL_PERIODS`（ラベル無し）と `SuggestRule` は model.ts に置く
+   - [x] モックの約10ファイルを `@/lib/query/model` へ。契約の `Detail` に無い `live` はモックの `toMockScope` で補う
+   - [x] parse → build の往復と Yahoo 警告のテストは、モックの `buildQuery` に依存するので `_parts/query.test.ts` に残す（#16 で lib へ）
+   - [x] docs（api-spec・requirements・implementation-plan・mock README）
+3. Verification: `make check`（テスト124件）、`npm run format:check` が通る。lib のテストに `flt` の振り分け（`filter:images` → inc、`-filter:replies` → exc）。`grep query-model src docs` が 0 件。
+4. Review:
+   - 変えたのは、型と定数の取り先、`onIds` → `onChipIds`、`flt` の初期値と判定だけ。規則は変えていない。
+   - **未確認**：`make dev` でモックの画面（お気に入りの編集・URL解析）を目で見る確認はしていない。型・テスト・build で代替。
+   - **次に壊れやすい点**：#85 で `@/lib/query` を `no-restricted-imports` で禁止するとき、`src/app/mock/**` を除外する（モックは lib を使う）。#16 で往復テストを lib へ移す。

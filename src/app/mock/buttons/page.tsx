@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ChipEditor } from "../_parts/chip-editor";
 import { INTERESTS, LIMITS, type Chip } from "../_parts/data";
 import { chipTokens } from "../_parts/query";
-import { chipConds } from "../_parts/query-model";
+import { chipConds } from "@/lib/query/model";
 import { useStore } from "../_parts/store";
 import { EmptyState, PageHead } from "../_parts/ui";
 

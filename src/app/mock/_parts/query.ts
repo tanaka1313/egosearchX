@@ -1,6 +1,7 @@
 // MOCK: 破棄予定（#61）
 // モック用の簡易クエリ組み立て（文字列の連結だけ。本実装のシリアライザーではない）。
-// 文字列の分割・正規化・相対期間・条件の行の変換は query-model.ts にある。
+// 文字列の分割・正規化・相対期間・条件の行の変換は lib/query/model.ts（@/lib/query/model）にある。
+import type { ParsedScope } from "@/api";
 import {
   ENGINE_LABEL,
   FILTERS,
@@ -16,9 +17,16 @@ import {
   disabledKey,
   expandRelative,
   periodToTokens,
-} from "./query-model";
+} from "@/lib/query/model";
 
-export { addDay, condToken } from "./query-model";
+/** 契約の ParsedScope を、モックの詳細条件（live を持つ）に合わせる */
+export type MockScope = Omit<ParsedScope, "detail"> & { detail: Detail };
+export const toMockScope = (p: ParsedScope): MockScope => ({
+  ...p,
+  detail: { ...p.detail, live: false },
+});
+
+export { addDay, condToken } from "@/lib/query/model";
 
 /**
  * 共通：ON の条件ボタンの中身（個別設定で無効にした項目を除く）。

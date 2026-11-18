@@ -13,8 +13,8 @@ import { ConditionFrame } from "../../_parts/condition-frame";
 import { INTERESTS, type Engine, type Favorite } from "../../_parts/data";
 import { EnginePicker } from "../../_parts/engine-picker";
 import { OpenButtons, QueryPreview } from "../../_parts/open-bar";
-import { periodInverted } from "../../_parts/query";
-import { normalize, parseToScope } from "../../_parts/query-model";
+import { periodInverted, toMockScope } from "../../_parts/query";
+import { normalize, parseToScope } from "@/lib/query/model";
 import { LocalScopeProvider, useSearchScope } from "../../_parts/search-scope";
 import { previousPath } from "../../_parts/shell";
 import { nid, useStore } from "../../_parts/store";
@@ -48,7 +48,7 @@ function FavoriteEditRoute() {
 function FavoriteEditor({ fav }: { fav: Favorite }) {
   const { chips } = useStore();
   // 開いたときの条件ボタンで1回だけ展開する（編集中にボタンを直しても、組み立ては変えない）
-  const [initial] = useState(() => parseToScope(fav.query, chips));
+  const [initial] = useState(() => toMockScope(parseToScope(fav.query, chips)));
   return (
     <LocalScopeProvider source="お気に入りの編集" initial={initial}>
       <EditorBody fav={fav} />

@@ -1,30 +1,41 @@
-// MOCK: 破棄予定（#61）。ここで決めた規則（docs/requirements.md 11章）は本実装の lib/query に引き継ぐ。
-// 「本体は検索文字列」のデータモデルを支える純粋関数：
+// 「本体は検索文字列」のデータモデルを支える純粋関数（docs/requirements.md 11.3・11.4）：
 // - 文字列の分割・正規化（一致の判定は必ず normalize で行う）
 // - 相対期間の記号（since:yesterday など）の展開
 // - 条件ボタンの本体（文字列）⇄ 条件の行（Cond）
 // - お気に入りの文字列 → 条件ボタンの ON・詳細条件・期間への展開
 // - お気に入りの編集を、いつものエゴサの一致する項目に反映
 // - サジェストの規則
+// 型と定数は契約（@/api）から取る。文言（ラベル）は持たない（辞書の仕事）。
 import {
   EMPTY_DETAIL,
   EMPTY_PERIOD,
-  FILTERS,
-  PARAM_OPS,
-  REL_PERIODS,
+  FILTER_KEYS,
+  PARAM_OP_TYPES,
   type Chip,
   type Cond,
   type Detail,
   type Engine,
-  type Group,
-  type WordSetItem,
   type GroupItem,
   type ParamOp,
+  type ParsedScope,
   type Period,
-  type SuggestRule,
-} from "./data";
+  type Word,
+} from "@/api";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * 相対期間の記号。保存する検索文字列にはこの記号のまま入れ、開く時点の日付で `since:YYYY-MM-DD` に展開する。
+ * ラベル（昨日から など）は辞書が持つ。
+ */
+export const REL_PERIODS = [
+  { kind: "d1", token: "since:yesterday", days: 1 },
+  { kind: "d3", token: "since:3days_ago", days: 3 },
+  { kind: "d7", token: "since:1week_ago", days: 7 },
+] as const;
+
+/** サジェストの規則：検索文字列に when のどれかが含まれていれば suggest を出す */
+export type SuggestRule = { when: string[]; suggest: string[] };
 
 export function addDay(date: string, n: number): string {
   const d = new Date(`${date}T00:00:00Z`);
@@ -103,14 +114,16 @@ export function splitPeriod(tokens: string[]): {
   return { period, rest };
 }
 
-const PARAM_RE = new RegExp(`^(${Object.keys(PARAM_OPS).join("|")}):(.*)$`);
+const PARAM_RE = new RegExp(
+  `^(${Object.keys(PARAM_OP_TYPES).join("|")}):(.*)$`,
+);
 
 /** 1トークンを条件の行にする（種類の判定） */
 export function tokenToCond(token: string, id: string): Cond {
   const p = token.match(PARAM_RE);
   if (p) {
     const op = p[1] as ParamOp;
-    const type = PARAM_OPS[op].type;
+    const type = PARAM_OP_TYPES[op];
     return { id, kind: type, op, value: p[2] };
   }
   if (/^"[^"]*"$/.test(token))
@@ -174,15 +187,6 @@ export function condsToQuery(conds: Cond[]): string {
 export const disabledKey = (chipId: string, token: string): string =>
   `${chipId}::${token}`;
 
-/** 文字列から組み立てた、検索の組み立ての初期状態 */
-export type ParsedScope = {
-  word: string;
-  exact: boolean;
-  onIds: string[];
-  detail: Detail;
-  period: Period;
-};
-
 const isWordToken = (t: string) => /^"[^"]*"$/.test(t) || !/^[-(@]|:/.test(t);
 
 /**
@@ -192,9 +196,12 @@ const isWordToken = (t: string) => /^"[^"]*"$/.test(t) || !/^[-(@]|:/.test(t);
  *   値付きのボタンは値まで一致したときだけ ON（ボタンの値は書き換えない）。
  * - 残りは、先頭の語 → 検索語、期間 → 期間、既知の演算子 → 詳細条件、それ以外 → テキストで追加（内容を欠かさない）。
  */
-export function parseToScope(q: string, chips: Chip[]): ParsedScope {
+export function parseToScope(
+  q: string,
+  chips: Pick<Chip, "id" | "query" | "visible">[],
+): ParsedScope {
   let rest = tokenize(q);
-  const onIds: string[] = [];
+  const onChipIds: string[] = [];
   const candidates = chips
     .filter((c) => c.visible)
     .map((c) => ({ id: c.id, tokens: tokenize(c.query) }))
@@ -209,7 +216,7 @@ export function parseToScope(q: string, chips: Chip[]): ParsedScope {
       return true;
     });
     if (ok) {
-      onIds.push(c.id);
+      onChipIds.push(c.id);
       rest = pool;
     }
   }
@@ -226,7 +233,7 @@ export function parseToScope(q: string, chips: Chip[]): ParsedScope {
 
   const d: Detail = {
     ...EMPTY_DETAIL,
-    flt: {},
+    flt: { ...EMPTY_DETAIL.flt },
     exact: [],
     plain: [],
     variants: [],
@@ -259,9 +266,11 @@ export function parseToScope(q: string, chips: Chip[]): ParsedScope {
   };
   for (const t of tokens) {
     let m: RegExpMatchArray | null;
-    const filter = FILTERS.find((f) => t === f.op || t === `-${f.op}`);
-    if (filter && !d.flt[filter.key])
-      d.flt[filter.key] = t.startsWith("-") ? "exc" : "inc";
+    const filter = FILTER_KEYS.find(
+      (k) => t === `filter:${k}` || t === `-filter:${k}`,
+    );
+    if (filter && d.flt[filter] === "any")
+      d.flt[filter] = t.startsWith("-") ? "exc" : "inc";
     else if ((m = t.match(/^"([^"]*)"$/))) d.exact.push(m[1]);
     else if (
       (m = t.match(/^\(([^()"]+)\)$/)) &&
@@ -284,7 +293,7 @@ export function parseToScope(q: string, chips: Chip[]): ParsedScope {
     else raw.push(t);
   }
   d.raw = raw.join(" ");
-  return { word, exact, onIds, detail: d, period };
+  return { word, exact, onChipIds, detail: d, period };
 }
 
 /**
@@ -292,11 +301,11 @@ export function parseToScope(q: string, chips: Chip[]): ParsedScope {
  * 項目の検索先は、編集前のお気に入りと同じだったときだけ変える（項目ごとに選び直した検索先は残す）。
  * 何も変わらないときは、渡された groups をそのまま返す。
  */
-export function applyFavEdit(
-  groups: Group[],
+export function applyFavEdit<G extends { items: GroupItem[] }>(
+  groups: G[],
   before: GroupItem,
   after: GroupItem,
-): { groups: Group[]; count: number } {
+): { groups: G[]; count: number } {
   const key = normalize(before.query);
   if (key === normalize(after.query) && before.engine === after.engine)
     return { groups, count: 0 };
@@ -339,7 +348,7 @@ export function suggestFromRules(q: string, rules: SuggestRule[]): string[] {
 
 /** 履歴なしのときホームに出す検索ワード集：starter だけ、すでにあるものを除き、上限まで（元の順） */
 export function starterWords(
-  items: WordSetItem[],
+  items: Pick<Word, "query" | "starter">[],
   have: Set<string>,
   limit: number,
 ): string[] {

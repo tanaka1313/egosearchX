@@ -8,7 +8,7 @@ import {
   type PeriodKind,
 } from "./data";
 import { periodInverted, periodText, runText } from "./query";
-import { periodToTokens } from "./query-model";
+import { periodToTokens } from "@/lib/query/model";
 
 /**
  * 枠の中のセグメント。ON は青の枠＋薄い塗り＋✓（アイコン側）。OFF も枠線の太さを同じにして透明にし、

@@ -11,7 +11,7 @@ import {
   type ParamOp,
 } from "./data";
 import { chipTokens, periodActive } from "./query";
-import { chipConds } from "./query-model";
+import { chipConds } from "@/lib/query/model";
 import { useSearchScope } from "./search-scope";
 import { useStore } from "./store";
 import { toggleClass } from "./ui";

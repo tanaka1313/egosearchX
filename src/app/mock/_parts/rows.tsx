@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import type { Favorite } from "./data";
 import { buildQuery, runText } from "./query";
-import { favNameFor } from "./query-model";
+import { favNameFor } from "@/lib/query/model";
 import { EMPTY_DETAIL, EMPTY_PERIOD, ENGINE_NAME, ENGINE_SHORT } from "./data";
 import { useStore } from "./store";
 

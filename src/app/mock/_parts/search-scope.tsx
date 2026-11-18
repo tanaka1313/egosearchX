@@ -15,8 +15,7 @@ import {
   type Detail,
   type Period,
 } from "./data";
-import { buildQuery } from "./query";
-import type { ParsedScope } from "./query-model";
+import { buildQuery, type MockScope } from "./query";
 import { useStore } from "./store";
 
 export type SearchScope = {
@@ -87,13 +86,13 @@ export function LocalScopeProvider({
 }: {
   /** 開いたときに履歴に残す出どころ（例：いつものエゴサの編集） */
   source: string;
-  initial?: ParsedScope;
+  initial?: MockScope;
   children: React.ReactNode;
 }) {
   const { chips, say, run } = useStore();
   const [word, setWord] = useState(initial?.word ?? "");
   const [exact, setExact] = useState(initial?.exact ?? false);
-  const [onIds, setOnIds] = useState<string[]>(initial?.onIds ?? []);
+  const [onIds, setOnIds] = useState<string[]>(initial?.onChipIds ?? []);
   const [detail, setDetailState] = useState<Detail>(
     initial?.detail ?? EMPTY_DETAIL,
   );

@@ -1,7 +1,5 @@
-// MOCK: 破棄予定（#61）。ただし、ここで決めた規則（docs/requirements.md 11章）は本実装の lib/query に引き継ぐ。
 import { describe, expect, it } from "vitest";
-import { EMPTY_DETAIL, type Chip, type Group } from "./data";
-import { buildQuery } from "./query";
+import { EMPTY_DETAIL, type GroupItem } from "@/api";
 import {
   applyFavEdit,
   chipConds,
@@ -15,15 +13,12 @@ import {
   starterWords,
   suggestFromRules,
   tokenize,
-} from "./query-model";
+} from "./model";
 
-const chip = (id: string, query: string, label = id): Chip => ({
+const chip = (id: string, query: string, visible = true) => ({
   id,
-  interestId: "hololive",
-  label,
   query,
-  on: false,
-  visible: true,
+  visible,
 });
 
 describe("tokenize", () => {
@@ -148,9 +143,8 @@ describe("parseToScope（お気に入りを条件ボタンと詳細条件に展�
     chip("spoil", "-ネタバレ語A -ネタバレ語B"),
     chip("spoilA", "-ネタバレ語A"),
     chip("faves", "min_faves:50"),
-    chip("hidden", "lang:ja"),
+    chip("hidden", "lang:ja", false),
   ];
-  chips[4].visible = false;
 
   it("トークンの多いボタンから当て、使ったトークンは他のボタンに使わない", () => {
     const s = parseToScope(
@@ -159,19 +153,19 @@ describe("parseToScope（お気に入りを条件ボタンと詳細条件に展�
     );
     expect(s.word).toBe("メンバーA");
     expect(s.exact).toBe(true);
-    expect(s.onIds.sort()).toEqual(["rt", "spoil"]);
+    expect(s.onChipIds.sort()).toEqual(["rt", "spoil"]);
     expect(s.period.kind).toBe("d1");
     expect(s.detail).toEqual(EMPTY_DETAIL);
   });
   it("値付きのボタンは値まで一致したときだけ ON（違えば詳細条件へ）", () => {
-    expect(parseToScope("a min_faves:50", chips).onIds).toEqual(["faves"]);
+    expect(parseToScope("a min_faves:50", chips).onChipIds).toEqual(["faves"]);
     const s = parseToScope("a min_faves:100", chips);
-    expect(s.onIds).toEqual([]);
+    expect(s.onChipIds).toEqual([]);
     expect(s.detail.minFaves).toBe("100");
   });
   it("「表示」していないボタンは ON にしない（内容は詳細条件に残す）", () => {
     const s = parseToScope("a lang:ja", chips);
-    expect(s.onIds).toEqual([]);
+    expect(s.onChipIds).toEqual([]);
     expect(s.detail.lang).toBe("ja");
   });
   it("詳細条件の各欄に振り分け、知らない演算子はテキストで追加へ", () => {
@@ -223,47 +217,15 @@ describe("parseToScope（お気に入りを条件ボタンと詳細条件に展�
     expect(s.detail.exFrom).toBe("x");
     expect(s.detail.raw).toBe("-from:w");
   });
-  it("アカウントの除外は Yahoo!リアルタイム検索で使えない旨を警告する", () => {
-    const w = (exTo: string, exMention: string) =>
-      buildQuery({
-        word: "a",
-        exact: false,
-        chips: [],
-        detail: { ...EMPTY_DETAIL, exTo, exMention },
-        period: { kind: "none", from: "", to: "" },
-      }).warnings;
-    expect(w("y", "").some((m) => m.includes("-to:"))).toBe(true);
-    expect(w("", "z").some((m) => m.includes("-@"))).toBe(true);
-    expect(w("", "")).toEqual([]);
-  });
-
-  it.each([
-    "a -from:x -to:y -@z",
-    "a -list:123456",
-    '"メンバーA" -filter:retweets -ネタバレ語A -ネタバレ語B since:yesterday',
-    "#配信タグA -ネタバレ語A since:2026-11-01 until:2026-11-11",
-    "list:1412278227767218179 to:sample_id since:1week_ago",
-    "a (表記A OR 表記B) -x from:y @z filter:videos lang:en min_faves:50 foo:bar",
-  ])("往復：展開して組み立て直すと、正規化した文字列が一致する（%s）", (q) => {
-    const s = parseToScope(q, chips);
-    const built = buildQuery({
-      word: s.word,
-      exact: s.exact,
-      chips,
-      detail: s.detail,
-      period: s.period,
-      onlyChipIds: s.onIds,
-    });
-    expect(normalize(built.stored)).toBe(normalize(q));
-  });
+  // parse → build の往復（組み立ては合成の仕事）は #16（merge.ts）で、ここへ移す。
+  // それまではモックの buildQuery を使う src/app/mock/_parts/query.test.ts が持つ。
 });
 
 describe("applyFavEdit（お気に入りの編集を、いつものエゴサの一致する項目に反映する）", () => {
-  const groups: Group[] = [
+  const groups: { id: string; name: string; items: GroupItem[] }[] = [
     {
       id: "g1",
       name: "G1",
-      doneToday: false,
       items: [
         { query: "b a", engine: "x" },
         { query: "c", engine: "x" },
@@ -272,7 +234,6 @@ describe("applyFavEdit（お気に入りの編集を、いつものエゴサの�
     {
       id: "g2",
       name: "G2",
-      doneToday: false,
       items: [{ query: "a b", engine: "yahoo" }],
     },
   ];
@@ -311,8 +272,8 @@ describe("applyFavEdit（お気に入りの編集を、いつものエゴサの�
 
 describe("favNameFor（いつものエゴサの項目の表示名）", () => {
   const favs = [
-    { id: "1", name: "先", query: "a b", engine: "x" as const, last: "" },
-    { id: "2", name: "後", query: "b a", engine: "x" as const, last: "" },
+    { name: "先", query: "a b" },
+    { name: "後", query: "b a" },
   ];
   it("正規化して一致するお気に入りのうち、並び順で先の名前", () => {
     expect(favNameFor("a  b", favs)).toBe("先");
@@ -352,8 +313,6 @@ describe("suggestFromRules（検索に含まれる語から、関連する条件
 
 describe("starterWords（履歴なしのときホームに出す検索ワード集）", () => {
   const w = (query: string, starter: boolean) => ({
-    groupId: "g1",
-    label: query,
     query,
     starter,
   });
