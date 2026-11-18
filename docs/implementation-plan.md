@@ -50,8 +50,8 @@ src/
       （警告の型とコードは src/api/issues.ts に置く。ここには置かない。文言は辞書。docs/api-spec.md 2.3）
     url/
       build.ts            保存形 → RunPlan（X／Yahoo の URL と警告。`planRun(items, today)`。作成済み）
-      parse.ts            URL → AST（x.com / twitter.com / Yahoo）
-      list-id.ts          リストの URL／数字から ID を取り出す
+      parse.ts            URL → 保存形（x.com / twitter.com / Yahoo。`parseUrl(input)`。作成済み）
+      list-id.ts          リストの URL／数字から ID を取り出す（`parseListId`。作成済み）
     query/model.ts        検索文字列の規則（分割・正規化・相対期間の記号・文字列⇄条件の行・お気に入りの展開・編集の連動）。モックから移した（#71）
     chips/
       suggest.ts          サジェスト検索条件（規則→履歴のトークンの順。重複除外、上限20）

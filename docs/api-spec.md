@@ -187,7 +187,7 @@ interface EgoSearchApi {
 | `suggest(input: { text: string; chips: Chip[]; history: HistoryItem[] })` | `string[]` | 規則 → 履歴のトークンの順。条件ボタンにあるもの・検索に入っているものを除き、最大 `LIMITS.suggest`。履歴からは、**期間（`since:`／`until:`）だけを除き、検索語も条件も候補にする**（**決定**。#80） |
 - `applyFavEdit`（お気に入りの編集 → いつものエゴサ）は契約に出さない。`data.favorites.update` の中で使う。
 
-### 4.3 `url`（同期・純粋。`plan` は**作成済み**＝#18、`lib/url/build.ts` の `planRun(items, today)`。`parse`・`listId` は**予定** #19）
+### 4.3 `url`（同期・純粋。`plan` は**作成済み**＝#18、`lib/url/build.ts` の `planRun(items, today)`。`parse`・`listId` は**作成済み**＝#19、`lib/url/parse.ts` の `parseUrl(input)`、`list-id.ts` の `parseListId(input)`）
 | メソッド | 戻り値 | 備考 |
 |---|---|---|
 | `plan(items: PlanItem[])` | `RunPlan` | 相対期間を展開 → 検索先ごとに URL を作る。`both` は2件。Yahoo!リアルタイム検索で使えない演算子と長さの警告（F5・F8）。X は常に「最新」タブ（`f=live`）で開く。URL 形式は5章 |
@@ -317,7 +317,7 @@ type TrashDetail =
 | 合成（`merge.ts`） | **作成済み**（#16） | `query.build` の下位 |
 | 相対期間の展開（`expandRelative`）の境界テストと、基準日 `localDate`（`dates.ts`） | **作成済み**（#17） | 月末・年末・うるう日のテストあり。`clock.today()` は `localDate(new Date())` を使う（`toISOString` は UTC なので使わない。#85） |
 | URL の生成（`lib/url/build.ts` の `planRun`） | **作成済み**（#18） | X／Yahoo の URL と警告。基準日は引数。`RunPlan.warnings` は target の警告の重複なしの和集合。クエリ長は展開後の文字数を `LIMITS.urlWarn` と比べる |
-| URL の解析・リスト ID | 予定 | #19。モックの `parseListId` が元 |
+| URL の解析・リスト ID（`lib/url/parse.ts`・`list-id.ts`） | **作成済み**（#19） | `parseUrl`：Yahoo は F4 の逆変換表で保存形に戻し、数字でない `lts`/`uts` は無視する。表に無い演算子は raw。`parseListId`：数字5桁以上か `x.com`/`twitter.com` の `/i/lists/<ID>` |
 | ランチャーの codec | 予定 | #20 |
 | マスタ JSON と zod | 予定 | #21（`word-set.json` を含む。プリセット・サジェスト・検索ワード集の中身は #70） |
 | ストア ⇄ バックエンド | 予定 | #24（「ストア⇄DAO」から「ストア⇄API」へ直す） |
