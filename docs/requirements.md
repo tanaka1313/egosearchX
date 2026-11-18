@@ -113,7 +113,7 @@ UIは、ホーム（日課の実行と直感操作）と、左メニュー（複
   - `list:`、`filter:` は警告して除外する。`from:` は `ID:`、`to:` は `@` に変換する。
   - 引用符付きの語はそのまま出力する。完全一致として働くことを実機で確認したので、警告は出さない。
   - アカウントの除外（`-from:` など）は警告し、Yahoo!リアルタイム検索のミュート機能を案内する。
-  - メンション `@x` はそのまま出し、Yahoo!リアルタイム検索では宛先として扱われると警告する（`yahoo.mentionAsReply`）。`lang:` は警告して除く（`yahoo.langUnsupported`）。`min_faves:`／`min_retweets:`／`min_replies:` は警告して除く（`yahoo.minCountUnsupported`）。`since_time:`／`until_time:` の秒は、そのまま `lts`／`uts` に入れる（警告なし）。
+  - メンション `@x` はそのまま出し、Yahoo!リアルタイム検索では宛先として扱われると警告する（`yahoo.mentionAsReply`）。`lang:` は警告して除く（`yahoo.langUnsupported`）。`min_faves:`／`min_retweets:`／`min_replies:` は警告して除く（`yahoo.minCountUnsupported`）。どちらも実機で効かないことを確認した（`docs/research-phase0.md` 6章 E8）。`since_time:`／`until_time:` の秒は、そのまま `lts`／`uts` に入れる（警告なし）。
   - 解析できない演算子（生トークン）は、そのまま URL に入れ、「使えるか確認できていません」と警告する（コード `yahoo.rawUnverified`。黙って削除しない）。
 - **X は常に「最新」タブ（`f=live`）で開く。** 画面にも保存にも設定は持たない。X の検索欄にはタブを切り替える演算子が無い（`f=` は URL のパラメータ）ため、検索文字列にも入れない。今後変わりうるので、値は X の URL を作る1か所の定数にする。Yahoo!リアルタイム検索は並び順を URL で指定できないので、何もしない。
 - Yahoo!リアルタイム検索の URL には `ei=UTF-8` を付ける（`rkf`・`ifr`・`utm_*` は付けない）。

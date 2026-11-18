@@ -44,7 +44,7 @@ export type OpDef = {
 
 /** 値付きの演算子（min_*／since／until） */
 export const PARAM_OPS = {
-  // min_*：Yahoo の公式に記載が無い。除いて警告する（ユーザー決定 2026-11-18）。
+  // min_*：Yahoo では3つとも 0 件になった（語として扱われる。実機 E8、2026-11-18）。除いて警告する。
   min_faves: {
     x: "min_faves:",
     valueType: "number",
@@ -103,7 +103,7 @@ export const FILTER_OPS = Object.fromEntries(
   ]),
 ) as Record<FilterKey, OpDef>;
 
-/** `lang:`。Yahoo の公式に記載が無い。除いて警告する（ユーザー決定 2026-11-18） */
+/** `lang:`。Yahoo では効かなかった（実機 E8、2026-11-18）。除いて警告する */
 export const LANG_OP = {
   x: "lang:",
   status: "stable",
