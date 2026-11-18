@@ -41,8 +41,8 @@ src/
     query/
       ast.ts              検索条件モデル（木構造）の型
       operators.ts        演算子定義を1か所に集約（エンジン別の対応、experimental フラグ）
-      tokenizer.ts        文字列 → トークン
-      parse-x.ts          Xクエリ → AST（未知の演算子は raw ノード）
+      tokenizer.ts        文字列 → トークン（括弧・OR・否定を区別する字句解析 `lex`。model.ts の `tokenize` とは別）
+      parse-x.ts          Xクエリ → AST（未知の演算子は raw ノード。括弧なしの OR は先に結ぶ。E9）
       serialize-x.ts      AST → Xクエリ
       serialize-yahoo.ts  AST → Yahooクエリ + 警告の配列
       merge.ts            条件ボタン（共通）と個別設定の合成、項目ごとの無効化

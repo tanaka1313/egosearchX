@@ -557,3 +557,19 @@
    - 変えたのは新規の `ast.ts`・`operators.ts`・テストと、警告コード3件の追加だけ。
    - Yahoo の `lang:`・`min_*` は実機で効かないことを確認した（2026-11-18、E8）。「除いて警告」の根拠が実機になった。
    - **次に壊れやすい点**：#15 の Yahoo シリアライザーと、#72 の辞書が、新しい警告コード3件の文言を持つこと。
+
+# #13 トークナイザーと X クエリのパーサー
+
+1. Goal: X のクエリ文字列を AST に変換するパーサーを `src/lib/query` に置く。解析できないものは raw で保持し、内容を欠かさない。
+2. Plan:
+   - [x] ブランチ `feature/parser-x`、テスト先行（Red 確認：`./parse-x` が無く失敗）
+   - [x] `tokenizer.ts`（`lex`。括弧・OR・否定・閉じない引用符を区別し、入力の位置を持つ）、`parse-x.ts`（`parseX`）
+   - [x] 演算子の判定は `operators.ts` の定義から導く（アカウントは `negatable`、`-list:` は定義の結果として raw）。`ast.ts` に `ParseOnlyOp` を追加し、`PARSE_ONLY_OPS` を型で結ぶ
+   - [x] research-phase0 6章 E9、要件定義書 F4・7章、実装計画 2章、API 仕様書の実装の状態
+   - [ ] make check・format:check、main へマージして push、#13 を閉じる
+3. Verification: `make check`、`npm run format:check`。
+4. Review:
+   - 決定（ユーザーが実機で確認、2026-11-18）：括弧なしの OR は、X も Yahoo も OR を先に結ぶ（ぺこら AND (配信 OR 歌枠)）。E9 に記録。
+   - 判断：値付きの演算子（lang・min_*・since・until・since_time）の否定は、定義に無いので推測せず raw。相対期間の記号は `since` の値（`yesterday` など）として解析し、`until` には使えない。
+   - 往復（parse → serialize → parse）は #14 で作る。ここでは raw の `text` が入力の該当部分と一致することを確かめた。
+   - **次に壊れやすい点**：#14 のシリアライザーが、`since` の相対記号の値（`yesterday`）をそのまま `since:yesterday` に戻すこと。#17 で日付に展開する。
