@@ -50,7 +50,7 @@ export function PeriodPicker({
     : [
         periodText(value),
         showOutput && stored
-          ? `出力：${stored}${opened !== stored ? `（開くときは ${opened}）` : ""}${value.to ? "（until は終了日の翌日）" : ""}`
+          ? `出力：${stored}${opened !== stored ? `（開くときは ${opened}）` : ""}`
           : "",
       ]
         .filter(Boolean)

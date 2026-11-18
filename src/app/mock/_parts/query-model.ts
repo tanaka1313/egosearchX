@@ -68,18 +68,18 @@ export function expandRelative(q: string, today: string): string {
     .join(" ");
 }
 
-/** 期間を、保存する文字列のトークンにする（相対は記号、終了日（含む）は翌日の until:） */
+/** 期間を、保存する文字列のトークンにする（相対は記号。until: は X と同じく指定日を含むので終了日をそのまま入れる） */
 export function periodToTokens(p: Period): string[] {
   const rel = REL_PERIODS.find((r) => r.kind === p.kind);
   if (rel) return [rel.token];
   if (p.kind !== "date") return [];
   const t: string[] = [];
   if (p.from) t.push(`since:${p.from}`);
-  if (p.to) t.push(`until:${addDay(p.to, 1)}`);
+  if (p.to) t.push(`until:${p.to}`);
   return t;
 }
 
-/** トークンから期間を取り出す（until: は前日に戻して「含む日」にする）。残りのトークンも返す */
+/** トークンから期間を取り出す（until: はそのまま終了日）。残りのトークンも返す */
 export function splitPeriod(tokens: string[]): {
   period: Period;
   rest: string[];
@@ -96,9 +96,7 @@ export function splitPeriod(tokens: string[]): {
           ? period
           : { ...EMPTY_PERIOD, kind: "date" as const };
       period =
-        m[1] === "since"
-          ? { ...base, from: m[2] }
-          : { ...base, to: addDay(m[2], -1) };
+        m[1] === "since" ? { ...base, from: m[2] } : { ...base, to: m[2] };
     } else rest.push(t);
   }
   return { period, rest };
@@ -112,9 +110,7 @@ export function tokenToCond(token: string, id: string): Cond {
   if (p) {
     const op = p[1] as ParamOp;
     const type = PARAM_OPS[op].type;
-    const value =
-      op === "until" && DATE_RE.test(p[2]) ? addDay(p[2], -1) : p[2];
-    return { id, kind: type, op, value };
+    return { id, kind: type, op, value: p[2] };
   }
   if (/^"[^"]*"$/.test(token))
     return { id, kind: "exact", value: token.slice(1, -1) };
@@ -133,7 +129,7 @@ export function tokenToCond(token: string, id: string): Cond {
 
 /**
  * 条件の行を、検索に入れるトークンにする。不正な値（空・1未満・日付の形式違い）は空文字（検索に入れない）。
- * 「以前」は終了日を含む指定なので、翌日の until: にする。
+ * until: は指定日を含むので、終了日をそのまま入れる。
  */
 export function condToken(c: Cond): string {
   const v = c.value.trim();
@@ -143,7 +139,7 @@ export function condToken(c: Cond): string {
       return c.op && /^[1-9]\d*$/.test(v) ? `${c.op}:${v}` : "";
     case "date":
       if (!c.op || !DATE_RE.test(v)) return "";
-      return c.op === "until" ? `until:${addDay(v, 1)}` : `${c.op}:${v}`;
+      return `${c.op}:${v}`;
     case "exact":
       return `"${v}"`;
     case "exclude":

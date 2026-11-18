@@ -80,20 +80,20 @@ describe("expandRelative（相対期間の記号を実行日で日付にする�
   });
 });
 
-describe("期間 ⇄ トークン（保存形。until は X と同じく指定日を含まない）", () => {
+describe("期間 ⇄ トークン（保存形。until は X と同じく指定日を含む。日本時間で実機確認済み #49）", () => {
   it("相対期間は記号で保存する", () => {
     expect(periodToTokens({ kind: "d1", from: "", to: "" })).toEqual([
       "since:yesterday",
     ]);
   });
-  it("終了日（含む）は翌日の until にする", () => {
+  it("終了日はそのまま until にする（翌日にしない）", () => {
     expect(
       periodToTokens({ kind: "date", from: "2026-11-01", to: "2026-11-10" }),
-    ).toEqual(["since:2026-11-01", "until:2026-11-11"]);
+    ).toEqual(["since:2026-11-01", "until:2026-11-10"]);
   });
-  it("文字列から期間を取り出す（until は前日に戻して表示用にする）", () => {
+  it("文字列から期間を取り出す（until は戻さず終了日にする）", () => {
     expect(
-      splitPeriod(tokenize("a since:2026-11-01 until:2026-11-11")),
+      splitPeriod(tokenize("a since:2026-11-01 until:2026-11-10")),
     ).toEqual({
       period: { kind: "date", from: "2026-11-01", to: "2026-11-10" },
       rest: ["a"],
@@ -125,9 +125,9 @@ describe("条件ボタンの本体（文字列）⇄ 条件の行", () => {
     ]);
     expect(condsToQuery(chipConds(c))).toBe(q);
   });
-  it("「以前」の日付は、画面では含む日（前日）を値に持つ", () => {
+  it("「以前」の日付は、文字列と同じ日を値に持つ", () => {
     const [c] = chipConds(chip("k", "until:2026-11-11"));
-    expect(c).toMatchObject({ kind: "date", op: "until", value: "2026-11-10" });
+    expect(c).toMatchObject({ kind: "date", op: "until", value: "2026-11-11" });
   });
   it("値が不正でも演算子を失わない（空の値を保存しても、ボタンは値付きのまま）", () => {
     const [c] = chipConds(chip("k", "min_faves:50"));
