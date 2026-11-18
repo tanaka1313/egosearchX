@@ -6,6 +6,7 @@
  *   日時は ISO 形式、並び順は order 列、削除済みは deletedAt（論理削除）。
  */
 import { z } from "zod";
+import { LIMITS } from "./limits";
 
 const id = z.string().min(1);
 const isoDate = z.iso.datetime();
@@ -31,7 +32,7 @@ const timestamps = {
 export const ChipSchema = z.object({
   id,
   interestId: InterestIdSchema,
-  label: z.string().min(1).max(20),
+  label: z.string().min(1).max(LIMITS.chipLabel),
   /** 本体の検索文字列（例：`-ネタバレ語A -ネタバレ語B`、`min_faves:50`） */
   query,
   /** ホームで押されている状態 */

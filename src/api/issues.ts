@@ -23,7 +23,6 @@ export const ISSUE_CODES = [
   "url.unsupportedHost",
   "url.noQuery",
   "list.invalid",
-  "chip.labelRequired",
   "chip.labelTooLong",
   "chip.empty",
   "chip.badNumber",

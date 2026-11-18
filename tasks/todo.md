@@ -1,3 +1,22 @@
+# #85 API 層（契約・createBackend・useApi・import の制限）
+
+1. Goal: 画面が `@/api` だけで動けるよう、境界の `EgoSearchApi` と実装 `createBackend({ kv, clock })`、`useApi()`、画面からの内部 import を禁じる ESLint を作る。
+2. Plan:
+   - [x] ブランチ `feature/api-layer`、テスト先行（`chip.test.ts`・`suggest.test.ts`・`backend.test.ts`）
+   - [x] 契約 `src/api/api.ts`（`chip.labelRequired` を削除、`CHIP_LABEL_MAX` を定数に）
+   - [x] `lib/query/chip.ts`（`validateChip`・`labelFromQuery`）、`suggest.ts`（`suggest`・`starters`）
+   - [x] `src/backend`（`index`・`query`・`data`・`errors`）
+   - [x] `src/store/api-context.tsx`、`src/app/providers.tsx`、`layout.tsx`
+   - [x] ESLint `no-restricted-imports`（わざと違反を入れて失敗を確認し、戻した）
+   - [x] docs（api-spec・screen-spec・implementation-plan）
+   - [x] make check（テスト477件）・format:check、main へマージして push、#85 を閉じる
+3. Verification: `make check`、`npm run format:check`。`MemoryAdapter`＋固定の clock のテスト（初回だけプリセット／壊れたデータは書かない／LIMIT・NOT_FOUND・INVALID／`favorites.update` と `undo`）。
+4. Review:
+   - 決定（ユーザー、2026-11-19）：`suggest`・`starters`・`validateChip` の中身も #85 で作る。`favorites.duplicate` は廃止（画面が辞書で名前を作って `save`）。D1 のラベルが空なら検索文字列から作る（「ファボ数」の自動ラベルは廃止、`chip.labelRequired` も削除）。サジェスト採用のラベルは20文字に収める。新しい版の保存データは `CORRUPT`。
+   - 範囲外：`data.reset()`（#87）、`lastRunAt` と `history.record` による更新（#86）。
+   - 判断：初回判定は `openDao`（meta を書く）の前に meta の有無で行う。DAO は最初の呼び出しで1回開く（失敗は覚えない）。`createBrowserBackend` は `window` が無いとき `MemoryAdapter`（事前描画で落ちない）。
+   - **次に壊れやすい点**：#86 が `history.record` に `lastRunAt` を足すとき、`guarded` の外で書かないこと。localStorage が使えない端末（プライベートモードなど）では `createBrowserBackend` が例外になりうる（未対応）。`crypto.randomUUID` は https／localhost だけ。localStorage の容量超過や、壊れた prefs の `JSON.parse`（DAO の `prefs.set`）は `ApiError` にならず素の例外で届く（契約にコードが無いので足していない）。
+
 # #21 マスタ JSON 4つと zod スキーマ
 
 1. Goal: 興味の対象・プリセット・サジェスト規則・検索ワード集を `src/data/*.json` に置き、zod で検証して、不正な値でテストとビルドが失敗するようにする。
