@@ -69,10 +69,11 @@ src/
   store/                  zustand のストアと useApi()（契約だけを使う）
   data/
     interests.json        興味の対象（ID・表示名・既定リスト）。ID をキーにした Map で扱う
-    presets.json          興味の対象ごとの条件ボタンのプリセット（中身は Issue #70）
+    presets.json          条件ボタンのプリセット。共通＋各対象の1本の並び（`interest` が `common` か対象 ID）。既定リストは目印の行の位置に入る（中身は Issue #70）
     suggest-rules.json    サジェストの規則（中身は Issue #70）
     word-set.json         検索ワード集（興味の対象ごと。チャンネル単位のグループ、グループ名は ja／en。約200件。中身は Issue #70、画面は Issue #89）
-    schema.ts             マスタ JSON の zod スキーマ
+    schema.ts             マスタ JSON の zod スキーマと、ファイルをまたぐ検証（`MasterSchema`）
+    index.ts              読み込み時に検証して返す（`interests`・`presetsFor`・`suggestRules`・`wordSet`）。`prebuild` で `src/data` のテストが走る
 ```
 
 ## 3. 中核のデータ構造

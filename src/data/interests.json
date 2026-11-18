@@ -1,0 +1,29 @@
+{
+  "hololive": {
+    "label": {
+      "ja": "ホロライブ",
+      "en": "hololive"
+    },
+    "list": {
+      "label": "ホロメンから",
+      "listId": "1412278227767218179"
+    }
+  },
+  "nijisanji": {
+    "label": {
+      "ja": "にじさんじ",
+      "en": "NIJISANJI"
+    },
+    "list": {
+      "label": "にじさんじから",
+      "listId": "1478366370727608323"
+    }
+  },
+  "other": {
+    "label": {
+      "ja": "その他",
+      "en": "Others"
+    },
+    "list": null
+  }
+}

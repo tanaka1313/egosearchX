@@ -1,0 +1,3200 @@
+{
+  "hololive": [
+    {
+      "name": {
+        "ja": "チャンネルA",
+        "en": "Channel A"
+      },
+      "words": [
+        {
+          "label": "名前A",
+          "query": "チャンネルA",
+          "starter": true
+        },
+        {
+          "label": "名前A2",
+          "query": "チャンネルA2",
+          "starter": true
+        },
+        {
+          "label": "名前A3",
+          "query": "チャンネルA3",
+          "starter": true
+        },
+        {
+          "label": "名前A4",
+          "query": "チャンネルA4",
+          "starter": true
+        },
+        {
+          "label": "名前A5",
+          "query": "チャンネルA5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートA",
+          "query": "#ファンアートタグA",
+          "starter": true
+        },
+        {
+          "label": "ファンアートA2",
+          "query": "#ファンアートタグA2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートA3",
+          "query": "#ファンアートタグA3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートA4",
+          "query": "#ファンアートタグA4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートA5",
+          "query": "#ファンアートタグA5",
+          "starter": true
+        },
+        {
+          "label": "配信A",
+          "query": "#配信タグA",
+          "starter": false
+        },
+        {
+          "label": "配信A2",
+          "query": "#配信タグA2",
+          "starter": false
+        },
+        {
+          "label": "配信A3",
+          "query": "#配信タグA3",
+          "starter": false
+        },
+        {
+          "label": "配信A4",
+          "query": "#配信タグA4",
+          "starter": false
+        },
+        {
+          "label": "配信A5",
+          "query": "#配信タグA5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きA",
+          "query": "#切り抜きタグA",
+          "starter": false
+        },
+        {
+          "label": "切り抜きA2",
+          "query": "#切り抜きタグA2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きA3",
+          "query": "#切り抜きタグA3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きA4",
+          "query": "#切り抜きタグA4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きA5",
+          "query": "#切り抜きタグA5",
+          "starter": false
+        },
+        {
+          "label": "推しマークA",
+          "query": "推しマークA",
+          "starter": false
+        },
+        {
+          "label": "推しマークA2",
+          "query": "推しマークA2",
+          "starter": false
+        },
+        {
+          "label": "推しマークA3",
+          "query": "推しマークA3",
+          "starter": false
+        },
+        {
+          "label": "推しマークA4",
+          "query": "推しマークA4",
+          "starter": false
+        },
+        {
+          "label": "推しマークA5",
+          "query": "推しマークA5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルB",
+        "en": "Channel B"
+      },
+      "words": [
+        {
+          "label": "名前B",
+          "query": "チャンネルB",
+          "starter": true
+        },
+        {
+          "label": "名前B2",
+          "query": "チャンネルB2",
+          "starter": true
+        },
+        {
+          "label": "名前B3",
+          "query": "チャンネルB3",
+          "starter": true
+        },
+        {
+          "label": "名前B4",
+          "query": "チャンネルB4",
+          "starter": true
+        },
+        {
+          "label": "名前B5",
+          "query": "チャンネルB5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートB",
+          "query": "#ファンアートタグB",
+          "starter": true
+        },
+        {
+          "label": "ファンアートB2",
+          "query": "#ファンアートタグB2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートB3",
+          "query": "#ファンアートタグB3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートB4",
+          "query": "#ファンアートタグB4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートB5",
+          "query": "#ファンアートタグB5",
+          "starter": true
+        },
+        {
+          "label": "配信B",
+          "query": "#配信タグB",
+          "starter": false
+        },
+        {
+          "label": "配信B2",
+          "query": "#配信タグB2",
+          "starter": false
+        },
+        {
+          "label": "配信B3",
+          "query": "#配信タグB3",
+          "starter": false
+        },
+        {
+          "label": "配信B4",
+          "query": "#配信タグB4",
+          "starter": false
+        },
+        {
+          "label": "配信B5",
+          "query": "#配信タグB5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きB",
+          "query": "#切り抜きタグB",
+          "starter": false
+        },
+        {
+          "label": "切り抜きB2",
+          "query": "#切り抜きタグB2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きB3",
+          "query": "#切り抜きタグB3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きB4",
+          "query": "#切り抜きタグB4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きB5",
+          "query": "#切り抜きタグB5",
+          "starter": false
+        },
+        {
+          "label": "推しマークB",
+          "query": "推しマークB",
+          "starter": false
+        },
+        {
+          "label": "推しマークB2",
+          "query": "推しマークB2",
+          "starter": false
+        },
+        {
+          "label": "推しマークB3",
+          "query": "推しマークB3",
+          "starter": false
+        },
+        {
+          "label": "推しマークB4",
+          "query": "推しマークB4",
+          "starter": false
+        },
+        {
+          "label": "推しマークB5",
+          "query": "推しマークB5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルC",
+        "en": "Channel C"
+      },
+      "words": [
+        {
+          "label": "名前C",
+          "query": "チャンネルC",
+          "starter": true
+        },
+        {
+          "label": "名前C2",
+          "query": "チャンネルC2",
+          "starter": true
+        },
+        {
+          "label": "名前C3",
+          "query": "チャンネルC3",
+          "starter": true
+        },
+        {
+          "label": "名前C4",
+          "query": "チャンネルC4",
+          "starter": true
+        },
+        {
+          "label": "名前C5",
+          "query": "チャンネルC5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートC",
+          "query": "#ファンアートタグC",
+          "starter": true
+        },
+        {
+          "label": "ファンアートC2",
+          "query": "#ファンアートタグC2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートC3",
+          "query": "#ファンアートタグC3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートC4",
+          "query": "#ファンアートタグC4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートC5",
+          "query": "#ファンアートタグC5",
+          "starter": true
+        },
+        {
+          "label": "配信C",
+          "query": "#配信タグC",
+          "starter": false
+        },
+        {
+          "label": "配信C2",
+          "query": "#配信タグC2",
+          "starter": false
+        },
+        {
+          "label": "配信C3",
+          "query": "#配信タグC3",
+          "starter": false
+        },
+        {
+          "label": "配信C4",
+          "query": "#配信タグC4",
+          "starter": false
+        },
+        {
+          "label": "配信C5",
+          "query": "#配信タグC5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きC",
+          "query": "#切り抜きタグC",
+          "starter": false
+        },
+        {
+          "label": "切り抜きC2",
+          "query": "#切り抜きタグC2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きC3",
+          "query": "#切り抜きタグC3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きC4",
+          "query": "#切り抜きタグC4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きC5",
+          "query": "#切り抜きタグC5",
+          "starter": false
+        },
+        {
+          "label": "推しマークC",
+          "query": "推しマークC",
+          "starter": false
+        },
+        {
+          "label": "推しマークC2",
+          "query": "推しマークC2",
+          "starter": false
+        },
+        {
+          "label": "推しマークC3",
+          "query": "推しマークC3",
+          "starter": false
+        },
+        {
+          "label": "推しマークC4",
+          "query": "推しマークC4",
+          "starter": false
+        },
+        {
+          "label": "推しマークC5",
+          "query": "推しマークC5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルD",
+        "en": "Channel D"
+      },
+      "words": [
+        {
+          "label": "名前D",
+          "query": "チャンネルD",
+          "starter": true
+        },
+        {
+          "label": "名前D2",
+          "query": "チャンネルD2",
+          "starter": true
+        },
+        {
+          "label": "名前D3",
+          "query": "チャンネルD3",
+          "starter": true
+        },
+        {
+          "label": "名前D4",
+          "query": "チャンネルD4",
+          "starter": true
+        },
+        {
+          "label": "名前D5",
+          "query": "チャンネルD5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートD",
+          "query": "#ファンアートタグD",
+          "starter": true
+        },
+        {
+          "label": "ファンアートD2",
+          "query": "#ファンアートタグD2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートD3",
+          "query": "#ファンアートタグD3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートD4",
+          "query": "#ファンアートタグD4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートD5",
+          "query": "#ファンアートタグD5",
+          "starter": true
+        },
+        {
+          "label": "配信D",
+          "query": "#配信タグD",
+          "starter": false
+        },
+        {
+          "label": "配信D2",
+          "query": "#配信タグD2",
+          "starter": false
+        },
+        {
+          "label": "配信D3",
+          "query": "#配信タグD3",
+          "starter": false
+        },
+        {
+          "label": "配信D4",
+          "query": "#配信タグD4",
+          "starter": false
+        },
+        {
+          "label": "配信D5",
+          "query": "#配信タグD5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きD",
+          "query": "#切り抜きタグD",
+          "starter": false
+        },
+        {
+          "label": "切り抜きD2",
+          "query": "#切り抜きタグD2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きD3",
+          "query": "#切り抜きタグD3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きD4",
+          "query": "#切り抜きタグD4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きD5",
+          "query": "#切り抜きタグD5",
+          "starter": false
+        },
+        {
+          "label": "推しマークD",
+          "query": "推しマークD",
+          "starter": false
+        },
+        {
+          "label": "推しマークD2",
+          "query": "推しマークD2",
+          "starter": false
+        },
+        {
+          "label": "推しマークD3",
+          "query": "推しマークD3",
+          "starter": false
+        },
+        {
+          "label": "推しマークD4",
+          "query": "推しマークD4",
+          "starter": false
+        },
+        {
+          "label": "推しマークD5",
+          "query": "推しマークD5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルE",
+        "en": "Channel E"
+      },
+      "words": [
+        {
+          "label": "名前E",
+          "query": "チャンネルE",
+          "starter": true
+        },
+        {
+          "label": "名前E2",
+          "query": "チャンネルE2",
+          "starter": true
+        },
+        {
+          "label": "名前E3",
+          "query": "チャンネルE3",
+          "starter": true
+        },
+        {
+          "label": "名前E4",
+          "query": "チャンネルE4",
+          "starter": true
+        },
+        {
+          "label": "名前E5",
+          "query": "チャンネルE5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートE",
+          "query": "#ファンアートタグE",
+          "starter": true
+        },
+        {
+          "label": "ファンアートE2",
+          "query": "#ファンアートタグE2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートE3",
+          "query": "#ファンアートタグE3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートE4",
+          "query": "#ファンアートタグE4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートE5",
+          "query": "#ファンアートタグE5",
+          "starter": true
+        },
+        {
+          "label": "配信E",
+          "query": "#配信タグE",
+          "starter": false
+        },
+        {
+          "label": "配信E2",
+          "query": "#配信タグE2",
+          "starter": false
+        },
+        {
+          "label": "配信E3",
+          "query": "#配信タグE3",
+          "starter": false
+        },
+        {
+          "label": "配信E4",
+          "query": "#配信タグE4",
+          "starter": false
+        },
+        {
+          "label": "配信E5",
+          "query": "#配信タグE5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きE",
+          "query": "#切り抜きタグE",
+          "starter": false
+        },
+        {
+          "label": "切り抜きE2",
+          "query": "#切り抜きタグE2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きE3",
+          "query": "#切り抜きタグE3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きE4",
+          "query": "#切り抜きタグE4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きE5",
+          "query": "#切り抜きタグE5",
+          "starter": false
+        },
+        {
+          "label": "推しマークE",
+          "query": "推しマークE",
+          "starter": false
+        },
+        {
+          "label": "推しマークE2",
+          "query": "推しマークE2",
+          "starter": false
+        },
+        {
+          "label": "推しマークE3",
+          "query": "推しマークE3",
+          "starter": false
+        },
+        {
+          "label": "推しマークE4",
+          "query": "推しマークE4",
+          "starter": false
+        },
+        {
+          "label": "推しマークE5",
+          "query": "推しマークE5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルF",
+        "en": "Channel F"
+      },
+      "words": [
+        {
+          "label": "名前F",
+          "query": "チャンネルF",
+          "starter": true
+        },
+        {
+          "label": "名前F2",
+          "query": "チャンネルF2",
+          "starter": true
+        },
+        {
+          "label": "名前F3",
+          "query": "チャンネルF3",
+          "starter": true
+        },
+        {
+          "label": "名前F4",
+          "query": "チャンネルF4",
+          "starter": true
+        },
+        {
+          "label": "名前F5",
+          "query": "チャンネルF5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートF",
+          "query": "#ファンアートタグF",
+          "starter": true
+        },
+        {
+          "label": "ファンアートF2",
+          "query": "#ファンアートタグF2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートF3",
+          "query": "#ファンアートタグF3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートF4",
+          "query": "#ファンアートタグF4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートF5",
+          "query": "#ファンアートタグF5",
+          "starter": true
+        },
+        {
+          "label": "配信F",
+          "query": "#配信タグF",
+          "starter": false
+        },
+        {
+          "label": "配信F2",
+          "query": "#配信タグF2",
+          "starter": false
+        },
+        {
+          "label": "配信F3",
+          "query": "#配信タグF3",
+          "starter": false
+        },
+        {
+          "label": "配信F4",
+          "query": "#配信タグF4",
+          "starter": false
+        },
+        {
+          "label": "配信F5",
+          "query": "#配信タグF5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きF",
+          "query": "#切り抜きタグF",
+          "starter": false
+        },
+        {
+          "label": "切り抜きF2",
+          "query": "#切り抜きタグF2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きF3",
+          "query": "#切り抜きタグF3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きF4",
+          "query": "#切り抜きタグF4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きF5",
+          "query": "#切り抜きタグF5",
+          "starter": false
+        },
+        {
+          "label": "推しマークF",
+          "query": "推しマークF",
+          "starter": false
+        },
+        {
+          "label": "推しマークF2",
+          "query": "推しマークF2",
+          "starter": false
+        },
+        {
+          "label": "推しマークF3",
+          "query": "推しマークF3",
+          "starter": false
+        },
+        {
+          "label": "推しマークF4",
+          "query": "推しマークF4",
+          "starter": false
+        },
+        {
+          "label": "推しマークF5",
+          "query": "推しマークF5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルG",
+        "en": "Channel G"
+      },
+      "words": [
+        {
+          "label": "名前G",
+          "query": "チャンネルG",
+          "starter": false
+        },
+        {
+          "label": "名前G2",
+          "query": "チャンネルG2",
+          "starter": false
+        },
+        {
+          "label": "名前G3",
+          "query": "チャンネルG3",
+          "starter": false
+        },
+        {
+          "label": "名前G4",
+          "query": "チャンネルG4",
+          "starter": false
+        },
+        {
+          "label": "名前G5",
+          "query": "チャンネルG5",
+          "starter": false
+        },
+        {
+          "label": "ファンアートG",
+          "query": "#ファンアートタグG",
+          "starter": false
+        },
+        {
+          "label": "ファンアートG2",
+          "query": "#ファンアートタグG2",
+          "starter": false
+        },
+        {
+          "label": "ファンアートG3",
+          "query": "#ファンアートタグG3",
+          "starter": false
+        },
+        {
+          "label": "ファンアートG4",
+          "query": "#ファンアートタグG4",
+          "starter": false
+        },
+        {
+          "label": "ファンアートG5",
+          "query": "#ファンアートタグG5",
+          "starter": false
+        },
+        {
+          "label": "配信G",
+          "query": "#配信タグG",
+          "starter": false
+        },
+        {
+          "label": "配信G2",
+          "query": "#配信タグG2",
+          "starter": false
+        },
+        {
+          "label": "配信G3",
+          "query": "#配信タグG3",
+          "starter": false
+        },
+        {
+          "label": "配信G4",
+          "query": "#配信タグG4",
+          "starter": false
+        },
+        {
+          "label": "配信G5",
+          "query": "#配信タグG5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きG",
+          "query": "#切り抜きタグG",
+          "starter": false
+        },
+        {
+          "label": "切り抜きG2",
+          "query": "#切り抜きタグG2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きG3",
+          "query": "#切り抜きタグG3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きG4",
+          "query": "#切り抜きタグG4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きG5",
+          "query": "#切り抜きタグG5",
+          "starter": false
+        },
+        {
+          "label": "推しマークG",
+          "query": "推しマークG",
+          "starter": false
+        },
+        {
+          "label": "推しマークG2",
+          "query": "推しマークG2",
+          "starter": false
+        },
+        {
+          "label": "推しマークG3",
+          "query": "推しマークG3",
+          "starter": false
+        },
+        {
+          "label": "推しマークG4",
+          "query": "推しマークG4",
+          "starter": false
+        },
+        {
+          "label": "推しマークG5",
+          "query": "推しマークG5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルH",
+        "en": "Channel H"
+      },
+      "words": [
+        {
+          "label": "名前H",
+          "query": "チャンネルH",
+          "starter": false
+        },
+        {
+          "label": "名前H2",
+          "query": "チャンネルH2",
+          "starter": false
+        },
+        {
+          "label": "名前H3",
+          "query": "チャンネルH3",
+          "starter": false
+        },
+        {
+          "label": "名前H4",
+          "query": "チャンネルH4",
+          "starter": false
+        },
+        {
+          "label": "名前H5",
+          "query": "チャンネルH5",
+          "starter": false
+        },
+        {
+          "label": "ファンアートH",
+          "query": "#ファンアートタグH",
+          "starter": false
+        },
+        {
+          "label": "ファンアートH2",
+          "query": "#ファンアートタグH2",
+          "starter": false
+        },
+        {
+          "label": "ファンアートH3",
+          "query": "#ファンアートタグH3",
+          "starter": false
+        },
+        {
+          "label": "ファンアートH4",
+          "query": "#ファンアートタグH4",
+          "starter": false
+        },
+        {
+          "label": "ファンアートH5",
+          "query": "#ファンアートタグH5",
+          "starter": false
+        },
+        {
+          "label": "配信H",
+          "query": "#配信タグH",
+          "starter": false
+        },
+        {
+          "label": "配信H2",
+          "query": "#配信タグH2",
+          "starter": false
+        },
+        {
+          "label": "配信H3",
+          "query": "#配信タグH3",
+          "starter": false
+        },
+        {
+          "label": "配信H4",
+          "query": "#配信タグH4",
+          "starter": false
+        },
+        {
+          "label": "配信H5",
+          "query": "#配信タグH5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きH",
+          "query": "#切り抜きタグH",
+          "starter": false
+        },
+        {
+          "label": "切り抜きH2",
+          "query": "#切り抜きタグH2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きH3",
+          "query": "#切り抜きタグH3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きH4",
+          "query": "#切り抜きタグH4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きH5",
+          "query": "#切り抜きタグH5",
+          "starter": false
+        },
+        {
+          "label": "推しマークH",
+          "query": "推しマークH",
+          "starter": false
+        },
+        {
+          "label": "推しマークH2",
+          "query": "推しマークH2",
+          "starter": false
+        },
+        {
+          "label": "推しマークH3",
+          "query": "推しマークH3",
+          "starter": false
+        },
+        {
+          "label": "推しマークH4",
+          "query": "推しマークH4",
+          "starter": false
+        },
+        {
+          "label": "推しマークH5",
+          "query": "推しマークH5",
+          "starter": false
+        }
+      ]
+    }
+  ],
+  "nijisanji": [
+    {
+      "name": {
+        "ja": "チャンネルA",
+        "en": "Channel A"
+      },
+      "words": [
+        {
+          "label": "名前A",
+          "query": "チャンネルA",
+          "starter": true
+        },
+        {
+          "label": "名前A2",
+          "query": "チャンネルA2",
+          "starter": true
+        },
+        {
+          "label": "名前A3",
+          "query": "チャンネルA3",
+          "starter": true
+        },
+        {
+          "label": "名前A4",
+          "query": "チャンネルA4",
+          "starter": true
+        },
+        {
+          "label": "名前A5",
+          "query": "チャンネルA5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートA",
+          "query": "#ファンアートタグA",
+          "starter": true
+        },
+        {
+          "label": "ファンアートA2",
+          "query": "#ファンアートタグA2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートA3",
+          "query": "#ファンアートタグA3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートA4",
+          "query": "#ファンアートタグA4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートA5",
+          "query": "#ファンアートタグA5",
+          "starter": true
+        },
+        {
+          "label": "配信A",
+          "query": "#配信タグA",
+          "starter": false
+        },
+        {
+          "label": "配信A2",
+          "query": "#配信タグA2",
+          "starter": false
+        },
+        {
+          "label": "配信A3",
+          "query": "#配信タグA3",
+          "starter": false
+        },
+        {
+          "label": "配信A4",
+          "query": "#配信タグA4",
+          "starter": false
+        },
+        {
+          "label": "配信A5",
+          "query": "#配信タグA5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きA",
+          "query": "#切り抜きタグA",
+          "starter": false
+        },
+        {
+          "label": "切り抜きA2",
+          "query": "#切り抜きタグA2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きA3",
+          "query": "#切り抜きタグA3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きA4",
+          "query": "#切り抜きタグA4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きA5",
+          "query": "#切り抜きタグA5",
+          "starter": false
+        },
+        {
+          "label": "推しマークA",
+          "query": "推しマークA",
+          "starter": false
+        },
+        {
+          "label": "推しマークA2",
+          "query": "推しマークA2",
+          "starter": false
+        },
+        {
+          "label": "推しマークA3",
+          "query": "推しマークA3",
+          "starter": false
+        },
+        {
+          "label": "推しマークA4",
+          "query": "推しマークA4",
+          "starter": false
+        },
+        {
+          "label": "推しマークA5",
+          "query": "推しマークA5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルB",
+        "en": "Channel B"
+      },
+      "words": [
+        {
+          "label": "名前B",
+          "query": "チャンネルB",
+          "starter": true
+        },
+        {
+          "label": "名前B2",
+          "query": "チャンネルB2",
+          "starter": true
+        },
+        {
+          "label": "名前B3",
+          "query": "チャンネルB3",
+          "starter": true
+        },
+        {
+          "label": "名前B4",
+          "query": "チャンネルB4",
+          "starter": true
+        },
+        {
+          "label": "名前B5",
+          "query": "チャンネルB5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートB",
+          "query": "#ファンアートタグB",
+          "starter": true
+        },
+        {
+          "label": "ファンアートB2",
+          "query": "#ファンアートタグB2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートB3",
+          "query": "#ファンアートタグB3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートB4",
+          "query": "#ファンアートタグB4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートB5",
+          "query": "#ファンアートタグB5",
+          "starter": true
+        },
+        {
+          "label": "配信B",
+          "query": "#配信タグB",
+          "starter": false
+        },
+        {
+          "label": "配信B2",
+          "query": "#配信タグB2",
+          "starter": false
+        },
+        {
+          "label": "配信B3",
+          "query": "#配信タグB3",
+          "starter": false
+        },
+        {
+          "label": "配信B4",
+          "query": "#配信タグB4",
+          "starter": false
+        },
+        {
+          "label": "配信B5",
+          "query": "#配信タグB5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きB",
+          "query": "#切り抜きタグB",
+          "starter": false
+        },
+        {
+          "label": "切り抜きB2",
+          "query": "#切り抜きタグB2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きB3",
+          "query": "#切り抜きタグB3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きB4",
+          "query": "#切り抜きタグB4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きB5",
+          "query": "#切り抜きタグB5",
+          "starter": false
+        },
+        {
+          "label": "推しマークB",
+          "query": "推しマークB",
+          "starter": false
+        },
+        {
+          "label": "推しマークB2",
+          "query": "推しマークB2",
+          "starter": false
+        },
+        {
+          "label": "推しマークB3",
+          "query": "推しマークB3",
+          "starter": false
+        },
+        {
+          "label": "推しマークB4",
+          "query": "推しマークB4",
+          "starter": false
+        },
+        {
+          "label": "推しマークB5",
+          "query": "推しマークB5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルC",
+        "en": "Channel C"
+      },
+      "words": [
+        {
+          "label": "名前C",
+          "query": "チャンネルC",
+          "starter": true
+        },
+        {
+          "label": "名前C2",
+          "query": "チャンネルC2",
+          "starter": true
+        },
+        {
+          "label": "名前C3",
+          "query": "チャンネルC3",
+          "starter": true
+        },
+        {
+          "label": "名前C4",
+          "query": "チャンネルC4",
+          "starter": true
+        },
+        {
+          "label": "名前C5",
+          "query": "チャンネルC5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートC",
+          "query": "#ファンアートタグC",
+          "starter": true
+        },
+        {
+          "label": "ファンアートC2",
+          "query": "#ファンアートタグC2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートC3",
+          "query": "#ファンアートタグC3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートC4",
+          "query": "#ファンアートタグC4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートC5",
+          "query": "#ファンアートタグC5",
+          "starter": true
+        },
+        {
+          "label": "配信C",
+          "query": "#配信タグC",
+          "starter": false
+        },
+        {
+          "label": "配信C2",
+          "query": "#配信タグC2",
+          "starter": false
+        },
+        {
+          "label": "配信C3",
+          "query": "#配信タグC3",
+          "starter": false
+        },
+        {
+          "label": "配信C4",
+          "query": "#配信タグC4",
+          "starter": false
+        },
+        {
+          "label": "配信C5",
+          "query": "#配信タグC5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きC",
+          "query": "#切り抜きタグC",
+          "starter": false
+        },
+        {
+          "label": "切り抜きC2",
+          "query": "#切り抜きタグC2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きC3",
+          "query": "#切り抜きタグC3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きC4",
+          "query": "#切り抜きタグC4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きC5",
+          "query": "#切り抜きタグC5",
+          "starter": false
+        },
+        {
+          "label": "推しマークC",
+          "query": "推しマークC",
+          "starter": false
+        },
+        {
+          "label": "推しマークC2",
+          "query": "推しマークC2",
+          "starter": false
+        },
+        {
+          "label": "推しマークC3",
+          "query": "推しマークC3",
+          "starter": false
+        },
+        {
+          "label": "推しマークC4",
+          "query": "推しマークC4",
+          "starter": false
+        },
+        {
+          "label": "推しマークC5",
+          "query": "推しマークC5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルD",
+        "en": "Channel D"
+      },
+      "words": [
+        {
+          "label": "名前D",
+          "query": "チャンネルD",
+          "starter": true
+        },
+        {
+          "label": "名前D2",
+          "query": "チャンネルD2",
+          "starter": true
+        },
+        {
+          "label": "名前D3",
+          "query": "チャンネルD3",
+          "starter": true
+        },
+        {
+          "label": "名前D4",
+          "query": "チャンネルD4",
+          "starter": true
+        },
+        {
+          "label": "名前D5",
+          "query": "チャンネルD5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートD",
+          "query": "#ファンアートタグD",
+          "starter": true
+        },
+        {
+          "label": "ファンアートD2",
+          "query": "#ファンアートタグD2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートD3",
+          "query": "#ファンアートタグD3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートD4",
+          "query": "#ファンアートタグD4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートD5",
+          "query": "#ファンアートタグD5",
+          "starter": true
+        },
+        {
+          "label": "配信D",
+          "query": "#配信タグD",
+          "starter": false
+        },
+        {
+          "label": "配信D2",
+          "query": "#配信タグD2",
+          "starter": false
+        },
+        {
+          "label": "配信D3",
+          "query": "#配信タグD3",
+          "starter": false
+        },
+        {
+          "label": "配信D4",
+          "query": "#配信タグD4",
+          "starter": false
+        },
+        {
+          "label": "配信D5",
+          "query": "#配信タグD5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きD",
+          "query": "#切り抜きタグD",
+          "starter": false
+        },
+        {
+          "label": "切り抜きD2",
+          "query": "#切り抜きタグD2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きD3",
+          "query": "#切り抜きタグD3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きD4",
+          "query": "#切り抜きタグD4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きD5",
+          "query": "#切り抜きタグD5",
+          "starter": false
+        },
+        {
+          "label": "推しマークD",
+          "query": "推しマークD",
+          "starter": false
+        },
+        {
+          "label": "推しマークD2",
+          "query": "推しマークD2",
+          "starter": false
+        },
+        {
+          "label": "推しマークD3",
+          "query": "推しマークD3",
+          "starter": false
+        },
+        {
+          "label": "推しマークD4",
+          "query": "推しマークD4",
+          "starter": false
+        },
+        {
+          "label": "推しマークD5",
+          "query": "推しマークD5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルE",
+        "en": "Channel E"
+      },
+      "words": [
+        {
+          "label": "名前E",
+          "query": "チャンネルE",
+          "starter": true
+        },
+        {
+          "label": "名前E2",
+          "query": "チャンネルE2",
+          "starter": true
+        },
+        {
+          "label": "名前E3",
+          "query": "チャンネルE3",
+          "starter": true
+        },
+        {
+          "label": "名前E4",
+          "query": "チャンネルE4",
+          "starter": true
+        },
+        {
+          "label": "名前E5",
+          "query": "チャンネルE5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートE",
+          "query": "#ファンアートタグE",
+          "starter": true
+        },
+        {
+          "label": "ファンアートE2",
+          "query": "#ファンアートタグE2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートE3",
+          "query": "#ファンアートタグE3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートE4",
+          "query": "#ファンアートタグE4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートE5",
+          "query": "#ファンアートタグE5",
+          "starter": true
+        },
+        {
+          "label": "配信E",
+          "query": "#配信タグE",
+          "starter": false
+        },
+        {
+          "label": "配信E2",
+          "query": "#配信タグE2",
+          "starter": false
+        },
+        {
+          "label": "配信E3",
+          "query": "#配信タグE3",
+          "starter": false
+        },
+        {
+          "label": "配信E4",
+          "query": "#配信タグE4",
+          "starter": false
+        },
+        {
+          "label": "配信E5",
+          "query": "#配信タグE5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きE",
+          "query": "#切り抜きタグE",
+          "starter": false
+        },
+        {
+          "label": "切り抜きE2",
+          "query": "#切り抜きタグE2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きE3",
+          "query": "#切り抜きタグE3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きE4",
+          "query": "#切り抜きタグE4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きE5",
+          "query": "#切り抜きタグE5",
+          "starter": false
+        },
+        {
+          "label": "推しマークE",
+          "query": "推しマークE",
+          "starter": false
+        },
+        {
+          "label": "推しマークE2",
+          "query": "推しマークE2",
+          "starter": false
+        },
+        {
+          "label": "推しマークE3",
+          "query": "推しマークE3",
+          "starter": false
+        },
+        {
+          "label": "推しマークE4",
+          "query": "推しマークE4",
+          "starter": false
+        },
+        {
+          "label": "推しマークE5",
+          "query": "推しマークE5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルF",
+        "en": "Channel F"
+      },
+      "words": [
+        {
+          "label": "名前F",
+          "query": "チャンネルF",
+          "starter": true
+        },
+        {
+          "label": "名前F2",
+          "query": "チャンネルF2",
+          "starter": true
+        },
+        {
+          "label": "名前F3",
+          "query": "チャンネルF3",
+          "starter": true
+        },
+        {
+          "label": "名前F4",
+          "query": "チャンネルF4",
+          "starter": true
+        },
+        {
+          "label": "名前F5",
+          "query": "チャンネルF5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートF",
+          "query": "#ファンアートタグF",
+          "starter": true
+        },
+        {
+          "label": "ファンアートF2",
+          "query": "#ファンアートタグF2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートF3",
+          "query": "#ファンアートタグF3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートF4",
+          "query": "#ファンアートタグF4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートF5",
+          "query": "#ファンアートタグF5",
+          "starter": true
+        },
+        {
+          "label": "配信F",
+          "query": "#配信タグF",
+          "starter": false
+        },
+        {
+          "label": "配信F2",
+          "query": "#配信タグF2",
+          "starter": false
+        },
+        {
+          "label": "配信F3",
+          "query": "#配信タグF3",
+          "starter": false
+        },
+        {
+          "label": "配信F4",
+          "query": "#配信タグF4",
+          "starter": false
+        },
+        {
+          "label": "配信F5",
+          "query": "#配信タグF5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きF",
+          "query": "#切り抜きタグF",
+          "starter": false
+        },
+        {
+          "label": "切り抜きF2",
+          "query": "#切り抜きタグF2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きF3",
+          "query": "#切り抜きタグF3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きF4",
+          "query": "#切り抜きタグF4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きF5",
+          "query": "#切り抜きタグF5",
+          "starter": false
+        },
+        {
+          "label": "推しマークF",
+          "query": "推しマークF",
+          "starter": false
+        },
+        {
+          "label": "推しマークF2",
+          "query": "推しマークF2",
+          "starter": false
+        },
+        {
+          "label": "推しマークF3",
+          "query": "推しマークF3",
+          "starter": false
+        },
+        {
+          "label": "推しマークF4",
+          "query": "推しマークF4",
+          "starter": false
+        },
+        {
+          "label": "推しマークF5",
+          "query": "推しマークF5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルG",
+        "en": "Channel G"
+      },
+      "words": [
+        {
+          "label": "名前G",
+          "query": "チャンネルG",
+          "starter": false
+        },
+        {
+          "label": "名前G2",
+          "query": "チャンネルG2",
+          "starter": false
+        },
+        {
+          "label": "名前G3",
+          "query": "チャンネルG3",
+          "starter": false
+        },
+        {
+          "label": "名前G4",
+          "query": "チャンネルG4",
+          "starter": false
+        },
+        {
+          "label": "名前G5",
+          "query": "チャンネルG5",
+          "starter": false
+        },
+        {
+          "label": "ファンアートG",
+          "query": "#ファンアートタグG",
+          "starter": false
+        },
+        {
+          "label": "ファンアートG2",
+          "query": "#ファンアートタグG2",
+          "starter": false
+        },
+        {
+          "label": "ファンアートG3",
+          "query": "#ファンアートタグG3",
+          "starter": false
+        },
+        {
+          "label": "ファンアートG4",
+          "query": "#ファンアートタグG4",
+          "starter": false
+        },
+        {
+          "label": "ファンアートG5",
+          "query": "#ファンアートタグG5",
+          "starter": false
+        },
+        {
+          "label": "配信G",
+          "query": "#配信タグG",
+          "starter": false
+        },
+        {
+          "label": "配信G2",
+          "query": "#配信タグG2",
+          "starter": false
+        },
+        {
+          "label": "配信G3",
+          "query": "#配信タグG3",
+          "starter": false
+        },
+        {
+          "label": "配信G4",
+          "query": "#配信タグG4",
+          "starter": false
+        },
+        {
+          "label": "配信G5",
+          "query": "#配信タグG5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きG",
+          "query": "#切り抜きタグG",
+          "starter": false
+        },
+        {
+          "label": "切り抜きG2",
+          "query": "#切り抜きタグG2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きG3",
+          "query": "#切り抜きタグG3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きG4",
+          "query": "#切り抜きタグG4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きG5",
+          "query": "#切り抜きタグG5",
+          "starter": false
+        },
+        {
+          "label": "推しマークG",
+          "query": "推しマークG",
+          "starter": false
+        },
+        {
+          "label": "推しマークG2",
+          "query": "推しマークG2",
+          "starter": false
+        },
+        {
+          "label": "推しマークG3",
+          "query": "推しマークG3",
+          "starter": false
+        },
+        {
+          "label": "推しマークG4",
+          "query": "推しマークG4",
+          "starter": false
+        },
+        {
+          "label": "推しマークG5",
+          "query": "推しマークG5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルH",
+        "en": "Channel H"
+      },
+      "words": [
+        {
+          "label": "名前H",
+          "query": "チャンネルH",
+          "starter": false
+        },
+        {
+          "label": "名前H2",
+          "query": "チャンネルH2",
+          "starter": false
+        },
+        {
+          "label": "名前H3",
+          "query": "チャンネルH3",
+          "starter": false
+        },
+        {
+          "label": "名前H4",
+          "query": "チャンネルH4",
+          "starter": false
+        },
+        {
+          "label": "名前H5",
+          "query": "チャンネルH5",
+          "starter": false
+        },
+        {
+          "label": "ファンアートH",
+          "query": "#ファンアートタグH",
+          "starter": false
+        },
+        {
+          "label": "ファンアートH2",
+          "query": "#ファンアートタグH2",
+          "starter": false
+        },
+        {
+          "label": "ファンアートH3",
+          "query": "#ファンアートタグH3",
+          "starter": false
+        },
+        {
+          "label": "ファンアートH4",
+          "query": "#ファンアートタグH4",
+          "starter": false
+        },
+        {
+          "label": "ファンアートH5",
+          "query": "#ファンアートタグH5",
+          "starter": false
+        },
+        {
+          "label": "配信H",
+          "query": "#配信タグH",
+          "starter": false
+        },
+        {
+          "label": "配信H2",
+          "query": "#配信タグH2",
+          "starter": false
+        },
+        {
+          "label": "配信H3",
+          "query": "#配信タグH3",
+          "starter": false
+        },
+        {
+          "label": "配信H4",
+          "query": "#配信タグH4",
+          "starter": false
+        },
+        {
+          "label": "配信H5",
+          "query": "#配信タグH5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きH",
+          "query": "#切り抜きタグH",
+          "starter": false
+        },
+        {
+          "label": "切り抜きH2",
+          "query": "#切り抜きタグH2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きH3",
+          "query": "#切り抜きタグH3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きH4",
+          "query": "#切り抜きタグH4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きH5",
+          "query": "#切り抜きタグH5",
+          "starter": false
+        },
+        {
+          "label": "推しマークH",
+          "query": "推しマークH",
+          "starter": false
+        },
+        {
+          "label": "推しマークH2",
+          "query": "推しマークH2",
+          "starter": false
+        },
+        {
+          "label": "推しマークH3",
+          "query": "推しマークH3",
+          "starter": false
+        },
+        {
+          "label": "推しマークH4",
+          "query": "推しマークH4",
+          "starter": false
+        },
+        {
+          "label": "推しマークH5",
+          "query": "推しマークH5",
+          "starter": false
+        }
+      ]
+    }
+  ],
+  "other": [
+    {
+      "name": {
+        "ja": "チャンネルA",
+        "en": "Channel A"
+      },
+      "words": [
+        {
+          "label": "名前A",
+          "query": "チャンネルA",
+          "starter": true
+        },
+        {
+          "label": "名前A2",
+          "query": "チャンネルA2",
+          "starter": true
+        },
+        {
+          "label": "名前A3",
+          "query": "チャンネルA3",
+          "starter": true
+        },
+        {
+          "label": "名前A4",
+          "query": "チャンネルA4",
+          "starter": true
+        },
+        {
+          "label": "名前A5",
+          "query": "チャンネルA5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートA",
+          "query": "#ファンアートタグA",
+          "starter": true
+        },
+        {
+          "label": "ファンアートA2",
+          "query": "#ファンアートタグA2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートA3",
+          "query": "#ファンアートタグA3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートA4",
+          "query": "#ファンアートタグA4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートA5",
+          "query": "#ファンアートタグA5",
+          "starter": true
+        },
+        {
+          "label": "配信A",
+          "query": "#配信タグA",
+          "starter": false
+        },
+        {
+          "label": "配信A2",
+          "query": "#配信タグA2",
+          "starter": false
+        },
+        {
+          "label": "配信A3",
+          "query": "#配信タグA3",
+          "starter": false
+        },
+        {
+          "label": "配信A4",
+          "query": "#配信タグA4",
+          "starter": false
+        },
+        {
+          "label": "配信A5",
+          "query": "#配信タグA5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きA",
+          "query": "#切り抜きタグA",
+          "starter": false
+        },
+        {
+          "label": "切り抜きA2",
+          "query": "#切り抜きタグA2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きA3",
+          "query": "#切り抜きタグA3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きA4",
+          "query": "#切り抜きタグA4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きA5",
+          "query": "#切り抜きタグA5",
+          "starter": false
+        },
+        {
+          "label": "推しマークA",
+          "query": "推しマークA",
+          "starter": false
+        },
+        {
+          "label": "推しマークA2",
+          "query": "推しマークA2",
+          "starter": false
+        },
+        {
+          "label": "推しマークA3",
+          "query": "推しマークA3",
+          "starter": false
+        },
+        {
+          "label": "推しマークA4",
+          "query": "推しマークA4",
+          "starter": false
+        },
+        {
+          "label": "推しマークA5",
+          "query": "推しマークA5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルB",
+        "en": "Channel B"
+      },
+      "words": [
+        {
+          "label": "名前B",
+          "query": "チャンネルB",
+          "starter": true
+        },
+        {
+          "label": "名前B2",
+          "query": "チャンネルB2",
+          "starter": true
+        },
+        {
+          "label": "名前B3",
+          "query": "チャンネルB3",
+          "starter": true
+        },
+        {
+          "label": "名前B4",
+          "query": "チャンネルB4",
+          "starter": true
+        },
+        {
+          "label": "名前B5",
+          "query": "チャンネルB5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートB",
+          "query": "#ファンアートタグB",
+          "starter": true
+        },
+        {
+          "label": "ファンアートB2",
+          "query": "#ファンアートタグB2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートB3",
+          "query": "#ファンアートタグB3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートB4",
+          "query": "#ファンアートタグB4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートB5",
+          "query": "#ファンアートタグB5",
+          "starter": true
+        },
+        {
+          "label": "配信B",
+          "query": "#配信タグB",
+          "starter": false
+        },
+        {
+          "label": "配信B2",
+          "query": "#配信タグB2",
+          "starter": false
+        },
+        {
+          "label": "配信B3",
+          "query": "#配信タグB3",
+          "starter": false
+        },
+        {
+          "label": "配信B4",
+          "query": "#配信タグB4",
+          "starter": false
+        },
+        {
+          "label": "配信B5",
+          "query": "#配信タグB5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きB",
+          "query": "#切り抜きタグB",
+          "starter": false
+        },
+        {
+          "label": "切り抜きB2",
+          "query": "#切り抜きタグB2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きB3",
+          "query": "#切り抜きタグB3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きB4",
+          "query": "#切り抜きタグB4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きB5",
+          "query": "#切り抜きタグB5",
+          "starter": false
+        },
+        {
+          "label": "推しマークB",
+          "query": "推しマークB",
+          "starter": false
+        },
+        {
+          "label": "推しマークB2",
+          "query": "推しマークB2",
+          "starter": false
+        },
+        {
+          "label": "推しマークB3",
+          "query": "推しマークB3",
+          "starter": false
+        },
+        {
+          "label": "推しマークB4",
+          "query": "推しマークB4",
+          "starter": false
+        },
+        {
+          "label": "推しマークB5",
+          "query": "推しマークB5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルC",
+        "en": "Channel C"
+      },
+      "words": [
+        {
+          "label": "名前C",
+          "query": "チャンネルC",
+          "starter": true
+        },
+        {
+          "label": "名前C2",
+          "query": "チャンネルC2",
+          "starter": true
+        },
+        {
+          "label": "名前C3",
+          "query": "チャンネルC3",
+          "starter": true
+        },
+        {
+          "label": "名前C4",
+          "query": "チャンネルC4",
+          "starter": true
+        },
+        {
+          "label": "名前C5",
+          "query": "チャンネルC5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートC",
+          "query": "#ファンアートタグC",
+          "starter": true
+        },
+        {
+          "label": "ファンアートC2",
+          "query": "#ファンアートタグC2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートC3",
+          "query": "#ファンアートタグC3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートC4",
+          "query": "#ファンアートタグC4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートC5",
+          "query": "#ファンアートタグC5",
+          "starter": true
+        },
+        {
+          "label": "配信C",
+          "query": "#配信タグC",
+          "starter": false
+        },
+        {
+          "label": "配信C2",
+          "query": "#配信タグC2",
+          "starter": false
+        },
+        {
+          "label": "配信C3",
+          "query": "#配信タグC3",
+          "starter": false
+        },
+        {
+          "label": "配信C4",
+          "query": "#配信タグC4",
+          "starter": false
+        },
+        {
+          "label": "配信C5",
+          "query": "#配信タグC5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きC",
+          "query": "#切り抜きタグC",
+          "starter": false
+        },
+        {
+          "label": "切り抜きC2",
+          "query": "#切り抜きタグC2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きC3",
+          "query": "#切り抜きタグC3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きC4",
+          "query": "#切り抜きタグC4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きC5",
+          "query": "#切り抜きタグC5",
+          "starter": false
+        },
+        {
+          "label": "推しマークC",
+          "query": "推しマークC",
+          "starter": false
+        },
+        {
+          "label": "推しマークC2",
+          "query": "推しマークC2",
+          "starter": false
+        },
+        {
+          "label": "推しマークC3",
+          "query": "推しマークC3",
+          "starter": false
+        },
+        {
+          "label": "推しマークC4",
+          "query": "推しマークC4",
+          "starter": false
+        },
+        {
+          "label": "推しマークC5",
+          "query": "推しマークC5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルD",
+        "en": "Channel D"
+      },
+      "words": [
+        {
+          "label": "名前D",
+          "query": "チャンネルD",
+          "starter": true
+        },
+        {
+          "label": "名前D2",
+          "query": "チャンネルD2",
+          "starter": true
+        },
+        {
+          "label": "名前D3",
+          "query": "チャンネルD3",
+          "starter": true
+        },
+        {
+          "label": "名前D4",
+          "query": "チャンネルD4",
+          "starter": true
+        },
+        {
+          "label": "名前D5",
+          "query": "チャンネルD5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートD",
+          "query": "#ファンアートタグD",
+          "starter": true
+        },
+        {
+          "label": "ファンアートD2",
+          "query": "#ファンアートタグD2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートD3",
+          "query": "#ファンアートタグD3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートD4",
+          "query": "#ファンアートタグD4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートD5",
+          "query": "#ファンアートタグD5",
+          "starter": true
+        },
+        {
+          "label": "配信D",
+          "query": "#配信タグD",
+          "starter": false
+        },
+        {
+          "label": "配信D2",
+          "query": "#配信タグD2",
+          "starter": false
+        },
+        {
+          "label": "配信D3",
+          "query": "#配信タグD3",
+          "starter": false
+        },
+        {
+          "label": "配信D4",
+          "query": "#配信タグD4",
+          "starter": false
+        },
+        {
+          "label": "配信D5",
+          "query": "#配信タグD5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きD",
+          "query": "#切り抜きタグD",
+          "starter": false
+        },
+        {
+          "label": "切り抜きD2",
+          "query": "#切り抜きタグD2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きD3",
+          "query": "#切り抜きタグD3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きD4",
+          "query": "#切り抜きタグD4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きD5",
+          "query": "#切り抜きタグD5",
+          "starter": false
+        },
+        {
+          "label": "推しマークD",
+          "query": "推しマークD",
+          "starter": false
+        },
+        {
+          "label": "推しマークD2",
+          "query": "推しマークD2",
+          "starter": false
+        },
+        {
+          "label": "推しマークD3",
+          "query": "推しマークD3",
+          "starter": false
+        },
+        {
+          "label": "推しマークD4",
+          "query": "推しマークD4",
+          "starter": false
+        },
+        {
+          "label": "推しマークD5",
+          "query": "推しマークD5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルE",
+        "en": "Channel E"
+      },
+      "words": [
+        {
+          "label": "名前E",
+          "query": "チャンネルE",
+          "starter": true
+        },
+        {
+          "label": "名前E2",
+          "query": "チャンネルE2",
+          "starter": true
+        },
+        {
+          "label": "名前E3",
+          "query": "チャンネルE3",
+          "starter": true
+        },
+        {
+          "label": "名前E4",
+          "query": "チャンネルE4",
+          "starter": true
+        },
+        {
+          "label": "名前E5",
+          "query": "チャンネルE5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートE",
+          "query": "#ファンアートタグE",
+          "starter": true
+        },
+        {
+          "label": "ファンアートE2",
+          "query": "#ファンアートタグE2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートE3",
+          "query": "#ファンアートタグE3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートE4",
+          "query": "#ファンアートタグE4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートE5",
+          "query": "#ファンアートタグE5",
+          "starter": true
+        },
+        {
+          "label": "配信E",
+          "query": "#配信タグE",
+          "starter": false
+        },
+        {
+          "label": "配信E2",
+          "query": "#配信タグE2",
+          "starter": false
+        },
+        {
+          "label": "配信E3",
+          "query": "#配信タグE3",
+          "starter": false
+        },
+        {
+          "label": "配信E4",
+          "query": "#配信タグE4",
+          "starter": false
+        },
+        {
+          "label": "配信E5",
+          "query": "#配信タグE5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きE",
+          "query": "#切り抜きタグE",
+          "starter": false
+        },
+        {
+          "label": "切り抜きE2",
+          "query": "#切り抜きタグE2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きE3",
+          "query": "#切り抜きタグE3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きE4",
+          "query": "#切り抜きタグE4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きE5",
+          "query": "#切り抜きタグE5",
+          "starter": false
+        },
+        {
+          "label": "推しマークE",
+          "query": "推しマークE",
+          "starter": false
+        },
+        {
+          "label": "推しマークE2",
+          "query": "推しマークE2",
+          "starter": false
+        },
+        {
+          "label": "推しマークE3",
+          "query": "推しマークE3",
+          "starter": false
+        },
+        {
+          "label": "推しマークE4",
+          "query": "推しマークE4",
+          "starter": false
+        },
+        {
+          "label": "推しマークE5",
+          "query": "推しマークE5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルF",
+        "en": "Channel F"
+      },
+      "words": [
+        {
+          "label": "名前F",
+          "query": "チャンネルF",
+          "starter": true
+        },
+        {
+          "label": "名前F2",
+          "query": "チャンネルF2",
+          "starter": true
+        },
+        {
+          "label": "名前F3",
+          "query": "チャンネルF3",
+          "starter": true
+        },
+        {
+          "label": "名前F4",
+          "query": "チャンネルF4",
+          "starter": true
+        },
+        {
+          "label": "名前F5",
+          "query": "チャンネルF5",
+          "starter": true
+        },
+        {
+          "label": "ファンアートF",
+          "query": "#ファンアートタグF",
+          "starter": true
+        },
+        {
+          "label": "ファンアートF2",
+          "query": "#ファンアートタグF2",
+          "starter": true
+        },
+        {
+          "label": "ファンアートF3",
+          "query": "#ファンアートタグF3",
+          "starter": true
+        },
+        {
+          "label": "ファンアートF4",
+          "query": "#ファンアートタグF4",
+          "starter": true
+        },
+        {
+          "label": "ファンアートF5",
+          "query": "#ファンアートタグF5",
+          "starter": true
+        },
+        {
+          "label": "配信F",
+          "query": "#配信タグF",
+          "starter": false
+        },
+        {
+          "label": "配信F2",
+          "query": "#配信タグF2",
+          "starter": false
+        },
+        {
+          "label": "配信F3",
+          "query": "#配信タグF3",
+          "starter": false
+        },
+        {
+          "label": "配信F4",
+          "query": "#配信タグF4",
+          "starter": false
+        },
+        {
+          "label": "配信F5",
+          "query": "#配信タグF5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きF",
+          "query": "#切り抜きタグF",
+          "starter": false
+        },
+        {
+          "label": "切り抜きF2",
+          "query": "#切り抜きタグF2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きF3",
+          "query": "#切り抜きタグF3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きF4",
+          "query": "#切り抜きタグF4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きF5",
+          "query": "#切り抜きタグF5",
+          "starter": false
+        },
+        {
+          "label": "推しマークF",
+          "query": "推しマークF",
+          "starter": false
+        },
+        {
+          "label": "推しマークF2",
+          "query": "推しマークF2",
+          "starter": false
+        },
+        {
+          "label": "推しマークF3",
+          "query": "推しマークF3",
+          "starter": false
+        },
+        {
+          "label": "推しマークF4",
+          "query": "推しマークF4",
+          "starter": false
+        },
+        {
+          "label": "推しマークF5",
+          "query": "推しマークF5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルG",
+        "en": "Channel G"
+      },
+      "words": [
+        {
+          "label": "名前G",
+          "query": "チャンネルG",
+          "starter": false
+        },
+        {
+          "label": "名前G2",
+          "query": "チャンネルG2",
+          "starter": false
+        },
+        {
+          "label": "名前G3",
+          "query": "チャンネルG3",
+          "starter": false
+        },
+        {
+          "label": "名前G4",
+          "query": "チャンネルG4",
+          "starter": false
+        },
+        {
+          "label": "名前G5",
+          "query": "チャンネルG5",
+          "starter": false
+        },
+        {
+          "label": "ファンアートG",
+          "query": "#ファンアートタグG",
+          "starter": false
+        },
+        {
+          "label": "ファンアートG2",
+          "query": "#ファンアートタグG2",
+          "starter": false
+        },
+        {
+          "label": "ファンアートG3",
+          "query": "#ファンアートタグG3",
+          "starter": false
+        },
+        {
+          "label": "ファンアートG4",
+          "query": "#ファンアートタグG4",
+          "starter": false
+        },
+        {
+          "label": "ファンアートG5",
+          "query": "#ファンアートタグG5",
+          "starter": false
+        },
+        {
+          "label": "配信G",
+          "query": "#配信タグG",
+          "starter": false
+        },
+        {
+          "label": "配信G2",
+          "query": "#配信タグG2",
+          "starter": false
+        },
+        {
+          "label": "配信G3",
+          "query": "#配信タグG3",
+          "starter": false
+        },
+        {
+          "label": "配信G4",
+          "query": "#配信タグG4",
+          "starter": false
+        },
+        {
+          "label": "配信G5",
+          "query": "#配信タグG5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きG",
+          "query": "#切り抜きタグG",
+          "starter": false
+        },
+        {
+          "label": "切り抜きG2",
+          "query": "#切り抜きタグG2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きG3",
+          "query": "#切り抜きタグG3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きG4",
+          "query": "#切り抜きタグG4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きG5",
+          "query": "#切り抜きタグG5",
+          "starter": false
+        },
+        {
+          "label": "推しマークG",
+          "query": "推しマークG",
+          "starter": false
+        },
+        {
+          "label": "推しマークG2",
+          "query": "推しマークG2",
+          "starter": false
+        },
+        {
+          "label": "推しマークG3",
+          "query": "推しマークG3",
+          "starter": false
+        },
+        {
+          "label": "推しマークG4",
+          "query": "推しマークG4",
+          "starter": false
+        },
+        {
+          "label": "推しマークG5",
+          "query": "推しマークG5",
+          "starter": false
+        }
+      ]
+    },
+    {
+      "name": {
+        "ja": "チャンネルH",
+        "en": "Channel H"
+      },
+      "words": [
+        {
+          "label": "名前H",
+          "query": "チャンネルH",
+          "starter": false
+        },
+        {
+          "label": "名前H2",
+          "query": "チャンネルH2",
+          "starter": false
+        },
+        {
+          "label": "名前H3",
+          "query": "チャンネルH3",
+          "starter": false
+        },
+        {
+          "label": "名前H4",
+          "query": "チャンネルH4",
+          "starter": false
+        },
+        {
+          "label": "名前H5",
+          "query": "チャンネルH5",
+          "starter": false
+        },
+        {
+          "label": "ファンアートH",
+          "query": "#ファンアートタグH",
+          "starter": false
+        },
+        {
+          "label": "ファンアートH2",
+          "query": "#ファンアートタグH2",
+          "starter": false
+        },
+        {
+          "label": "ファンアートH3",
+          "query": "#ファンアートタグH3",
+          "starter": false
+        },
+        {
+          "label": "ファンアートH4",
+          "query": "#ファンアートタグH4",
+          "starter": false
+        },
+        {
+          "label": "ファンアートH5",
+          "query": "#ファンアートタグH5",
+          "starter": false
+        },
+        {
+          "label": "配信H",
+          "query": "#配信タグH",
+          "starter": false
+        },
+        {
+          "label": "配信H2",
+          "query": "#配信タグH2",
+          "starter": false
+        },
+        {
+          "label": "配信H3",
+          "query": "#配信タグH3",
+          "starter": false
+        },
+        {
+          "label": "配信H4",
+          "query": "#配信タグH4",
+          "starter": false
+        },
+        {
+          "label": "配信H5",
+          "query": "#配信タグH5",
+          "starter": false
+        },
+        {
+          "label": "切り抜きH",
+          "query": "#切り抜きタグH",
+          "starter": false
+        },
+        {
+          "label": "切り抜きH2",
+          "query": "#切り抜きタグH2",
+          "starter": false
+        },
+        {
+          "label": "切り抜きH3",
+          "query": "#切り抜きタグH3",
+          "starter": false
+        },
+        {
+          "label": "切り抜きH4",
+          "query": "#切り抜きタグH4",
+          "starter": false
+        },
+        {
+          "label": "切り抜きH5",
+          "query": "#切り抜きタグH5",
+          "starter": false
+        },
+        {
+          "label": "推しマークH",
+          "query": "推しマークH",
+          "starter": false
+        },
+        {
+          "label": "推しマークH2",
+          "query": "推しマークH2",
+          "starter": false
+        },
+        {
+          "label": "推しマークH3",
+          "query": "推しマークH3",
+          "starter": false
+        },
+        {
+          "label": "推しマークH4",
+          "query": "推しマークH4",
+          "starter": false
+        },
+        {
+          "label": "推しマークH5",
+          "query": "推しマークH5",
+          "starter": false
+        }
+      ]
+    }
+  ]
+}

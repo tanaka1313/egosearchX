@@ -126,7 +126,7 @@ export type Word = z.infer<typeof WordSchema>;
 /** チャンネル単位。配列の順が表示順 */
 export const WordGroupSchema = z.object({
   name: z.object({ ja: z.string().min(1), en: z.string().min(1) }),
-  words: z.array(WordSchema),
+  words: z.array(WordSchema).min(1),
 });
 export type WordGroup = z.infer<typeof WordGroupSchema>;
 
