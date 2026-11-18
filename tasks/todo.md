@@ -1,3 +1,19 @@
+# #19 URL 解析とリスト ID
+
+1. Goal: 貼った URL（x.com／twitter.com／Yahoo!リアルタイム検索）を保存形（X の構文）に直す `parseUrl` と、リストの URL／数字から ID を取り出す `parseListId` を `src/lib/url/` に置く。
+2. Plan:
+   - [x] ブランチ `feature/url-parse`、テスト先行（Red 確認：`./parse`・`./list-id` が無く失敗）
+   - [x] `parse.ts`、`list-id.ts`（ホスト・パス・接頭辞は `build.ts`・`operators.ts` から導く）
+   - [x] docs（api-spec 4.3・7.1、implementation-plan 2章）
+   - [x] make check・format:check、main へマージして push、#19 を閉じる
+3. Verification: `make check`、`npm run format:check`。往復（保存形 → `planRun` → `parseUrl`）と F4 の逆変換表のテスト。
+4. Review:
+   - 決定（ユーザー、2026-11-19）：数字でない `lts`／`uts` は無視。`url.listId` は #19 に含める（api-spec の担当と Issue の完了条件の食い違いを解消。Issue #19 の完了条件への追記は `gh issue edit` が許可されなければ未対応）。
+   - 判断：Yahoo の根以外の AND グループ（括弧）は OR に直す（再帰。`(ID:a ID:b)` の中の `ID:` も `from:` に戻す）。表に無い演算子（`from:`・`list:`・`lang:`・`filter:`・`-@x` など）は raw で入力のまま保持。
+   - 判断：`p` が空で `lts` だけの URL は `url.noQuery`（期間だけで保存形を作らない）。Yahoo の通常検索（`/realtime` 以外）は `url.unsupportedHost`。
+   - 戻らない形（テストで期待値にした）：`@x`→`to:x`、Yahoo で除かれた `list:`・`filter:`・`lang:`・`min_*`・`-from:`、否定した OR → `-A -B`。
+   - **次に壊れやすい点**：Yahoo が括弧の意味や `lts`／`uts` を変えたら `fromYahoo`・`YAHOO_PERIOD_PARAMS` を直す。S7（#31）が `ParsedUrl.tokens` の `raw` で「生トークン」表示を出すこと。
+
 # #18 X／Yahoo の URL 生成
 
 1. Goal: 保存形の検索（`PlanItem`）から、X と Yahoo!リアルタイム検索の URL と警告を `RunPlan` で返す純粋関数 `planRun(items, today)` を `src/lib/url/build.ts` に置く。
