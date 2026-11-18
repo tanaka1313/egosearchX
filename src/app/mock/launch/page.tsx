@@ -88,7 +88,7 @@ export default function LaunchPage() {
         ))}
       </ol>
       <Link href="/mock" className={buttonVariants({ variant: "outline" })}>
-        ホームで開く（新規として保存）
+        ホームへ
       </Link>
     </main>
   );

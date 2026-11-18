@@ -11,6 +11,7 @@ import { Suspense, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ConditionFrame } from "../../_parts/condition-frame";
 import {
+  ENGINE_NAME,
   ENGINE_SHORT,
   favToItem,
   type Engine,
@@ -144,7 +145,8 @@ function GroupEditor({ group }: { group: Group | null }) {
                       {i + 1}. {label}
                     </span>
                     <span
-                      title={`検索先：${ENGINE_SHORT[it.engine]}`}
+                      title={`検索先：${ENGINE_NAME[it.engine]}`}
+                      aria-label={`検索先：${ENGINE_NAME[it.engine]}`}
                       className="shrink-0 rounded border px-1 text-xs whitespace-nowrap"
                     >
                       {ENGINE_SHORT[it.engine]}

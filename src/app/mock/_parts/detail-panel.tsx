@@ -122,6 +122,34 @@ export function DetailPanel({ footer }: { footer?: React.ReactNode }) {
               placeholder="1412278227767218179"
             />
           </div>
+          {/* 除外は X の実機で未確認（experimental）。Yahoo!リアルタイム検索では効かないので警告する */}
+          <div className="text-sm font-medium">除外</div>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Field
+              label="-from:（このアカウントの投稿を除く）"
+              value={detail.exFrom}
+              onChange={(v) => patch({ exFrom: v })}
+              placeholder="sample_id"
+            />
+            <Field
+              label="-to:（このアカウント宛てを除く）"
+              value={detail.exTo}
+              onChange={(v) => patch({ exTo: v })}
+              placeholder="sample_id"
+            />
+            <Field
+              label="-@（このメンションを除く）"
+              value={detail.exMention}
+              onChange={(v) => patch({ exMention: v })}
+              placeholder="sample_id"
+            />
+            <Field
+              label="-list:（このリストを除く）"
+              value={detail.exList}
+              onChange={(v) => patch({ exList: v.replace(/\D/g, "") })}
+              placeholder="1412278227767218179"
+            />
+          </div>
         </Section>
 
         <Section title="フィルタ">
