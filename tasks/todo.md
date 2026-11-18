@@ -5,7 +5,7 @@
    - [x] ブランチ `feature/serialize-yahoo`、テスト先行（Red 確認：`./serialize-yahoo`・`./dates` が無く失敗）
    - [x] `dates.ts`（`localMidnightSec`）、`serialize-yahoo.ts`、警告コード `yahoo.groupUnverified`、`vitest.config.mts` で `TZ=Asia/Tokyo` に固定
    - [x] docs（implementation-plan 2章、api-spec 2.4・7.1、requirements F5）
-   - [ ] make check・format:check、main へマージして push、#15 を閉じる
+   - [x] make check・format:check、main へマージして push、#15 を閉じる
 3. Verification: `make check`、`npm run format:check`。TZ の固定は `dates.test.ts` の1件で確かめる。
 4. Review:
    - 決定（ユーザー、2026-11-18）：Yahoo は括弧が OR なので、否定した OR は `-A -B` に直す（警告なし）。OR の中の AND と否定した AND は X の形のまま出して `yahoo.groupUnverified`。期間は OR の中でも `lts`／`uts` へ移す。
