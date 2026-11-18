@@ -1,7 +1,6 @@
 # 実装計画（技術設計）
 
-関連文書：`docs/requirements.md`（F1〜F12）、`docs/screen-spec.md`（S1〜S9、M1〜M3）、`docs/research-phase0.md`。画面イメージは `/mock`（破棄予定のモック）。
-注意：マイルストーン M0〜M7 は GitHub のマイルストーン名で、画面仕様書のダイアログ M1〜M3 とは別物。
+関連文書：`docs/requirements.md`（F1〜F12）、`docs/screen-spec.md`（S1〜S10、D1〜D3）、`docs/research-phase0.md`。画面イメージは `/mock`（破棄予定のモック）。
 
 ## 1. 技術スタック
 | 用途 | 採用 | 理由 |
@@ -34,9 +33,9 @@ src/
   components/
     common/               QueryPreview, EngineBadge, WarningList, ConfirmDialog, Toast, CommandPalette
     home/                 SearchBuilder, ChipRow（折りたたみ）, PeriodPicker, DetailPanel, SaveSheet
-    chips/                ChipEditor(M1), SortableChip
+    chips/                ChipEditor(D1), SortableChip
     favorites/            FavoriteRow, GroupButton, GroupEditor
-    dialogs/              PublishGroup(M2), Confirm(M3)
+    dialogs/              PublishGroup(D2), Confirm(D3)
   lib/
     query/
       ast.ts              検索条件モデル（木構造）の型
@@ -111,8 +110,8 @@ GitHub のマイルストーン名（M0〜M7）はそのまま使う。内容は
 | M2 | URLの生成と解析、リストID の取り出し、ランチャーの codec | X/YahooのURLの往復、壊れたハッシュの検出、`x.com/i/lists/<ID>?s=20` から ID を取り出すテスト |
 | M3 | マスタ JSON（`interests.json`・`presets.json`・`suggest-rules.json`）と zod スキーマ、興味の対象ごとのプリセットの登録 | 不正JSONでビルドが失敗する。初回に、興味の対象ごとのプリセットが条件ボタンとして入り、ヘッダーの切替で並びが切り替わる（既定はホロライブ）。プリセットの中身は Issue #70 |
 | M4 | ストア（zustand）と DAO（`lib/storage`。作成済み）の接続。条件ボタン（興味の対象ごと）・お気に入り・いつものエゴサ・履歴・削除済み・設定 | 再読み込み後もデータが残る。DAO のテスト（移行、壊れたデータ、削除済み＝種類ごとに20件、ボタン＝対象ごとに30件、履歴100件）は作成済み。お気に入りを削除してもいつものエゴサが変わらないこと、お気に入りを編集すると一致する項目が更新されることのテスト |
-| M5 | S1 ホームの検索の組み立て（押すだけの条件ボタン、折りたたみ、詳細条件（テキストで追加を含む）、プレビュー、警告、［⋯］）、S2 条件ボタン（M1 シート、並べ替え、条件のコピー、表示）、S7 URL解析、ヘッダーの興味の対象の切替、**SEO（要件定義書 9章）：言語辞書の ja／en の title・description、ホームだけに置く WebSite の JSON-LD（`name`／`alternateName`／`url`）** | 画面仕様書 3章・S2・S7 の操作が一通りできる。`out/index.html` に title・description・JSON-LD が入っている |
-| M6 | いつものエゴサ（ヘッダー下の帯に先頭2件。全ページ）、お気に入り、履歴（フッターに最後の1件）、サジェスト検索条件、削除済み、M2 発行、S9 ランチャー、コマンドパレット | ブックマークURLから全タブを開ける。ブロック時にリンク一覧が出る。削除→復元→上限超過が動く |
+| M5 | S1 ホームの検索の組み立て（押すだけの条件ボタン、折りたたみ、詳細条件（テキストで追加を含む）、プレビュー、警告、［⋯］）、S2 条件ボタン（D1 シート、並べ替え、条件のコピー、表示）、S7 URL解析、ヘッダーの興味の対象の切替、**SEO（要件定義書 9章）：言語辞書の ja／en の title・description、ホームだけに置く WebSite の JSON-LD（`name`／`alternateName`／`url`）** | 画面仕様書 3章・S2・S7 の操作が一通りできる。`out/index.html` に title・description・JSON-LD が入っている |
+| M6 | いつものエゴサ（ヘッダー下の帯に先頭2件。全ページ）、お気に入り、履歴（フッターに最後の1件）、サジェスト検索条件、削除済み、D2 発行、S9 ランチャー、コマンドパレット | ブックマークURLから全タブを開ける。ブロック時にリンク一覧が出る。削除→復元→上限超過が動く |
 | M7 | スマホ・PC表示（左メニュー70%、1カラム）、**日本語・英語の両対応（i18n）**、キーボード操作、Vercelデプロイ | 360px幅と1280px幅で、日本語・英語の両方で操作できる。本番URLで動く |
 
 - **i18n**：文言は言語ごとの辞書（置き場所は `src/messages/ja.ts`・`en.ts` を想定）から出し、画面のコードに直書きしない。ライブラリ（例：next-intl）を使うかは未決定。静的書き出しのため、言語はクライアント側で切り替える（初期値はブラウザの言語、切替はメニューの下部、保存先は localStorage。設定画面は置かない。要件定義書 F12）。**辞書の型は `ja` から導き、`en` に欠けがあればビルドで検出する。**

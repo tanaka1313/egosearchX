@@ -311,7 +311,7 @@ flowchart TD
 | 興味の対象の切替 | `_parts/interest-picker.tsx` | 同じ（定義は `data/interests.json`） |
 | 検索語・クエリ表示・開くボタン・☆ 保存 | `_parts/open-bar.tsx` | `components/home` |
 | 「条件」の枠・条件ボタン・期間・詳細条件 | `_parts/condition-frame.tsx`・`chips.tsx`・`period-picker.tsx`・`detail-panel.tsx` | `components/home`（`SearchScope` から読む） |
-| S2 条件ボタン・M1 編集シート | `buttons/page.tsx`・`_parts/chip-editor.tsx` | `app/buttons`・`components/chips` |
+| S2 条件ボタン・D1 編集シート | `buttons/page.tsx`・`_parts/chip-editor.tsx` | `app/buttons`・`components/chips` |
 | S3 お気に入り・S3-E 編集ページ | `favorites/page.tsx`・`favorites/edit/page.tsx` | `app/favorites`・`app/favorites/edit` |
 | S4 いつものエゴサ・S4-E 追加と編集 | `groups/page.tsx`・`groups/edit/page.tsx` | `app/groups`・`app/groups/edit` |
 | S5 履歴・S6 削除済み・S7 URL解析・S9 ランチャー・S10 このサイトについて | `history`・`trash`・`import`・`launch`・`about` | 同じパス |
@@ -449,7 +449,7 @@ erDiagram
 ### 11.6 項目と画面の対応
 | 項目 | 入力する画面 | 使う場所 |
 |---|---|---|
-| Chip.query・label | S2 の M1、S2 のサジェストの追加、ホームの値付きの入力欄（値だけ） | ホームの条件ボタン、お気に入りの展開 |
+| Chip.query・label | S2 の D1、S2 のサジェストの追加、ホームの値付きの入力欄（値だけ） | ホームの条件ボタン、お気に入りの展開 |
 | Chip.on | ホーム（押す） | ホームの検索の組み立て |
 | Chip.visible | S2 の［表示］ | ホームの並び・展開の対象 |
 | Favorite.query | ホームの［☆ 保存］、S3-E、S4-E の②、URL解析、履歴の［☆ お気に入りに保存］ | 実行、S3-E の展開、いつものエゴサの表示名・連動 |
@@ -605,6 +605,8 @@ Issue #12〜#41、`docs/implementation-plan.md`、`docs/research-phase0.md` は�
 | （新規） | F10 削除済み | |
 
 ### 画面・ダイアログ
+2026-11-18 に、ダイアログの番号を M1〜M3 から D1〜D3 に変えた（マイルストーン M0〜M7 と区別するため）。下の表の「旧」は当時の番号のまま残す。
+
 | 旧 | 新 |
 |---|---|
 | S1 クイック実行 `/` | S1 ホーム `/` |
@@ -613,4 +615,4 @@ Issue #12〜#41、`docs/implementation-plan.md`、`docs/research-phase0.md` は�
 | S4 設定 `/settings` | S8 設定 `/settings`。共通設定の編集は S2 条件ボタン `/buttons` へ |
 | M1 メンバー選択 | **廃止**（リストの登録は S2） |
 | M2 URL解析 | S7 URL解析（ページ化） |
-| M3 検索セット発行 | M2 ブックマークURL発行 |
+| M3 検索セット発行 | D2 ブックマークURL発行 |
