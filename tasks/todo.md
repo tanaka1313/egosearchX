@@ -1,3 +1,19 @@
+# #18 X／Yahoo の URL 生成
+
+1. Goal: 保存形の検索（`PlanItem`）から、X と Yahoo!リアルタイム検索の URL と警告を `RunPlan` で返す純粋関数 `planRun(items, today)` を `src/lib/url/build.ts` に置く。
+2. Plan:
+   - [x] ブランチ `feature/url-build`、テスト先行（Red 確認：`./build` が無く失敗）
+   - [x] `build.ts`（X は `f=live`＝定数 `X_TAB`、Yahoo は `p`・`ei=UTF-8`・`lts`／`uts`）
+   - [x] docs（api-spec 4.3・5章・7.1、implementation-plan 2章）
+   - [ ] make check・format:check、main へマージして push、#18 を閉じる
+3. Verification: `make check`、`npm run format:check`。`searchParams` のキー集合の一致で `rkf`・`ifr`・`utm_*` が無いことを確かめる。
+4. Review:
+   - 判断：`RunPlan.warnings` は target の警告の重複なしの和集合（仕様に明記が無い）。クエリ長は展開後の文字数を `LIMITS.urlWarn` と比べる（URL エンコード後ではない）。
+   - 判断：X の `q` は展開済みの文字列をそのまま入れ、`serializeX` で組み直さない（履歴の `query` と一致させる）。
+   - `url.listId`（`list-id.ts`）は #18・#19 のどちらの完了条件にも無いので作っていない。
+   - **未対応**：Issue #18 の本文の `lib/limits.ts`（正しくは `src/api/limits.ts`）は、`gh issue edit` が許可されず直せていない。
+   - **次に壊れやすい点**：#85 が `today` に `localDate` の結果を渡すこと。#19 が `X_SEARCH_URL`・`YAHOO_SEARCH_URL` を同じ定数から読むこと。
+
 # #17 相対期間の展開と until の出力
 
 1. Goal: 相対期間（`since:yesterday` など）が月末・年末・うるう日でも正しい日付に展開され、`until:` が終了日そのままになることをテストで保証し、展開の基準日（現地の今日）を求める `localDate` を置く。

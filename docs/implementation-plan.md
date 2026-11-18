@@ -49,7 +49,7 @@ src/
       dates.ts            日付の計算（`localMidnightSec`：現地0時の UNIX 秒、`localDate`：開く時点の現地の日付＝相対期間の基準日。#85 の `clock.today()` が使う。作成済み）。相対期間の展開の本体は `model.ts` の `expandRelative`（until は終了日をそのまま出す。日本時間）
       （警告の型とコードは src/api/issues.ts に置く。ここには置かない。文言は辞書。docs/api-spec.md 2.3）
     url/
-      build.ts            AST → X/Yahoo の URL
+      build.ts            保存形 → RunPlan（X／Yahoo の URL と警告。`planRun(items, today)`。作成済み）
       parse.ts            URL → AST（x.com / twitter.com / Yahoo）
       list-id.ts          リストの URL／数字から ID を取り出す
     query/model.ts        検索文字列の規則（分割・正規化・相対期間の記号・文字列⇄条件の行・お気に入りの展開・編集の連動）。モックから移した（#71）
