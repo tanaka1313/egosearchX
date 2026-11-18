@@ -187,7 +187,7 @@ interface EgoSearchApi {
 | `suggest(input: { text: string; chips: Chip[]; history: HistoryItem[] })` | `string[]` | 規則 → 履歴のトークンの順。条件ボタンにあるもの・検索に入っているものを除き、最大 `LIMITS.suggest`。履歴からは、**期間（`since:`／`until:`）だけを除き、検索語も条件も候補にする**（**決定**。#80） |
 - `applyFavEdit`（お気に入りの編集 → いつものエゴサ）は契約に出さない。`data.favorites.update` の中で使う。
 
-### 4.3 `url`（同期・純粋。**予定** #18・#19）
+### 4.3 `url`（同期・純粋。`plan` は**作成済み**＝#18、`lib/url/build.ts` の `planRun(items, today)`。`parse`・`listId` は**予定** #19）
 | メソッド | 戻り値 | 備考 |
 |---|---|---|
 | `plan(items: PlanItem[])` | `RunPlan` | 相対期間を展開 → 検索先ごとに URL を作る。`both` は2件。Yahoo!リアルタイム検索で使えない演算子と長さの警告（F5・F8）。X は常に「最新」タブ（`f=live`）で開く。URL 形式は5章 |
@@ -279,8 +279,8 @@ type TrashDetail =
 確度と根拠は `docs/research-phase0.md` 6章。ここには出力の形だけを書く。
 | 検索先 | 形式 | 状態 |
 |---|---|---|
-| X | `https://x.com/search?q=<URLエンコードした検索文字列>`。常に「最新」タブ（`&f=live`）。期間は文字列の中の `since:`／`until:`（`until:` は指定日を含み、日本時間） | **予定**（#18） |
-| Yahoo!リアルタイム検索 | `https://search.yahoo.co.jp/realtime/search?p=<変換後の検索文字列>`。期間は `since:`／`until:` を出さず、`lts`（開始日の0時）・`uts`（**終了日の翌日0時**）にする（UNIX 秒、ブラウザの現地時刻）。`ei=UTF-8` を付ける（実際の URL で使われていることを確認済み。research-phase0 1章）。`rkf`・`ifr`・`utm_*` は付けない | **予定**（#18。変換は #15 で作成済み） |
+| X | `https://x.com/search?q=<URLエンコードした検索文字列>`。常に「最新」タブ（`&f=live`）。期間は文字列の中の `since:`／`until:`（`until:` は指定日を含み、日本時間） | **作成済み**（#18） |
+| Yahoo!リアルタイム検索 | `https://search.yahoo.co.jp/realtime/search?p=<変換後の検索文字列>`。期間は `since:`／`until:` を出さず、`lts`（開始日の0時）・`uts`（**終了日の翌日0時**）にする（UNIX 秒、ブラウザの現地時刻）。`ei=UTF-8` を付ける（実際の URL で使われていることを確認済み。research-phase0 1章）。`rkf`・`ifr`・`utm_*` は付けない | **作成済み**（#18。変換は #15） |
 | ランチャー | `<オリジン>/launch#v1.<base64url(deflate-raw(JSON))>`。JSON は `LauncherPayload`（zod で検証）。`CompressionStream` が無いときは `v1u.<base64url(JSON)>`（非圧縮）にする。接頭辞で見分ける | **予定**（#20） |
 - Yahoo!リアルタイム検索への変換は F5 の表のとおり（OR の括りは `(A B)`、`from:` は `ID:`、`to:` は `@`、`list:`・`filter:`・アカウントの除外は警告して除く）。
 
@@ -316,7 +316,8 @@ type TrashDetail =
 | X・Yahoo のシリアライザー（`serialize-x.ts`・`serialize-yahoo.ts`・`dates.ts` の `localMidnightSec`） | **作成済み**（#14・#15） | Yahoo は `{ text, warnings, lts?, uts? }`。`url.plan` の下位 |
 | 合成（`merge.ts`） | **作成済み**（#16） | `query.build` の下位 |
 | 相対期間の展開（`expandRelative`）の境界テストと、基準日 `localDate`（`dates.ts`） | **作成済み**（#17） | 月末・年末・うるう日のテストあり。`clock.today()` は `localDate(new Date())` を使う（`toISOString` は UTC なので使わない。#85） |
-| URL の生成・解析・リスト ID | 予定 | #18・#19。モックの `parseListId` が元 |
+| URL の生成（`lib/url/build.ts` の `planRun`） | **作成済み**（#18） | X／Yahoo の URL と警告。基準日は引数。`RunPlan.warnings` は target の警告の重複なしの和集合。クエリ長は展開後の文字数を `LIMITS.urlWarn` と比べる |
+| URL の解析・リスト ID | 予定 | #19。モックの `parseListId` が元 |
 | ランチャーの codec | 予定 | #20 |
 | マスタ JSON と zod | 予定 | #21（`word-set.json` を含む。プリセット・サジェスト・検索ワード集の中身は #70） |
 | ストア ⇄ バックエンド | 予定 | #24（「ストア⇄DAO」から「ストア⇄API」へ直す） |
