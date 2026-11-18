@@ -162,7 +162,7 @@ interface EgoSearchApi {
 }
 ```
 
-### 4.1 `master`（同期。**予定** #21）
+### 4.1 `master`（同期。JSON と検証は**作成済み** #21、束ねは #85）
 | メソッド | 戻り値 | 説明 |
 |---|---|---|
 | `interests()` | `Map<InterestId, Interest>` | ヘッダーの切替。JSON に1件足すだけで増える（要件定義書 11.2） |
@@ -319,7 +319,7 @@ type TrashDetail =
 | URL の生成（`lib/url/build.ts` の `planRun`） | **作成済み**（#18） | X／Yahoo の URL と警告。基準日は引数。`RunPlan.warnings` は target の警告の重複なしの和集合。クエリ長は展開後の文字数を `LIMITS.urlWarn` と比べる |
 | URL の解析・リスト ID（`lib/url/parse.ts`・`list-id.ts`） | **作成済み**（#19） | `parseUrl`：Yahoo は F4 の逆変換表で保存形に戻し、数字でない `lts`/`uts` は無視する。表に無い演算子は raw。`parseListId`：数字5桁以上か `x.com`/`twitter.com` の `/i/lists/<ID>` |
 | ランチャーの codec（`lib/launch/codec.ts`） | **作成済み**（#20） | 圧縮あり `v1.`／なし `v1u.`。壊れた入力は `LAUNCHER_BROKEN`、知らない版は `LAUNCHER_VERSION`。長さの警告は持たない |
-| マスタ JSON と zod | 予定 | #21（`word-set.json` を含む。プリセット・サジェスト・検索ワード集の中身は #70） |
+| マスタ JSON と zod（`src/data`） | **作成済み**（#21） | `interests`・`presets`・`suggest-rules`・`word-set` の4つ。読み出しは `interests()`・`presetsFor(id)`・`suggestRules()`・`wordSet(id)`。`MasterSchema` が対象の実在・重複などを検証し、`prebuild` で走る。中身は仮の値で、本番は #70。束ねて `master`・`data.chips.addPresets`・`query.suggest` にするのは #85 |
 | ストア ⇄ バックエンド | 予定 | #24（「ストア⇄DAO」から「ストア⇄API」へ直す） |
 | 辞書（ja／en） | 予定 | #72（`Issue` のコードを辞書で文言にする） |
 | **契約の型・`createBackend`・import の制限** | 予定（新しい Issue） | この文書の実装。7.2 |

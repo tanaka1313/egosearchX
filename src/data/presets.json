@@ -1,0 +1,82 @@
+[
+  {
+    "interest": "common",
+    "label": "RTを除く",
+    "query": "-filter:retweets",
+    "on": true,
+    "visible": true
+  },
+  {
+    "defaultList": true
+  },
+  {
+    "interest": "hololive",
+    "label": "ネタバレ除外",
+    "query": "-ネタバレ語A -ネタバレ語B",
+    "on": true,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": "ファボ",
+    "query": "min_faves:50",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": "日付",
+    "query": "since:2026-11-07",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": "画像つき",
+    "query": "filter:images",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": "返信のみ",
+    "query": "filter:replies",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "hololive",
+    "label": "配信タグ",
+    "query": "#配信タグA",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "hololive",
+    "label": "ファンアート",
+    "query": "#ファンアートタグA",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "hololive",
+    "label": "切り抜き",
+    "query": "#切り抜きタグA",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": "日本語のみ",
+    "query": "lang:ja",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": "リンクなし",
+    "query": "-filter:links",
+    "on": false,
+    "visible": false
+  }
+]

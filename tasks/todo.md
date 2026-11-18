@@ -1,3 +1,21 @@
+# #21 マスタ JSON 4つと zod スキーマ
+
+1. Goal: 興味の対象・プリセット・サジェスト規則・検索ワード集を `src/data/*.json` に置き、zod で検証して、不正な値でテストとビルドが失敗するようにする。
+2. Plan:
+   - [x] ブランチ `feature/master-json`、テスト先行（Red 確認：`./index` が無く失敗）
+   - [x] `schema.ts`（`MasterSchema` でファイルをまたぐ検証）、`index.ts`（`interests`・`presetsFor`・`suggestRules`・`wordSet`）、JSON 4つ（モックの仮の値）
+   - [x] `WordGroupSchema.words` に `.min(1)`（`src/api/types.ts`）
+   - [x] `prebuild`（`vitest run src/data`）でビルドを止める
+   - [x] docs（requirements 11.1・11.2・13章、api-spec 4.1・実装の状態、implementation-plan 2章）、Issue #21 のタイトルを4つに
+   - [x] make check・format:check、main へマージして push、#21 を閉じる
+3. Verification: `make check`（テスト418件）、`npm run format:check`。word-set.json の英語のグループ名を空にして `npm run build` が終了コード1で止まることを確認し、元に戻した。
+4. Review:
+   - 決定（ユーザー、2026-11-19）：`label`／`name` は `{ ja, en }` に揃える（requirements の11章が古かった）。presets は Excel と同じ1本の並び（`interest` が `common` か対象 ID）、既定リストは `{ defaultList: true }` の目印の位置、`starter` の件数は検証しない。
+   - 判断：重複の判定は `normalize` した `query`（プリセットは対象ごと、検索ワード集は対象内の全グループ）。`common` は対象 ID に使えない。検索ワード集が無い対象は許す（`wordSet` は `[]`）。
+   - 判断：JSON は ID をキーにした Record で、値に `id` を持たない（`interests()` が付ける）。
+   - 「ビルドで失敗」は、今のビルドが JSON を読まないため `prebuild` にした。
+   - **次に壊れやすい点**：#85 が `@/data` を束ねるときの import 制限（モックは除外）。#70 で本番値を入れるとき、ラベルは20字以内・同じ対象内の `query` の重複なし。starter が60件を超えたら表示側（`query.starters`）が切ること。
+
 # #20 ランチャー codec
 
 1. Goal: いつものエゴサ（名前＋項目）を `/launch#` の後ろのハッシュ（`v1.`＝圧縮／`v1u.`＝非圧縮）に出し入れする `encodeLauncher`／`decodeLauncher` を `src/lib/launch/codec.ts` に置く。
