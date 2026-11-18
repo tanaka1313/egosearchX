@@ -47,7 +47,7 @@ src/
       serialize-yahoo.ts  AST → Yahooクエリ + 警告の配列
       merge.ts            条件ボタン（共通）と個別設定の合成、項目ごとの無効化
       dates.ts            相対日付の解決（until は終了日をそのまま出す。日本時間）
-      warnings.ts         警告の型とコード（文言は辞書。docs/api-spec.md 2.3）
+      （警告の型とコードは src/api/issues.ts に置く。ここには置かない。文言は辞書。docs/api-spec.md 2.3）
     url/
       build.ts            AST → X/Yahoo の URL
       parse.ts            URL → AST（x.com / twitter.com / Yahoo）
@@ -85,11 +85,11 @@ type Node =
   | { kind: 'filter'; id: string; name: string; value?: string; enabled: boolean }
   | { kind: 'group'; id: string; join: 'AND' | 'OR'; children: Node[]; enabled: boolean }
   | { kind: 'raw'; id: string; text: string; enabled: boolean };          // 未知の演算子
-// 除外は各ノードの negate: boolean で表す
+// 全ノードが id・enabled・negate（除外）を持つ。実際の型は src/lib/query/ast.ts（上は要点）
 
 // 期間（画面の状態）：昨日から／3日前から／1週間前から／日付（以降・以前・範囲）。
 // 保存する文字列では、相対指定は記号（since:yesterday／since:3days_ago／since:1week_ago）、日付は since:／until:（until は指定日を含む）
-type PeriodSpec = { kind: 'none' | 'd1' | 'd3' | 'd7' | 'date'; from?: string; to?: string };
+// 型は契約の `Period`（src/api/types.ts）を使う。ここでは別に定義しない。
 ```
 - **保存データ（条件ボタン・お気に入り・いつものエゴサ・履歴・設定）の型は `src/api/entities.ts`（zod）が正。** 項目とつながりは要件定義書 11章。本体はすべて検索文字列（`query`）で、互いを ID で参照しない。
 - AST は、検索文字列を解析・組み立て・変換（X／Yahoo）するときの**内部の表現**で、保存しない。条件ボタンの中身も保存は文字列で、編集・値の入力のときだけ AST（モックでは `Cond`）に分ける。
