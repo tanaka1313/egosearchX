@@ -21,10 +21,12 @@ export type AccountNode = Base & {
   op: AccountOp;
   value: string;
 };
-/** `filter:<key>`、`lang:`、値付きの演算子（min_*／since／until） */
+/** 解析・保持だけで、生成には使わない演算子（operators.ts の `PARSE_ONLY_OPS`） */
+export type ParseOnlyOp = "since_time" | "until_time";
+/** `filter:<key>`、`lang:`、値付きの演算子（min_*／since／until／since_time／until_time） */
 export type FilterNode = Base & {
   kind: "filter";
-  name: FilterKey | ParamOp | "lang";
+  name: FilterKey | ParamOp | ParseOnlyOp | "lang";
   value?: string;
 };
 export type GroupNode = Base & {

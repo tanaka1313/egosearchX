@@ -16,7 +16,7 @@ import {
   type IssueCode,
   type ParamOp,
 } from "@/api";
-import type { AccountOp } from "./ast";
+import type { AccountOp, ParseOnlyOp } from "./ast";
 
 export type Status = "stable" | "experimental";
 
@@ -187,7 +187,7 @@ export const PARSE_ONLY_OPS = {
     generate: false,
     yahoo: { kind: "param", param: "uts" },
   },
-} as const satisfies Record<string, OpDef>;
+} as const satisfies Record<ParseOnlyOp, OpDef>;
 
 /** Yahoo の期間の URL パラメータ名（開始・終了） */
 export const YAHOO_PERIOD_PARAMS = { from: "lts", to: "uts" } as const;
