@@ -80,7 +80,6 @@ class ApiError extends Error { code: ApiErrorCode; params?: Record<string, strin
 | 警告 | `yahoo.rawUnverified` | `token` | 同上（解析できない演算子 `raw`。URL にはそのまま入れる。展開されていない相対期間の記号など、期間の値が読めないときも同じ） |
 | 警告 | `yahoo.groupUnverified` | — | 同上（Yahoo!リアルタイム検索では括弧が OR になるため、OR の中の AND と否定した AND `-(A B)` は書き方が無い。X の形のまま出す。否定した OR は `-A -B` に直すので警告しない） |
 | 警告 | `query.tooLong` | `length`、`limit` | `query.build`、`url.plan` |
-| 警告 | `launcher.tooLong` | `length`、`limit`（`LIMITS.launcherUrlWarn`） | `launcher.encode`（ブックマーク URL 全体の長さ） |
 | 止める理由 | `query.empty` | — | `query.build`（`blockers`） |
 | 止める理由 | `period.inverted` | — | `query.build`（`blockers`） |
 | 失敗 | `url.unreadable`／`url.unsupportedHost`／`url.noQuery` | — | `url.parse`（画面仕様書 5.8 の3つの文言に対応） |
@@ -195,11 +194,12 @@ interface EgoSearchApi {
 | `listId(input: string)` | `Result<string>` | リストの URL または数字 → ID（`parseListId`）。モックは null を返す |
 - 開くタブ：X は常に「最新」（`f=live`）で開く（**決定**）。画面にも保存にも「最新」の設定は持たない。今後変わりうるので、値は X の URL を作る1か所の定数にする。
 
-### 4.4 `launcher`（async。**予定** #20）
+### 4.4 `launcher`（async。**作成済み**＝#20、`lib/launch/codec.ts` の `encodeLauncher`・`decodeLauncher`）
 | メソッド | 戻り値 | エラー |
 |---|---|---|
-| `encode(payload: LauncherPayload)` | `{ hash: string; warnings: Issue[] }` | —（長さの警告 `launcher.tooLong`。ブックマーク URL 全体で、`LIMITS.launcherUrlWarn`＝暫定2000文字。X のクエリの `LIMITS.urlWarn` とは別。**決定**） |
-| `decode(hash: string)` | `LauncherPayload` | `LAUNCHER_BROKEN`（ハッシュが無い・壊れている・スキーマに合わない）、`LAUNCHER_VERSION` |
+| `encode(payload: LauncherPayload)` | `string`（hash） | —（スキーマに合わない入力は zod のエラー。画面は検証済みの値だけを渡す） |
+| `decode(hash: string)` | `LauncherPayload` | `LAUNCHER_BROKEN`（ハッシュが無い・壊れている・解凍できない・スキーマに合わない・圧縮を解く機能が無い端末で `v1.`）、`LAUNCHER_VERSION`（知らない版。`params.version`） |
+- **長さの警告は持たない**（**決定**。2026-11-19）。ブックマーク URL 全体の長さに根拠のある上限は無く、効く制限は X のクエリの長さなので、各クエリを `query.tooLong`（`LIMITS.urlWarn`）で判定する。
 - `hash` は `v1.<…>`（圧縮あり）か `v1u.<…>`（圧縮なし。`CompressionStream` が無いとき。**決定**）で、`#` を含まない。`decode` は接頭辞で見分ける。**オリジン・パス（`/launch#`）を付けるのはフロントエンド**（`location` を知っているのはそちら）。
 - 相対期間は記号のまま入れる。復号しても展開しない（開く時点で `url.plan` が展開する）。
 
@@ -281,7 +281,7 @@ type TrashDetail =
 |---|---|---|
 | X | `https://x.com/search?q=<URLエンコードした検索文字列>`。常に「最新」タブ（`&f=live`）。期間は文字列の中の `since:`／`until:`（`until:` は指定日を含み、日本時間） | **作成済み**（#18） |
 | Yahoo!リアルタイム検索 | `https://search.yahoo.co.jp/realtime/search?p=<変換後の検索文字列>`。期間は `since:`／`until:` を出さず、`lts`（開始日の0時）・`uts`（**終了日の翌日0時**）にする（UNIX 秒、ブラウザの現地時刻）。`ei=UTF-8` を付ける（実際の URL で使われていることを確認済み。research-phase0 1章）。`rkf`・`ifr`・`utm_*` は付けない | **作成済み**（#18。変換は #15） |
-| ランチャー | `<オリジン>/launch#v1.<base64url(deflate-raw(JSON))>`。JSON は `LauncherPayload`（zod で検証）。`CompressionStream` が無いときは `v1u.<base64url(JSON)>`（非圧縮）にする。接頭辞で見分ける | **予定**（#20） |
+| ランチャー | `<オリジン>/launch#v1.<base64url(deflate-raw(JSON))>`。JSON は `LauncherPayload`（zod で検証）。`CompressionStream` が無いときは `v1u.<base64url(JSON)>`（非圧縮）にする。接頭辞で見分ける | **作成済み**（#20） |
 - Yahoo!リアルタイム検索への変換は F5 の表のとおり（OR の括りは `(A B)`、`from:` は `ID:`、`to:` は `@`、`list:`・`filter:`・アカウントの除外は警告して除く）。
 
 ## 6. 画面ごとの呼び出し
@@ -318,7 +318,7 @@ type TrashDetail =
 | 相対期間の展開（`expandRelative`）の境界テストと、基準日 `localDate`（`dates.ts`） | **作成済み**（#17） | 月末・年末・うるう日のテストあり。`clock.today()` は `localDate(new Date())` を使う（`toISOString` は UTC なので使わない。#85） |
 | URL の生成（`lib/url/build.ts` の `planRun`） | **作成済み**（#18） | X／Yahoo の URL と警告。基準日は引数。`RunPlan.warnings` は target の警告の重複なしの和集合。クエリ長は展開後の文字数を `LIMITS.urlWarn` と比べる |
 | URL の解析・リスト ID（`lib/url/parse.ts`・`list-id.ts`） | **作成済み**（#19） | `parseUrl`：Yahoo は F4 の逆変換表で保存形に戻し、数字でない `lts`/`uts` は無視する。表に無い演算子は raw。`parseListId`：数字5桁以上か `x.com`/`twitter.com` の `/i/lists/<ID>` |
-| ランチャーの codec | 予定 | #20 |
+| ランチャーの codec（`lib/launch/codec.ts`） | **作成済み**（#20） | 圧縮あり `v1.`／なし `v1u.`。壊れた入力は `LAUNCHER_BROKEN`、知らない版は `LAUNCHER_VERSION`。長さの警告は持たない |
 | マスタ JSON と zod | 予定 | #21（`word-set.json` を含む。プリセット・サジェスト・検索ワード集の中身は #70） |
 | ストア ⇄ バックエンド | 予定 | #24（「ストア⇄DAO」から「ストア⇄API」へ直す） |
 | 辞書（ja／en） | 予定 | #72（`Issue` のコードを辞書で文言にする） |
@@ -338,5 +338,4 @@ type TrashDetail =
 |---|---|
 | いつものエゴサの `lastRunAt` | `GroupSchema` に足し、`SCHEMA_VERSION` を2にして `migrate.ts` に移行を書く |
 | 保存データが壊れたときの初期化 | `data.reset()`、DAO・KV の全消去、全ページ共通の表示と D3（画面仕様書 2.7） |
-| `LIMITS.launcherUrlWarn` | ブックマーク URL 全体の警告水準（暫定2000文字）。**済**（#88） |
 | `LIMITS.wordSetStarter` | 履歴0件のときホームに出す検索ワード集の数（暫定60）。**済**（#88）。検索ワード集の型（`Word`・`WordGroup`）も #88 で作成 |

@@ -1,3 +1,19 @@
+# #20 ランチャー codec
+
+1. Goal: いつものエゴサ（名前＋項目）を `/launch#` の後ろのハッシュ（`v1.`＝圧縮／`v1u.`＝非圧縮）に出し入れする `encodeLauncher`／`decodeLauncher` を `src/lib/launch/codec.ts` に置く。
+2. Plan:
+   - [x] ブランチ `feature/launcher-codec`、テスト先行（Red 確認：`./codec` が無く失敗）
+   - [x] `codec.ts`（版・接頭辞・形式名は定数1か所）
+   - [x] ブックマーク URL 全体の長さ警告（`launcher.tooLong`・`LIMITS.launcherUrlWarn`）を廃止。モック D2 のダミー警告も削除
+   - [x] docs（requirements F8、api-spec 2・4.4・5・7、screen-spec D2・6章・未確定、implementation-plan 2章）
+   - [ ] make check・format:check、main へマージして push、#20 を閉じる
+3. Verification: `make check`、`npm run format:check`。往復（圧縮／非圧縮）、壊れた入力、知らない版のテスト。
+4. Review:
+   - 決定（ユーザー、2026-11-19）：2000文字に根拠が無く、効く制限は X のクエリ（約500文字）なので、長さは各クエリで判定する（`query.tooLong`）。ブックマーク URL 全体では判定しない。このため `encode` は hash（string）だけを返し、オリジンを知る必要が無くなった。
+   - 判断：失敗の分け方は、`v<数字>` が1以外なら `LAUNCHER_VERSION`、それ以外（形・base64url・解凍・JSON・スキーマ・`DecompressionStream` が無い端末の `v1.`）は `LAUNCHER_BROKEN`（`cause` 付き）。`encode` は不正な入力を zod のエラーで拒否する。
+   - Issue #20 の完了条件（長さの行）の修正は、`gh issue edit` が許可されなければ未対応。
+   - **次に壊れやすい点**：#85 が `encode` の戻り値を hash 文字列として扱い、フロントが `<オリジン>/launch#` を付けること。D2（#77）は長さの警告を出さない。
+
 # #19 URL 解析とリスト ID
 
 1. Goal: 貼った URL（x.com／twitter.com／Yahoo!リアルタイム検索）を保存形（X の構文）に直す `parseUrl` と、リストの URL／数字から ID を取り出す `parseListId` を `src/lib/url/` に置く。

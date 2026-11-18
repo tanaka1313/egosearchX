@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { LIMITS, type Group } from "../_parts/data";
+import { type Group } from "../_parts/data";
 import { itemLabel } from "../_parts/rows";
 import { useStore } from "../_parts/store";
 import { EmptyState, PageHead, Sheet } from "../_parts/ui";
@@ -89,7 +89,6 @@ export default function GroupsPage() {
 function IssueSheet({ group, onClose }: { group: Group; onClose: () => void }) {
   const s = useStore();
   const url = `https://example.invalid/launch#v1.${"AAAA".repeat(30)}…（ダミー）`;
-  const long = group.items.length * 120 > LIMITS.urlWarn;
   return (
     <Sheet title={`ブックマークURLを発行：${group.name}`} onClose={onClose}>
       <ul className="list-inside list-disc text-sm">
@@ -100,11 +99,6 @@ function IssueSheet({ group, onClose }: { group: Group; onClose: () => void }) {
       <code className="block rounded bg-muted p-2 font-mono text-xs break-all">
         {url}
       </code>
-      {long && (
-        <p className="text-sm">
-          ⚠ URL が長めです（ダミーの警告）。お気に入りを減らすと短くなります。
-        </p>
-      )}
       <p className="text-xs text-muted-foreground">
         ブックマークに追加する手順：URL をコピーして、ブックマークの URL
         欄に貼り付けます。
