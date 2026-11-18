@@ -13,7 +13,7 @@ import type {
   Prefs,
   TrashEntry,
   TrashKind,
-} from "./schema";
+} from "@/api";
 
 /** order を省略すると、新規なら末尾に付ける */
 export type Saveable<T extends { order: number }> = Omit<T, "order"> & {

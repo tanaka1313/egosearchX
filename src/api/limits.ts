@@ -11,10 +11,14 @@ export const LIMITS = {
   history: 100,
   /** サジェスト検索条件の表示数 */
   suggest: 20,
+  /** 履歴0件のとき、ホームに出す検索ワード集の数（暫定） */
+  wordSetStarter: 60,
   /** ホームで［もっと開く］の前に出す条件ボタンの数 */
   foldChips: 8,
   /** ヘッダー下の帯に出す、いつものエゴサの数 */
   headerGroups: 2,
   /** クエリ長の警告水準（X のクエリの文字数。実際の上限は未確認） */
   urlWarn: 500,
+  /** ブックマーク URL 全体の長さの警告水準（暫定。X のクエリの urlWarn とは別） */
+  launcherUrlWarn: 2000,
 } as const;

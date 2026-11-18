@@ -1,9 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { LIMITS } from "@/lib/limits";
+import { LIMITS, type Chip, type Favorite, type Group } from "@/api";
 import { LocalStorageAdapter, MemoryAdapter } from "./kv-adapter";
 import { StorageCorruptError, LimitError, openDao } from "./kv-dao";
 import type { Migration } from "./migrate";
-import type { Chip, Favorite, Group } from "./schema";
 import type { Dao } from "./types";
 
 const T0 = "2026-11-18T00:00:00.000Z";

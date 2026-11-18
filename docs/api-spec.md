@@ -91,7 +91,7 @@ class ApiError extends Error { code: ApiErrorCode; params?: Record<string, strin
 - 検索文字列は、**保存形（X の構文。相対期間は `since:yesterday` などの記号のまま）**が基準。Yahoo!リアルタイム検索用の変換は、開くとき（`url.plan`）だけで行う（F5）。
 
 ## 3. データの型（`src/api`）
-- **エンティティ**（`Chip`・`Favorite`・`Group`・`GroupItem`・`HistoryItem`・`Prefs`・`TrashEntry`・`TrashKind`・`Engine`・`InterestId`）は、`src/lib/storage/schema.ts`（zod）の定義をそのまま契約へ移す（**作成済み**。移動は実装 Issue）。この文書には写さない。
+- **エンティティ**（`Chip`・`Favorite`・`Group`・`GroupItem`・`HistoryItem`・`Prefs`・`TrashEntry`・`TrashKind`・`Engine`・`InterestId`）は、`src/api/entities.ts`（zod）が定義する（**作成済み**。#88 で `lib/storage/schema.ts` から移した）。この文書には写さない。
 - 以下は、**境界で使う型**。形はモックの `_parts/data.ts`・`query-model.ts` に合わせた（**予定**。#71・#12）。
 ```ts
 type Period = { kind: "none" | "d1" | "d3" | "d7" | "date"; from: string; to: string };
@@ -144,7 +144,7 @@ type WordGroup = { name: { ja: string; en: string }; words: Word[] };           
 - `ParamOp`・`FilterKey` は、**契約が持つ定数**（`PARAM_OP_TYPES: Record<ParamOp, "number" | "date">`、`FILTER_KEYS`）から導く。ラベル・接尾語などの文言は辞書が持つ。`operators.ts`（エンジン別の対応と `status`）は、この定数を import して、キーを1か所に揃える（**決定**）。
 - `onChipIds` は、モックの `onIds` を改名したもの（モックは破棄予定）。
 - `OpenTarget.query` は、開く時点の保存形（記号を日付に展開済み。X の構文）。履歴にはこれを残す（要件定義書 11.4「開く」。**決定**）。`url` だけが、検索先ごとの変換を受ける。
-- `Group` に `lastRunAt`（null 可）を足す（**決定**。「今日は実行済み」の判定に使う。スキーマの版を2にし、`migrate.ts` で既存のデータを null にする。実装は Issue）。エンティティの型は `src/lib/storage/schema.ts` が正で、直すのは実装 Issue。
+- `Group` に `lastRunAt`（null 可）を足す（**決定**。「今日は実行済み」の判定に使う。スキーマの版を2にし、`migrate.ts` で既存のデータを null にする。実装は Issue）。エンティティの型は `src/api/entities.ts` が正で、直すのは実装 Issue（#86）。
 
 ## 4. API 一覧（`EgoSearchApi`）
 ```ts
@@ -155,7 +155,7 @@ interface EgoSearchApi {
   launcher: LauncherApi; // async
   data: DataApi;         // async（保存）
   clock: { today(): string; now(): string };   // YYYY-MM-DD／ISO 8601
-  limits: typeof LIMITS;                        // 契約が持つ上限（lib/limits.ts は契約へ移す）
+  limits: typeof LIMITS;                        // 契約が持つ上限（src/api/limits.ts）
 }
 ```
 
@@ -306,7 +306,7 @@ type TrashDetail =
 | 部分 | 状態 | 備考 |
 |---|---|---|
 | DAO（`src/lib/storage`：`types.ts`・`schema.ts`・`kv-dao.ts`・`kv-adapter.ts`・`migrate.ts`） | **作成済み**（テストあり） | `data.*` の下位。`Dao.chips`・`favorites`・`groups`・`history`・`trash`・`prefs`。`get` は削除済みの行も返す（`trash.detail` に使える） |
-| `LIMITS`（`src/lib/limits.ts`） | **作成済み** | 契約へ移す |
+| 契約の型・`LIMITS`・`IssueCode`・`ApiError`・zod スキーマ（`src/api`） | **作成済み**（#88） | `EgoSearchApi`（インターフェース）と入力型（`ChipInput` など）は #85 で足す |
 | 検索文字列の規則（`src/app/mock/_parts/query-model.ts`・テストあり） | モック | #71 で `lib/query/model.ts` へ。`query` の `tokenize`・`normalize`・`expand`・`parse`・`chipConds`・`condsToQuery`・`favName`・`suggest` の元 |
 | AST・演算子・パーサー・シリアライザー・合成・期間 | 予定 | #12・#13・#14・#15・#16・#17（`query.build`・`url.plan` の下位） |
 | URL の生成・解析・リスト ID | 予定 | #18・#19。モックの `parseListId` が元 |
@@ -317,7 +317,7 @@ type TrashDetail =
 | **契約の型・`createBackend`・import の制限** | 予定（新しい Issue） | この文書の実装。7.2 |
 
 ### 7.2 実装の順（案。M1〜M4 に組み込む）
-1. 契約：`src/api` に型・zod スキーマ・`LIMITS`・`EgoSearchApi`・`Issue` のコードを置く。`lib/storage/schema.ts` と `lib/limits.ts` の中身を契約へ移し、`lib/storage` から import する（既存のテストが通ること）。
+1. 契約：`src/api` に型・zod スキーマ・`LIMITS`・`Issue` のコードを置き、`lib/storage` から import する（**済**：#88。`SCHEMA_VERSION` は `lib/storage/schema.ts` に残る）。`EgoSearchApi` は #85。
 2. `createBackend({ kv, clock })`：`query`・`url`・`master` は M1〜M3 でできたものから順に束ねる。`data` は DAO の上に作る。
 3. ESLint の `no-restricted-imports`（1.2）と `src/app/providers.tsx`、`useApi()`。
 4. ストア（zustand）は `useApi()` だけを使う（M4）。
@@ -330,5 +330,5 @@ type TrashDetail =
 |---|---|
 | いつものエゴサの `lastRunAt` | `GroupSchema` に足し、`SCHEMA_VERSION` を2にして `migrate.ts` に移行を書く |
 | 保存データが壊れたときの初期化 | `data.reset()`、DAO・KV の全消去、全ページ共通の表示と D3（画面仕様書 2.7） |
-| `LIMITS.launcherUrlWarn` | ブックマーク URL 全体の警告水準（暫定2000文字）。契約の実装 Issue で足す |
-| `LIMITS.wordSetStarter` | 履歴0件のときホームに出す検索ワード集の数（暫定60）。#88 で足す。検索ワード集の型（`Word`・`WordGroup`）も #88 |
+| `LIMITS.launcherUrlWarn` | ブックマーク URL 全体の警告水準（暫定2000文字）。**済**（#88） |
+| `LIMITS.wordSetStarter` | 履歴0件のときホームに出す検索ワード集の数（暫定60）。**済**（#88）。検索ワード集の型（`Word`・`WordGroup`）も #88 で作成 |
