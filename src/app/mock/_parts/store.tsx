@@ -25,6 +25,7 @@ import {
   LIMITS,
   SUGGEST_RULES,
   SUGGEST_SEEDS,
+  WORD_SET,
   initialChips,
   presetChips,
   type Chip,
@@ -43,6 +44,7 @@ import {
   chipConds,
   condsToQuery,
   parseToScope,
+  starterWords,
   suggestFromRules,
 } from "./query-model";
 
@@ -67,6 +69,8 @@ export type Store = {
   /** ホームで ON にしたサジェスト検索条件（この検索にだけ足す） */
   sugOn: string[];
   suggestions: string[];
+  /** 履歴がないときだけ、条件ボタンの続きに出す検索ワード集（押すと sugOn で ON/OFF） */
+  starters: string[];
   toast: Toast | null;
   notice: string;
   setWord: (v: string) => void;
@@ -243,10 +247,22 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     const fromHistory = history
       .flatMap((h) => h.query.split(/\s+/))
       .filter((t) => /[:#()-]/.test(t) && !/^(since|until):/.test(t));
-    return [...new Set([...fromRules, ...fromHistory, ...SUGGEST_SEEDS])]
+    return [
+      ...new Set([
+        ...fromRules,
+        ...fromHistory,
+        ...(history.length > 0 ? SUGGEST_SEEDS : []),
+      ]),
+    ]
       .filter((t) => !have.has(t))
       .slice(0, LIMITS.suggest);
   }, [chips, history, query.stored]);
+  // 検索ワード集（履歴なしのとき）：条件ボタンに無い starter を上限まで。ON にしても消えないよう、今の検索では除かない
+  const starters = useMemo(() => {
+    if (history.length > 0) return [];
+    const have = new Set(chips.flatMap((c) => chipTokens(c)));
+    return starterWords(WORD_SET[interest] ?? [], have, LIMITS.wordSetStarter);
+  }, [chips, history.length, interest]);
   const usedChips = useMemo(
     () => chips.filter((c) => c.on && c.visible),
     [chips],
@@ -312,6 +328,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     period,
     sugOn,
     suggestions,
+    starters,
     toast,
     notice,
     setWord,
