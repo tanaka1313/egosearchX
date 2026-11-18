@@ -10,6 +10,7 @@
 | `docs/requirements.md` | 機能（F1〜F12）、対象内／対象外、MVP の範囲、データ構造（11章）、DAO（12章） |
 | `docs/screen-spec.md` | 画面（S1〜S10）とダイアログ（D1〜D3）。画面イメージは `/mock` |
 | `docs/implementation-plan.md` | ファイル構成、AST の型、マイルストーン（M0〜M7） |
+| `docs/api-spec.md` | フロントエンドとバックエンドの境界（`@/api`）：関数の形、型、エラー・警告のコード、画面ごとの呼び出し |
 | `docs/research-phase0.md` | X／Yahoo の演算子・URL 形式（項目ごとに確度あり） |
 
 ## 技術スタックとコマンド
@@ -24,6 +25,7 @@ Next.js 16（App Router、`output: 'export'`）、React 19、TypeScript strict�
 - **Yahoo!リアルタイム検索で使えない演算子は黙って削除せず、必ず警告を返す**（変換規則は F5。X の `A OR B` は Yahoo では `(A B)`）。
 - **期間は日付で出力する**（X は `since:`／`until:`、`since_time:` は生成しない。Yahoo は `lts`／`uts`）。`until:` は指定日を含み、日本時間で評価される（実機確認済み）ので、画面の「終了日を含む」はそのまま出力する（翌日へ変換しない）。Yahoo の `uts` だけは終了日の翌日0時にする。相対指定は記号（`since:yesterday` など）で保存し、開く時点の日付に展開する。詳細は F2。
 - **タブはユーザーのクリックを起点にしてだけ開く**（ページを開いただけで `window.open` しない）。ランチャーには個別リンクを常に表示する。
+- **画面・ストアが import してよいのは `@/api`（契約。`docs/api-spec.md`）だけ。** 規則・URL・保存は `src/backend` の裏にあり、画面は文言とブラウザの操作（`window.open` など）だけを持つ。警告・エラーはコードで返し、文言は辞書が出す。
 - **保存は DAO（`src/lib/storage`）を通す。** 画面・ストアから localStorage を直接触らない（保存先を差し替える前提。12章）。スキーマを変えたら `migrate.ts` に移行を書く。マスタ JSON・保存データ・ランチャー URL は zod で検証する。
 - **既存のデータを勝手に上書きしない。** URL の取り込みは、新規として保存する（ランチャーの［ホームへ］は何も保存しない）。
 - **メンバーは管理せず、X のリストで扱う。** 興味の対象は ID をキーにした Record で、定義は `src/data/interests.json`（プリセット・サジェスト規則も JSON。13章）。対象を足すときは JSON に1件足すだけで済む形を保つ。

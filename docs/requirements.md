@@ -293,16 +293,18 @@ flowchart TD
   UI["画面と部品<br/>（app/・components/）"] --> Store["ストア（zustand）<br/>画面をまたぐ状態"]
   UI --> Scope["SearchScope<br/>検索の組み立て（画面ごと）"]
   Scope --> Store
-  UI --> Query["lib/query<br/>検索文字列の規則（純粋関数）"]
-  Store --> Query
-  Store --> DAO["DAO（lib/storage）<br/>async のリポジトリ"]
+  UI --> API["契約 @/api<br/>docs/api-spec.md"]
+  Store --> API
+  API --> Query["lib/query・lib/url・lib/launch<br/>検索文字列の規則（純粋関数）"]
+  API --> DAO["DAO（lib/storage）<br/>async のリポジトリ"]
   DAO --> KV["KeyValueAdapter"]
   KV --> LS[("localStorage<br/>（MVP）")]
-  DAO -. 将来 .-> API[("API／RDB")]
+  DAO -. 将来 .-> RDB[("API／RDB")]
   Master["マスタ JSON<br/>interests・presets・suggest-rules"] --> Store
 ```
-- 画面は保存先を知らない。保存はストア経由で DAO を呼ぶ。
-- 検索文字列の解析・組み立て・比較は、すべて `lib/query` の純粋関数で行う（画面ごとに書かない）。
+- **フロントエンド（画面・ストア）とバックエンド（`lib/*`・DAO・マスタ）を分け、境界は契約（`src/api`）だけにする。** 関数の形・型・エラーは `docs/api-spec.md`。画面が import してよいのは `@/api` だけ。
+- 画面は保存先を知らない。保存はストアが契約の `data` を呼び、バックエンドが DAO を呼ぶ。
+- 検索文字列の解析・組み立て・比較は、すべて `lib/query` の純粋関数で行う（画面ごとに書かない）。画面へは契約の `query` を通して渡す。
 
 ### 10.3 画面と部品の対応
 | 画面・部品 | モックのファイル | 本実装 |
@@ -462,7 +464,7 @@ erDiagram
 
 ### 12.1 目的
 - 保存先は今は localStorage だが、**ブラウザをまたいだ共有や RDB への移行を見込んで、差し替えられるようにする。**
-- 画面とストアは DAO のインターフェースだけを使い、保存先の違い（同期／非同期、キー／表、JSON／行）を知らない。
+- 画面とストアは契約（`docs/api-spec.md`）だけを使う。DAO を呼ぶのはバックエンドだけで、保存先の違い（同期／非同期、キー／表、JSON／行）は DAO の中に閉じる。
 
 ### 12.2 層
 ```mermaid
@@ -477,6 +479,7 @@ flowchart LR
 ```
 
 ### 12.3 インターフェース（要点）
+> DAO はバックエンドの内部。画面・ストアとの境界（ユースケースの単位の `data`）は `docs/api-spec.md` 4.5 が正。以下は DAO 自身の要点。
 - **すべて async**（Promise を返す）。localStorage は同期だが、RDB やリモートに移したときに呼び出し側を直さないため。
 - `chips`：`listByInterest(interestId)`、`listAllByInterest()`（**`Map<興味の対象, Chip[]>`**）、`get`、`save`（追加・更新。新規で対象の上限に達していれば `LimitError`）、`softDelete`、`reorder(interestId, ids)`。
 - `favorites`／`groups`：`list`、`get`、`save`、`softDelete`、`reorder(ids)`。`save` の `order` を省略すると末尾に付く。

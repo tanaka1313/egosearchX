@@ -20,6 +20,7 @@
 ```
 src/
   app/
+    providers.tsx         組み立て（createBackend を呼ぶ唯一の場所。docs/api-spec.md 1.2）
     page.tsx              S1 ホーム
     buttons/page.tsx      S2 条件ボタン
     favorites/page.tsx    S3 お気に入り
@@ -46,7 +47,7 @@ src/
       serialize-yahoo.ts  AST → Yahooクエリ + 警告の配列
       merge.ts            条件ボタン（共通）と個別設定の合成、項目ごとの無効化
       dates.ts            相対日付の解決（until は終了日をそのまま出す。日本時間）
-      warnings.ts         警告の型と文言
+      warnings.ts         警告の型とコード（文言は辞書。docs/api-spec.md 2.3）
     url/
       build.ts            AST → X/Yahoo の URL
       parse.ts            URL → AST（x.com / twitter.com / Yahoo）
@@ -62,6 +63,9 @@ src/
       kv-adapter.ts       KeyValueAdapter（LocalStorageAdapter／MemoryAdapter）
       kv-dao.ts           KeyValue の上の DAO（検証・上限・論理削除・削除済みの上限）
       migrate.ts          バージョンと移行処理
+  api/                    契約（フロントとバックの境界。docs/api-spec.md）：型・zod スキーマ・LIMITS・EgoSearchApi・Issue のコード
+  backend/                createBackend({ kv, clock })：契約を実装し、lib/* と data/ を束ねる
+  store/                  zustand のストアと useApi()（契約だけを使う）
   data/
     interests.json        興味の対象（ID・表示名・既定リスト）。ID をキーにした Map で扱う
     presets.json          興味の対象ごとの条件ボタンのプリセット（中身は Issue #70）
@@ -106,10 +110,10 @@ GitHub のマイルストーン（M0〜M7）と対応する（名前：M3 マス
 | # | 内容 | 完了条件 |
 |---|---|---|
 | M0 | 雛形：`create-next-app`、shadcn/ui、Vitest、ESLint、`git init` | tsc / test / lint / build が通る |
-| M1 | クエリの中核（ast, tokenizer, parse-x, serialize-x/yahoo, merge, dates）をテスト先行で作る | 往復テスト、Yahoo変換表、until が終了日をそのまま出すこと（Yahoo の uts は翌日0時）、条件ボタンと個別設定の合成（無効化）のテストが通る |
+| M1 | 契約の型（`src/api`。`docs/api-spec.md`）と、クエリの中核（ast, tokenizer, parse-x, serialize-x/yahoo, merge, dates）をテスト先行で作る | 往復テスト、Yahoo変換表、until が終了日をそのまま出すこと（Yahoo の uts は翌日0時）、条件ボタンと個別設定の合成（無効化）のテストが通る |
 | M2 | URLの生成と解析、リストID の取り出し、ランチャーの codec | X/YahooのURLの往復、壊れたハッシュの検出、`x.com/i/lists/<ID>?s=20` から ID を取り出すテスト |
 | M3 | マスタ JSON（`interests.json`・`presets.json`・`suggest-rules.json`）と zod スキーマ、興味の対象ごとのプリセットの登録 | 不正JSONでビルドが失敗する。初回に、興味の対象ごとのプリセットが条件ボタンとして入り、ヘッダーの切替で並びが切り替わる（既定はホロライブ）。プリセットの中身は Issue #70 |
-| M4 | **i18n の基盤（辞書 ja／en、型は ja から、言語切替。画面より先に作る）**、ストア（zustand）と DAO（`lib/storage`。作成済み）の接続。条件ボタン（興味の対象ごと）・お気に入り・いつものエゴサ・履歴・削除済み・設定 | 再読み込み後もデータが残る。DAO のテスト（移行、壊れたデータ、削除済み＝種類ごとに20件、ボタン＝対象ごとに30件、履歴100件）は作成済み。お気に入りを削除してもいつものエゴサが変わらないこと、お気に入りを編集すると一致する項目が更新されることのテスト |
+| M4 | **i18n の基盤（辞書 ja／en、型は ja から、言語切替。画面より先に作る）**、バックエンドの束ね（`createBackend`、`data` のユースケース、import の制限）、ストア（zustand）と契約（`@/api`）の接続（DAO は作成済み）。条件ボタン（興味の対象ごと）・お気に入り・いつものエゴサ・履歴・削除済み・設定 | 再読み込み後もデータが残る。DAO のテスト（移行、壊れたデータ、削除済み＝種類ごとに20件、ボタン＝対象ごとに30件、履歴100件）は作成済み。お気に入りを削除してもいつものエゴサが変わらないこと、お気に入りを編集すると一致する項目が更新されることのテスト |
 | M5 | S1 ホームの検索の組み立て（押すだけの条件ボタン、折りたたみ、詳細条件（テキストで追加を含む）、プレビュー、警告、［⋯］）、S2 条件ボタン（D1 シート、並べ替え、条件のコピー、表示）、S7 URL解析、ヘッダーの興味の対象の切替、**SEO（要件定義書 9章）：言語辞書の ja／en の title・description、ホームだけに置く WebSite の JSON-LD（`name`／`alternateName`／`url`）** | 画面仕様書 4章・S2・S7 の操作が一通りできる。`out/index.html` に title・description・JSON-LD が入っている |
 | M6 | いつものエゴサ（ヘッダー下の帯に先頭2件。全ページ）、お気に入り、履歴（フッターに最後の1件）、サジェスト検索条件、削除済み、D2 発行、S9 ランチャー、コマンドパレット | ブックマークURLから全タブを開ける。ブロック時にリンク一覧が出る。削除→復元→上限超過が動く |
 | M7 | スマホ・PC表示（左メニュー70%、1カラム）、全画面の文言の網羅と英語の確定、キーボード操作、モックの破棄、Vercelデプロイ | 360px幅と1280px幅で、日本語・英語の両方で操作できる。本番URLで動く |
