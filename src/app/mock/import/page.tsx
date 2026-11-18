@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { type Engine } from "../_parts/data";
-import { tokenize } from "../_parts/query-model";
+import { tokenize } from "@/lib/query/model";
 import { nid, useStore } from "../_parts/store";
 import { PageHead } from "../_parts/ui";
 

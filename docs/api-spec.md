@@ -3,7 +3,7 @@
 ## 0. 前提
 - **これは HTTP の API ではない。** アプリは静的書き出しのままで、サーバーを持たない。ここでいう「フロントエンド」と「バックエンド」は、**同じブラウザの中で動くコードの2つの層**である。層を分けるのは、画面を作り直しても規則・保存を触らずに済み、規則・保存先を差し替えても画面を触らずに済むようにするため。両者の境界（インターフェース）をこの文書で決める。
 - 関連文書：`docs/requirements.md`（機能 F1〜F12、データ構造 11章、DAO 12章）、`docs/screen-spec.md`（S1〜S10、D1〜D4）、`docs/implementation-plan.md`（ファイル構成、AST）、`docs/research-phase0.md`（URL 形式の確度）。**意味と規則はそちらが正で、この文書には写さない。** ここには、境界をまたぐ関数の形・型・エラーの形だけを書く。
-- 正にするもの：保存データの型と DAO は作成済みの `src/lib/storage`、検索文字列の規則は `src/app/mock/_parts/query-model.ts`（モックが正。要件定義書 10.4）。**既存のシグネチャは変えない**（変えるときは、先にこの文書を直す）。
+- 正にするもの：保存データの型と DAO は作成済みの `src/lib/storage`、検索文字列の規則は `src/lib/query/model.ts`（#71 でモックから移した。要件定義書 10.4）。**既存のシグネチャは変えない**（変えるときは、先にこの文書を直す）。
 - 各項目の状態の凡例：**作成済み**（コードがある）／**予定（#番号）**（Issue がある。書かれていない挙動は書かない）／**決定**（この文書で決めた）／**未決定**（7.3。推測で埋めない）。
 - 用語：検索先は「X」「Yahoo!リアルタイム検索」。コード中の識別子 `'x'`・`'yahoo'` は、そのまま書く。複数の検索をまとめたものは「いつものエゴサ」。
 
@@ -92,7 +92,7 @@ class ApiError extends Error { code: ApiErrorCode; params?: Record<string, strin
 
 ## 3. データの型（`src/api`）
 - **エンティティ**（`Chip`・`Favorite`・`Group`・`GroupItem`・`HistoryItem`・`Prefs`・`TrashEntry`・`TrashKind`・`Engine`・`InterestId`）は、`src/api/entities.ts`（zod）が定義する（**作成済み**。#88 で `lib/storage/schema.ts` から移した）。この文書には写さない。
-- 以下は、**境界で使う型**。形はモックの `_parts/data.ts`・`query-model.ts` に合わせた（**予定**。#71・#12）。
+- 以下は、**境界で使う型**。形はモックの `_parts/data.ts` に合わせた（#71 で `lib/query/model.ts` がこの型で動く。AST は #12）。
 ```ts
 type Period = { kind: "none" | "d1" | "d3" | "d7" | "date"; from: string; to: string };
 type Tri = "any" | "inc" | "exc";
@@ -307,7 +307,7 @@ type TrashDetail =
 |---|---|---|
 | DAO（`src/lib/storage`：`types.ts`・`schema.ts`・`kv-dao.ts`・`kv-adapter.ts`・`migrate.ts`） | **作成済み**（テストあり） | `data.*` の下位。`Dao.chips`・`favorites`・`groups`・`history`・`trash`・`prefs`。`get` は削除済みの行も返す（`trash.detail` に使える） |
 | 契約の型・`LIMITS`・`IssueCode`・`ApiError`・zod スキーマ（`src/api`） | **作成済み**（#88） | `EgoSearchApi`（インターフェース）と入力型（`ChipInput` など）は #85 で足す |
-| 検索文字列の規則（`src/app/mock/_parts/query-model.ts`・テストあり） | モック | #71 で `lib/query/model.ts` へ。`query` の `tokenize`・`normalize`・`expand`・`parse`・`chipConds`・`condsToQuery`・`favName`・`suggest` の元 |
+| 検索文字列の規則（`src/lib/query/model.ts`・テストあり） | **作成済み**（#71） | `query` の `tokenize`・`normalize`・`expand`・`parse`・`chipConds`・`condsToQuery`・`favName`・`suggest` の元。`parseToScope` の戻りは契約の `ParsedScope`（`onChipIds`）。parse → build の往復テストは #16 で lib へ移す（それまではモックの `query.test.ts`） |
 | AST・演算子・パーサー・シリアライザー・合成・期間 | 予定 | #12・#13・#14・#15・#16・#17（`query.build`・`url.plan` の下位） |
 | URL の生成・解析・リスト ID | 予定 | #18・#19。モックの `parseListId` が元 |
 | ランチャーの codec | 予定 | #20 |

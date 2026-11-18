@@ -38,7 +38,7 @@ import {
   type Period,
   type TrashItem,
 } from "./data";
-import { buildQuery, chipTokens, runText } from "./query";
+import { buildQuery, chipTokens, runText, toMockScope } from "./query";
 import {
   applyFavEdit,
   chipConds,
@@ -46,7 +46,7 @@ import {
   parseToScope,
   starterWords,
   suggestFromRules,
-} from "./query-model";
+} from "@/lib/query/model";
 
 type Toast = { id: string; msg: string; undo?: () => void };
 
@@ -544,9 +544,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     say,
     setNotice,
     loadIntoHome: (q) => {
-      const p = parseToScope(q, live.current.chips);
+      const p = toMockScope(parseToScope(q, live.current.chips));
       updateChips(interest, (cs) =>
-        cs.map((c) => ({ ...c, on: p.onIds.includes(c.id) })),
+        cs.map((c) => ({ ...c, on: p.onChipIds.includes(c.id) })),
       );
       setWord(p.word);
       setExact(p.exact);

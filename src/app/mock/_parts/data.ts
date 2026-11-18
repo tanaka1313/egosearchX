@@ -1,4 +1,9 @@
 // MOCK: 破棄予定（#61）
+import {
+  REL_PERIODS as LIB_REL_PERIODS,
+  type SuggestRule,
+} from "@/lib/query/model";
+
 // 上限値は仕様で「今後変更の可能性大」。ここ1か所に集める（requirements F6/F9/F10）。
 export const LIMITS = {
   chips: 30,
@@ -196,11 +201,15 @@ export const EMPTY_PERIOD: Period = { kind: "none", from: "", to: "" };
  * 相対期間の記号。保存する検索文字列にはこの記号のまま入れ、開く時点の日付で `since:YYYY-MM-DD` に展開する
  * （X／Yahoo!リアルタイム検索の URL とコピーには記号を出さない）。
  */
-export const REL_PERIODS = [
-  { kind: "d1", label: "昨日から", token: "since:yesterday", days: 1 },
-  { kind: "d3", label: "3日前から", token: "since:3days_ago", days: 3 },
-  { kind: "d7", label: "1週間前から", token: "since:1week_ago", days: 7 },
-] as const;
+const REL_LABEL = {
+  d1: "昨日から",
+  d3: "3日前から",
+  d7: "1週間前から",
+} as const;
+export const REL_PERIODS = LIB_REL_PERIODS.map((r) => ({
+  ...r,
+  label: REL_LABEL[r.kind],
+}));
 
 /**
  * お気に入り。本体は検索文字列（期間の記号を含む）と検索先。条件ボタンを参照しない。
@@ -349,7 +358,6 @@ export function initialChips(): Record<InterestId, Chip[]> {
  * サジェストの規則（開発者が決める。中身は仮の値）。検索文字列に when のどれか1語が含まれていれば、
  * suggest の条件をサジェストの先頭に出す（例：タレント名 → その人のファンアートタグ・エゴサワード）。
  */
-export type SuggestRule = { when: string[]; suggest: string[] };
 export const SUGGEST_RULES: SuggestRule[] = [
   {
     when: ["メンバーA", "愛称A"],

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { FILTERS, type Detail, type Tri } from "./data";
 import { PeriodPicker } from "./period-picker";
 import { chipTokens, detailTokens } from "./query";
-import { disabledKey } from "./query-model";
+import { disabledKey } from "@/lib/query/model";
 import { useSearchScope } from "./search-scope";
 import { Section, TagInput, toggleClass } from "./ui";
 

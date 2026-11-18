@@ -301,11 +301,11 @@ UIは、ホーム（日課の実行と直感操作）と、左メニュー（複
 | 並べ替え | `@dnd-kit/react`（`useSortable`）＋ `@dnd-kit/helpers`（`move`） | 同じ | 同じ |
 | 状態管理 | zustand（画面をまたぐ状態） | React Context ＋ `useState`（`_parts/store.tsx`）。再読み込みで初期状態に戻る | zustand のストア。初期化時に DAO から読み、変更のたびに DAO へ書く（persist ミドルウェアは使わず、DAO を通す） |
 | 検索の組み立て | `SearchScope`（コンテキスト）＋同じ部品 | `_parts/search-scope.tsx`。ホームはストア、編集ページはページ内の状態 | 同じ設計で移す |
-| 検索文字列の規則 | 純粋関数（`lib/query`） | `_parts/query-model.ts`（分割・正規化・相対期間・展開・連動。テストあり） | `lib/query` に移し、AST（演算子の定義・X／Yahoo の変換器）と合わせる |
+| 検索文字列の規則 | 純粋関数（`lib/query`） | `lib/query/model.ts`（分割・正規化・相対期間・展開・連動。テストあり。#71 で移した） | `lib/query` に移し、AST（演算子の定義・X／Yahoo の変換器）と合わせる |
 | 保存 | DAO（12章）＋ localStorage | 使わない（固定のダミーデータ） | `src/lib/storage`（作成済み。テストあり） |
 | 検証 | zod 4 | 使わない | 保存データ・マスタ JSON・ランチャー URL を検証 |
 | URL 圧縮 | `CompressionStream('deflate-raw')` ＋ base64url | ダミーの URL | ランチャーの codec |
-| テスト | Vitest ＋ Testing Library（jsdom） | `query-model.test.ts` | 純粋関数・DAO・主要な部品 |
+| テスト | Vitest ＋ Testing Library（jsdom） | `lib/query/model.test.ts` | 純粋関数・DAO・主要な部品 |
 
 ### 10.2 層の構成
 ```mermaid
@@ -340,7 +340,7 @@ flowchart TD
 | S5 履歴・S6 削除済み・S7 URL解析・S9 ランチャー・S10 このサイトについて | `history`・`trash`・`import`・`launch`・`about` | 同じパス |
 
 ### 10.4 モックから本実装へ持っていくもの
-- **そのまま持っていく**：画面の構成と className、部品の分け方、`SearchScope` の設計、`query-model.ts` の規則とテスト、上限値（`LIMITS`）、用語と文言（辞書へ移す）。
+- **そのまま持っていく**：画面の構成と className、部品の分け方、`SearchScope` の設計、`lib/query/model.ts` の規則とテスト（移し済み）、上限値（`LIMITS`）、用語と文言（辞書へ移す）。
 - **置き換える**：固定のダミーデータ（`WORD_SET` を含む → マスタ JSON と DAO）、`TODAY` の固定日付（→ 実行時の日付）、簡易の組み立て（→ AST と X／Yahoo の変換器）、ダミーのタブ開き（→ `window.open`）、ダミーのランチャー URL（→ codec）、`doneToday`（→ いつものエゴサの `lastRunAt` から求める）。
 - **捨てる**：上部のバナー、`SUGGEST_SEEDS`（サジェストを20件に満たすためのダミー）。
 
@@ -456,7 +456,7 @@ erDiagram
 | Prefs（設定） | `interest`、`lang`（`ja`／`en`）、`favOpen` | 端末内だけ |
 | 削除済み | Chip・Favorite・Group の `deletedAt` | 別の表を作らない（論理削除）。種類ごとに上限20、超えたら古い順に完全削除 |
 
-### 11.3 検索文字列の規則（`lib/query`。モックは `_parts/query-model.ts`）
+### 11.3 検索文字列の規則（`lib/query/model.ts`）
 - **分割（tokenize）**：空白で分ける。引用符の中（`"兎田 ぺこら"`）と括弧の中（`(A OR B)`。入れ子も可）では分けない。
 - **正規化（normalize）**：分割して、重複を除き、並べ替え、空白1つでつなぐ。**保存データどうしの一致の判定は、必ずこの値で行う。** 引用符の有無は区別する（完全一致と通常の語は別の検索）。
 - **相対期間の記号**：`since:yesterday`（昨日から）、`since:3days_ago`（3日前から）、`since:1week_ago`（1週間前から）。保存する文字列には記号のまま入れ、開く時点の日付で `since:YYYY-MM-DD` に展開する（expandRelative）。

@@ -17,7 +17,7 @@ import {
   type ParamOp,
 } from "./data";
 import { condToken, parseListId } from "./query";
-import { chipConds, condsToQuery } from "./query-model";
+import { chipConds, condsToQuery } from "@/lib/query/model";
 import { useStore } from "./store";
 import { Sheet } from "./ui";
 
