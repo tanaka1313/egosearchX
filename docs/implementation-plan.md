@@ -46,7 +46,7 @@ src/
       serialize-x.ts      AST → Xクエリ
       serialize-yahoo.ts  AST → Yahooクエリ + 警告の配列 + 期間（`lts`／`uts`、UNIX 秒）。括弧は OR なので AND は平らにする
       merge.ts            条件ボタン（共通）と個別設定の合成、項目ごとの無効化
-      dates.ts            日付の計算（`localMidnightSec`：現地0時の UNIX 秒。作成済み）と相対日付の解決（#17。until は終了日をそのまま出す。日本時間）
+      dates.ts            日付の計算（`localMidnightSec`：現地0時の UNIX 秒、`localDate`：開く時点の現地の日付＝相対期間の基準日。#85 の `clock.today()` が使う。作成済み）。相対期間の展開の本体は `model.ts` の `expandRelative`（until は終了日をそのまま出す。日本時間）
       （警告の型とコードは src/api/issues.ts に置く。ここには置かない。文言は辞書。docs/api-spec.md 2.3）
     url/
       build.ts            AST → X/Yahoo の URL

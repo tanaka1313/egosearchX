@@ -163,6 +163,18 @@ describe("相対期間", () => {
   });
 });
 
+describe("相対期間（年末の境界）", () => {
+  it("元日に［昨日から］なら、前年の12-31に展開する", () => {
+    const r = buildQuery(
+      state({ word: "a", period: { ...EMPTY_PERIOD, kind: "d1" } }),
+      [],
+      "2027-01-01",
+    );
+    expect(r.stored).toBe("a since:yesterday");
+    expect(r.text).toBe("a since:2026-12-31");
+  });
+});
+
 describe("Yahoo!リアルタイム検索への変換の警告", () => {
   it("使えない演算子を警告する", () => {
     const r = build({

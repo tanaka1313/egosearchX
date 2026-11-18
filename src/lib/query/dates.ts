@@ -1,6 +1,17 @@
 /**
- * 日付の計算（docs/implementation-plan.md 2章）。相対期間の展開は #17 がここへ足す。
+ * 日付の計算（docs/implementation-plan.md 2章）。
+ * 相対期間の展開の本体は `model.ts` の `expandRelative`。ここには、展開の基準日になる
+ * 「開く時点の現地の日付」（`localDate`。#85 の `clock.today()` が使う）と、Yahoo の `lts`／`uts` の秒を置く。
  */
+
+/**
+ * 現地（ブラウザの時刻。日本時間を想定）の日付を `YYYY-MM-DD` で返す。
+ * `toISOString` は UTC なので使わない（日本時間の 0:00〜8:59 に前日になり、［昨日から］が一昨日に展開される）。
+ */
+export function localDate(now: Date): string {
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}`;
+}
 
 /**
  * `YYYY-MM-DD` の現地0時を UNIX 秒で返す。`addDays` 日後の0時にもできる（Yahoo の `uts` は終了日の翌日0時なので 1）。
