@@ -85,7 +85,7 @@ export default function GroupsPage() {
   );
 }
 
-/** M2：ブックマーク URL 発行 */
+/** D2：ブックマーク URL 発行 */
 function IssueSheet({ group, onClose }: { group: Group; onClose: () => void }) {
   const s = useStore();
   const url = `https://example.invalid/launch#v1.${"AAAA".repeat(30)}…（ダミー）`;

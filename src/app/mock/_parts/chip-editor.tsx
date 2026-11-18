@@ -109,7 +109,7 @@ function CondRow({
 }
 
 /**
- * M1：条件ボタンの編集（ラベルと中身。1つのボタンに複数の条件）。
+ * D1：条件ボタンの編集（ラベルと中身。1つのボタンに複数の条件）。
  * 本体は検索文字列。編集のときだけ条件の行に分け（chipConds）、保存で文字列に戻す（condsToQuery）。
  */
 export function ChipEditor({

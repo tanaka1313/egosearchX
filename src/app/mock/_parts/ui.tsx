@@ -55,7 +55,7 @@ export function Sheet({
   );
 }
 
-/** 元に戻せない操作の確認（M3） */
+/** 元に戻せない操作の確認（D3） */
 export function Confirm({
   title,
   body,

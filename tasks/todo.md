@@ -1,3 +1,18 @@
+# CLAUDE.md の見直しとダイアログ記号の変更（M1〜M3 → D1〜D3）
+
+1. Goal: ダイアログ番号をマイルストーンと重ならない D1〜D3 に変え、CLAUDE.md からほかと重複する行と画面の細部を削って短くする。
+2. Plan:
+   - [x] ブランチ `docs/claude-md-review`
+   - [x] screen-spec・implementation-plan・requirements・mock のコメントで、ダイアログの M1〜M3 を D1〜D3 に（実装計画の注記を削除、付録B に改名の注記）
+   - [x] Issue #67 の本文を D1〜D3 に直す
+   - [x] CLAUDE.md を書き直す（84行 → 63行）
+   - [x] lessons に1件追記
+3. Verification: `grep -rn "\bM[123]\b" docs src` で残りがマイルストーンと付録B の旧番号だけ。`make check`（tsc／test 103件／lint／build）が通る。
+4. Review:
+   - 削った行：コマンドの手順（`make check` に集約）、`any` の禁止（ESLint のエラー）、テスト規約（`testing.md`）、lessons の参照・Issue タイトルの形式・秘密情報（ユーザースコープ）、画面の細部（ホームの並び・トースト・自動追加・レイアウトの数値など。screen-spec／requirements にある）。
+   - リスク：ユーザースコープの CLAUDE.md は他の協力者に見えないため、Issue タイトルの形式は伝わらない。
+   - 未対応：Issue #31・#33・#34 は旧番号のままで、内容も廃止された機能（報告のみ）。
+
 # モックを正として要件を見直し、データ構造（検索文字列が本体）と DAO を定める
 
 1. Goal: モックを正として文書を照合し直し、条件ボタン・お気に入り・いつものエゴサの本体を検索文字列に揃え（相対期間は記号）、興味の対象を増やせる形にし、保存先を差し替えられる DAO を設計・実装する。
