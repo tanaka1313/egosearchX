@@ -35,8 +35,8 @@
 
 ## Claude の作業順
 - [x] T1 #70 の Excel ひな形を `docs/data/presets-and-suggest-rules.xlsx` に作成（シート：興味の対象／プリセット／サジェスト規則。例の行は仮の値。ユーザー作業 U1 で記入）。元の指定：2シート（プリセット／サジェスト規則。例の行は1行だけ仮の値。興味の対象の英語表記の列を含める）を作ってユーザーへ渡す
-- [ ] T2 モックの「未確認」の目視をまとめて確認（Claude in Chrome、360px／1280px）
-- [ ] T3 M0 の残り（#82、#83）
+- [x] T2 モックの「未確認」の目視をまとめて確認（ユーザーが自分で確認済みのためクローズ。2026-11-18）
+- [x] T3 M0 の残り（#82、#83）
 - [ ] M1（#88 から）→ M2 → M3 → M4（i18n 基盤を含む）→ M5 → M6 → M7。画面の Issue は毎回 Chrome で 360px／1280px を確認する
 
 3. Verification: 開いている Issue がすべてマイルストーンとラベル1つを持つ（`gh issue list` で確認済み）。旧用語（スタジオ・メンバー選択・テンプレート・S8）が開いている Issue に無い。`make check`。
@@ -223,7 +223,7 @@
 3. Verification: 型エラーのコミット拒否、ダミーの GitHub トークンのコミット拒否、`--no-verify` で作った型エラーのコミットの push 拒否（リモートに残らないことも確認）。tsc / test / lint / build。
 4. Review:
    - 完了条件の「CI で同じ検証が走る」は #8 で満たす。
-   - `npm run format:check` は既存の17ファイル（今回未変更）で失敗する。改行コード（CRLF）が原因とみられ、別途対応が必要。
+   - `npm run format:check` は既存の17ファイル（今回未変更）で失敗する。改行コード（CRLF）が原因とみられ、別途対応が必要。→ #82 で解消（`.gitattributes` で LF 固定）。
 
 # #6 リポジトリ保護
 
@@ -261,7 +261,7 @@
    - [x] 意図的に壊した PR #58（型エラー・`any`・失敗するテスト）で4ジョブとも失敗することを確認し、クローズ
 3. Verification: `gh pr checks`、失敗ログで原因が TS2322 / no-explicit-any / AssertionError / next build の型エラーであることを確認。
 4. Review:
-   - `format:check` は既存ファイルの改行コード問題で失敗するため CI に含めていない（#5 の Review 参照）。
+   - `format:check` は既存ファイルの改行コード問題で失敗するため CI に含めていない（#5 の Review 参照）。→ #82 で解消し、`format` ジョブとして CI に追加した。
    - アクションは最新メジャー（checkout v7 / setup-node v7）。
    - 確認用 PR では claude-code-review が自動で走るため、実行をキャンセルした。
 
@@ -499,4 +499,19 @@
    - 判断：モックはホームの検索ワード集のボタンのラベルを検索文字列で出し、D4 では表示名で出す。そのまま仕様にした。
    - **未確認**：「履歴があるとき」はホームにワード集を出さない。履歴が消えると（削除）また出る。モックの挙動のとおり。
    - 次の脆い点：検索ワード集の約200件の中身（実在のタグ）はユーザー作業（U1）。JSON の件数の検証（60件に満たない場合の扱い）は #21 で決める。
+
+# M0 の残り（#82 format:check の CRLF、#83 旧 .gitkeep）
+
+1. Goal: `npm run format:check` を通し、CI に含め、廃止した機能の `.gitkeep` を整理する。
+2. Plan:
+   - [x] ブランチ `chore/m0-cleanup`
+   - [x] `.gitattributes` を `* text=auto eol=lf` にし、作業ツリーを LF に揃える
+   - [x] `claude-code-review.yml`・`claude.yml` を整形
+   - [x] `ci.yml` に `format` ジョブを追加し、`deploy` の `needs` に加える
+   - [x] `src/components/studio`・`src/lib/templates`・`src/data/agencies` の `.gitkeep` を削除
+3. Verification: `npm run format:check`、`make check`、push 後の CI。
+4. Review:
+   - 原因：`core.autocrlf=true` で作業ツリーが CRLF になり、Prettier（`endOfLine: lf`）が55ファイルで失敗していた（index はすべて LF）。本当に整形が崩れていたのは yml 2つだけ。
+   - 方針：format:check は CI に含める。`make check` の順序（typecheck → test → lint → build）は変えない（pre-commit の lint-staged が整形済み）。
+   - T2（モックの目視）はユーザーが確認済みのためクローズした。
 

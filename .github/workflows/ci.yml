@@ -61,11 +61,23 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-  # デプロイは CI の4ジョブがすべて成功したときだけ行う。
+  format:
+    name: 整形（prettier）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+
+  # デプロイは CI の5ジョブがすべて成功したときだけ行う。
   # フォークからの PR にはシークレットが渡らないため、同一リポジトリの PR と main への push に限る。
   deploy:
     name: デプロイ（Vercel）
-    needs: [typecheck, test, lint, build]
+    needs: [typecheck, test, lint, build, format]
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
