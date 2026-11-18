@@ -515,3 +515,14 @@
    - 方針：format:check は CI に含める。`make check` の順序（typecheck → test → lint → build）は変えない（pre-commit の lint-staged が整形済み）。
    - T2（モックの目視）はユーザーが確認済みのためクローズした。
 
+
+# #88 契約の型（src/api）
+
+1. Goal: 画面とバックエンドの境界の型・警告コード・定数・zod スキーマを `src/api` に置き、DAO の定義を契約へ移す。
+2. Plan:
+   - [x] ブランチ `feature/api-contract`、テスト先行（Red 確認）→ `src/api` 実装
+   - [x] `lib/limits.ts` 削除、`lib/storage/schema.ts` は `SCHEMA_VERSION` だけ、`lib/storage` が `@/api` を import
+   - [x] CLAUDE.md・docs の参照を更新
+   - [ ] main へマージして push、#88 を閉じる
+3. Verification: `make check`（テスト124件）と `npm run format:check` は通過。`@/lib` を `src/api` が import していない。
+4. Review: `EgoSearchApi` と入力型は #85 の完了条件のため作らず。`ApiError` は `{ cause }` を受ける。`EMPTY_DETAIL.flt` は全キー `"any"`。

@@ -5,23 +5,23 @@
  * RDB に移るときは、同じインターフェース（types.ts の Dao）を RDB／API 向けに実装して差し替える。
  */
 import { z } from "zod";
-import { LIMITS } from "@/lib/limits";
-import type { KeyValueAdapter } from "./kv-adapter";
-import { migrate, type Migration } from "./migrate";
 import {
   ChipSchema,
   DEFAULT_PREFS,
   FavoriteSchema,
   GroupSchema,
   HistorySchema,
+  LIMITS,
   PrefsSchema,
-  SCHEMA_VERSION,
   type Chip,
   type HistoryItem,
   type InterestId,
   type TrashEntry,
   type TrashKind,
-} from "./schema";
+} from "@/api";
+import type { KeyValueAdapter } from "./kv-adapter";
+import { migrate, type Migration } from "./migrate";
+import { SCHEMA_VERSION } from "./schema";
 import type { CrudRepo, Dao, Saveable } from "./types";
 
 /** 保存データが壊れている（JSON として読めない、またはスキーマに合わない） */
