@@ -3,14 +3,8 @@ import { FILTER_KEYS } from "@/api";
 import type { Node } from "./ast";
 import { ACCOUNT_OPS, PARSE_ONLY_OPS } from "./operators";
 import { parseX } from "./parse-x";
+import { strip } from "./test-utils";
 
-/** id と enabled を除いた形（比べやすくする） */
-const strip = (n: Node): unknown =>
-  JSON.parse(
-    JSON.stringify(n, (k, v: unknown) =>
-      k === "id" || k === "enabled" ? undefined : v,
-    ),
-  );
 const shape = (q: string) => parseX(q).children.map(strip);
 
 const term = (value: string, negate = false) => ({
