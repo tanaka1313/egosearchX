@@ -18,11 +18,8 @@ import type { AccountNode, FilterNode, GroupNode, Node } from "./ast";
 import { localMidnightSec } from "./dates";
 import {
   ACCOUNT_OPS,
-  FILTER_OPS,
-  LANG_OP,
-  PARAM_OPS,
-  PARSE_ONLY_OPS,
   YAHOO_OR,
+  defOfFilter,
   type OpDef,
   type YahooRule,
 } from "./operators";
@@ -44,15 +41,6 @@ const warn = (ctx: Ctx, issue: Issue) => {
   if (!ctx.warnings.some((w) => JSON.stringify(w) === key))
     ctx.warnings.push(issue);
 };
-
-const defOfFilter = (n: FilterNode): OpDef =>
-  n.name === "lang"
-    ? LANG_OP
-    : n.name in PARAM_OPS
-      ? PARAM_OPS[n.name as keyof typeof PARAM_OPS]
-      : n.name in PARSE_ONLY_OPS
-        ? PARSE_ONLY_OPS[n.name as keyof typeof PARSE_ONLY_OPS]
-        : FILTER_OPS[n.name as keyof typeof FILTER_OPS];
 
 /** 規則（rename／keep／drop／same）を、語の部分 `x + value` に当てはめる。param は呼び出し側が扱う */
 function applyRule(
