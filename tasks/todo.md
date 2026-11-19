@@ -1,3 +1,23 @@
+# #75 S10 このサイトについて と SEO
+
+1. Goal: `/about` を作り、ja／en の title・description を辞書から出し、ホームにだけ WebSite の JSON-LD を置き、下層ページに固有の title を付け、ホーム以外を検索に出さない。
+2. Plan:
+   - [x] ブランチ `feature/about-seo`、テスト先行（Red 確認：`./site`・`./page-title`・`./about-page` が無く失敗）
+   - [x] `messages/site.ts`（サイト名・別名・`SITE_URL`・`websiteJsonLd`）、辞書 `meta`・`aboutPage`（ja／en）
+   - [x] `common/page-title.ts`（`MENU_ITEMS` から導く）、`common/site-meta.tsx`、`about/about-page.tsx`
+   - [x] `layout.tsx` は辞書から出し既定 `noindex`、ホームだけ `index` と JSON-LD、`/about`・`/buttons`・`/import` に title
+   - [x] docs（requirements 7・9.3、CLAUDE.md、screen-spec 5.9、api-spec 7.1、implementation-plan）
+   - [x] make check（テスト740＋30件）、`out/` の HTML、Playwright（en への切替・移動・360px／1280px）
+   - [x] 新 Issue #90「本番 URL の決定」、#41 の依存へ追記、#75 の完了条件を直した
+   - [ ] main へマージして push、#75 を閉じる
+3. Verification: `make check`、`npm run format:check`。`out/index.html` だけに JSON-LD、ホーム以外は `noindex`。Playwright：en に切り替えて ホーム → about → buttons → import → ホームと移るたびに title・description が en。
+4. Review:
+   - 決定（ユーザー）：本番 URL は未定で空（Issue で管理）。title に「非公式」は入れない（description・このサイトについて・フッター）。下層の title を `/about`・`/buttons`・`/import` でそろえ、管理ページのタブだけ「〇〇の管理」。ホーム以外は検索に出さない（既定 noindex）。
+   - 発見：ページ移動のあと Next が静的な ja の title を書き戻す（1度だけ書く実装は、en で移動すると ja に戻った。Playwright で発見）。`SiteMeta` は `MutationObserver` で head を見て合わせ直す。
+   - 判断：`layout.tsx` の title・description は辞書の `ja.meta` から出す（以前の「辞書に移さない」を取り消し。en の抜けは型エラーになり、1か所に集まる）。
+   - **未確認**：en の文言は暫定（#67）。「Manage Condition buttons」は en のタブ名として硬い（#67 で見直す）。`/mock` と `/launch` も noindex だが、ランチャーの個別の title は #35。
+   - **次に壊れやすい点**：`MENU_ITEMS` に無いページ（`/favorites/edit`、`/groups/edit`、`/launch`）の title はサイト全体の title になる（#76・#77・#35 で足す）。本番 URL が決まったら `SITE_URL` に入れる。
+
 # #31 S7 URL解析ページ
 
 1. Goal: メニューの `/import` で、X／Yahoo!リアルタイム検索の URL を貼ると条件に分けて見せ、［ホームで編集する］でホームの組み立てに展開、［新規お気に入りとして保存］で新規に保存できる。
@@ -8,7 +28,7 @@
    - [x] docs（screen-spec 3.10・5.6・5.8、requirements 11章、api-spec 7.1、implementation-plan）
    - [x] make check（テスト723件）・format:check（自分の変更は問題なし）
    - [x] Chrome（Playwright）で 360px／1280px
-   - [ ] main へマージして push、#31 と #78 を更新
+   - [x] main へマージして push、#31 と #78 を更新
 3. Verification: `make check`、`npm run format:check`。本物のバックエンド＋MemoryAdapter のテスト（X／Yahoo の URL、3つの理由、空入力、ホームで編集で ON/OFF・home・`/` へ移動、既存お気に入りが不変、保存シート、英語）。Playwright：360px で横にはみ出さない・シートは下から・フォーカスは［×］・ホームへ展開できる・コンソールのエラー 0。
 4. Review:
    - 判断：［ホームで編集する］の照合は「表示」の条件ボタンだけ（要件定義書 11.4 ①）。ON/OFF は非表示も含む全件を合わせ、非表示の ON は OFF にして詳細条件へ回す（テストあり）。モックにあった「URL を解析しました」の通知は、画面仕様書 5.8 に無いので足していない。
