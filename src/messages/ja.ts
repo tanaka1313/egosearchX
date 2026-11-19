@@ -141,7 +141,6 @@ export const ja = {
   },
   sheet: {
     close: "閉じる",
-    outside: "シートの外を押して閉じる",
   },
   enginePicker: {
     legend: "検索先（▶ 実行で開く先）",

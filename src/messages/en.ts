@@ -134,7 +134,6 @@ export const en: Messages = {
   },
   sheet: {
     close: "Close",
-    outside: "Press outside the sheet to close it",
   },
   enginePicker: {
     legend: "Search on (opened by ▶ Run)",
