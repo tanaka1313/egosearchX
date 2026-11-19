@@ -36,13 +36,14 @@ src/
     common/               QueryPreview, EngineBadge, WarningList, CorruptNotice, CommandPalette
                           シェル（作成済み＝#73）：app-shell, site-header, interest-picker, group-strip, blocked-notice,
                           site-footer, site-menu（項目の定義は menu-items.ts）, toast, use-runner（検索を開く共通の処理）,
-                          blocked-context（本文の画面から帯の下の `BlockedNotice` を出す入口）, engine-picker（検索先の選択。#32）
+                          blocked-context（本文の画面から帯の下の `BlockedNotice` を出す入口）, engine-picker（検索先の選択。#32）,
+                          page-head・empty-state（メニューのページの見出しと空状態。#74）
     search/               検索の組み立ての共通部品（作成済み＝#30・#32）。画面の状態は `SearchScope`（`search-scope.tsx`）を読むだけで、
                           ホームもほかの組み立て画面も同じ部品を使う：search-scope（型・`HomeScopeProvider`）, chip-row・chip-button（値付き・サジェスト・検索ワード集 `WordChip`）, dialogs/word-set-dialog（D4）,
                           period-picker, detail-panel・detail-form, condition-frame, query-preview（実験的バッジ）, warning-note,
                           open-bar（開くボタン・［⋯］）, save-sheet, styles（`toggleClass` 1か所）, harness（テスト用）
     home/                 S1 ホーム（作成済み＝#32）：home-page, favorites-fold
-    chips/                ChipEditor(D1), SortableChip
+    chips/                S2 条件ボタン（作成済み＝#74）：chips-page, chip-editor（D1。`ChipEditorSheet`）
     favorites/            FavoriteRow, GroupButton, GroupEditor
     dialogs/              PublishGroup(D2), ConfirmDialog(D3。作成済み)
   lib/

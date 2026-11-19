@@ -285,3 +285,23 @@ describe("home（ホームの検索の組み立て。保存しない）", () => 
     expect(store.getState().home.word).toBe("あ");
   });
 });
+
+describe("newChipIds（「新」印。保存しない）", () => {
+  it("サジェストを条件ボタンにすると入り、chip_seen で外れる。保存データには出ない", async () => {
+    const { store, kv } = await ready();
+    expect(store.getState().newChipIds).toEqual([]);
+    const chip = await store
+      .getState()
+      .chips_adoptSuggestion("hololive", "#新しいタグ");
+    expect(store.getState().newChipIds).toEqual([chip.id]);
+    expect(JSON.stringify(await dump(kv))).not.toContain("newChipIds");
+    store.getState().chip_seen(chip.id);
+    expect(store.getState().newChipIds).toEqual([]);
+  });
+  it("作り直し（再読み込み相当）では空に戻る", async () => {
+    const { kv, store } = await ready();
+    await store.getState().chips_adoptSuggestion("hololive", "#新しいタグ");
+    const again = await ready(kv);
+    expect(again.store.getState().newChipIds).toEqual([]);
+  });
+});

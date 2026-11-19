@@ -69,6 +69,9 @@ export type AppState = Data & {
   home: HomeState;
   /** 指定した項目だけ変える。保存しないので、壊れたデータ（corrupt）でも使える */
   home_set(patch: Partial<HomeState>): void;
+  /** 「新」印を付ける条件ボタンの ID（サジェストから追加したもの）。保存しない＝再読み込みで消える。ホームで初めて押すと外れる */
+  newChipIds: string[];
+  chip_seen(id: string): void;
   /** 削除済み。`trash_load` を呼ぶまでは null */
   trash: TrashEntry[] | null;
   /** 一度だけ読む。壊れていれば status を corrupt にする（throw しない） */
@@ -203,6 +206,13 @@ export function createAppStore(api: EgoSearchApi): AppStore {
       history: [],
       trash: null,
       home: EMPTY_HOME,
+      newChipIds: [],
+      chip_seen: (id) =>
+        set((s) =>
+          s.newChipIds.includes(id)
+            ? { newChipIds: s.newChipIds.filter((x) => x !== id) }
+            : s,
+        ),
       home_set: (patch) => set((s) => ({ home: { ...s.home, ...patch } })),
 
       init: async () => {
@@ -218,7 +228,12 @@ export function createAppStore(api: EgoSearchApi): AppStore {
       data_reset: async () => {
         if (get().status !== "corrupt")
           throw new Error("data_reset は保存データが壊れているときだけ使う");
-        set({ ...dataOf(await data.reset()), trash: null, status: "ready" });
+        set({
+          ...dataOf(await data.reset()),
+          trash: null,
+          newChipIds: [],
+          status: "ready",
+        });
       },
       trash_load: () =>
         run(async () => set({ trash: await data.trash.list() })),
@@ -238,7 +253,12 @@ export function createAppStore(api: EgoSearchApi): AppStore {
           return added;
         }),
       chips_adoptSuggestion: (interestId, token) =>
-        chipOp(() => data.chips.adoptSuggestion(interestId, token)),
+        run(async () => {
+          const chip = await data.chips.adoptSuggestion(interestId, token);
+          set((s) => ({ newChipIds: [...s.newChipIds, chip.id] }));
+          putChips([chip]);
+          return chip;
+        }),
 
       favorites_save: (input) =>
         run(async () => {

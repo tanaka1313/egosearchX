@@ -544,6 +544,14 @@ describe("履歴・削除済み・設定", () => {
     );
     expect(await code(api.data.trash.purge("group", "nope"))).toBe("NOT_FOUND");
   });
+  it("条件ボタンを削除して復元すると、並びの途中のものでも元の位置に戻る", async () => {
+    const before = (await api.data.init()).chips.get("hololive")!;
+    const target = before[2];
+    await api.data.chips.remove(target.id);
+    await api.data.trash.restore("chip", target.id);
+    const after = (await api.data.init()).chips.get("hololive")!;
+    expect(after.map((c) => c.id)).toEqual(before.map((c) => c.id));
+  });
   it("条件ボタンの復元で、戻す先が上限なら LIMIT", async () => {
     const list = (await api.data.init()).chips.get("hololive")!;
     await api.data.chips.remove(list[0].id);
