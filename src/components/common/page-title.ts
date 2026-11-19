@@ -11,6 +11,7 @@ function normalize(pathname: string): string {
 const SUB_PAGES: Record<string, (t: Messages) => string> = {
   "/favorites/edit": (t) => t.favoriteEdit.title,
   "/groups/edit": (t) => t.groupEdit.tabTitle,
+  "/launch": (t) => t.launchPage.tabTitle,
 };
 
 /**
