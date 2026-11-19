@@ -30,9 +30,12 @@ src/
     trash/page.tsx        S6 削除済み
     import/page.tsx       S7 URL解析
     launch/page.tsx       S9 ランチャー
-    layout.tsx            ヘッダー、左メニュー、トースト、コマンドパレット
+    layout.tsx            Providers だけ（ストア・辞書・API の組み立て）
+    (site)/layout.tsx     本実装の全ページ共通の枠（AppShell）。モック（/mock）は含めない。ページはこの下に置く（作成済み＝#73）
   components/
-    common/               QueryPreview, EngineBadge, WarningList, CorruptNotice, Toast, CommandPalette
+    common/               QueryPreview, EngineBadge, WarningList, CorruptNotice, CommandPalette
+                          シェル（作成済み＝#73）：app-shell, site-header, interest-picker, group-strip, blocked-notice,
+                          site-footer, site-menu（項目の定義は menu-items.ts）, toast, use-runner（検索を開く共通の処理）
     home/                 SearchBuilder, ChipRow（折りたたみ）, PeriodPicker, DetailPanel, SaveSheet
     chips/                ChipEditor(D1), SortableChip
     favorites/            FavoriteRow, GroupButton, GroupEditor

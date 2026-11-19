@@ -4,6 +4,7 @@ import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
+import { useToast } from "./toast";
 
 /**
  * 保存データが壊れているとき（`CORRUPT`）の全ページ共通の表示（画面仕様書 2.7）。
@@ -11,6 +12,7 @@ import { useAppStore } from "@/store/store-context";
  */
 export function CorruptNotice() {
   const { t } = useI18n();
+  const toast = useToast();
   const corrupt = useAppStore((s) => s.status === "corrupt");
   const reset = useAppStore((s) => s.data_reset);
   const [confirming, setConfirming] = useState(false);
@@ -30,8 +32,13 @@ export function CorruptNotice() {
         title={t.resetData.title}
         body={t.resetData.body}
         action={t.resetData.action}
-        // 失敗しても表示はそのまま残す（トーストは #73 まで無い）
-        onConfirm={() => reset().catch(console.error)}
+        // 失敗しても表示はそのまま残し、トーストで知らせる
+        onConfirm={() =>
+          reset().catch((e: unknown) => {
+            console.error(e);
+            toast.show(t.toast.resetFailed);
+          })
+        }
       />
     </div>
   );

@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { CorruptNotice } from "@/components/common/corrupt-notice";
-import { SiteFooter } from "@/components/common/site-footer";
 import { Providers } from "./providers";
 
 const geistSans = Geist({
@@ -39,13 +37,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>
-          <div className="flex min-h-screen flex-col">
-            <CorruptNotice />
-            <div className="flex-1">{children}</div>
-            <SiteFooter />
-          </div>
-        </Providers>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

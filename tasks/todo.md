@@ -1,3 +1,21 @@
+# #73 シェル（ヘッダー・興味の対象の切替・帯・フッター・左メニュー・トースト）
+
+1. Goal: 以降の画面が載る全ページ共通の枠（画面仕様書 2章）を、辞書・`@/api`・ストア経由で作る。
+2. Plan:
+   - [x] ブランチ `feature/shell`、テスト先行（Red 確認：`format-date`・`app-shell` が無く失敗）
+   - [x] route group `(site)` に AppShell、ルートの `layout.tsx` は Providers だけ（モックに二重に出ない）
+   - [x] InterestPicker・GroupStrip（✓は `clock.isToday(lastRunAt)`）・BlockedNotice・SiteFooter（2行・固定）・SiteMenu（ドロワー／サイドバー）・SiteHeader・Toast・`useRunner`
+   - [x] 辞書 ja／en、`formatRunAt`（`M/D HH:mm`）、`CorruptNotice` を帯の下へ・失敗はトースト
+   - [x] docs（screen-spec 2.2、api-spec 7.1、implementation-plan）
+   - [x] make check（テスト606件）・format:check
+   - [x] main へマージして push、#73 を閉じ、#81・#77・#35 に追記
+3. Verification: `make check`、`npm run format:check`。ピッカーの保存と再読み込み、帯の先頭2件・✓・両方で2タブ・ブロック表示、フッターの再実行が lastRunAt を動かさない、メニューのフォーカス・Esc・`aria-current`、/launch でフッター無し、CORRUPT で帯が空。
+4. Review:
+   - 決定（ユーザー）：帯でブロックされたら、帯の下に `role="status"` で件数・個別リンク・［×］。
+   - 判断：`window.open` に `noopener` を渡さない（戻り値が常に null でブロックを検出できない）。開けたら `opener` を切る。コマンドパレットは #81（メニュー項目の定義 `menu-items.ts` は共用できる形）。VersionDialog はフッターからメニューへ移した。
+   - **未確認**：Chrome での 360px／1280px の目視（拡張が使えなかった）。書き出した HTML に要素があることと、jsdom のテストまで。完了条件の「Chrome で確認」は残る。
+   - **次に壊れやすい点**：jsdom は CSS が効かないのでサイドバーも DOM に出る（テストは nav の中に絞る）。`.next/dev/types` が古いと tsc が落ちる（git 管理外。該当ファイルを消す）。CORRUPT 中は興味の対象を選んでも保存されず見た目も変わらない。
+
 # #87 保存データが壊れたときの初期化（data.reset）
 
 1. Goal: 保存データが壊れて読めない（CORRUPT）とき、全ページ共通の表示と確認ダイアログ（D3）を経て、保存データをすべて破棄しプリセットから作り直せるようにする。
