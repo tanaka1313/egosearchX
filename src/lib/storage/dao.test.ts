@@ -115,6 +115,14 @@ describe("DAO（KeyValue の上のリポジトリ）", () => {
       ]);
     });
 
+    it("条件ボタンの削除済みは、削除したときの興味の対象を持つ", async () => {
+      await dao.chips.save(chip("c1"));
+      await dao.chips.softDelete("c1", T1);
+      const [entry] = await dao.trash.list();
+      expect(entry).toMatchObject({ kind: "chip", id: "c1" });
+      expect(entry.interestId).toBe((await dao.chips.get("c1"))?.interestId);
+    });
+
     it("種類ごとに上限を超えたら、その種類の古いものから完全削除する", async () => {
       for (let i = 0; i <= LIMITS.trash; i++) {
         await dao.groups.save(group(`g${i}`));

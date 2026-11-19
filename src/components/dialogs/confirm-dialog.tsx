@@ -15,6 +15,7 @@ export function ConfirmDialog({
   body,
   action,
   onConfirm,
+  onCloseAutoFocus,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -23,13 +24,18 @@ export function ConfirmDialog({
   /** 赤の実行ボタンの文言 */
   action: string;
   onConfirm: () => void;
+  /** 閉じたあとのフォーカスの戻し先を呼び出し側が決めるとき（押した行が消える場合など）。既定は押した要素へ戻す */
+  onCloseAutoFocus?: (event: Event) => void;
 }) {
   const { t } = useI18n();
   return (
     <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="fixed inset-0 z-[65] bg-black/50" />
-        <AlertDialog.Content className="fixed top-1/2 left-1/2 z-[65] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-lg border bg-background p-4 shadow-xl">
+        <AlertDialog.Content
+          onCloseAutoFocus={onCloseAutoFocus}
+          className="fixed top-1/2 left-1/2 z-[65] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-lg border bg-background p-4 shadow-xl"
+        >
           <AlertDialog.Title className="font-bold">{title}</AlertDialog.Title>
           <AlertDialog.Description className="mt-2 text-sm">
             {body}

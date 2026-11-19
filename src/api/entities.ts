@@ -111,4 +111,6 @@ export type TrashEntry = {
   id: string;
   name: string;
   deletedAt: string;
+  /** 条件ボタンだけ：削除したときの興味の対象（復元先の並びと上限の判定に使う） */
+  interestId?: InterestId;
 };
