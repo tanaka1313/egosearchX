@@ -211,6 +211,17 @@ describe("S4-E：編集（?id=）", () => {
     ]);
   });
 
+  it("［↓］で動かした項目のボタンにフォーカスが残る（キーボードで続けて動かせる）", async () => {
+    const { api, group } = await setup();
+    search = `id=${group.id}`;
+    await mountPage(api);
+    const down = screen.getByRole("button", { name: "ぺこらエゴサを下へ" });
+    down.focus();
+    fireEvent.click(down);
+    expect(items()[1]).toHaveTextContent("ぺこらエゴサ");
+    expect(document.activeElement).toBe(down);
+  });
+
   it("id に当たるいつものエゴサが無いときは、空状態と一覧へのリンクを出す", async () => {
     const { api } = await setup();
     search = "id=nothing";

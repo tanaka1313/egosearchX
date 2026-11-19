@@ -32,6 +32,18 @@ import { useItemLabel } from "./item-label";
 /** 一覧（S4）。保存したあと・直接開いてキャンセルしたときの戻り先 */
 const LIST_PATH = "/groups";
 
+/**
+ * 並べ替え・削除のあともフォーカスが残るよう、行には内容に依らない安定したキーを持たせる
+ * （文字列と位置をキーにすると、入れ替えた行が作り直されて、押したボタンが消える）。保存するときは外す
+ */
+type KeyedItem = GroupItem & { key: number };
+let nextKey = 0;
+const keyed = (it: GroupItem): KeyedItem => ({
+  query: it.query,
+  engine: it.engine,
+  key: nextKey++,
+});
+
 /** ②の組み立ての初期値（空）。追加するたびに作り直して空に戻す */
 const EMPTY_SCOPE: ParsedScope = {
   word: "",
@@ -98,7 +110,9 @@ function GroupEditor({ group }: { group: Group | null }) {
   const save = useAppStore((s) => s.groups_save);
 
   const [name, setName] = useState(group?.name ?? "");
-  const [items, setItems] = useState<GroupItem[]>(group?.items ?? []);
+  const [items, setItems] = useState<KeyedItem[]>(() =>
+    (group?.items ?? []).map(keyed),
+  );
   const [error, setError] = useState("");
   // ②で1件作るたびに、組み立てを空に戻す（LocalScopeProvider を作り直す）
   const [makerKey, setMakerKey] = useState(0);
@@ -116,7 +130,11 @@ function GroupEditor({ group }: { group: Group | null }) {
     if (items.length === 0) return setError(ed.itemsRequired);
     setError("");
     try {
-      await save({ id: group?.id, name: name.trim(), items });
+      await save({
+        id: group?.id,
+        name: name.trim(),
+        items: items.map(({ query, engine }) => ({ query, engine })),
+      });
       toast.show(ed.saved);
       router.push(LIST_PATH);
     } catch (e) {
@@ -174,7 +192,7 @@ function GroupEditor({ group }: { group: Group | null }) {
             const b = engineBadge(it.engine);
             return (
               <li
-                key={`${it.query}${i}`}
+                key={it.key}
                 className="flex items-center gap-1 rounded border px-2 py-1"
               >
                 <span className="min-w-0 flex-1">
@@ -239,9 +257,7 @@ function GroupEditor({ group }: { group: Group | null }) {
               size="xs"
               variant="outline"
               aria-label={ed.addLabel(f.name)}
-              onClick={() =>
-                setItems((v) => [...v, { query: f.query, engine: f.engine }])
-              }
+              onClick={() => setItems((v) => [...v, keyed(f)])}
             >
               {ed.add}
             </Button>
@@ -255,7 +271,7 @@ function GroupEditor({ group }: { group: Group | null }) {
           <NewSearchMaker
             groupName={name}
             onMade={(item) => {
-              setItems((v) => [...v, item]);
+              setItems((v) => [...v, keyed(item)]);
               setMakerKey((k) => k + 1);
             }}
           />

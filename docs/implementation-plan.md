@@ -37,7 +37,7 @@ src/
     common/               QueryPreview, EngineBadge, WarningList, CorruptNotice, CommandPalette
                           シェル（作成済み＝#73）：app-shell, site-header, interest-picker, group-strip, blocked-notice,
                           site-footer, site-menu（項目の定義は menu-items.ts）, toast, use-runner（検索を開く共通の処理）,
-                          blocked-context（本文の画面から帯の下の `BlockedNotice` を出す入口）, engine-picker（検索先の選択。#32）,
+                          blocked-context（本文の画面から帯の下の `BlockedNotice` を出す入口）, engine-picker（検索先の選択。#32）, engine-badge（検索先バッジの表示名。#77）,
                           page-head・empty-state（メニューのページの見出しと空状態。#74）
     search/               検索の組み立ての共通部品（作成済み＝#30・#32）。画面の状態は `SearchScope`（`search-scope.tsx`）を読むだけで、
                           ホームもほかの組み立て画面も同じ部品を使う：search-scope（型・`HomeScopeProvider`）, chip-row・chip-button（値付き・サジェスト・検索ワード集 `WordChip`）, dialogs/word-set-dialog（D4）,
@@ -47,8 +47,9 @@ src/
     chips/                S2 条件ボタン（作成済み＝#74）：chips-page, chip-editor（D1。`ChipEditorSheet`）
     import/               S7 URL解析（作成済み＝#31）：import-page（解析結果の表示、［ホームで編集する］、保存シート）
     about/                S10 このサイトについて（作成済み＝#75）：about-page。SEO：common/page-title（ページ名と `document.title`）・common/site-meta（言語・移動に合わせた差し替え）、`messages/site.ts`（サイト名・別名・`SITE_URL`・`websiteJsonLd`）
-    favorites/            FavoriteRow, GroupButton, GroupEditor
-    dialogs/              PublishGroup(D2), ConfirmDialog(D3。作成済み)
+    favorites/            S3・S3-E（作成済み＝#76）：favorites-page, favorite-row, favorite-edit-page
+    groups/               S4・S4-E・D2（作成済み＝#77）：groups-page, group-edit-page, bookmark-sheet（D2）, item-label（項目の名前）
+    dialogs/              ConfirmDialog(D3。作成済み), word-set-dialog(D4。作成済み)
   lib/
     query/
       ast.ts              検索条件モデル（木構造）の型
