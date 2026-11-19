@@ -45,6 +45,7 @@ src/
     home/                 S1 ホーム（作成済み＝#32）：home-page, favorites-fold
     chips/                S2 条件ボタン（作成済み＝#74）：chips-page, chip-editor（D1。`ChipEditorSheet`）
     import/               S7 URL解析（作成済み＝#31）：import-page（解析結果の表示、［ホームで編集する］、保存シート）
+    about/                S10 このサイトについて（作成済み＝#75）：about-page。SEO：common/page-title（ページ名と `document.title`）・common/site-meta（言語・移動に合わせた差し替え）、`messages/site.ts`（サイト名・別名・`SITE_URL`・`websiteJsonLd`）
     favorites/            FavoriteRow, GroupButton, GroupEditor
     dialogs/              PublishGroup(D2), ConfirmDialog(D3。作成済み)
   lib/

@@ -411,4 +411,57 @@ export const en: Messages = {
       saveFailed: "Could not save",
     },
   },
+  meta: {
+    title:
+      "Hololive EgoSearch – Save X (Twitter) search commands for hololive fans",
+    description:
+      "Save and reuse X (Twitter) search commands for your favorite hololive talents and open your daily searches in one tap. Also works with Yahoo! Realtime Search. No login. Unofficial fan-made tool.",
+  },
+  aboutPage: {
+    title: "About this site",
+    reasonTitle: "Why I made this site",
+    reason1:
+      "People search social media every day, yet there is no place to keep the search commands you need to remember. You search many times a day, but you could not save those searches and run them together either. I made this site to lighten that burden.",
+    reason2:
+      "So I prepared search buttons you can reuse any number of times (condition buttons), and added Favorites and Routines for your daily lookups.",
+    noResults: "Search results are not shown on this site.",
+    noResultsRest: ` It only builds the search URL and opens the page on X (Twitter) or ${Y}.`,
+    stepsTitle: "How to use (3 steps)",
+    steps: [
+      "Type the name or hashtag you want to search",
+      "Press condition buttons and a period to narrow it down",
+      "Press [Open on X] or [Open on Yahoo]",
+    ],
+    featuresTitle: "What you can do",
+    features: [
+      {
+        title: "Build a search",
+        body: "Type a name or tag and press condition buttons (no retweets, with images, from a list…) to get an X search string. A period is one tap too.",
+      },
+      {
+        title: `Open on both X and ${Y}`,
+        body: `Open the same conditions on both X and ${Y}. Operators that ${Y} cannot use are not dropped silently; you get a warning.`,
+      },
+      {
+        title: "Grow your own condition buttons",
+        body: "Turn the conditions you use often into buttons, reorder and copy them. Button candidates (suggestions) also appear from your recent searches.",
+      },
+      {
+        title: "Save, and open everything at once with Routines",
+        body: "Save the searches you like as Favorites. One tap on a Routine, a set of several searches, opens all the tabs.",
+      },
+      {
+        title: "History, Trash and Parse URL",
+        body: `Re-run your last searches right away. Anything you delete can be restored from Trash. Paste an X or ${Y} URL to break it into conditions and edit it on Home.`,
+      },
+    ],
+    dataTitle: "How your data is handled",
+    data: [
+      "You do not log in to X, and the X API is not used.",
+      "What you save (condition buttons, favorites, history and so on) is stored only in this browser on this device. Nothing is sent to a server.",
+      "Your history and browsing are never read without your action.",
+    ],
+    unofficial:
+      "This is an unofficial tool made by a fan, not affiliated with hololive production or COVER Corp.",
+  },
 };

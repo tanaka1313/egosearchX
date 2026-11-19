@@ -230,7 +230,7 @@ UIは、ホーム（日課の実行と直感操作）と、左メニュー（複
 - Xの `since:`／`until:` は日本時間で評価され、`until:` は指定日を含む（2026-11-16、#49 の実機確認。公式の記載は無い）。予告なく変わる可能性がある。
 - クエリ長の実際の上限は不明。警告水準の500文字は暫定値。
 - 上限値（条件ボタン＝興味の対象ごとに30、削除済み＝種類ごとに20、サジェスト20、履歴100、折りたたみ前の条件ボタン8個、履歴なしのときホームに出す検索ワード集60件）は、今後変更する可能性が高い。定数1か所に集め、画面の文言にも数字を直書きせず定数から出す。
-- **公式と誤認されるリスク（サイト名に「Hololive」を入れたことによる）。** カバー社の二次創作ガイドラインは「公式と誤解・誤認されうるもの」を避けるよう求めている（<https://hololivepro.com/terms/>。サイト名・ツールの扱いに関する個別の条項は確認できなかった）。対策として、title・description・「このサイトについて」・フッターに「非公式（ファンメイド）」と明記し、公式のロゴ・画像・タレント名の画像を使わない。指摘を受けたときはサイト名を変える（名前は定数1か所に集める）。
+- **公式と誤認されるリスク（サイト名に「Hololive」を入れたことによる）。** カバー社の二次創作ガイドラインは「公式と誤解・誤認されうるもの」を避けるよう求めている（<https://hololivepro.com/terms/>。サイト名・ツールの扱いに関する個別の条項は確認できなかった）。対策として、description・「このサイトについて」・フッターに「非公式（ファンメイド）」と明記し（title には入れない。9.3）、公式のロゴ・画像・タレント名の画像を使わない。指摘を受けたときはサイト名を変える（名前は定数1か所に集める）。
 - SEO の検索数は推定値（9章）。特に X 系の語は、改名前のデータで過小評価されている可能性がある。順位や流入は保証しない。
 
 ## 8. 要調査（Phase 0 で確認するまで仕様として確定しない）
@@ -288,7 +288,13 @@ UIは、ホーム（日課の実行と直感操作）と、左メニュー（複
 | description（en） | `Save and reuse X (Twitter) search commands for your favorite hololive talents and open your daily searches in one tap. Also works with Yahoo! Realtime Search. No login. Unofficial fan-made tool.` |
 | 下層ページの title | `<ページ名>｜Hololive EgoSearch`（ページごとに固有） |
 
-- 実装：ja の title・description は `src/app/layout.tsx` の `metadata`（title は `default`＋`template`）。**en の文言は、言語辞書ができる M5 で入れる**。WebSite の JSON-LD（`name`、`alternateName`、`url`）は、本物のホームを作る M5 で、ホームにだけ置く。
+- 実装（#75）：
+  - 文言は辞書 `meta`（ja／en。`src/messages`）。サイト名・別名・本番 URL は `src/messages/site.ts` の1か所。静的 HTML は ja で、`src/app/layout.tsx` の `metadata`（title は `default`＋`template`）がそこから出す。
+  - en の画面では、`SiteMeta`（`components/common`）が `document.title` と description を辞書で差し替える（ページを移るたびに Next が静的な ja を書き戻すので、head の変更を見て合わせ直す）。
+  - 下層ページの title は「ページ名｜サイト名」。ページ名はメニューの名前で、**管理ページ（条件ボタン・お気に入り・いつものエゴサ）だけ「〇〇の管理」**（見出しは変えない）。
+  - **検索に出すのはホームだけ**：既定を `noindex, follow` にし、ホームだけ `index, follow`。JSON-LD もホームにだけ置く。
+  - JSON-LD の `url`（本番 URL）は**未定**で、`SITE_URL` が空のあいだは出さない（決まり次第、開発者が記入する。リリース前の Issue で管理）。
+  - 非公式の表記は description・「このサイトについて」・フッターに置く（title には置かない。2026-11-19 決定）。
 - 静的 HTML に出る場所に置く（クライアントの状態で隠さない）。サイト名と、興味の対象の既定（ホロライブ）は静的 HTML に含める。
 - リポジトリ名（egosearchX）と配信 URL は変えない。
 

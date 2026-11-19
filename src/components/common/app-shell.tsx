@@ -16,6 +16,7 @@ import { CorruptNotice } from "./corrupt-notice";
 import { GroupStrip } from "./group-strip";
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
+import { SiteMeta } from "./site-meta";
 import { MenuDrawer, MenuSidebar } from "./site-menu";
 import { ToastProvider } from "./toast";
 
@@ -66,6 +67,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <ToastProvider bottomClass={launcher ? "bottom-4" : "bottom-20"}>
+      <SiteMeta />
       <div className="flex min-h-screen">
         <MenuSidebar />
         <div className={`min-w-0 flex-1 ${launcher ? "" : "pb-20"}`}>

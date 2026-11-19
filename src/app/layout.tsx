@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { ja } from "@/messages/ja";
+import { SITE_NAME } from "@/messages/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,16 +16,16 @@ const geistMono = Geist_Mono({
 });
 
 // サイト名・title・description の根拠は docs/requirements.md「SEO」の章。
-// metadata は静的で言語を切り替えられないため、辞書（#72）には移さない。en の title・description は #75。
+// 静的 HTML は ja で出す（SEO）。en の画面では SiteMeta（components/common）が辞書で差し替える。
+// 既定は noindex。検索に出すのはホームだけ（ホームの page.tsx で index にする）。
 export const metadata: Metadata = {
-  applicationName: "Hololive EgoSearch",
+  applicationName: SITE_NAME,
   title: {
-    default:
-      "ホロライブのエゴサ用 X（Twitter）検索コマンド保存｜Hololive EgoSearch",
-    template: "%s｜Hololive EgoSearch",
+    default: ja.meta.title,
+    template: `%s｜${SITE_NAME}`,
   },
-  description:
-    "ホロライブの推しを X（Twitter）でエゴサする検索コマンドを保存して、毎日の検索をワンタップで開けます。Yahoo!リアルタイム検索にも対応。ログイン不要、ファンが作った非公式ツールです。",
+  description: ja.meta.description,
+  robots: { index: false, follow: true },
 };
 
 export default function RootLayout({
