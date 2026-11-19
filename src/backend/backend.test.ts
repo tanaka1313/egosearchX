@@ -644,6 +644,25 @@ describe("clock と計算", () => {
       "ぺこら",
     ]);
   });
+  it("suggest の候補は20件で切る（仕様の値。履歴に25種類あっても）", () => {
+    const { api } = make();
+    const words = Array.from({ length: 25 }, (_, i) => `語${i + 1}`);
+    const out = api.query.suggest({
+      text: "",
+      chips: [],
+      history: [
+        {
+          id: "h",
+          at: NOW,
+          query: words.join(" "),
+          engine: "x" as const,
+          source: { kind: "home" as const, label: "" },
+        },
+      ],
+    });
+    expect(out).toHaveLength(20);
+    expect(out).toEqual(words.slice(0, 20));
+  });
 });
 
 describe("lastRunAt（いつものエゴサ・お気に入り）と「今日は実行済み」", () => {
