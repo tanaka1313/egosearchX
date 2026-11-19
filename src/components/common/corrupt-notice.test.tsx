@@ -83,6 +83,18 @@ describe("CorruptNotice", () => {
     expect(await kv.get(FAV_KEY)).toBe(BROKEN);
   });
 
+  it("キャンセルで閉じると［データを初期化する］へフォーカスが戻る", async () => {
+    mount(await corruptKv());
+    const opener = await screen.findByRole("button", {
+      name: "データを初期化する",
+    });
+    opener.focus();
+    fireEvent.click(opener);
+    await screen.findByRole("alertdialog");
+    fireEvent.click(screen.getByRole("button", { name: "キャンセル" }));
+    await waitFor(() => expect(opener).toHaveFocus());
+  });
+
   it("Esc で閉じても何も消さない", async () => {
     const kv = await corruptKv();
     mount(kv);

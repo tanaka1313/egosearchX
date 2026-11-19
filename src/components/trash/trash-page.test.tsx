@@ -153,6 +153,21 @@ describe("S6 削除済み：一覧と種類のタブ", () => {
   });
 });
 
+describe("S6 削除済み：タブの状態表示", () => {
+  it("選んでいるタブに✓、ほかに○を出し、タブを移すと付け替わる（色だけで示さない）", async () => {
+    await mountPage(await newApi());
+    await screen.findByText("削除したものはここに入ります");
+    const all = tab("すべて 0");
+    const chips = tab(`条件ボタン 0/${LIMITS.trash}`);
+    expect(all.querySelector(".lucide-check")).not.toBeNull();
+    expect(chips.querySelector(".lucide-circle")).not.toBeNull();
+    fireEvent.click(chips);
+    expect(chips.querySelector(".lucide-check")).not.toBeNull();
+    expect(all.querySelector(".lucide-circle")).not.toBeNull();
+    expect(all.querySelector(".lucide-check")).toBeNull();
+  });
+});
+
 describe("S6 削除済み：中身を見る", () => {
   it("条件ボタンは条件の文字列、お気に入りは開くときの文字列、いつものエゴサは項目の名前と文字列を出し、隠せる", async () => {
     const api = await setup();

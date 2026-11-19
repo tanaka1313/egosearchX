@@ -354,6 +354,22 @@ describe("左メニュー", () => {
     expect(screen.queryByRole("navigation", { name: "メニュー" })).toBeNull();
   });
 
+  it("メニューの中でバージョン情報を開いて Esc を押すと、バージョン情報だけが閉じ、メニューは開いたまま", async () => {
+    mount(apiOf(new MemoryAdapter()));
+    const { nav } = await openMenu();
+    const trigger = within(nav).getByRole("button", {
+      name: "バージョン情報",
+    });
+    trigger.focus();
+    fireEvent.click(trigger);
+    const dialog = await screen.findByRole("dialog", {
+      name: "バージョン情報",
+    });
+    fireEvent.keyDown(dialog, { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect(screen.getByRole("navigation", { name: "メニュー" })).toBeVisible();
+  });
+
   it("下部に言語の切替とバージョン情報があり、削除済みの件数は0件なら出さない", async () => {
     mount(apiOf(new MemoryAdapter()));
     const { nav } = await openMenu();

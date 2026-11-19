@@ -1,34 +1,12 @@
 "use client";
 
-import { Ban, Check, Circle } from "lucide-react";
 import { useMemo, useState } from "react";
 import { PARAM_OP_TYPES, type Chip, type Cond, type ParamOp } from "@/api";
+import { StateIcon } from "@/components/common/state-icon";
 import { useApi } from "@/store/api-context";
 import { useI18n } from "@/store/i18n-context";
 import { useSearchScope } from "./search-scope";
 import { toggleClass } from "./styles";
-
-/** ON/OFF のアイコン枠（固定サイズ。押しても幅が変わらない） */
-export function StateIcon({
-  on,
-  blocked = false,
-}: {
-  on: boolean;
-  blocked?: boolean;
-}) {
-  const { t } = useI18n();
-  return (
-    <span className="flex size-4 shrink-0 items-center justify-center">
-      {blocked ? (
-        <Ban className="size-3.5" aria-label={t.search.disabled} />
-      ) : on ? (
-        <Check className="size-4" aria-label={t.search.on} />
-      ) : (
-        <Circle className="size-3.5" aria-label={t.search.off} />
-      )}
-    </span>
-  );
-}
 
 /** 「新」バッジ。ボタンの右上に重ねて置き、幅には含めない（出どころ＝サジェストの採用は条件ボタンのページ。#74） */
 function NewBadge() {

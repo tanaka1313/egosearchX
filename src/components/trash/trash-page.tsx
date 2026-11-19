@@ -17,6 +17,7 @@ import {
 } from "@/api";
 import { EmptyState } from "@/components/common/empty-state";
 import { PageHead } from "@/components/common/page-head";
+import { StateIcon } from "@/components/common/state-icon";
 import { useToast } from "@/components/common/toast";
 import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
 import { useItemLabel } from "@/components/groups/item-label";
@@ -172,8 +173,9 @@ export function TrashPage() {
               tabIndex={on ? 0 : -1}
               onClick={() => setTab(k)}
               onKeyDown={(e) => onTabKey(e, k)}
-              className={`rounded-full px-3 py-1 text-sm ${toggleClass(on)}`}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm ${toggleClass(on)}`}
             >
+              <StateIcon on={on} decorative />
               {k === "all"
                 ? p.tabAll((trash ?? []).length)
                 : p.tabKind(kindName(k), count(k), LIMITS.trash)}

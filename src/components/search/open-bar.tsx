@@ -96,7 +96,6 @@ function MoreMenu() {
         type="button"
         variant="outline"
         size="lg"
-        aria-haspopup="menu"
         aria-expanded={open}
         aria-label={t.search.open.more}
         onClick={() => setOpen((v) => !v)}
@@ -104,13 +103,11 @@ function MoreMenu() {
         <Ellipsis className="size-4" aria-hidden />
       </Button>
       {open && (
-        <div
-          role="menu"
-          className="absolute right-0 bottom-full z-30 mb-1 w-52 rounded-lg border bg-background p-1 shadow-lg"
-        >
+        // menu／menuitem の役割は付けない（矢印キーで動かせないのに名乗ると、読み上げの利用者の期待と食い違う）。
+        // 中身は普通のボタンで、Tab で移る
+        <div className="absolute right-0 bottom-full z-30 mb-1 w-52 rounded-lg border bg-background p-1 shadow-lg">
           <button
             type="button"
-            role="menuitem"
             disabled={blocked}
             className={item}
             onClick={() => copy("x")}
@@ -119,7 +116,6 @@ function MoreMenu() {
           </button>
           <button
             type="button"
-            role="menuitem"
             disabled={blocked}
             className={item}
             onClick={() => copy("yahoo")}
