@@ -7,7 +7,7 @@
    - [x] 辞書 ja／en（`palette`）、`CommandPalette`（radix Dialog）、`AppShell`（ショートカット・フォーカスを戻す先）、`site-menu.tsx`（項目。サイドバー・ドロワー）
    - [x] docs（api-spec 7.1、implementation-plan）
    - [x] `make check`、Chrome（Playwright）で 1280px／360px
-   - [ ] main へマージして push、#81 の完了条件を直して閉じる
+   - [x] main へマージして push、#81 の完了条件を照合して閉じる
 3. Verification: `make check`。テスト：Ctrl/⌘+K・Shift／Alt／押しっぱなし／変換中は開かない・メニューから・ドロワーを閉じて開く・ほかのダイアログ中は開かない・並び・絞り込み・Enter で先頭を実行（履歴・lastRunAt）・お気に入りの検索先・ページ移動・IME の Enter・ブロック・0件の Enter・Esc でフォーカス復帰・英語。Playwright：Ctrl+K で開く → 絞り込み → Enter で移動、360px で枠が画面内、Esc で［≡］へフォーカス復帰、コンソールのエラー 0。
 4. Review:
    - 判断：#80 は実装済み（#85・#30・#89）で、足りなかった「上限20」のテストだけ足した（Red は未確認：実装済みのため）。期待値は `LIMITS.suggest` ではなくリテラルの20（定数を変えても気づけるように）。
