@@ -45,6 +45,64 @@ export const en: Messages = {
   },
   footer: {
     unofficial: "An unofficial fan-made tool",
+    last: "Last",
+    empty: "Your searches will appear here",
+    rerun: "Run again",
+    history: "History →",
+  },
+  header: {
+    openMenu: "Open menu",
+    siteName: "EgoSearch",
+    feature: "X (Twitter)",
+    featureLabel: "Feature: X (Twitter)",
+  },
+  interest: {
+    button: (name) => `Interest: ${name} (press to switch)`,
+    menu: "Interest",
+    close: "Close the switcher",
+    note: "Switches the condition buttons to the selected interest (favorites and routines are shared). Saved on this device only.",
+  },
+  strip: {
+    label: "Routines",
+    add: "Add a routine",
+    empty: "Open several searches with one tap",
+    emptyTitle:
+      "Open your saved searches together with one tap (create one with [+])",
+    list: "All",
+    title: (name, count, done) =>
+      `${name} (${count})${done ? ": done today" : ""}`,
+    run: (name, count, done) =>
+      `Run ${name} (${count} searches)${done ? " (done today)" : ""}`,
+  },
+  blocked: {
+    summary: (total, failed) =>
+      `${failed} of ${total} ${total === 1 ? "tab" : "tabs"} could not be opened.`,
+    hint: "Allow pop-ups in your browser. You can also open each one from the links below.",
+    close: "Close",
+  },
+  menu: {
+    label: "Menu",
+    fixedLabel: "Menu (always shown)",
+    close: "Close menu",
+    closeOutside: "Close menu (press outside)",
+    current: "Current",
+    manage: (name) => `Manage ${name}`,
+    manageTitle: (name) => `Manage ${name} (add, edit, delete)`,
+    items: {
+      home: "Home",
+      buttons: "Condition buttons",
+      favorites: "Favorites",
+      groups: "Routines",
+      history: "History",
+      trash: "Trash",
+      import: "Parse URL",
+      about: "About this site",
+    },
+  },
+  toast: {
+    undo: "Undo",
+    recordFailed: "Could not save to history",
+    resetFailed: "Could not reset the data",
   },
   version: {
     open: "Version info",

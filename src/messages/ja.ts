@@ -48,6 +48,63 @@ export const ja = {
   issues,
   footer: {
     unofficial: "ファンが作った非公式のツールです",
+    last: "前回",
+    empty: "実行するとここに残ります",
+    rerun: "再実行",
+    history: "履歴 →",
+  },
+  header: {
+    openMenu: "メニューを開く",
+    siteName: "EgoSearch",
+    feature: "X（Twitter）",
+    featureLabel: "機能：X（Twitter）",
+  },
+  interest: {
+    button: (name: string) => `興味の対象：${name}（押して切り替え）`,
+    menu: "興味の対象",
+    close: "切り替えを閉じる",
+    note: "条件ボタンを、選んだ対象のものに切り替えます（お気に入り・いつものエゴサは共通）。この端末にだけ保存します。",
+  },
+  strip: {
+    label: "いつものエゴサ",
+    add: "いつものエゴサを追加",
+    empty: "まとめて1タップで開けます",
+    emptyTitle: "保存した検索を、1タップでまとめて開けます（［＋］で作成）",
+    list: "一覧",
+    title: (name: string, count: number, done: boolean) =>
+      `${name}（${count}）${done ? "：今日は済" : ""}`,
+    run: (name: string, count: number, done: boolean) =>
+      `${name}（${count}個）を実行${done ? "（今日は済）" : ""}`,
+  },
+  blocked: {
+    summary: (total: number, failed: number) =>
+      `${total}件中${failed}件を開けませんでした。`,
+    hint: "ブラウザのポップアップを許可してください。下のリンクから個別に開けます。",
+    close: "閉じる",
+  },
+  menu: {
+    label: "メニュー",
+    fixedLabel: "メニュー（常時表示）",
+    close: "メニューを閉じる",
+    closeOutside: "メニューの外を押して閉じる",
+    current: "表示中",
+    manage: (name: string) => `${name}の管理`,
+    manageTitle: (name: string) => `${name}の管理（追加・編集・削除）`,
+    items: {
+      home: "ホーム",
+      buttons: "条件ボタン",
+      favorites: "お気に入り",
+      groups: "いつものエゴサ",
+      history: "履歴",
+      trash: "削除済み",
+      import: "URL解析",
+      about: "このサイトについて",
+    },
+  },
+  toast: {
+    undo: "元に戻す",
+    recordFailed: "履歴に記録できませんでした",
+    resetFailed: "データを初期化できませんでした",
   },
   version: {
     open: "バージョン情報",
