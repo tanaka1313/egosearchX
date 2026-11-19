@@ -110,6 +110,7 @@ export function HomeScopeProvider({ children }: { children: ReactNode }) {
   const setHome = useAppStore((s) => s.home_set);
   const chipsSetOn = useAppStore((s) => s.chips_setOn);
   const chipsSetValue = useAppStore((s) => s.chips_setValue);
+  const chipSeen = useAppStore((s) => s.chip_seen);
 
   const chips = useMemo(
     () => allChips.get(interest) ?? [],
@@ -198,10 +199,14 @@ export function HomeScopeProvider({ children }: { children: ReactNode }) {
     isOn: (id) => chips.some((c) => c.id === id && c.on),
     toggle: (id) => {
       const chip = chips.find((c) => c.id === id);
-      if (chip && ready) guard(chipsSetOn(id, !chip.on));
+      if (!chip || !ready) return;
+      chipSeen(id); // 「新」印は、初めて押すと消える
+      guard(chipsSetOn(id, !chip.on));
     },
     setChipValue: (id, condId, value) => {
-      if (ready) guard(chipsSetValue(id, condId, value));
+      if (!ready) return;
+      chipSeen(id);
+      guard(chipsSetValue(id, condId, value));
     },
 
     built,

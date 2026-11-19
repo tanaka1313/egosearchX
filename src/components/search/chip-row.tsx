@@ -5,6 +5,7 @@ import { useState } from "react";
 import { LIMITS } from "@/api";
 import { WordSetDialog } from "@/components/dialogs/word-set-dialog";
 import { useI18n } from "@/store/i18n-context";
+import { useAppStore } from "@/store/store-context";
 import { ChipButton, SuggestChip, WordChip } from "./chip-button";
 import { useSearchScope } from "./search-scope";
 
@@ -19,6 +20,7 @@ import { useSearchScope } from "./search-scope";
 export function ChipRow() {
   const { visibleChips, starters, suggestions } = useSearchScope();
   const { t } = useI18n();
+  const newChipIds = useAppStore((s) => s.newChipIds);
   const [expanded, setExpanded] = useState(false);
 
   const items = [
@@ -39,7 +41,11 @@ export function ChipRow() {
       >
         {shown.map((x) =>
           x.chip ? (
-            <ChipButton key={x.key} chip={x.chip} />
+            <ChipButton
+              key={x.key}
+              chip={x.chip}
+              isNew={newChipIds.includes(x.chip.id)}
+            />
           ) : (
             <WordChip key={x.key} label={x.word} query={x.word} />
           ),

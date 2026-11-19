@@ -1,3 +1,24 @@
+# #74 S2 条件ボタンのページと D1 編集シート
+
+1. Goal: メニューの `/buttons` で、条件ボタンの一覧・並べ替え・表示の切替・コピー・削除（元に戻す）・追加・編集（D1）・サジェストの採用ができ、「新」印が出る。
+2. Plan:
+   - [x] ブランチ `feature/chip-page`
+   - [x] ストア `newChipIds`・`chip_seen`（テスト：入る・外れる・保存しない・作り直しで空）、バックエンドの「削除→復元で元の位置」のテスト
+   - [x] `PageHead`・`EmptyState`（common）、`ChipEditorSheet`（D1）、`ChipsPage`、`app/(site)/buttons/page.tsx`、辞書 ja／en
+   - [x] `ChipRow` が `isNew` を渡し、ホームで押す・値を変えると `chip_seen`
+   - [x] docs（api-spec 7.1、implementation-plan）
+   - [x] make check（テスト711件）・format:check
+   - [x] Chrome（Playwright）で 360px／1280px
+   - [x] main へマージして push、#74 の完了条件を直して閉じる
+3. Verification: `make check`、`npm run format:check`。本物のバックエンド＋MemoryAdapter のテスト（一覧・表示切替・コピー・削除と元に戻す・プリセット追加・0件・上限・サジェスト採用と「新」・D1 の追加／編集／各エラー／リスト／Yahoo の注意／フォーカス復帰）。Playwright：360px で横にはみ出さない・下からのシート・1280px・キーボードでの並べ替えと再読み込み後の保持・英語。
+4. Review:
+   - 決定：「新」印はストアのメモリだけ（api-spec 1.1）。`ChipSchema` は変えない。ページは `HomeScopeProvider` で包み、条件ボタンとサジェストをホームと同じものとして読む。Yahoo の注意は `url.plan` の警告をそのまま出す（演算子の直書きなし）。
+   - 判断：`ChipInput` に `isPreset` は無い（更新では保たれる）ので渡さない。日付の形式違いは `type="date"` の入力欄が受け付けず（空＝行なし扱い）、`chip.badDate` は `validateChip` の単体テストで見る。
+   - **テスト先行（Red）**：ストアの `newChipIds` は Red を確認。ページ・D1 のテストは実装の後に書いた（Red 未確認）。
+   - 観測：新しいテストファイルは jsdom で重く、並列で5秒を超えたので、このファイルだけ30秒にした（`word-set-dialog.test.tsx` と同じ）。
+   - **未確認**：マウスのドラッグ（キーボードの並べ替えのみ確認）、サジェストの採用（履歴が無く候補が出なかった。jsdom のテストまで）。
+   - **次に壊れやすい点**：サジェストの候補は `HomeScopeProvider` のもので、履歴0件のとき starter と同じ文字列は除かれる（S2 は starter を出さないので、規則の候補が1件隠れうる）。`newChipIds` は `data_reset` で空にする。
+
 # #89 検索ワード集（D4 ダイアログと履歴0件のときのホーム表示）
 
 1. Goal: 条件の枠の［検索ワード集］で D4 を開けるようにし、履歴0件のときは starter（約60件）を条件ボタンの続きに出す。
