@@ -5,6 +5,7 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useState,
   type ReactNode,
 } from "react";
 import { useShallow } from "zustand/react/shallow";
@@ -16,7 +17,9 @@ import {
   type BuiltQuery,
   type Chip,
   type Detail,
+  type ParsedScope,
   type Period,
+  type RunSource,
   type SearchState,
   type WordGroup,
 } from "@/api";
@@ -89,14 +92,27 @@ export function SearchScopeProvider({
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
+/** 検索の組み立ての入力。置き場所（ストアの `home`／ページの中の状態）は呼び出し側が決める */
+type CoreInput = {
+  word: string;
+  exact: boolean;
+  detail: Detail;
+  period: Period;
+  suggestionTokens: string[];
+  /** ON の条件ボタンの ID。null は、保存している `chip.on`（ホーム） */
+  onChipIds: string[] | null;
+  /** 開いたときの履歴の出どころ */
+  source: RunSource;
+};
+
 /**
- * ホームの検索の組み立て：ストアの `home`（保存しない）と、条件ボタンの `on`（保存する）から作る。
- * 条件ボタンの ON は `chips.setOn`（async）。失敗はトーストで知らせ、壊れたデータ（CORRUPT）は書かない。
+ * ホームとページ内の組み立てで共通の計算：今の対象の条件ボタン、組み立てたクエリ、サジェスト、検索ワード集、開く処理。
+ * 状態を変える操作（トグル・値・サジェストの ON）は置き場所で変わるので、呼び出し側が持つ。
  */
-export function HomeScopeProvider({ children }: { children: ReactNode }) {
+function useScopeCore(input: CoreInput) {
   const api = useApi();
-  const { t } = useI18n();
   const toast = useToast();
+  const { t } = useI18n();
   const runner = useRunner();
   const reportBlocked = useReportBlocked();
 
@@ -106,32 +122,34 @@ export function HomeScopeProvider({ children }: { children: ReactNode }) {
   );
   const allChips = useAppStore((s) => s.chips);
   const history = useAppStore((s) => s.history);
-  const home = useAppStore(useShallow((s) => s.home));
-  const setHome = useAppStore((s) => s.home_set);
-  const chipsSetOn = useAppStore((s) => s.chips_setOn);
-  const chipsSetValue = useAppStore((s) => s.chips_setValue);
-  const chipSeen = useAppStore((s) => s.chip_seen);
+
+  const { word, exact, detail, period, suggestionTokens, onChipIds, source } =
+    input;
 
   const chips = useMemo(
     () => allChips.get(interest) ?? [],
     [allChips, interest],
   );
   const visibleChips = useMemo(() => chips.filter((c) => c.visible), [chips]);
+  const onIds = useMemo(
+    () => onChipIds ?? chips.filter((c) => c.on).map((c) => c.id),
+    [onChipIds, chips],
+  );
   const usedChips = useMemo(
-    () => visibleChips.filter((c) => c.on),
-    [visibleChips],
+    () => visibleChips.filter((c) => onIds.includes(c.id)),
+    [visibleChips, onIds],
   );
 
   const state = useMemo<SearchState>(
     () => ({
-      word: home.word,
-      exact: home.exact,
-      onChipIds: chips.filter((c) => c.on).map((c) => c.id),
-      suggestionTokens: home.suggestionTokens,
-      detail: home.detail,
-      period: home.period,
+      word,
+      exact,
+      onChipIds: onIds,
+      suggestionTokens,
+      detail,
+      period,
     }),
-    [home, chips],
+    [word, exact, onIds, suggestionTokens, detail, period],
   );
   const built = useMemo(
     () => api.query.build(state, chips),
@@ -171,6 +189,59 @@ export function HomeScopeProvider({ children }: { children: ReactNode }) {
     [toast, t],
   );
 
+  const run = (engine: "x" | "yahoo") => {
+    // 開く・コピー・保存を止める理由（検索語も条件も無い、期間が逆）があるときは開かない
+    if (built.blockers.length > 0) return;
+    const { total, blocked } = runner(
+      [{ query: built.stored, engine }],
+      source,
+    );
+    if (blocked.length > 0) reportBlocked(total, blocked);
+  };
+
+  return {
+    ready,
+    chips,
+    visibleChips,
+    usedChips,
+    isOn: (id: string) => onIds.includes(id),
+    built,
+    suggestions: suggestionsWithoutStarters,
+    starters,
+    wordSet,
+    guard,
+    run,
+  };
+}
+
+/** サジェスト／検索ワード集のトークンの ON/OFF を反転した配列 */
+function flip(tokens: string[], token: string): string[] {
+  return tokens.includes(token)
+    ? tokens.filter((x) => x !== token)
+    : [...tokens, token];
+}
+
+/**
+ * ホームの検索の組み立て：ストアの `home`（保存しない）と、条件ボタンの `on`（保存する）から作る。
+ * 条件ボタンの ON は `chips.setOn`（async）。失敗はトーストで知らせ、壊れたデータ（CORRUPT）は書かない。
+ */
+export function HomeScopeProvider({ children }: { children: ReactNode }) {
+  const { t } = useI18n();
+  const toast = useToast();
+
+  const home = useAppStore(useShallow((s) => s.home));
+  const setHome = useAppStore((s) => s.home_set);
+  const chipsSetOn = useAppStore((s) => s.chips_setOn);
+  const chipsSetValue = useAppStore((s) => s.chips_setValue);
+  const chipSeen = useAppStore((s) => s.chip_seen);
+
+  const core = useScopeCore({
+    ...home,
+    onChipIds: null,
+    source: { kind: "home", label: home.word },
+  });
+  const { chips, ready, guard } = core;
+
   const scope: SearchScope = {
     word: home.word,
     setWord: (word) => setHome({ word }),
@@ -182,11 +253,7 @@ export function HomeScopeProvider({ children }: { children: ReactNode }) {
     setPeriod: (period) => setHome({ period }),
     suggestionTokens: home.suggestionTokens,
     toggleSuggestion: (token) =>
-      setHome({
-        suggestionTokens: home.suggestionTokens.includes(token)
-          ? home.suggestionTokens.filter((x) => x !== token)
-          : [...home.suggestionTokens, token],
-      }),
+      setHome({ suggestionTokens: flip(home.suggestionTokens, token) }),
     resetDetail: () => {
       const prev = { detail: home.detail, period: home.period };
       setHome({ detail: EMPTY_DETAIL, period: EMPTY_PERIOD });
@@ -194,9 +261,9 @@ export function HomeScopeProvider({ children }: { children: ReactNode }) {
     },
 
     chips,
-    visibleChips,
-    usedChips,
-    isOn: (id) => chips.some((c) => c.id === id && c.on),
+    visibleChips: core.visibleChips,
+    usedChips: core.usedChips,
+    isOn: core.isOn,
     toggle: (id) => {
       const chip = chips.find((c) => c.id === id);
       if (!chip || !ready) return;
@@ -209,20 +276,112 @@ export function HomeScopeProvider({ children }: { children: ReactNode }) {
       guard(chipsSetValue(id, condId, value));
     },
 
-    built,
-    suggestions: suggestionsWithoutStarters,
-    starters,
-    wordSet,
+    built: core.built,
+    suggestions: core.suggestions,
+    starters: core.starters,
+    wordSet: core.wordSet,
     ready,
-    run: (engine) => {
-      // 開く・コピー・保存を止める理由（検索語も条件も無い、期間が逆）があるときは開かない
-      if (built.blockers.length > 0) return;
-      const { total, blocked } = runner([{ query: built.stored, engine }], {
-        kind: "home",
-        label: home.word,
+    run: core.run,
+  };
+  return <Ctx.Provider value={scope}>{children}</Ctx.Provider>;
+}
+
+/**
+ * ページの中だけの検索の組み立て（お気に入りの編集 S3-E。いつものエゴサの追加・編集 S4-E も同じ）。
+ * 初期値は `initial`（開いたときに1回だけ作る。親が `key` で作り直す）。条件ボタンの ON・サジェスト・検索ワード集の ON・
+ * 検索語・期間・詳細条件は、このページの中だけで持ち、**ホームにも保存済みの `chip.on` にも書かない**（画面仕様書 3.1）。
+ * 例外は値付きの条件の値で、ボタン自体に保存されるのでどの画面で変えても共通になる。
+ */
+export function LocalScopeProvider({
+  initial,
+  children,
+}: {
+  initial: ParsedScope;
+  children: ReactNode;
+}) {
+  const api = useApi();
+  const toast = useToast();
+  const { t } = useI18n();
+  const chipSeen = useAppStore((s) => s.chip_seen);
+  const chipsSave = useAppStore((s) => s.chips_save);
+
+  const [word, setWord] = useState(initial.word);
+  const [exact, setExact] = useState(initial.exact);
+  const [detail, setDetail] = useState(initial.detail);
+  const [period, setPeriod] = useState(initial.period);
+  const [onChipIds, setOnChipIds] = useState(initial.onChipIds);
+  const [suggestionTokens, setSuggestionTokens] = useState<string[]>([]);
+
+  const core = useScopeCore({
+    word,
+    exact,
+    detail,
+    period,
+    suggestionTokens,
+    onChipIds,
+    source: { kind: "other", label: word },
+  });
+  const { chips, ready, guard } = core;
+
+  const scope: SearchScope = {
+    word,
+    setWord,
+    exact,
+    setExact,
+    detail,
+    setDetail: (f) => setDetail((d) => f(d)),
+    period,
+    setPeriod,
+    suggestionTokens,
+    toggleSuggestion: (token) =>
+      setSuggestionTokens((tokens) => flip(tokens, token)),
+    resetDetail: () => {
+      const prev = { detail, period };
+      setDetail(EMPTY_DETAIL);
+      setPeriod(EMPTY_PERIOD);
+      toast.show(t.search.detail.resetDone, () => {
+        setDetail(prev.detail);
+        setPeriod(prev.period);
       });
-      if (blocked.length > 0) reportBlocked(total, blocked);
     },
+
+    chips,
+    visibleChips: core.visibleChips,
+    usedChips: core.usedChips,
+    isOn: core.isOn,
+    toggle: (id) => {
+      if (!chips.some((c) => c.id === id) || !ready) return;
+      chipSeen(id);
+      setOnChipIds((ids) => flip(ids, id));
+    },
+    setChipValue: (id, condId, value) => {
+      const chip = chips.find((c) => c.id === id);
+      if (!chip || !ready) return;
+      chipSeen(id);
+      // `chips.setValue` は保存済みの ON も true にする（ホームの ON を変えてしまう）ので使わない。
+      // 値だけを差し替えて保存する（`on`・`visible` を省略すると既存の値が保たれる）
+      const query = api.query.condsToQuery(
+        api.query
+          .chipConds(chip)
+          .map((c) => (c.id === condId ? { ...c, value } : c)),
+      );
+      guard(
+        chipsSave({
+          id: chip.id,
+          interestId: chip.interestId,
+          label: chip.label,
+          query,
+        }),
+      );
+      setOnChipIds((ids) => (ids.includes(id) ? ids : [...ids, id]));
+    },
+
+    built: core.built,
+    suggestions: core.suggestions,
+    starters: core.starters,
+    wordSet: core.wordSet,
+    ready,
+    run: core.run,
   };
   return <Ctx.Provider value={scope}>{children}</Ctx.Provider>;
 }

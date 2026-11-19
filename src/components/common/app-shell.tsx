@@ -17,6 +17,7 @@ import { GroupStrip } from "./group-strip";
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
 import { SiteMeta } from "./site-meta";
+import { rememberPath } from "./previous-path";
 import { MenuDrawer, MenuSidebar } from "./site-menu";
 import { ToastProvider } from "./toast";
 
@@ -31,13 +32,17 @@ type Blocked = { total: number; blocked: OpenTarget[] };
  * 保存データが壊れているときの表示 → 本文、画面の下にフッター。1280px 以上は左にサイドバー、未満は［≡］のドロワー。
  */
 export function AppShell({ children }: { children: ReactNode }) {
-  const launcher = usePathname() === LAUNCHER_PATH;
+  const pathname = usePathname();
+  const launcher = pathname === LAUNCHER_PATH;
   const ready = useAppStore((s) => s.status === "ready");
   const trashLoad = useAppStore((s) => s.trash_load);
   const [menuOpen, setMenuOpen] = useState(false);
   const [blocked, setBlocked] = useState<Blocked | null>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+
+  // キャンセルの戻り先（S3-E・S4-E）のために、表示したページを覚える（画面仕様書 9章）
+  useEffect(() => rememberPath(pathname), [pathname]);
 
   // メニューの「削除済み」の件数のために、読み込みが終わったら一度だけ削除済みを読む
   useEffect(() => {
