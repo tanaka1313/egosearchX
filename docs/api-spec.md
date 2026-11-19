@@ -33,7 +33,7 @@ flowchart LR
 - **`@/backend` を import してよいのは、組み立ての1か所（`src/app/providers.tsx`）だけ。** そこで `createBackend(...)` を呼び、React のコンテキストに入れる。画面は `useApi()`（`src/store/`）で受け取る。
 - 契約はバックエンドの内部（`lib/*`）を import しない。エンティティの zod スキーマと `LIMITS` は**契約が持ち**、`lib/storage` がそれを import する（定義は1つ。**決定**）。保存の版（`SCHEMA_VERSION`）と移行（`migrate.ts`）は `lib/storage` に残す。
 - テストでは、`createBackend({ kv: new MemoryAdapter(), clock: 固定の日時 })` を渡す。画面のテストは、同じ契約を満たす別の実装に差し替えてもよい。
-- 状態：契約（`src/api/api.ts` の `EgoSearchApi`）、`createBackend`（`src/backend`）、`useApi()`（`src/store/api-context.tsx`）、`providers.tsx`、ESLint の import 制限は**作成済み**（#85）。`Group.lastRunAt`（スキーマ版2）と `history.record` による `lastRunAt` の更新、`clock.isToday` も**作成済み**（#86）。ただし `data.reset()` は #87。
+- 状態：契約（`src/api/api.ts` の `EgoSearchApi`）、`createBackend`（`src/backend`）、`useApi()`（`src/store/api-context.tsx`）、`providers.tsx`、ESLint の import 制限は**作成済み**（#85）。`Group.lastRunAt`（スキーマ版2）と `history.record` による `lastRunAt` の更新、`clock.isToday` も**作成済み**（#86）。`data.reset()`（破棄は `wipeKv`＝KV の DAO 層。版1〜今の版のすべての表と meta を名前で消す）と、全ページ共通の表示 `CorruptNotice`・確認ダイアログ `ConfirmDialog`（D3）も**作成済み**（#87）。
 - 組み立ての補助：`@/backend` は `createBackend({ kv, clock, newId? })` のほかに、端末の時計 `systemClock`（`today` は `localDate(new Date())`。`toISOString` は UTC なので使わない）と、localStorage 用の `createBrowserBackend()`（`window` が無い事前描画では何も保存しない入れ物にする）を出す。`providers.tsx` はこれだけを使う（`lib/storage` を直接 import しない）。
 
 ## 2. 共通の決まり
@@ -214,7 +214,7 @@ type AppData = {
 };
 interface DataApi {
   init(): Promise<AppData>;           // 初回はプリセットを入れる。CORRUPT のときは上書きしない
-  reset(): Promise<AppData>;          // （#87 で足す）保存データをすべて破棄してプリセットから作り直す。CORRUPT のとき、ユーザーが D3 で確かめた後だけ呼ぶ（画面仕様書 2.7）
+  reset(): Promise<AppData>;          // 保存データをすべて破棄してプリセットから作り直す。CORRUPT のとき、ユーザーが D3 で確かめた後だけ呼ぶ（画面仕様書 2.7）
   chips: {
     save(input: ChipInput): Promise<Chip>;                      // 追加・更新。LIMIT
     setOn(id: string, on: boolean): Promise<Chip>;
@@ -323,7 +323,7 @@ type TrashDetail =
 | URL の解析・リスト ID（`lib/url/parse.ts`・`list-id.ts`） | **作成済み**（#19） | `parseUrl`：Yahoo は F4 の逆変換表で保存形に戻し、数字でない `lts`/`uts` は無視する。表に無い演算子は raw。`parseListId`：数字5桁以上か `x.com`/`twitter.com` の `/i/lists/<ID>` |
 | ランチャーの codec（`lib/launch/codec.ts`） | **作成済み**（#20） | 圧縮あり `v1.`／なし `v1u.`。壊れた入力は `LAUNCHER_BROKEN`、知らない版は `LAUNCHER_VERSION`。長さの警告は持たない |
 | マスタ JSON と zod（`src/data`） | **作成済み**（#21） | `interests`・`presets`・`suggest-rules`・`word-set` の4つ。読み出しは `interests()`・`presetsFor(id)`・`suggestRules()`・`wordSet(id)`。`MasterSchema` が対象の実在・重複などを検証し、`prebuild` で走る。中身は仮の値で、本番は #70。束ねて `master`・`data.chips.addPresets`・`query.suggest` にするのは #85 |
-| ストア ⇄ バックエンド | **作成済み**（#24） | `src/store/app-store.ts`（`createAppStore(api)`）と `store-context.tsx`（`StoreProvider`・`useAppStore`）。エンティティを返す操作は戻り値を状態へ差し込み、戻り値の無い操作と `history.record` は `data.init()` で読み直す。`corrupt` の間は何も書かず `CORRUPT` を throw する。`data.reset()` 後に `ready` へ戻す処理は #87 |
+| ストア ⇄ バックエンド | **作成済み**（#24） | `src/store/app-store.ts`（`createAppStore(api)`）と `store-context.tsx`（`StoreProvider`・`useAppStore`）。エンティティを返す操作は戻り値を状態へ差し込み、戻り値の無い操作と `history.record` は `data.init()` で読み直す。`corrupt` の間は何も書かず `CORRUPT` を throw する。壊れているときだけ `data_reset()` が `data.reset()` を呼び、`ready` へ戻す（それ以外は throw して何も消さない。#87）。壊れている間に切り替えた言語は、`ready` に戻ったときに保存する（`i18n-context.tsx`）|
 | 辞書（ja／en）と言語の切替 | **作成済み**（#72） | `src/messages`（`ja.ts`・`en.ts`・`engine.ts`・`index.ts`）。`Messages` 型は `ja` から導き、`en` に欠けや余計なキーがあると型エラーでビルドが止まる。警告・エラーはコードごとの関数（`issues[code](params)`）。`ENGINE_LABEL`・`ENGINE_SHORT` は `engine.ts` の1か所。`src/store/i18n-context.tsx`（`I18nProvider`・`useI18n()`）は、保存した言語 → ブラウザの言語の順で決め、保存データが壊れていてもブラウザの言語で出す（切替はその画面だけ）。en の文言は暫定（#67 で確定）。切替の部品 `LanguageSwitch` を左メニュー下部に置くのは #73 |
 | **`createBackend`・`useApi()`・import の制限** | **作成済み**（#85） | `src/backend`（`index.ts`・`query.ts`・`data.ts`・`errors.ts`）、`src/store/api-context.tsx`、`src/app/providers.tsx`、`eslint.config.mjs`。`query.validateChip`・`starters`・`suggest` の中身は `lib/query/chip.ts`・`suggest.ts`。DAO は最初の async の呼び出しで1回だけ開き、**初回（meta が無い）のときだけ**すべての興味の対象にプリセットを入れる（条件ボタンが0件かどうかでは判定しない）。下位のエラーは `errors.ts` が `ApiError` に直す |
 

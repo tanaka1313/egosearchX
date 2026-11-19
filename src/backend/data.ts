@@ -26,7 +26,7 @@ import {
   normalize,
 } from "@/lib/query/model";
 import type { KeyValueAdapter } from "@/lib/storage/kv-adapter";
-import { openDao } from "@/lib/storage/kv-dao";
+import { openDao, wipeKv } from "@/lib/storage/kv-dao";
 import { META_KEY } from "@/lib/storage/migrate";
 import type { Dao } from "@/lib/storage/types";
 import { guarded, migrationError } from "./errors";
@@ -180,6 +180,11 @@ export function createDataApi({ kv, clock, newId }: Deps): DataApi {
 
   const api: DataApi = {
     init: async () => load(await open()),
+    reset: async () => {
+      await wipeKv(kv);
+      opened = null; // 破棄した後は、初回として開き直す（プリセットを入れる）
+      return load(await open());
+    },
     chips: {
       save: async (input) => {
         const dao = await open();

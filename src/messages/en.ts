@@ -56,6 +56,18 @@ export const en: Messages = {
     unknown: "Unknown",
     close: "Close",
   },
+  corrupt: {
+    message: "Your saved data could not be read and cannot be recovered.",
+    reset: "Reset data",
+  },
+  confirm: {
+    cancel: "Cancel",
+  },
+  resetData: {
+    title: "Reset all data?",
+    body: "This discards all saved data (buttons, favorites, routines, history, trash and settings). This cannot be undone.",
+    action: "Reset",
+  },
   lang: {
     label: "Language",
     ja: "日本語",

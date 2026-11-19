@@ -38,9 +38,12 @@ const eslintConfig = [
       "no-restricted-imports": ["error", { patterns: backendImports(true) }],
     },
   },
-  // ストアのテストは、モックを使わず本物のバックエンド（MemoryAdapter）で試す（docs/api-spec.md 1.2）
+  // ストア・部品のテストは、モックを使わず本物のバックエンド（MemoryAdapter）で試す（docs/api-spec.md 1.2）
   {
-    files: ["src/store/**/*.test.{ts,tsx}"],
+    files: [
+      "src/store/**/*.test.{ts,tsx}",
+      "src/components/**/*.test.{ts,tsx}",
+    ],
     rules: { "no-restricted-imports": "off" },
   },
   // 組み立ての1か所だけが @/backend を import できる
