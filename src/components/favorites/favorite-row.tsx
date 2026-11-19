@@ -4,25 +4,16 @@ import { useSortable } from "@dnd-kit/react/sortable";
 import { GripVertical } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useMemo } from "react";
-import { ApiError, type Engine, type Favorite } from "@/api";
+import { ApiError, type Favorite } from "@/api";
 import { useReportBlocked } from "@/components/common/blocked-context";
+import { engineBadge } from "@/components/common/engine-badge";
 import { useToast } from "@/components/common/toast";
 import { useRunner } from "@/components/common/use-runner";
 import { Button } from "@/components/ui/button";
 import { formatRunAt } from "@/lib/format-date";
-import { ENGINE_LABEL, ENGINE_SHORT } from "@/messages";
 import { useApi } from "@/store/api-context";
 import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
-
-/** 検索先バッジ。短縮名（識別子だけ。正式名は title と読み上げ。画面仕様書 3.11） */
-const badge = (engine: Engine) =>
-  engine === "both"
-    ? {
-        short: `${ENGINE_SHORT.x}＋${ENGINE_SHORT.yahoo}`,
-        full: `${ENGINE_LABEL.x}＋${ENGINE_LABEL.yahoo}`,
-      }
-    : { short: ENGINE_SHORT[engine], full: ENGINE_LABEL[engine] };
 
 /**
  * S3 の行（FavoriteRow。画面仕様書 3.11）：取っ手・名前・検索先バッジ・⚠・保存している検索文字列・前回、
@@ -48,7 +39,7 @@ export function FavoriteRow({
   const remove = useAppStore((s) => s.favorites_remove);
   const { ref, handleRef } = useSortable({ id: fav.id, index });
 
-  const b = badge(fav.engine);
+  const b = engineBadge(fav.engine);
   // 開くときに出る警告（Yahoo!リアルタイム検索で使えない演算子など）。保存している検索先で開いたときのもの
   const warnings = useMemo(
     () =>

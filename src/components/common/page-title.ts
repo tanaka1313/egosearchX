@@ -10,6 +10,7 @@ function normalize(pathname: string): string {
 /** メニューに無い下位のページ（編集ページ）。タブの名前は、そのページの見出しの辞書から出す */
 const SUB_PAGES: Record<string, (t: Messages) => string> = {
   "/favorites/edit": (t) => t.favoriteEdit.title,
+  "/groups/edit": (t) => t.groupEdit.tabTitle,
 };
 
 /**
