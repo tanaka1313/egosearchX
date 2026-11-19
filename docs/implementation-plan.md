@@ -1,6 +1,6 @@
 # 実装計画（技術設計）
 
-関連文書：`docs/requirements.md`（F1〜F12）、`docs/screen-spec.md`（S1〜S10、D1〜D4）、`docs/research-phase0.md`。画面イメージは `/mock`（破棄予定のモック）。
+関連文書：`docs/requirements.md`（F1〜F12）、`docs/screen-spec.md`（S1〜S10、D1〜D4）、`docs/research-phase0.md`。画面の見た目は `make dev` で開いて確かめる（画面モックは #61 で破棄した）。
 
 ## 1. 技術スタック
 | 用途 | 採用 | 理由 |
@@ -11,7 +11,7 @@
 | 状態管理 | zustand（persist ミドルウェアは使わない） | 軽量。保存は DAO（`lib/storage`）を通す。保存先を差し替えられるようにするため（要件定義書 12章） |
 | 保存 | DAO（`lib/storage`。async のリポジトリ＋KeyValue アダプタ。MVP は localStorage） | 作成済み。バージョンと移行処理、論理削除、上限を持つ |
 | スキーマ検証 | zod 4 | マスタ JSON（興味の対象・プリセット・サジェスト規則）・保存データ・ランチャーURLの検証 |
-| 並べ替え | `@dnd-kit/react`（`useSortable`、`@dnd-kit/helpers` の `move`） | 条件ボタン・お気に入り・条件の並べ替え。タッチとキーボードに対応（mock で導入済み） |
+| 並べ替え | `@dnd-kit/react`（`useSortable`、`@dnd-kit/helpers` の `move`） | 条件ボタン・お気に入り・条件の並べ替え。タッチとキーボードに対応 |
 | URL圧縮 | ブラウザ標準の `CompressionStream('deflate-raw')` + base64url | 依存を増やさない |
 | テスト | Vitest（ロジック）+ Testing Library（主要コンポーネント） | |
 | パッケージ管理 | npm | CLAUDE.md のコマンドに合わせる |
@@ -32,7 +32,7 @@ src/
     import/page.tsx       S7 URL解析
     launch/page.tsx       S9 ランチャー（作成済み＝#35。本体は components/launch/launch-page.tsx）
     layout.tsx            Providers だけ（ストア・辞書・API の組み立て）
-    (site)/layout.tsx     本実装の全ページ共通の枠（AppShell）。モック（/mock）は含めない。ページはこの下に置く（作成済み＝#73）
+    (site)/layout.tsx     全ページ共通の枠（AppShell）。ページはこの下に置く（作成済み＝#73）
   components/
     common/               QueryPreview, EngineBadge, WarningList, CorruptNotice, CommandPalette（`common/command-palette.tsx`、作成済み）
                           シェル（作成済み＝#73）：app-shell, site-header, interest-picker, group-strip, blocked-notice,
@@ -138,7 +138,7 @@ GitHub のマイルストーン（M0〜M7）と対応する（名前：M3 マス
 
 - **i18n**：文言は言語ごとの辞書（置き場所は `src/messages/ja.ts`・`en.ts` を想定）から出し、画面のコードに直書きしない。**ライブラリは使わず自前で作る（決定、#72）**：next-intl はロケール別のルーティングとサーバー処理が中心で、静的書き出しとクライアント側の切替には過剰。辞書は文字列と、値（params）を受け取る関数の入れ子のオブジェクトにする。静的書き出しのため、言語はクライアント側で切り替える（初期値はブラウザの言語、切替はメニューの下部、保存先は localStorage。設定画面は置かない。要件定義書 F12）。**辞書の型は `ja` から導き、`en` に欠けがあればビルドで検出する。**
 
-- **実装時の注意：検索の組み立ては「内部の状態と部品」を共通にする。UI の置き場所（シート・ページ）は共通にしない。** 検索語・完全一致・条件ボタン（サジェストを含む）・期間・詳細条件の組み立ては、ホームといつものエゴサの追加・編集ページ（S4-E の②）で、同じ部品（`ConditionFrame`・`ChipRow`・`DetailPanel`・`QueryPreview`・`PeriodPicker`）を使う。部品は状態をコンテキスト（`SearchScope`）から読み、ホームはストアの状態、S4-E はページの中だけの状態を渡す（ホームの ON/OFF・期間に影響しない）。画面ごとに違う操作（ホームの開くボタン群、S4-E の［お気に入りに保存して追加］）は `footer` などで差し込む。期間はホームと詳細条件が**同じ状態を共有する**。モックの実装は `src/app/mock/_parts/search-scope.tsx` と `condition-frame.tsx`。保存はお気に入りの保存処理に一本化し、保存する検索文字列は組み立てた結果の `built.stored`（相対期間は `since:yesterday` などの記号のまま）。
+- **実装時の注意：検索の組み立ては「内部の状態と部品」を共通にする。UI の置き場所（シート・ページ）は共通にしない。** 検索語・完全一致・条件ボタン（サジェストを含む）・期間・詳細条件の組み立ては、ホームといつものエゴサの追加・編集ページ（S4-E の②）で、同じ部品（`ConditionFrame`・`ChipRow`・`DetailPanel`・`QueryPreview`・`PeriodPicker`）を使う。部品は状態をコンテキスト（`SearchScope`）から読み、ホームはストアの状態、S4-E はページの中だけの状態を渡す（ホームの ON/OFF・期間に影響しない）。画面ごとに違う操作（ホームの開くボタン群、S4-E の［お気に入りに保存して追加］）は `footer` などで差し込む。期間はホームと詳細条件が**同じ状態を共有する**。実装は `src/components/search/search-scope.tsx` と `condition-frame.tsx`。保存はお気に入りの保存処理に一本化し、保存する検索文字列は組み立てた結果の `built.stored`（相対期間は `since:yesterday` などの記号のまま）。
 - **実装時の注意：お気に入りといつものエゴサは ID で参照しあわない。** いつものエゴサは `items`（検索文字列＋検索先）を持ち、お気に入りを参照しないので、削除に連動も確認も要らない。連動するのはお気に入りの編集だけで、編集前の文字列と正規化して一致する項目を更新する（要件定義書 11.4）。削除は削除済みへ移すだけ（［元に戻す］で戻す）。削除済みは種類ごとに20件で、超えたらその種類の古いものから完全削除する（`pushTrash`）。**一気に完全削除する経路を作らない。** 以前の案（`favIds` の参照、`batch`、`groupsUsing`、［まとめて復元］、2段確認）は廃案。
 - **実装時の注意：機能タイトルは差し替え前提。** ヘッダーの機能タイトル（「X（Twitter）」）は定数にまとめる。YouTube／TikTok の同様のツールは今後の予定で、まだ作らない（Issue も作らない）。
 - 既定リストのJSONには、確認済みのリストID（ホロライブ・にじさんじ）だけを入れる。ほかのリストIDやハンドルは推測で埋めず、開発者が確認して追加する。

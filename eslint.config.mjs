@@ -25,7 +25,6 @@ const eslintConfig = [
   },
   // 画面・ストア・辞書が import してよいのは契約（@/api）だけ（docs/api-spec.md 1.2）。
   // lib/utils・lib/build-info・components/ui は画面の道具なので除く（パターンで個別に指定している）。
-  // モックは破棄予定のため対象外。
   {
     files: [
       "src/app/**/*.{ts,tsx}",
@@ -33,7 +32,6 @@ const eslintConfig = [
       "src/store/**/*.{ts,tsx}",
       "src/messages/**/*.{ts,tsx}",
     ],
-    ignores: ["src/app/mock/**"],
     rules: {
       "no-restricted-imports": ["error", { patterns: backendImports(true) }],
     },
