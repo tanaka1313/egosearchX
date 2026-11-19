@@ -30,7 +30,7 @@ src/
     history/page.tsx      S5 履歴
     trash/page.tsx        S6 削除済み
     import/page.tsx       S7 URL解析
-    launch/page.tsx       S9 ランチャー
+    launch/page.tsx       S9 ランチャー（作成済み＝#35。本体は components/launch/launch-page.tsx）
     layout.tsx            Providers だけ（ストア・辞書・API の組み立て）
     (site)/layout.tsx     本実装の全ページ共通の枠（AppShell）。モック（/mock）は含めない。ページはこの下に置く（作成済み＝#73）
   components/

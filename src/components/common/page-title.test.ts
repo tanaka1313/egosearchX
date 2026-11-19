@@ -49,6 +49,11 @@ describe("documentTitle", () => {
     expect(pageName(en, "/groups/edit")).toBe(en.groupEdit.tabTitle);
   });
 
+  it("ランチャーは、いつものエゴサの名前（URL の中）を入れない固定の名前", () => {
+    expect(documentTitle(ja, "/launch")).toBe("ランチャー｜Hololive EgoSearch");
+    expect(pageName(en, "/launch")).toBe(en.launchPage.tabTitle);
+  });
+
   it("メニューに無い道は、サイト全体の title", () => {
     expect(documentTitle(ja, "/unknown")).toBe(ja.meta.title);
   });

@@ -477,6 +477,21 @@ export const ja = {
     copy: "コピー",
     copied: "ブックマーク用URLをコピーしました",
   },
+  launchPage: {
+    /** ブラウザのタブの名前（ランチャーは名前が URL の中なので固定） */
+    tabTitle: "ランチャー",
+    loading: "読み込み中…",
+    title: (name: string) => `いつものエゴサ：${name}`,
+    count: (n: number) => `${n}件の検索を新しいタブで開きます`,
+    openAll: "▶ すべて開く",
+    list: "開く検索の一覧",
+    open: "開く",
+    openLabel: (label: string) => `${label}を開く`,
+    engineBoth: `${ENGINE_LABEL.x}と${ENGINE_LABEL.yahoo}の両方`,
+    broken: "ブックマークURLを読み込めませんでした",
+    version: "新しい形式のURLです。アプリを更新してください",
+    home: "ホームへ",
+  },
   groupEdit: {
     /** ブラウザのタブの名前（静的なので、追加か編集かは問わない） */
     tabTitle: "いつものエゴサの追加・編集",
