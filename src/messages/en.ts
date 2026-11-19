@@ -308,8 +308,7 @@ export const en: Messages = {
   },
   importPage: {
     title: "URL analysis",
-    description:
-      "Paste a URL from X or Yahoo! Realtime Search to split it into conditions. Parts that cannot be analyzed are kept as raw tokens, so nothing is lost when you turn it back into a URL. Your saved data is never overwritten.",
+    description: `Paste a URL from X or ${Y} to split it into conditions. Parts that cannot be analyzed are kept as raw tokens, so nothing is lost when you turn it back into a URL. Your saved data is never overwritten.`,
     inputLabel: "URL to analyze",
     placeholder: "https://x.com/search?q=…",
     tokens: "Result",

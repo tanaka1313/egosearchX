@@ -41,11 +41,9 @@ export function ImportPage() {
 
   const editInHome = async () => {
     if (!ok) return;
-    // 非表示のものも含めて照合する（ホームの組み立ては、非表示の ON も検索文字列に入れるため）
-    const chips = (allChips.get(interest) ?? []).map((c) => ({
-      ...c,
-      visible: true,
-    }));
+    // 照合するのは「表示」の条件ボタンだけ（要件定義書 11.4 ①。`query.parse` が見る）。
+    // ON/OFF は非表示も含む全件を合わせる（照合されなかった非表示の ON は OFF にし、詳細条件へ回る）
+    const chips = allChips.get(interest) ?? [];
     const scope = api.query.parse(ok.query, chips);
     try {
       for (const c of chips) {

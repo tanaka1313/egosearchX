@@ -316,8 +316,7 @@ export const ja = {
   },
   importPage: {
     title: "URL解析",
-    description:
-      "X か Yahoo!リアルタイム検索の URL を貼ると、条件に分けます。解析できない部分は生トークンとして残し、URL に戻したときに欠けません。既存のデータは上書きしません。",
+    description: `X か ${Y}の URL を貼ると、条件に分けます。解析できない部分は生トークンとして残し、URL に戻したときに欠けません。既存のデータは上書きしません。`,
     inputLabel: "取り込む URL",
     placeholder: "https://x.com/search?q=…",
     tokens: "解析結果",
