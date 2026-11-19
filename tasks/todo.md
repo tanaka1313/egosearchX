@@ -1,3 +1,25 @@
+# #30・#32 S1 ホーム（検索の組み立て・クエリ表示・警告欄・開くボタン）
+
+1. Goal: ホーム `/` を画面仕様書 3・4章どおりに作る。部品は `SearchScope`（検索の組み立ての状態）だけを読む形にして、S3-E・S4-E で使い回せるようにする。
+2. Plan:
+   - [x] ブランチ `feature/home`。ユーザーの決定：#30 と #32 を一緒に作って両方閉じる（検索ワード集 D4・履歴0件の約60件は #89）
+   - [x] ストア `home` slice（保存しない。`home_set`）とテスト（Red 確認）
+   - [x] 辞書（ja／en）、`SearchScope`・`HomeScopeProvider`、`BlockedContext`（本文の画面から帯の下の表示を出す）
+   - [x] #30：`QueryPreview`（実験的バッジ）・`WarningNote`
+   - [x] 条件ボタン（値付き・サジェスト）・`ChipRow`・`PeriodPicker`・`DetailPanel`
+   - [x] `Sheet`（radix Dialog）・`EnginePicker`・`OpenBar`・`SaveSheet`・`ConditionFrame`
+   - [x] `FavoritesFold`（開閉は `prefs.favOpen`）・`HomePage`・`app/(site)/page.tsx`。旧 `page.test.tsx` は削除
+   - [x] docs（api-spec 7.1、implementation-plan）
+   - [x] make check（テスト675件）・format:check
+   - [ ] main へマージして push、#30・#32 の完了条件を直して閉じる
+3. Verification: `make check`、`npm run format:check`。本物のバックエンド＋MemoryAdapter のテスト（入力→クエリ、Enter／IME、blockers で開く・コピー・保存が止まる、ON の保存と再読み込み、値付きの途中の値、期間指定中の日付ボタン、［もっと開く］の N、サジェスト、警告欄の位置、実験的バッジ、保存シート、お気に入りの開閉と実行、ページを移って戻っても検索語が残る）。`grep "Dialog|alert(|confirm("` が警告・クエリ表示のファイルで空。
+4. Review:
+   - 決定：ホームの検索の状態はストアの `home`（保存しない）。部品は `components/search` に置き、モックから import しない。値付きの入力は正しい値のときだけ保存（入力中の値は部品の中）。開くときは `built.stored`（`text` ではない）。
+   - 判断：サジェストの候補は、この検索だけ ON にした候補を除いた検索から求める（そうしないと、押した候補が一覧から消えて外せない。テストで発見）。blockers のとき、開くボタンは `disabled`、Enter・コピー・保存も止める。
+   - 判断：「新」バッジは表示の口（`isNew` prop）だけ。出どころ（サジェストの採用）は #74。検索ワード集（D4）・履歴0件の約60件は #89。
+   - **未確認**：Chrome での 360px／1280px の目視（ブラウザ操作の道具が無かった）。書き出した HTML に要素があることと、jsdom のテストまで。#32 の完了条件「Chrome で確認」は残る。
+   - **次に壊れやすい点**：jsdom は CSS が効かないので、折り返し・固定幅・ガタつきは目視が要る。`LocalScopeProvider`（S3-E・S4-E）は #76・#77 で同じ `SearchScope` の形で作る。`HomeScopeProvider` は `home` の差し替え（S7 の［ホームで編集する］）に対応する。
+
 # #73 シェル（ヘッダー・興味の対象の切替・帯・フッター・左メニュー・トースト）
 
 1. Goal: 以降の画面が載る全ページ共通の枠（画面仕様書 2章）を、辞書・`@/api`・ストア経由で作る。
