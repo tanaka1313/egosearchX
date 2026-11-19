@@ -9,7 +9,7 @@
    - [x] S3-E：展開、保存（いつものエゴサの連動・件数のトースト・［元に戻す］）、複製、検証、id 不明
    - [x] 辞書 ja／en、docs（api-spec 7.1、implementation-plan）
    - [x] `make check`（テスト771件）、Chrome（Playwright）で 360px／1280px
-   - [ ] main へマージして push、#76 を閉じる
+   - [x] main へマージして push、#76 を閉じる
 3. Verification: `make check`。Playwright：360px で横にはみ出さない・3行の高さが同じ（69px）・省略・直接開いてキャンセルで一覧へ・保存でトースト、1280px の配置、コンソールのエラー 0。
 4. Review:
    - 判断：S3-E の条件ボタンの値の変更は `chips.setValue` を使わない（`on: true` も保存済みに書き、ホームの ON が変わるため）。`chips.save` で値だけ差し替える。ON はページの中だけ。
