@@ -4,9 +4,14 @@
 import { useState, type ReactNode } from "react";
 import { createBrowserBackend } from "@/backend";
 import { ApiProvider } from "@/store/api-context";
+import { StoreProvider } from "@/store/store-context";
 
 export function Providers({ children }: { children: ReactNode }) {
   // localStorage は、事前描画（window なし）では触らない。作るのは1回だけ
   const [api] = useState(createBrowserBackend);
-  return <ApiProvider api={api}>{children}</ApiProvider>;
+  return (
+    <ApiProvider api={api}>
+      <StoreProvider>{children}</StoreProvider>
+    </ApiProvider>
+  );
 }

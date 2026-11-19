@@ -1,3 +1,19 @@
+# #24 ストア（zustand）と API（契約）の接続
+
+1. Goal: ストアが `@/api` だけを使って `data.init()` で読み、変更のたびに `data.*` を呼んで戻り値を状態へ反映する。
+2. Plan:
+   - [x] ブランチ `feature/store-api`、zustand 導入
+   - [x] `store/app-store.ts`（`createAppStore(api)`）、`store-context.tsx`（`StoreProvider`・`useAppStore`）、`providers.tsx` に接続
+   - [x] ESLint：`src/store/**/*.test.*` だけ `@/backend`・`MemoryAdapter` を許可（テスト以外の違反は lint で失敗することを確認）
+   - [x] docs（api-spec 7.1、implementation-plan）
+   - [x] make check（テスト492件）・format:check、main へマージして push、#24 を閉じる
+3. Verification: `make check`、`npm run format:check`。再読み込み・壊れたデータ（kv が1バイトも変わらない）・お気に入り削除／編集／undo・LIMIT のテスト。
+4. Review:
+   - 判断：エンティティを返す操作は戻り値を差し込み、戻り値の無い操作と `history.record` は `data.init()` で読み直す（履歴の上限・lastRunAt・削除済みの位置の規則をストアに持たない）。`corrupt` の間は操作が `CORRUPT` を throw し、何も書かない。
+   - **テスト先行（Red）は確認していない**：テストを先に書いたが、実装前に実行しなかった。
+   - **未確認**：dev サーバーで `/`・`/mock` が 200 でログにエラーが無いことまで。ブラウザでのハイドレーション確認はしていない。dev サーバー（ポート 3124）は、プロセス停止が許可されず残っている。
+   - **次に壊れやすい点**：画面で配列・オブジェクトを新しく作るセレクターは `useShallow` で包む（zustand v5 で再描画が止まらなくなる）。#87 の `reset()` 後に status を `ready` へ戻す処理をストアに足す。#86 は `history.record` が読み直すので、ストアの変更は不要。
+
 # #85 API 層（契約・createBackend・useApi・import の制限）
 
 1. Goal: 画面が `@/api` だけで動けるよう、境界の `EgoSearchApi` と実装 `createBackend({ kv, clock })`、`useApi()`、画面からの内部 import を禁じる ESLint を作る。
