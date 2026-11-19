@@ -17,6 +17,7 @@ import {
   type Chip,
   type Detail,
   type Period,
+  type SearchState,
 } from "@/api";
 import { useReportBlocked } from "@/components/common/blocked-context";
 import { useToast } from "@/components/common/toast";
@@ -115,24 +116,31 @@ export function HomeScopeProvider({ children }: { children: ReactNode }) {
     [visibleChips],
   );
 
-  const built = useMemo(
-    () =>
-      api.query.build(
-        {
-          word: home.word,
-          exact: home.exact,
-          onChipIds: chips.filter((c) => c.on).map((c) => c.id),
-          suggestionTokens: home.suggestionTokens,
-          detail: home.detail,
-          period: home.period,
-        },
-        chips,
-      ),
-    [api, home, chips],
+  const state = useMemo<SearchState>(
+    () => ({
+      word: home.word,
+      exact: home.exact,
+      onChipIds: chips.filter((c) => c.on).map((c) => c.id),
+      suggestionTokens: home.suggestionTokens,
+      detail: home.detail,
+      period: home.period,
+    }),
+    [home, chips],
   );
+  const built = useMemo(
+    () => api.query.build(state, chips),
+    [api, state, chips],
+  );
+  // 候補は「この検索だけ ON にしたもの」を除いた検索から求める。ON にした候補が一覧から消えると、
+  // 押した後に外せなくなり、並びも動いてしまう（押しても動かさない）
   const suggestions = useMemo(
-    () => api.query.suggest({ text: built.stored, chips, history }),
-    [api, built.stored, chips, history],
+    () =>
+      api.query.suggest({
+        text: api.query.build({ ...state, suggestionTokens: [] }, chips).stored,
+        chips,
+        history,
+      }),
+    [api, state, chips, history],
   );
 
   /** 失敗は、壊れたデータなら黙り（書かないのが正しい）、それ以外はトーストで知らせる */
