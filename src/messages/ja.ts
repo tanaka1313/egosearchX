@@ -58,6 +58,18 @@ export const ja = {
     unknown: "不明",
     close: "閉じる",
   },
+  corrupt: {
+    message: "保存データを読み込めず、復元できません。",
+    reset: "データを初期化する",
+  },
+  confirm: {
+    cancel: "キャンセル",
+  },
+  resetData: {
+    title: "データを初期化しますか？",
+    body: "保存データ（条件ボタン・お気に入り・いつものエゴサ・履歴・削除済み・設定）をすべて破棄します。元に戻せません。",
+    action: "初期化する",
+  },
   lang: {
     label: "言語",
     ja: "日本語",

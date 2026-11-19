@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   useSyncExternalStore,
   type ReactNode,
@@ -61,6 +62,16 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.lang = lang;
   }, [lang]);
+
+  // 壊れたデータの初期化（corrupt → ready）のとき、壊れている間に切り替えた言語を保存する
+  // （画面の言語と保存値を食い違わせない）
+  const prevStatus = useRef(status);
+  useEffect(() => {
+    const wasCorrupt = prevStatus.current === "corrupt";
+    prevStatus.current = status;
+    if (wasCorrupt && status === "ready" && local)
+      prefsSet({ lang: local }).catch(console.error);
+  }, [status, local, prefsSet]);
 
   const setLang = useCallback(
     (next: Lang) => {

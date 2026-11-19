@@ -11,6 +11,7 @@ import { createBackend } from "@/backend";
 import { MemoryAdapter } from "@/lib/storage/kv-adapter";
 import { ApiProvider } from "./api-context";
 import { I18nProvider, useI18n } from "./i18n-context";
+import { useAppStore } from "./store-context";
 import { StoreProvider } from "./store-context";
 
 const clock = {
@@ -18,6 +19,11 @@ const clock = {
   now: () => "2026-11-19T03:00:00.000Z",
 };
 const PREFS_KEY = "egosearch:v2:prefs";
+
+const ResetButton = () => {
+  const reset = useAppStore((s) => s.data_reset);
+  return <button onClick={() => void reset()}>reset</button>;
+};
 
 const Probe = () => {
   const { lang, t, setLang } = useI18n();
@@ -28,6 +34,7 @@ const Probe = () => {
       </p>
       <button onClick={() => setLang("en")}>to-en</button>
       <button onClick={() => setLang("ja")}>to-ja</button>
+      <ResetButton />
     </div>
   );
 };
@@ -105,5 +112,25 @@ describe("I18nProvider", () => {
     await waitFor(() => expect(screen.getByText(/^lang=ja:/)).toBeVisible());
     expect(await kv.get(PREFS_KEY)).toBeNull();
     expect(await kv.get("egosearch:v2:favorites")).toBe("{壊れた");
+  });
+});
+
+describe("壊れたデータの初期化と言語", () => {
+  it("壊れている間に切り替えた言語は、初期化のあとに保存され、画面と保存値が食い違わない", async () => {
+    browserLang(["en-US"]);
+    const kv = new MemoryAdapter();
+    await kv.set("egosearch:meta", JSON.stringify({ version: 1 }));
+    await kv.set("egosearch:v2:favorites", "{壊れた");
+    mount(kv);
+    await waitFor(() => expect(screen.getByText(/^lang=en:/)).toBeVisible());
+    fireEvent.click(screen.getByText("to-ja"));
+    await waitFor(() => expect(screen.getByText(/^lang=ja:/)).toBeVisible());
+    expect(await kv.get(PREFS_KEY)).toBeNull();
+
+    fireEvent.click(screen.getByText("reset"));
+    await waitFor(async () =>
+      expect(JSON.parse((await kv.get(PREFS_KEY)) ?? "{}").lang).toBe("ja"),
+    );
+    expect(screen.getByText(/^lang=ja:/)).toBeVisible();
   });
 });

@@ -32,11 +32,11 @@ src/
     launch/page.tsx       S9 ランチャー
     layout.tsx            ヘッダー、左メニュー、トースト、コマンドパレット
   components/
-    common/               QueryPreview, EngineBadge, WarningList, ConfirmDialog, Toast, CommandPalette
+    common/               QueryPreview, EngineBadge, WarningList, CorruptNotice, Toast, CommandPalette
     home/                 SearchBuilder, ChipRow（折りたたみ）, PeriodPicker, DetailPanel, SaveSheet
     chips/                ChipEditor(D1), SortableChip
     favorites/            FavoriteRow, GroupButton, GroupEditor
-    dialogs/              PublishGroup(D2), Confirm(D3)
+    dialogs/              PublishGroup(D2), ConfirmDialog(D3。作成済み)
   lib/
     query/
       ast.ts              検索条件モデル（木構造）の型

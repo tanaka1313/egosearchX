@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { LIMITS, type Chip, type Favorite, type Group } from "@/api";
 import { LocalStorageAdapter, MemoryAdapter } from "./kv-adapter";
-import { StorageCorruptError, LimitError, openDao } from "./kv-dao";
+import { StorageCorruptError, LimitError, openDao, wipeKv } from "./kv-dao";
 import { META_KEY, MIGRATIONS, type Migration } from "./migrate";
 import type { Dao } from "./types";
 
@@ -370,5 +370,41 @@ describe("版1 → 版2 の移行（いつものエゴサに lastRunAt を足す
     const kv = new MemoryAdapter();
     await openDao(kv);
     expect(await metaOf(kv)).toEqual({ version: 2 });
+  });
+});
+
+describe("wipeKv（保存データをすべて名前で消す）", () => {
+  it("版1の移行・各表への書き込み・prefs まで行ったあと、書かれたキーが1つも残らず、無関係のキーは残る", async () => {
+    const kv = new MemoryAdapter();
+    const written = new Set<string>();
+    const set = kv.set.bind(kv);
+    kv.set = async (k, v) => {
+      written.add(k);
+      return set(k, v);
+    };
+    // 版1のデータ（5表）から移行させる
+    await kv.set(META_KEY, JSON.stringify({ version: 1 }));
+    for (const t of ["chips", "favorites", "groups", "history", "prefs"])
+      await kv.set(`egosearch:v1:${t}`, t === "prefs" ? "{}" : "[]");
+    await kv.set("other:key", "keep");
+    const dao = await openDao(kv);
+    await dao.chips.save(chip("c"));
+    await dao.favorites.save(fav("f"));
+    await dao.groups.save(group("g", ["a"]));
+    await dao.history.add({
+      id: "h",
+      at: T0,
+      query: "a",
+      engine: "x",
+      source: { kind: "home", label: "a" },
+    });
+    await dao.prefs.set({ interest: "other" });
+    expect(written.size).toBeGreaterThanOrEqual(11);
+
+    await wipeKv(kv);
+
+    for (const k of written)
+      if (k !== "other:key") expect(await kv.get(k), k).toBeNull();
+    expect(await kv.get("other:key")).toBe("keep");
   });
 });

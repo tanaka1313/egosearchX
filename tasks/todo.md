@@ -1,3 +1,25 @@
+# #87 保存データが壊れたときの初期化（data.reset）
+
+1. Goal: 保存データが壊れて読めない（CORRUPT）とき、全ページ共通の表示と確認ダイアログ（D3）を経て、保存データをすべて破棄しプリセットから作り直せるようにする。
+2. Plan:
+   - [x] ブランチ `feature/data-reset`、テスト先行（Red 確認：dao・backend・store・i18n・notice の各テストが失敗）
+   - [x] `kv-dao.ts`：表の名前を `TABLE_NAMES` に集め（`Table` の名前もこの型）、`wipeKv(kv)` が版1〜今の版の全表と meta を名前で消す
+   - [x] 契約 `DataApi.reset()`、`backend/data.ts`（`wipeKv` → `opened = null` → 初回として開き直す）
+   - [x] ストア `data_reset()`（corrupt のときだけ。それ以外は throw して何も消さない）
+   - [x] `I18nProvider`：壊れている間に切り替えた言語を、corrupt → ready のときに保存する
+   - [x] `ConfirmDialog`（D3。radix AlertDialog、初期フォーカスは［キャンセル］）、`CorruptNotice`（`layout.tsx` の本文の上）、辞書 ja／en
+   - [x] ESLint：`src/components/**/*.test.*` も `@/backend` を許可（ストアのテストと同じ理由）
+   - [x] docs（api-spec、implementation-plan）
+   - [x] make check（テスト586件）・format:check
+   - [ ] main へマージして push、#87 の完了条件を直して閉じ、#73 に `CorruptNotice` の配置を追記
+3. Verification: `make check`、`npm run format:check`。書かれたキーを記録して wipe 後に1つも残らないこと、CORRUPT の init が set／remove を1回も呼ばないこと、壊れた meta／表／新しい版／版1の残りからの reset、ready での `data_reset` が throw すること、D3 のキャンセル・Esc で何も消えないこと。
+4. Review:
+   - 判断：表の名前は `kv-dao.ts` の `TABLE_NAMES` 1か所。`migrate.ts` の `TABLES`（版1固定）は流用しない。`KeyValueAdapter` にメソッドは足さず `remove` だけを使う（スキーマの検証を通さず生のキーを消すため KV の DAO 層に置いた）。Issue の完了条件1行目はこの形に直す。
+   - 判断：reset が失敗したら表示はそのまま残し `console.error`（トーストは #73 まで無い）。`CorruptNotice` は `role="alert"`（読み上げ用）だがフォーカスは移さない。
+   - **未確認**：ブラウザ（dev サーバー・実際の localStorage）での目視。jsdom のテストと `MemoryAdapter` まで。
+   - 観測：`make check` の初回で `site-footer.test.tsx` が5秒のタイムアウト（単独と2回目は通過）。jsdom の並列の負荷による不安定さとみられ、原因は未調査。
+   - **次に壊れやすい点**：今より新しい版（v3 以降）のキーは名前で消せない（`SCHEMA_VERSION` までを消す）。版3を作るとき `TABLE_NAMES` を見直す。#73 のシェルができたら `CorruptNotice` を帯の下へ移す。
+
 # #86 いつものエゴサに lastRunAt を足す（スキーマ版2）
 
 1. Goal: 「今日は実行済み」を履歴ではなく `Group.lastRunAt` で決めるため、版2のスキーマ・移行・`history.record` による更新・契約の判定 `clock.isToday` を作る。
@@ -9,7 +31,7 @@
    - [x] 契約 `AppClock`（`clock.isToday`）、`StorageCorruptError` を `corrupt-error.ts` へ（migrate との循環 import を避ける）
    - [x] docs（api-spec、implementation-plan、requirements）
    - [x] make check（テスト572件）・format:check
-   - [ ] main へマージして push、#86 を閉じ、#87 に版1のキーの消去を追記
+   - [x] main へマージして push、#86 を閉じ、#87 に版1のキーの消去を追記
 3. Verification: `make check`、`npm run format:check`。移行（バイト不変・壊れた groups は何も書かない・再実行）、`isToday` の日付の境目（日本時間 0:00）、履歴の全件削除後も判定が変わらない、編集しても `lastRunAt` が残る。
 4. Review:
    - 判断：版が上がるとキー名が全部変わるため、移行は5表すべてを運ぶ。壊れた groups は `CORRUPT`（版1のデータと meta は変えない）。

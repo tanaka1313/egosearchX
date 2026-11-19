@@ -107,6 +107,66 @@ describe("壊れた保存データ", () => {
   });
 });
 
+describe("data.reset（壊れたデータの初期化）", () => {
+  const corruptions: [string, (kv: MemoryAdapter) => Promise<void>][] = [
+    ["表が壊れている", (kv) => kv.set("egosearch:v2:favorites", "not json")],
+    ["meta が壊れている", (kv) => kv.set(META_KEY, "{broken")],
+    [
+      "今より新しい版で保存されている",
+      (kv) => kv.set(META_KEY, JSON.stringify({ version: 999 })),
+    ],
+  ];
+  it.each(corruptions)(
+    "%s：reset するとプリセット入りの AppData を返し、読み直しても同じ",
+    async (_name, corrupt) => {
+      const kv = new MemoryAdapter();
+      await make(kv).api.data.init();
+      await kv.set("egosearch:v1:chips", "旧版の残り"); // 版1のキーも消える
+      await kv.set("other:key", "keep");
+      await corrupt(kv);
+      const api = createBackend({ kv, clock, newId });
+      expect(await code(api.data.init())).toBe("CORRUPT");
+
+      const data = await api.data.reset();
+      expect(data.chips.get("hololive")?.length).toBeGreaterThan(0);
+      expect(data.favorites).toEqual([]);
+      expect(await kv.get("egosearch:v1:chips")).toBeNull();
+      expect(await kv.get("other:key")).toBe("keep");
+
+      const again = await createBackend({ kv, clock, newId }).data.init();
+      expect(again.chips).toEqual(data.chips);
+    },
+  );
+  it("reset のあとは通常の操作ができる", async () => {
+    const kv = new MemoryAdapter();
+    await kv.set(META_KEY, "{broken");
+    const api = createBackend({ kv, clock, newId });
+    await api.data.reset();
+    const fav = await api.data.favorites.save({
+      name: "a",
+      query: "a",
+      engine: "x",
+    });
+    expect((await api.data.init()).favorites.map((f) => f.id)).toEqual([
+      fav.id,
+    ]);
+  });
+  it("CORRUPT の init は、何も書かず何も消さない", async () => {
+    const kv = new MemoryAdapter();
+    await kv.set(META_KEY, "{broken");
+    const ops: string[] = [];
+    for (const m of ["set", "remove"] as const) {
+      const f = kv[m].bind(kv) as (...a: string[]) => Promise<void>;
+      kv[m] = async (...a: string[]) => {
+        ops.push(m);
+        return f(...a);
+      };
+    }
+    await code(createBackend({ kv, clock, newId }).data.init());
+    expect(ops).toEqual([]);
+  });
+});
+
 describe("data.chips", () => {
   let api: EgoSearchApi;
   beforeEach(async () => {

@@ -102,6 +102,37 @@ describe("壊れたデータ", () => {
   });
 });
 
+describe("data_reset（壊れたデータの初期化）", () => {
+  it("corrupt のとき、保存データを破棄して ready になり、プリセットが入る", async () => {
+    const kv = new MemoryAdapter();
+    await ready(kv);
+    await kv.set("egosearch:v2:favorites", "{壊れた");
+    const { store } = setup(kv);
+    await store.getState().init();
+    expect(store.getState().status).toBe("corrupt");
+
+    await store.getState().data_reset();
+    const s = store.getState();
+    expect(s.status).toBe("ready");
+    expect(s.chips.get("hololive")?.length).toBeGreaterThan(0);
+    expect(s.favorites).toEqual([]);
+    expect(s.prefs).not.toBeNull();
+    // 以降は通常どおり保存できる
+    await s.favorites_save({ name: "a", query: "a", engine: "x" });
+    expect(store.getState().favorites).toHaveLength(1);
+  });
+  it("ready のときは throw し、保存データを1バイトも消さない", async () => {
+    const { kv, store } = await ready();
+    await store
+      .getState()
+      .favorites_save({ name: "a", query: "a", engine: "x" });
+    const before = await dump(kv);
+    await expect(store.getState().data_reset()).rejects.toThrow();
+    expect(await dump(kv)).toEqual(before);
+    expect(store.getState().favorites).toHaveLength(1);
+  });
+});
+
 describe("戻り値の反映", () => {
   it("chips_setOn は該当の条件ボタンだけを変える", async () => {
     const { store } = await ready();

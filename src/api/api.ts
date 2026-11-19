@@ -131,6 +131,11 @@ export type TrashDetail =
 export interface DataApi {
   /** 初回はプリセットを入れる。CORRUPT のときは何も書かない */
   init(): Promise<AppData>;
+  /**
+   * 保存データをすべて破棄し、プリセットから作り直す。CORRUPT のとき、ユーザーが確認ダイアログ（D3）で
+   * 確かめた後だけ呼ぶ（画面仕様書 2.7。「上書きしない」の唯一の例外）
+   */
+  reset(): Promise<AppData>;
   chips: {
     save(input: ChipInput): Promise<Chip>;
     setOn(id: string, on: boolean): Promise<Chip>;

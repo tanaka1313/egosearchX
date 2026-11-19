@@ -21,7 +21,7 @@ import {
 } from "@/api";
 import { StorageCorruptError } from "./corrupt-error";
 import type { KeyValueAdapter } from "./kv-adapter";
-import { migrate, type Migration } from "./migrate";
+import { META_KEY, migrate, type Migration } from "./migrate";
 import { SCHEMA_VERSION } from "./schema";
 import type { CrudRepo, Dao, Saveable } from "./types";
 
@@ -35,7 +35,19 @@ export class LimitError extends Error {
   }
 }
 
-const keyOf = (table: string) => `egosearch:v${SCHEMA_VERSION}:${table}`;
+/** 表の名前（キーは版ごとに `egosearch:v<版>:<表>`）。表を足すときはここに足す（wipeKv もこれで消す） */
+export const TABLE_NAMES = [
+  "chips",
+  "favorites",
+  "groups",
+  "history",
+  "prefs",
+] as const;
+
+type TableName = (typeof TABLE_NAMES)[number];
+
+const keyOf = (table: TableName, version = SCHEMA_VERSION) =>
+  `egosearch:v${version}:${table}`;
 
 /** 1つのキーに配列で持つ表 */
 class Table<T> {
@@ -43,7 +55,7 @@ class Table<T> {
   private readonly schema: z.ZodType<T[]>;
   constructor(
     private readonly kv: KeyValueAdapter,
-    name: string,
+    name: TableName,
     row: z.ZodType<T>,
   ) {
     this.key = keyOf(name);
@@ -287,4 +299,15 @@ export async function openDao(
 ): Promise<Dao> {
   await migrate(kv, opts.migrations);
   return createKvDao(kv);
+}
+
+/**
+ * 保存データをすべて、キーの名前で消す（版1〜今の版のすべての表と meta）。
+ * 壊れたデータ（CORRUPT）をユーザーが確かめて初期化するときだけ使う（docs/requirements.md F12）。
+ * スキーマの検証を通さず生のキーを消すので、DAO を開かずに呼べる。無関係のキーは消さない。
+ */
+export async function wipeKv(kv: KeyValueAdapter): Promise<void> {
+  for (let v = 1; v <= SCHEMA_VERSION; v++)
+    for (const t of TABLE_NAMES) await kv.remove(keyOf(t, v));
+  await kv.remove(META_KEY);
 }
