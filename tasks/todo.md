@@ -9,7 +9,7 @@
    - [x] docs（requirements 7・9.3、CLAUDE.md、screen-spec 5.9、api-spec 7.1、implementation-plan）
    - [x] make check（テスト740＋30件）、`out/` の HTML、Playwright（en への切替・移動・360px／1280px）
    - [x] 新 Issue #90「本番 URL の決定」、#41 の依存へ追記、#75 の完了条件を直した
-   - [ ] main へマージして push、#75 を閉じる
+   - [x] main へマージして push、#75 を閉じる
 3. Verification: `make check`、`npm run format:check`。`out/index.html` だけに JSON-LD、ホーム以外は `noindex`。Playwright：en に切り替えて ホーム → about → buttons → import → ホームと移るたびに title・description が en。
 4. Review:
    - 決定（ユーザー）：本番 URL は未定で空（Issue で管理）。title に「非公式」は入れない（description・このサイトについて・フッター）。下層の title を `/about`・`/buttons`・`/import` でそろえ、管理ページのタブだけ「〇〇の管理」。ホーム以外は検索に出さない（既定 noindex）。
