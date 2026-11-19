@@ -351,6 +351,41 @@ export const ja = {
       "この履歴の検索文字列を、新しいお気に入りとして保存します。「昨日から」などは、開いたときの日付に展開された文字列のまま保存されます。",
     failed: "操作できませんでした",
   },
+  trashPage: {
+    title: "削除済み",
+    list: "削除済みの一覧",
+    purgeAll: "すべて完全削除",
+    note: (max: number) =>
+      `条件ボタン・お気に入り・いつものエゴサは、それぞれ${max}件まで残ります。超えると、その種類の古いものから自動で完全に削除されます。復元はいつでもできます。種類はそれぞれ独立していて、お気に入りを消してもいつものエゴサは消えません。`,
+    tabs: "種類",
+    tabAll: (n: number) => `すべて ${n}`,
+    tabKind: (kind: string, n: number, max: number) => `${kind} ${n}/${max}`,
+    kind: {
+      chip: "条件ボタン",
+      favorite: "お気に入り",
+      group: "いつものエゴサ",
+    },
+    chipBadge: (interest: string) => `条件ボタン（${interest}）`,
+    purgeKind: (kind: string) => `${kind}をすべて完全削除`,
+    emptyAll: "削除したものはここに入ります",
+    emptyKind: (kind: string) => `削除した${kind}はありません`,
+    deletedAt: (at: string) => `削除 ${at}`,
+    restore: "復元",
+    restored: (name: string) => `「${name}」を復元しました`,
+    show: "中身を見る",
+    hide: "中身を隠す",
+    empty: "（中身なし）",
+    purge: "完全に削除",
+    chipFull: (max: number) =>
+      `⚠ 条件ボタンが上限（${max}件）のため復元できません`,
+    confirmAll: "削除済みをすべて完全削除しますか？",
+    confirmKind: (kind: string) =>
+      `${kind}の削除済みをすべて完全削除しますか？`,
+    confirmOne: (name: string) => `「${name}」を完全に削除しますか？`,
+    confirmBody: "元に戻せません。",
+    confirmAction: "完全に削除",
+    failed: "操作できませんでした",
+  },
   favoritesPage: {
     title: "お気に入り",
     description:

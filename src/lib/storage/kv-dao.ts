@@ -209,6 +209,7 @@ export function createKvDao(kv: KeyValueAdapter): Dao {
               id: c.id,
               name: c.label,
               deletedAt: c.deletedAt,
+              interestId: c.interestId,
             });
         for (const f of await favorites.all())
           if (f.deletedAt)

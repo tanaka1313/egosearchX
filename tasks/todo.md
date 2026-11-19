@@ -1,3 +1,23 @@
+# #79 S6 削除済み
+
+1. Goal: `/trash`（種類のタブ・中身を見る・復元・完全削除）を作る。バックエンドとストアは作成済みなので、画面と、行に要る「条件ボタンの興味の対象」だけを足す。
+2. Plan:
+   - [x] ブランチ `feature/trash-page`
+   - [x] `TrashEntry.interestId`（条件ボタンだけ）。テスト先行（Red 確認：`dao.test.ts`）
+   - [x] テスト先行（Red 確認：`./trash-page` が無く失敗）、辞書 ja／en（`trashPage`）、`TrashPage`、`app/(site)/trash/page.tsx`
+   - [x] `ConfirmDialog` に `onCloseAutoFocus`（行が消えたあとのフォーカス先を呼び出し側が決める）
+   - [x] docs（CLAUDE.md の一文、api-spec 7.1、implementation-plan）
+   - [x] `make check`（テスト819件）、Chrome（Playwright）で 360px／1280px
+   - [ ] main へマージして push、#79 の完了条件を直して閉じる
+3. Verification: `make check`。テスト：空・新しい順・件数・矢印キー・対象名・中身を見る・復元（確認なし・元の位置）・上限で復元不可・完全削除3種（D3 のキャンセルで消えない）・フォーカス・英語。Playwright：360px で横にはみ出さない・D3 の初期フォーカスは［キャンセル］・キャンセルは押した要素へ、復元後はタブへフォーカス・コンソールのエラー 0。
+4. Review:
+   - 決定（ユーザー）：［すべて完全削除］［<種類>をすべて完全削除］は D3 付きで残す。CLAUDE.md の「一気に完全削除する経路は作らない」を「使っているデータを、削除済みを経ずに直接消す経路は作らない」に直し、#79 の完了条件も同じ言い方にする。
+   - 判断：`TrashEntry.interestId` は任意（条件ボタンだけ）。復元できない条件ボタンの事前判定はストアの `chips`（有効な行だけ）で行い、DAO の `LimitError` の日本語の文言は出さない。
+   - 発見（Playwright）：Radix の AlertDialog は、トリガーを持たないと閉じたあとフォーカスが `body` に落ちる（S5 の履歴の D3 も同じ型）。S6 では押した要素を覚えて戻し、行が消える実行後は選んでいるタブへ戻した。jsdom の `fireEvent.click` はフォーカスを動かさないため、`document.activeElement` ではなくイベントの `currentTarget` を覚えた。
+   - 観測：スマホ幅で名前とバッジと日時を1行に並べると名前が縦に割れた。バッジと日時を1行目、名前を2行目にした。
+   - **未確認**：S2／S3／S4 から削除して `/trash` に3種類が並ぶ操作は、条件ボタンだけ実機で確認（お気に入り・いつものエゴサは jsdom のテストまで）。20件の自動削除は DAO のテスト。マウスでの［中身を見る］の目視は未実施。en の文言は暫定（#67）。
+   - **次に壊れやすい点**：S5 の履歴の D3 は `onCloseAutoFocus` を渡していないのでフォーカスが `body` に落ちる（#37 キーボード操作で直す）。`TrashEntry.interestId` を使う側は、JSON から消えた対象 ID のとき ID をそのまま出す。
+
 # #78 S5 履歴
 
 1. Goal: `/history`（一覧・再実行・☆ お気に入りに保存・全件削除）を作り、「使った条件ボタン」は保存せず文字列から導く。

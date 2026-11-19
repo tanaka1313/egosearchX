@@ -47,6 +47,7 @@ src/
     chips/                S2 条件ボタン（作成済み＝#74）：chips-page, chip-editor（D1。`ChipEditorSheet`）
     import/               S7 URL解析（作成済み＝#31）：import-page（解析結果の表示、［ホームで編集する］、保存シート）
     history/              S5 履歴（作成済み＝#78）：history-page。保存シートは common/favorite-save-form（S7 と共用）
+    trash/                S6 削除済み（作成済み＝#79）：trash-page（種類のタブ・復元・完全削除は D3 を必ず挟む）
     about/                S10 このサイトについて（作成済み＝#75）：about-page。SEO：common/page-title（ページ名と `document.title`）・common/site-meta（言語・移動に合わせた差し替え）、`messages/site.ts`（サイト名・別名・`SITE_URL`・`websiteJsonLd`）
     favorites/            S3・S3-E（作成済み＝#76）：favorites-page, favorite-row, favorite-edit-page
     groups/               S4・S4-E・D2（作成済み＝#77）：groups-page, group-edit-page, bookmark-sheet（D2）, item-label（項目の名前）

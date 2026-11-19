@@ -301,6 +301,7 @@ type TrashDetail =
 | **S4 いつものエゴサ** | `url.plan`、`query.favName` | `data.groups.remove`、`launcher.encode`（D2）、`record`（source: group、`groupId`） | 一括の `window.open` とブロック時の表示、URL のコピー |
 | **S4-E 追加・編集** | `query.build`、`query.starters`、`master.wordSet`（D4）、`query.favName`、`url.plan` | `data.groups.save`、`data.favorites.save`（② お気に入りに保存して追加） | ページ内の項目の並び（保存まで持つ）、検索の組み立ての状態 |
 | **S5 履歴** | `url.plan` | `data.history.clear`（D3）、`data.favorites.save`（検索先は履歴の `engine` を引き継ぐ）、`record` | 一覧の表示、`window.open` |
+| **S6 削除済み** | **作成済み**（#79） | `src/components/trash/trash-page.tsx`。種類のタブ（すべて／条件ボタン／お気に入り／いつものエゴサ。矢印キーで移動）と、`store.trash`（`trash_load` で読む。読み込み前は何も出さない）の一覧。行は種類のバッジ（条件ボタンは `TrashEntry.interestId` から「条件ボタン（<対象名>）」。対象名は `master.interests()` の `label[lang]`）・名前・削除日時。［中身を見る］で `data.trash.detail`（お気に入りは `query.expand` の文字列、いつものエゴサの項目の名前は `useItemLabel`）。［復元］は確認なし（`trash_restore`）で、戻す先の対象の有効な条件ボタンがストアの `chips` で `LIMITS.chips` 件なら押せず、行の下に辞書の文言を出す（`LIMIT` で失敗したときも同じ。DAO の `e.message` は出さない）。完全削除（1件・種類ごと・すべて）は `ConfirmDialog`（D3）1つを対象で切り替えて必ず挟む。行が消えるので、実行後と復元後のフォーカスは選んでいるタブへ、キャンセルでは押した要素へ戻す（`ConfirmDialog.onCloseAutoFocus`）。`TrashEntry.interestId` は条件ボタンの行だけ |
 | **S6 削除済み・D3** | — | `data.trash.list`／`detail`／`restore`／`purge`／`purgeKind`／`purgeAll` | 種類のタブ、確認ダイアログ |
 | **S7 URL解析** | `url.parse`、`query.parse`（ホームで編集する） | `data.favorites.save`（保存シートの検索先。初期値は貼った URL のもの） | 貼り付けの入力、ホームの状態への展開、`location` |
 | **S9 ランチャー** | `url.plan`、`query.favName` | `launcher.decode`（ページを開いたとき）、`record`（source: launch） | `window.open`、ブロック時の表示、［ホームへ］ |

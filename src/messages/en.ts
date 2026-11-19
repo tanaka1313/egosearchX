@@ -343,6 +343,41 @@ export const en: Messages = {
       "The search text of this history entry is saved as a new favorite. Relative dates such as “since yesterday” stay as the dates they were expanded to when it was opened.",
     failed: "Could not complete the action",
   },
+  trashPage: {
+    title: "Trash",
+    list: "Deleted items",
+    purgeAll: "Delete all permanently",
+    note: (max: number) =>
+      `Condition buttons, favorites and routines are each kept up to ${max} items. Beyond that, the oldest of that type are deleted permanently. You can restore them at any time. The types are independent: deleting a favorite does not delete a routine.`,
+    tabs: "Type",
+    tabAll: (n: number) => `All ${n}`,
+    tabKind: (kind: string, n: number, max: number) => `${kind} ${n}/${max}`,
+    kind: {
+      chip: "Condition buttons",
+      favorite: "Favorites",
+      group: "Routines",
+    },
+    chipBadge: (interest: string) => `Condition button (${interest})`,
+    purgeKind: (kind: string) => `Delete all ${kind} permanently`,
+    emptyAll: "Deleted items will appear here",
+    emptyKind: (kind: string) => `No deleted ${kind}`,
+    deletedAt: (at: string) => `Deleted ${at}`,
+    restore: "Restore",
+    restored: (name: string) => `Restored “${name}”`,
+    show: "Show contents",
+    hide: "Hide contents",
+    empty: "(empty)",
+    purge: "Delete permanently",
+    chipFull: (max: number) =>
+      `⚠ Cannot restore: the condition buttons are at the limit (${max})`,
+    confirmAll: "Permanently delete everything in the trash?",
+    confirmKind: (kind: string) =>
+      `Permanently delete all ${kind} in the trash?`,
+    confirmOne: (name: string) => `Permanently delete “${name}”?`,
+    confirmBody: "This cannot be undone.",
+    confirmAction: "Delete permanently",
+    failed: "Could not complete the action",
+  },
   favoritesPage: {
     title: "Favorites",
     description:
