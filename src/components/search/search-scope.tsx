@@ -18,6 +18,7 @@ import {
   type Detail,
   type Period,
   type SearchState,
+  type WordGroup,
 } from "@/api";
 import { useReportBlocked } from "@/components/common/blocked-context";
 import { useToast } from "@/components/common/toast";
@@ -60,6 +61,10 @@ export type SearchScope = {
   built: BuiltQuery;
   /** サジェストの候補（この検索に入っているもの・条件ボタンにあるものを除く） */
   suggestions: string[];
+  /** 履歴が0件のときだけ、条件ボタンの続きに出す検索ワード集の検索文字列（条件ボタンにあるものを除く） */
+  starters: string[];
+  /** 今の興味の対象の検索ワード集（D4 のグループ。ON は `suggestionTokens`＝画面ごとの状態） */
+  wordSet: WordGroup[];
   /** ストアの読み込みが済み、操作できる（読み込み中・壊れているときは false） */
   ready: boolean;
   /** この画面の検索を開く（ユーザーのクリックの中で呼ぶ） */
@@ -142,6 +147,16 @@ export function HomeScopeProvider({ children }: { children: ReactNode }) {
       }),
     [api, state, chips, history],
   );
+  // 履歴0件のときだけ出る検索ワード集。サジェストの候補と同じ文字列は、ボタンが2つ並ばないようサジェスト側から除く
+  const starters = useMemo(
+    () => api.query.starters({ interest, chips, history }),
+    [api, interest, chips, history],
+  );
+  const wordSet = useMemo(() => api.master.wordSet(interest), [api, interest]);
+  const suggestionsWithoutStarters = useMemo(
+    () => suggestions.filter((s) => !starters.includes(s)),
+    [suggestions, starters],
+  );
 
   /** 失敗は、壊れたデータなら黙り（書かないのが正しい）、それ以外はトーストで知らせる */
   const guard = useCallback(
@@ -190,7 +205,9 @@ export function HomeScopeProvider({ children }: { children: ReactNode }) {
     },
 
     built,
-    suggestions,
+    suggestions: suggestionsWithoutStarters,
+    starters,
+    wordSet,
     ready,
     run: (engine) => {
       // 開く・コピー・保存を止める理由（検索語も条件も無い、期間が逆）があるときは開かない

@@ -10,7 +10,7 @@ import { LIMITS, type EgoSearchApi } from "@/api";
 import { createBackend } from "@/backend";
 import { MemoryAdapter } from "@/lib/storage/kv-adapter";
 import { ChipRow } from "./chip-row";
-import { mount, Seed } from "./harness";
+import { labeled, mount, recordOneHistory, Seed } from "./harness";
 import { QueryPreview } from "./query-preview";
 
 const clock = {
@@ -39,6 +39,7 @@ describe("ChipRow（条件ボタンの並び）", () => {
     const all = await chipsOf(a);
     const visible = all.filter((c) => c.visible);
     expect(visible.length).toBeGreaterThan(LIMITS.foldChips); // 前提：折りたたまれる数がある
+    await recordOneHistory(a); // 履歴があれば検索ワード集は並びに出ない
     await mount(a, <ChipRow />);
 
     const group = screen.getByRole("group", { name: "条件ボタン" });
@@ -124,6 +125,7 @@ describe("サジェスト", () => {
     const a = api();
     const visible = (await chipsOf(a)).filter((c) => c.visible);
     const hiddenChips = visible.length - LIMITS.foldChips;
+    await recordOneHistory(a);
     await mount(
       a,
       <>
@@ -147,6 +149,7 @@ describe("サジェスト", () => {
     const visible = (await chipsOf(a)).filter((c) => c.visible);
     for (const c of visible.slice(LIMITS.foldChips - 1))
       await a.data.chips.setVisible(c.id, false);
+    await recordOneHistory(a);
     await mount(
       a,
       <>
@@ -185,6 +188,74 @@ describe("サジェスト", () => {
     // 条件ボタン（保存するもの）には何も書かない
     const chips = await chipsOf(a);
     expect(chips.filter((c) => c.on).map((c) => c.label)).toEqual(onBefore);
+  });
+});
+
+describe("履歴0件のときの検索ワード集（starter）", () => {
+  const starterOf = async (a: EgoSearchApi) => {
+    const data = await a.data.init();
+    return a.query.starters({
+      interest: "hololive",
+      chips: data.chips.get("hololive") ?? [],
+      history: data.history,
+    });
+  };
+
+  it("条件ボタンの続きに starter が並び、先頭 foldChips 個を超える分は［もっと開く］に入る", async () => {
+    const a = api();
+    const visible = (await chipsOf(a)).filter((c) => c.visible);
+    const starters = await starterOf(a);
+    expect(starters.length).toBeGreaterThan(0);
+    await mount(a, <ChipRow />);
+    const group = screen.getByRole("group", { name: "条件ボタン" });
+    const pressed = (pressedState: boolean) =>
+      within(group).queryAllByRole("button", { pressed: pressedState });
+    expect(pressed(false).length + pressed(true).length).toBe(LIMITS.foldChips);
+    // N は、隠れた条件ボタン＋starter（サジェストは starter と重ならないものだけ）
+    const hidden = visible.length + starters.length - LIMITS.foldChips;
+    expect(
+      screen.getByRole("button", {
+        name: new RegExp(`もっと開く（\\+${hidden}`),
+      }),
+    ).toBeVisible();
+  });
+
+  it("開くと starter が並ぶ。ラベルは検索文字列で、押すと同じ位置で ON、もう一度で OFF に戻る", async () => {
+    const a = api();
+    const [first] = await starterOf(a);
+    const onBefore = (await chipsOf(a)).filter((c) => c.on).map((c) => c.label);
+    await mount(
+      a,
+      <>
+        <ChipRow />
+        <QueryPreview />
+      </>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /もっと開く/ }));
+    const word = () => screen.getByRole("button", { name: labeled(first) });
+    expect(word()).toHaveAttribute("aria-pressed", "false");
+    const before = word().getBoundingClientRect();
+    fireEvent.click(word());
+    expect(word()).toHaveAttribute("aria-pressed", "true");
+    expect(
+      screen.getByLabelText("組み立てた検索クエリ（長いときは横にスクロール）"),
+    ).toHaveTextContent(first);
+    expect(word().getBoundingClientRect()).toEqual(before);
+    // 条件ボタン（保存するもの）には何も書かない
+    expect((await chipsOf(a)).filter((c) => c.on).map((c) => c.label)).toEqual(
+      onBefore,
+    );
+    fireEvent.click(word());
+    expect(word()).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("履歴が1件でもあれば、starter は並びにも［もっと開く］の中にも出ない", async () => {
+    const a = api();
+    const [first] = await starterOf(a);
+    await recordOneHistory(a);
+    await mount(a, <ChipRow />);
+    fireEvent.click(screen.getByRole("button", { name: /もっと開く/ }));
+    expect(screen.queryByRole("button", { name: labeled(first) })).toBeNull();
   });
 });
 

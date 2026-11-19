@@ -9,7 +9,7 @@ import { useSearchScope } from "./search-scope";
 import { toggleClass } from "./styles";
 
 /** ON/OFF のアイコン枠（固定サイズ。押しても幅が変わらない） */
-function StateIcon({
+export function StateIcon({
   on,
   blocked = false,
 }: {
@@ -177,6 +177,28 @@ function ParamChip({
       )}
       {isNew && <NewBadge />}
     </span>
+  );
+}
+
+/**
+ * 検索ワード集のボタン（ホームの履歴0件の並びと D4 で使う）。条件ボタンと同じ見た目・大きさで、
+ * 押すと、この検索にだけ ON/OFF する（`suggestionTokens`＝画面ごとの状態。条件ボタンの ON は変えない）。
+ * `label` は表示名（ホームの並びでは検索文字列）、`title` は検索文字列。
+ */
+export function WordChip({ label, query }: { label: string; query: string }) {
+  const { suggestionTokens, toggleSuggestion } = useSearchScope();
+  const on = suggestionTokens.includes(query);
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      title={query}
+      onClick={() => toggleSuggestion(query)}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm ${toggleClass(on)}`}
+    >
+      <StateIcon on={on} />
+      {label}
+    </button>
   );
 }
 

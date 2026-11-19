@@ -177,6 +177,14 @@ export const ja = {
     suggestLabel: "サジェスト検索条件",
     suggestHeading: "サジェスト（直近の検索などから・この検索にだけ足せます）",
     suggestEmpty: "検索するとここに候補が出ます",
+    wordSet: {
+      open: "検索ワード集",
+      title: "検索ワード集",
+      filterLabel: "検索ワード集を絞り込み",
+      filterPlaceholder: "名前やタグで絞り込み",
+      none: "該当なし",
+      close: "閉じる",
+    },
     paramLabel: {
       min_faves: "ファボ数",
       min_retweets: "リポスト数",
