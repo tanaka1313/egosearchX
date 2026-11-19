@@ -35,6 +35,13 @@ describe("documentTitle", () => {
     expect(documentTitle(ja, "/about/")).toBe(documentTitle(ja, "/about"));
   });
 
+  it("メニューに無い下位のページ（お気に入りの編集）は、見出しの名前を出す", () => {
+    expect(documentTitle(ja, "/favorites/edit")).toBe(
+      "お気に入りを編集｜Hololive EgoSearch",
+    );
+    expect(pageName(en, "/favorites/edit")).toBe(en.favoriteEdit.title);
+  });
+
   it("メニューに無い道は、サイト全体の title", () => {
     expect(documentTitle(ja, "/unknown")).toBe(ja.meta.title);
   });

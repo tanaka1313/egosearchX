@@ -24,6 +24,7 @@ src/
     page.tsx              S1 ホーム
     buttons/page.tsx      S2 条件ボタン
     favorites/page.tsx    S3 お気に入り
+    favorites/edit/page.tsx  S3-E お気に入りの編集（?id=）
     groups/page.tsx       S4 いつものエゴサ
     groups/edit/page.tsx  S4-E いつものエゴサの追加・編集（?id= で編集）
     history/page.tsx      S5 履歴

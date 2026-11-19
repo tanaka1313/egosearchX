@@ -1,3 +1,24 @@
+# #76 S3 お気に入りと S3-E 編集ページ
+
+1. Goal: `/favorites`（一覧・絞り込み・並べ替え・実行・削除）と `/favorites/edit?id=`（文字列を検索の組み立てに展開して直す）を作り、編集で一致するいつものエゴサの項目も更新する。
+2. Plan:
+   - [x] ブランチ `feature/favorites-page`、テスト先行（Red 確認）
+   - [x] `LocalScopeProvider`（ページの中だけの検索の組み立て）。`HomeScopeProvider` と計算部分 `useScopeCore` を共有
+   - [x] `previous-path.ts`（キャンセルの戻り先。`app-shell` が記録）、`/favorites/edit` のタブ名
+   - [x] S3：`FavoriteRow`（バッジ・⚠・前回／未実行）、絞り込み、並べ替え、実行、削除（［元に戻す］）
+   - [x] S3-E：展開、保存（いつものエゴサの連動・件数のトースト・［元に戻す］）、複製、検証、id 不明
+   - [x] 辞書 ja／en、docs（api-spec 7.1、implementation-plan）
+   - [x] `make check`（テスト771件）、Chrome（Playwright）で 360px／1280px
+   - [ ] main へマージして push、#76 を閉じる
+3. Verification: `make check`。Playwright：360px で横にはみ出さない・3行の高さが同じ（69px）・省略・直接開いてキャンセルで一覧へ・保存でトースト、1280px の配置、コンソールのエラー 0。
+4. Review:
+   - 判断：S3-E の条件ボタンの値の変更は `chips.setValue` を使わない（`on: true` も保存済みに書き、ホームの ON が変わるため）。`chips.save` で値だけ差し替える。ON はページの中だけ。
+   - 判断：S3-E は、ストアが ready になる前は展開も「見つからない」の判定もしない（空の条件ボタンで展開して固定されるのを防ぐ。テストあり）。
+   - 判断：S3-E の［X で開く］の履歴は `kind: "other"`（保存前の試し開き。お気に入りの実行ではないので前回の日時は動かない）。
+   - 変更：全体実行で既存テストが負荷でばらばらにタイムアウトしたため、`vitest.config.mts` の `testTimeout` を30秒にした（単独実行では通る。ファイルごとの上書きを増やさない）。
+   - **未確認**：並べ替え（ドラッグ・キーボード）は jsdom で試せず、実ブラウザでも未操作。S3-E の再読み込み（ページを開き直す）は直接開く操作で確認済み。
+   - **次に壊れやすい点**：#77（S4-E）は `LocalScopeProvider` を同じ形で使う。`source` は今 `kind: "other"` 固定。S3 の行（⚠・バッジ）と同じ部品を S4 が使うなら `FavoriteRow` の切り出しを見直す。
+
 # #75 S10 このサイトについて と SEO
 
 1. Goal: `/about` を作り、ja／en の title・description を辞書から出し、ホームにだけ WebSite の JSON-LD を置き、下層ページに固有の title を付け、ホーム以外を検索に出さない。

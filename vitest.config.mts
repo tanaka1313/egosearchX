@@ -8,6 +8,9 @@ export default defineConfig({
   oxc: { jsx: { runtime: "automatic" } },
   test: {
     environment: "jsdom",
+    // jsdom で画面を描画するテストは重く、全体を並列で実行すると5秒を超えることがある（単独なら通る）。
+    // ファイルごとに延ばし続けないよう、ここで1か所に決める
+    testTimeout: 30_000,
     setupFiles: ["./vitest.setup.ts"],
     include: ["src/**/*.test.{ts,tsx}", ".claude/hooks/**/*.test.mjs"],
   },
