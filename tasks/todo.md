@@ -11,7 +11,7 @@
    - [x] `FavoritesFold`（開閉は `prefs.favOpen`）・`HomePage`・`app/(site)/page.tsx`。旧 `page.test.tsx` は削除
    - [x] docs（api-spec 7.1、implementation-plan）
    - [x] make check（テスト675件）・format:check
-   - [ ] main へマージして push、#30・#32 の完了条件を直して閉じる
+   - [x] main へマージして push、#30・#32 の完了条件を直して閉じる
 3. Verification: `make check`、`npm run format:check`。本物のバックエンド＋MemoryAdapter のテスト（入力→クエリ、Enter／IME、blockers で開く・コピー・保存が止まる、ON の保存と再読み込み、値付きの途中の値、期間指定中の日付ボタン、［もっと開く］の N、サジェスト、警告欄の位置、実験的バッジ、保存シート、お気に入りの開閉と実行、ページを移って戻っても検索語が残る）。`grep "Dialog|alert(|confirm("` が警告・クエリ表示のファイルで空。
 4. Review:
    - 決定：ホームの検索の状態はストアの `home`（保存しない）。部品は `components/search` に置き、モックから import しない。値付きの入力は正しい値のときだけ保存（入力中の値は部品の中）。開くときは `built.stored`（`text` ではない）。
