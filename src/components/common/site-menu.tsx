@@ -1,6 +1,6 @@
 "use client";
 
-import { Info, Settings2, X } from "lucide-react";
+import { Info, Search, Settings2, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { RefObject } from "react";
@@ -14,7 +14,13 @@ const ITEM_CLASS =
   "flex w-full items-center gap-2 rounded-lg px-3 py-3 text-left text-base hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring";
 
 /** ドロワーとサイドバーで共通の項目（画面仕様書 2.4）。縦に並べる */
-function MenuList({ onNavigate }: { onNavigate?: () => void }) {
+function MenuList({
+  onNavigate,
+  onPalette,
+}: {
+  onNavigate?: () => void;
+  onPalette: () => void;
+}) {
   const { t } = useI18n();
   const path = usePathname();
   const trashCount = useAppStore((s) => s.trash?.length ?? 0);
@@ -52,6 +58,15 @@ function MenuList({ onNavigate }: { onNavigate?: () => void }) {
         );
       })}
       <li>
+        <button type="button" onClick={onPalette} className={ITEM_CLASS}>
+          <Search className="size-4" aria-hidden />
+          <span className="flex-1">{t.palette.title}</span>
+          <kbd className="rounded border px-1 text-xs">
+            {t.palette.shortcut}
+          </kbd>
+        </button>
+      </li>
+      <li>
         <VersionDialog
           trigger={
             <button type="button" className={ITEM_CLASS}>
@@ -70,7 +85,7 @@ function MenuList({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 /** 1280px 以上で常に出すサイドバー（同じ項目） */
-export function MenuSidebar() {
+export function MenuSidebar({ onPalette }: { onPalette: () => void }) {
   const { t } = useI18n();
   return (
     <aside
@@ -78,7 +93,7 @@ export function MenuSidebar() {
       className="hidden w-64 shrink-0 border-r p-3 xl:block"
     >
       <p className="mb-3 px-3 font-bold">Hololive EgoSearch</p>
-      <MenuList />
+      <MenuList onPalette={onPalette} />
     </aside>
   );
 }
@@ -91,10 +106,13 @@ export function MenuDrawer({
   id,
   closeRef,
   onClose,
+  onPalette,
 }: {
   id: string;
   closeRef: RefObject<HTMLButtonElement | null>;
   onClose: () => void;
+  /** ドロワーを閉じてからパレットを開く（呼び出し側が行う） */
+  onPalette: () => void;
 }) {
   const { t } = useI18n();
   return (
@@ -116,7 +134,7 @@ export function MenuDrawer({
             <X className="size-5" aria-hidden />
           </button>
         </div>
-        <MenuList onNavigate={onClose} />
+        <MenuList onPalette={onPalette} onNavigate={onClose} />
       </nav>
       <button
         type="button"
