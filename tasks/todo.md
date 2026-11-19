@@ -11,7 +11,7 @@
    - [x] ESLint：`src/components/**/*.test.*` も `@/backend` を許可（ストアのテストと同じ理由）
    - [x] docs（api-spec、implementation-plan）
    - [x] make check（テスト586件）・format:check
-   - [ ] main へマージして push、#87 の完了条件を直して閉じ、#73 に `CorruptNotice` の配置を追記
+   - [x] main へマージして push、#87 の完了条件を直して閉じ、#73 に `CorruptNotice` の配置を追記
 3. Verification: `make check`、`npm run format:check`。書かれたキーを記録して wipe 後に1つも残らないこと、CORRUPT の init が set／remove を1回も呼ばないこと、壊れた meta／表／新しい版／版1の残りからの reset、ready での `data_reset` が throw すること、D3 のキャンセル・Esc で何も消えないこと。
 4. Review:
    - 判断：表の名前は `kv-dao.ts` の `TABLE_NAMES` 1か所。`migrate.ts` の `TABLES`（版1固定）は流用しない。`KeyValueAdapter` にメソッドは足さず `remove` だけを使う（スキーマの検証を通さず生のキーを消すため KV の DAO 層に置いた）。Issue の完了条件1行目はこの形に直す。
