@@ -23,7 +23,8 @@ export function SiteFooter({
 
   return (
     <footer className="fixed inset-x-0 bottom-0 z-40 border-t bg-background px-3 pt-2 pb-1 text-xs">
-      <div className="flex items-center gap-2">
+      {/* 1行目の高さは［再実行］の有無で変えない（履歴が付いた瞬間にフッターが伸びて本文がずれるため） */}
+      <div className="flex h-6.5 items-center gap-2">
         <span className="shrink-0 text-muted-foreground">{t.footer.last}</span>
         {last ? (
           <>
