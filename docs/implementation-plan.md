@@ -66,7 +66,7 @@ src/
       migrate.ts          バージョンと移行処理
   api/                    契約（フロントとバックの境界。docs/api-spec.md）：型・zod スキーマ・LIMITS・EgoSearchApi・Issue のコード
   backend/                createBackend({ kv, clock })：契約を実装し、lib/* と data/ を束ねる（作成済み。index.ts・query.ts・data.ts・errors.ts。ESLint で画面からの import を禁止）
-  store/                  zustand のストアと useApi()（契約だけを使う。`api-context.tsx` の `useApi()` は作成済み）
+  store/                  zustand のストアと useApi()（契約だけを使う。`api-context.tsx`・`app-store.ts`・`store-context.tsx` は作成済み）
   data/
     interests.json        興味の対象（ID・表示名・既定リスト）。ID をキーにした Map で扱う
     presets.json          条件ボタンのプリセット。共通＋各対象の1本の並び（`interest` が `common` か対象 ID）。既定リストは目印の行の位置に入る（中身は Issue #70）
