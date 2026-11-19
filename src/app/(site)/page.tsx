@@ -1,7 +1,5 @@
+import { HomePage } from "@/components/home/home-page";
+
 export default function Home() {
-  return (
-    <main className="mx-auto max-w-3xl p-6">
-      <h1 className="text-2xl font-bold">Hololive EgoSearch</h1>
-    </main>
-  );
+  return <HomePage />;
 }
