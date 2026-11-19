@@ -314,6 +314,22 @@ export const ja = {
       failed: "保存できませんでした",
     },
   },
+  importPage: {
+    title: "URL解析",
+    description:
+      "X か Yahoo!リアルタイム検索の URL を貼ると、条件に分けます。解析できない部分は生トークンとして残し、URL に戻したときに欠けません。既存のデータは上書きしません。",
+    inputLabel: "取り込む URL",
+    placeholder: "https://x.com/search?q=…",
+    tokens: "解析結果",
+    cond: "条件",
+    raw: "生トークン（解析できなかった部分）",
+    editInHome: "ホームで編集する",
+    saveAsFavorite: "新規お気に入りとして保存",
+    sheetTitle: "お気に入りに保存",
+    saveNote:
+      "貼った URL を解析した検索文字列を、新しいお気に入りとして保存します。",
+    failed: "操作できませんでした",
+  },
   chips: {
     title: "条件ボタン",
     count: (n: number, max: number) => `${n}/${max}`,

@@ -44,6 +44,7 @@ src/
                           open-bar（開くボタン・［⋯］）, save-sheet, styles（`toggleClass` 1か所）, harness（テスト用）
     home/                 S1 ホーム（作成済み＝#32）：home-page, favorites-fold
     chips/                S2 条件ボタン（作成済み＝#74）：chips-page, chip-editor（D1。`ChipEditorSheet`）
+    import/               S7 URL解析（作成済み＝#31）：import-page（解析結果の表示、［ホームで編集する］、保存シート）
     favorites/            FavoriteRow, GroupButton, GroupEditor
     dialogs/              PublishGroup(D2), ConfirmDialog(D3。作成済み)
   lib/

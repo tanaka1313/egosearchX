@@ -306,6 +306,22 @@ export const en: Messages = {
       failed: "Could not save",
     },
   },
+  importPage: {
+    title: "URL analysis",
+    description:
+      "Paste a URL from X or Yahoo! Realtime Search to split it into conditions. Parts that cannot be analyzed are kept as raw tokens, so nothing is lost when you turn it back into a URL. Your saved data is never overwritten.",
+    inputLabel: "URL to analyze",
+    placeholder: "https://x.com/search?q=…",
+    tokens: "Result",
+    cond: "Condition",
+    raw: "Raw token (could not be analyzed)",
+    editInHome: "Edit on Home",
+    saveAsFavorite: "Save as a new favorite",
+    sheetTitle: "Save to favorites",
+    saveNote:
+      "The search text analyzed from the pasted URL is saved as a new favorite.",
+    failed: "Could not complete the action",
+  },
   chips: {
     title: "Condition buttons",
     count: (n, max) => `${n}/${max}`,
