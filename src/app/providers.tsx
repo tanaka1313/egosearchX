@@ -4,6 +4,7 @@
 import { useState, type ReactNode } from "react";
 import { createBrowserBackend } from "@/backend";
 import { ApiProvider } from "@/store/api-context";
+import { I18nProvider } from "@/store/i18n-context";
 import { StoreProvider } from "@/store/store-context";
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -11,7 +12,9 @@ export function Providers({ children }: { children: ReactNode }) {
   const [api] = useState(createBrowserBackend);
   return (
     <ApiProvider api={api}>
-      <StoreProvider>{children}</StoreProvider>
+      <StoreProvider>
+        <I18nProvider>{children}</I18nProvider>
+      </StoreProvider>
     </ApiProvider>
   );
 }

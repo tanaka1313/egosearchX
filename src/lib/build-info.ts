@@ -10,10 +10,10 @@ export const BUILD_INFO: BuildInfo = {
   commit: process.env.NEXT_PUBLIC_COMMIT ?? "",
 };
 
-/** ビルド日時を日本時間で「2026-11-17 14:05」の形にする。不正・空なら「不明」 */
-export function formatBuildTime(iso: string): string {
+/** ビルド日時を日本時間で「2026-11-17 14:05 (JST)」の形にする。不正・空なら null（文言は呼び出し側が辞書から出す） */
+export function formatBuildTime(iso: string): string | null {
   const date = new Date(iso);
-  if (!iso || Number.isNaN(date.getTime())) return "不明";
+  if (!iso || Number.isNaN(date.getTime())) return null;
   const parts = new Intl.DateTimeFormat("sv-SE", {
     timeZone: "Asia/Tokyo",
     year: "numeric",

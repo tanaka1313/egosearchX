@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 // サイト名・title・description の根拠は docs/requirements.md「SEO」の章。
-// en の文言は i18n の辞書ができる M5 で入れる。
+// metadata は静的で言語を切り替えられないため、辞書（#72）には移さない。en の title・description は #75。
 export const metadata: Metadata = {
   applicationName: "Hololive EgoSearch",
   title: {

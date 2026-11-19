@@ -181,11 +181,30 @@ describe("DAO（KeyValue の上のリポジトリ）", () => {
   it("設定は既定値を持ち、一部だけ更新できる", async () => {
     expect(await dao.prefs.get()).toEqual({
       interest: "hololive",
-      lang: "ja",
+      lang: null,
       favOpen: false,
     });
     await dao.prefs.set({ interest: "other" });
     expect((await dao.prefs.get()).interest).toBe("other");
+  });
+
+  it("言語を選んでいなければ、ほかの設定を保存しても null のまま（ブラウザの言語に従う）", async () => {
+    await dao.prefs.set({ interest: "other" });
+    await dao.prefs.set({ favOpen: true });
+    expect((await dao.prefs.get()).lang).toBeNull();
+    await dao.prefs.set({ lang: "en" });
+    await dao.prefs.set({ favOpen: false });
+    expect((await dao.prefs.get()).lang).toBe("en");
+  });
+
+  it("以前の版が保存した lang: ja はそのまま読める", async () => {
+    const kv = new MemoryAdapter();
+    const old = await openDao(kv);
+    await kv.set(
+      "egosearch:v1:prefs",
+      JSON.stringify({ interest: "hololive", lang: "ja", favOpen: false }),
+    );
+    expect((await old.prefs.get()).lang).toBe("ja");
   });
 
   it("不正なデータは保存しない（zod で検証）", async () => {
