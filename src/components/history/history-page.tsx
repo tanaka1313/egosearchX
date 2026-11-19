@@ -11,6 +11,7 @@ import { useRunner } from "@/components/common/use-runner";
 import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
+import { focusMain } from "@/lib/focus";
 import { formatRunAt } from "@/lib/format-date";
 import { ENGINE_LABEL, type Messages } from "@/messages";
 import { useApi } from "@/store/api-context";
@@ -109,7 +110,8 @@ export function HistoryPage() {
         title={p.confirmTitle}
         body={p.confirmBody}
         action={p.confirmAction}
-        onConfirm={() => clear().catch(fail)}
+        // 削除すると［全件削除］が押せなくなる（フォーカスの戻し先が無くなる）ので、成功したら本文へ移す
+        onConfirm={() => clear().then(focusMain, fail)}
       />
     </main>
   );

@@ -213,6 +213,32 @@ describe("S5 履歴：全件削除", () => {
   });
 });
 
+describe("S5 履歴：全件削除のフォーカス", () => {
+  it("キャンセルすると［全件削除］へフォーカスが戻る", async () => {
+    await mountPage(await setup());
+    const opener = screen.getByRole("button", { name: "全件削除" });
+    opener.focus();
+    fireEvent.click(opener);
+    const dialog = await screen.findByRole("alertdialog");
+    fireEvent.click(within(dialog).getByRole("button", { name: "キャンセル" }));
+    await waitFor(() => expect(opener).toHaveFocus());
+  });
+
+  it("削除して［全件削除］が押せなくなったら、本文（main）へフォーカスが移る", async () => {
+    await mountPage(await setup());
+    const opener = screen.getByRole("button", { name: "全件削除" });
+    opener.focus();
+    fireEvent.click(opener);
+    fireEvent.click(
+      within(await screen.findByRole("alertdialog")).getByRole("button", {
+        name: "削除する",
+      }),
+    );
+    await waitFor(() => expect(opener).toBeDisabled());
+    await waitFor(() => expect(screen.getByRole("main")).toHaveFocus());
+  });
+});
+
 describe("S5 履歴：英語", () => {
   it("英語の画面では文言が英語になる", async () => {
     vi.spyOn(window.navigator, "languages", "get").mockImplementation(() => [

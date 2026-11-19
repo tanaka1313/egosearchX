@@ -149,6 +149,19 @@ describe("OpenBar：開く", () => {
   });
 });
 
+describe("OpenBar：クエリ表示", () => {
+  it("名前付きの region として読み上げられ、キーボードでフォーカスでき、中身は検索文字列", async () => {
+    await mount(await setup(), withWord());
+    const preview = await screen.findByRole("region", {
+      name: "組み立てた検索クエリ（長いときは横にスクロール）",
+    });
+    expect(preview).toHaveAttribute("tabindex", "0");
+    expect(preview).toHaveTextContent("ぺこら");
+    preview.focus();
+    expect(preview).toHaveFocus();
+  });
+});
+
 describe("OpenBar：［⋯］", () => {
   it("リンクをコピー（X）／（Yahoo）は URL をコピーして知らせ、履歴には残さない", async () => {
     const api = await setup();
@@ -157,7 +170,7 @@ describe("OpenBar：［⋯］", () => {
       await screen.findByRole("button", { name: "そのほかの操作" }),
     );
     fireEvent.click(
-      screen.getByRole("menuitem", { name: "リンクをコピー（X）" }),
+      screen.getByRole("button", { name: "リンクをコピー（X）" }),
     );
     expect(writeText).toHaveBeenLastCalledWith(
       "https://x.com/search?q=%E3%81%BA%E3%81%93%E3%82%89&f=live",
@@ -165,11 +178,13 @@ describe("OpenBar：［⋯］", () => {
     expect(
       await screen.findByText("Xの検索リンクをコピーしました"),
     ).toBeVisible();
-    expect(screen.queryByRole("menu")).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "リンクをコピー（X）" }),
+    ).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "そのほかの操作" }));
     fireEvent.click(
-      screen.getByRole("menuitem", { name: "リンクをコピー（Yahoo）" }),
+      screen.getByRole("button", { name: "リンクをコピー（Yahoo）" }),
     );
     expect(writeText.mock.lastCall?.[0]).toContain(
       "https://search.yahoo.co.jp/realtime/search?p=",
@@ -182,15 +197,31 @@ describe("OpenBar：［⋯］", () => {
     await mount(await setup(), withWord());
     const more = await screen.findByRole("button", { name: "そのほかの操作" });
     fireEvent.click(more);
-    fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
-    expect(screen.queryByRole("menu")).toBeNull();
+    fireEvent.keyDown(
+      screen.getByRole("button", { name: "リンクをコピー（X）" }),
+      { key: "Escape" },
+    );
+    expect(
+      screen.queryByRole("button", { name: "リンクをコピー（X）" }),
+    ).toBeNull();
     expect(more).toHaveFocus();
+  });
+
+  it("開閉は aria-expanded で伝え、矢印キーで動けない menu の役割は名乗らない", async () => {
+    await mount(await setup(), withWord());
+    const more = await screen.findByRole("button", { name: "そのほかの操作" });
+    expect(more).toHaveAttribute("aria-expanded", "false");
+    expect(more).not.toHaveAttribute("aria-haspopup");
+    fireEvent.click(more);
+    expect(more).toHaveAttribute("aria-expanded", "true");
+    expect(screen.queryByRole("menu")).toBeNull();
+    expect(screen.queryByRole("menuitem")).toBeNull();
   });
 
   it("blockers のときは、リンクのコピーもできない", async () => {
     await mount(await setup(), <OpenBar />);
     fireEvent.click(screen.getByRole("button", { name: "そのほかの操作" }));
-    const item = screen.getByRole("menuitem", { name: "リンクをコピー（X）" });
+    const item = screen.getByRole("button", { name: "リンクをコピー（X）" });
     expect(item).toBeDisabled();
     fireEvent.click(item);
     expect(writeText).not.toHaveBeenCalled();

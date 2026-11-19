@@ -1,3 +1,22 @@
+# #37 キーボード操作とアクセシビリティ
+
+1. Goal: 全画面をキーボードだけで操作でき、状態が色だけで示されない（画面仕様書 8章）ようにする。
+2. Plan:
+   - [x] ブランチ `fix/keyboard-a11y`
+   - [x] D3（`ConfirmDialog`）を閉じたあとのフォーカス復帰（開いた要素 → 戻せなければ本文 `main`）。テスト先行（Red 確認：5件失敗）
+   - [x] 言語切替・削除済みのタブに✓○（`StateIcon` を `common/state-icon.tsx` へ共通化、押してもガタつかせない）
+   - [x] ［⋯］の `role="menu"` をやめる／QueryPreview を `role="region"` へ
+   - [x] Playwright で確認（360px／1280px）。見つけた「メニュー内のバージョン情報で Esc を押すとメニューも閉じる」を直した
+   - [x] docs（screen-spec 8章）、`make check`（テスト862件）、main へマージして push、#37 を閉じる
+3. Verification: `make check`。D3 のフォーカス復帰のテスト（旧実装で Red）。Playwright：body に落ちる操作 0・横はみ出し 0・コンソールのエラー 0・押す前後で幅が同じ。
+4. Review:
+   - 結果（Playwright、dev サーバー・新しいコンテキスト）：履歴の D3 は 開く→［キャンセル］、Esc→［全件削除］、削除後→`main`。データ初期化の D3 も同じ（成功後は `main`）。言語切替・削除済みのタブは、押す前後で位置と幅が完全に同じ（✓○の枠を常に確保）。［⋯］は `role=menu`／`menuitem` が 0、Tab でコピー項目へ移り、Esc で［⋯］へ戻る。お気に入りは Space→↓→Space で並べ替わり、フォーカスは取っ手に残り、再読み込み後も保持。横はみ出し 0、コンソールの error・warning 0。
+   - 直した点：①`ConfirmDialog` は Trigger を持たず、閉じるとフォーカスが `body` に落ちていた（履歴・データ初期化。`onCloseAutoFocus` の既定が無かった）。`onOpenAutoFocus` で開く直前の要素を覚えて戻し、`body`・消えた・無効なら `main`（`lib/focus.ts` の `focusMain`）へ。呼び出し側が `onCloseAutoFocus` を渡したとき（削除済み）はそちらが決める。②言語切替・削除済みのタブが色だけで状態を示していた。③［⋯］が `menu` を名乗りつつ矢印キーで動けなかった（約束を外した）。④クエリ表示の `<code>` に付けた `aria-label` は読み上げられないため `region` にした。⑤（実ブラウザで発見）ドロワー内のバージョン情報で Esc を押すと、ダイアログとドロワーが同時に閉じた。ドロワーの Esc は `defaultPrevented` のときは閉じない。
+   - **テスト先行（Red）**：`ConfirmDialog`・言語切替・タブ・［⋯］・region・ドロワーの Esc は Red を確認。履歴／データ初期化のフォーカスのテストは、部品の修正のあとに書いたので Red 未確認（部品のテストで Red 確認済み）。
+   - 観測：Radix の閉じたあとのフォーカス移動は `setTimeout(0)` なので、テストは `waitFor` で待つ。jsdom の `fireEvent.click` はフォーカスを動かさないので、押す前に `focus()` する。
+   - **未確認**：Safari のマウス操作で `activeElement` が `body` になるケース（コードとテストのみ。実機の Safari は未確認）。スクリーンリーダーの実際の読み上げ。ドロワーを開いている間に Tab で後ろの画面へ出られる点（フォーカスの閉じ込めは作っていない。仕様に無いので手を付けていない）。［⋯］・興味の対象の切替は矢印キー操作を足していない（Tab で移る）。`/chips` の追加シートで上限ちょうどまで足して起点が無効になる場合は未操作。`/launch`・`/import`・`/groups` の通し操作は、今回は D3 とシート以外を見ていない。en の文言は暫定（#67）。
+   - **次に壊れやすい点**：`focusMain` は `main` に `tabindex="-1"` を後から付ける。ページに `<main>` が無いと何もしない（全ページにある）。`ConfirmDialog` を使う新しい画面は、押した行が消える場合だけ `onCloseAutoFocus` を渡す。`StateIcon` を新しい ON/OFF の部品に使うときは、`aria-pressed`／`aria-selected` があるなら `decorative` を付ける（名前が変わるため）。
+
 # #36 レスポンシブ表示（360px・768px・1280px、日英）
 
 1. Goal: 全画面・オーバーレイを 360／768／1280px、日本語・英語で測り、崩れを直す。

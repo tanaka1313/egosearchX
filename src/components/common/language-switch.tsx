@@ -1,5 +1,7 @@
 "use client";
 
+import { StateIcon } from "@/components/common/state-icon";
+import { toggleClass } from "@/components/search/styles";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/store/i18n-context";
 
@@ -18,7 +20,9 @@ export function LanguageSwitch() {
           variant="outline"
           aria-pressed={lang === l}
           onClick={() => setLang(l)}
+          className={toggleClass(lang === l)}
         >
+          <StateIcon on={lang === l} decorative />
           {t.lang[l]}
         </Button>
       ))}

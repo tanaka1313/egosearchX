@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
 import { Button } from "@/components/ui/button";
+import { focusMain } from "@/lib/focus";
 import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
 import { useToast } from "./toast";
@@ -32,9 +33,9 @@ export function CorruptNotice() {
         title={t.resetData.title}
         body={t.resetData.body}
         action={t.resetData.action}
-        // 失敗しても表示はそのまま残し、トーストで知らせる
+        // 失敗しても表示はそのまま残し、トーストで知らせる。成功すると表示ごと消える（押した要素が無くなる）ので本文へ移す
         onConfirm={() =>
-          reset().catch((e: unknown) => {
+          reset().then(focusMain, (e: unknown) => {
             console.error(e);
             toast.show(t.toast.resetFailed);
           })

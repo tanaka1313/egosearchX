@@ -57,12 +57,13 @@ export function AppShell({ children }: { children: ReactNode }) {
     toggleRef.current?.focus();
   }, []);
 
-  // 開くと［×］にフォーカス。Esc で閉じて［≡］へ戻す
+  // 開くと［×］にフォーカス。Esc で閉じて［≡］へ戻す。
+  // メニューの中のダイアログ（バージョン情報）が Esc を処理したときは（`defaultPrevented`）、メニューは閉じない
   useEffect(() => {
     if (!menuOpen) return;
     closeRef.current?.focus();
     const onKey = (ev: KeyboardEvent) => {
-      if (ev.key === "Escape") closeMenu();
+      if (ev.key === "Escape" && !ev.defaultPrevented) closeMenu();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

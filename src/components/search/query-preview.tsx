@@ -20,6 +20,8 @@ export function QueryPreview() {
   return (
     <div className="flex items-start gap-2">
       <code
+        // code の役割には名前を付けられない（aria-label が読み上げられない）ので、region にして名前を持たせる
+        role="region"
         tabIndex={0}
         aria-label={t.search.preview.label}
         className="scroll-x block min-w-0 flex-1 rounded bg-muted font-mono text-xs focus-visible:ring-2 focus-visible:ring-ring"

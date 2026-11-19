@@ -28,6 +28,15 @@ describe("LanguageSwitch", () => {
       "true",
     );
   });
+  it("色だけでなく、選んでいる言語に✓、もう一方に○を出す（アクセシブルな名前は変えない）", () => {
+    mount("en");
+    const ja = screen.getByRole("button", { name: "日本語" });
+    const en = screen.getByRole("button", { name: "English" });
+    expect(en.querySelector(".lucide-check")).not.toBeNull();
+    expect(en.querySelector(".lucide-circle")).toBeNull();
+    expect(ja.querySelector(".lucide-circle")).not.toBeNull();
+    expect(ja.querySelector(".lucide-check")).toBeNull();
+  });
   it("押した言語で setLang を呼ぶ", () => {
     const setLang = mount("ja");
     fireEvent.click(screen.getByRole("button", { name: "English" }));
