@@ -1,3 +1,21 @@
+# #31 S7 URL解析ページ
+
+1. Goal: メニューの `/import` で、X／Yahoo!リアルタイム検索の URL を貼ると条件に分けて見せ、［ホームで編集する］でホームの組み立てに展開、［新規お気に入りとして保存］で新規に保存できる。
+2. Plan:
+   - [x] ブランチ `feature/import-page`、テスト先行（Red 確認：`./import-page` が無く失敗）
+   - [x] `ImportPage`（`components/import`）、`app/(site)/import/page.tsx`、辞書 ja／en（`importPage`）
+   - [x] ユーザー決定：保存はシートを開く。名前の初期値は「<検索語> の検索」、`EnginePicker` の初期値は貼った URL の検索先（S5 も同じ）
+   - [x] docs（screen-spec 3.10・5.6・5.8、requirements 11章、api-spec 7.1、implementation-plan）
+   - [x] make check（テスト723件）・format:check（自分の変更は問題なし）
+   - [x] Chrome（Playwright）で 360px／1280px
+   - [ ] main へマージして push、#31 と #78 を更新
+3. Verification: `make check`、`npm run format:check`。本物のバックエンド＋MemoryAdapter のテスト（X／Yahoo の URL、3つの理由、空入力、ホームで編集で ON/OFF・home・`/` へ移動、既存お気に入りが不変、保存シート、英語）。Playwright：360px で横にはみ出さない・シートは下から・フォーカスは［×］・ホームへ展開できる・コンソールのエラー 0。
+4. Review:
+   - 判断：［ホームで編集する］の照合は「表示」の条件ボタンだけ（要件定義書 11.4 ①）。ON/OFF は非表示も含む全件を合わせ、非表示の ON は OFF にして詳細条件へ回す（テストあり）。モックにあった「URL を解析しました」の通知は、画面仕様書 5.8 に無いので足していない。
+   - 判断：保存シートの文言は、ホームの保存シートの辞書（名前・保存・キャンセル・保存しました・失敗）を流用した。
+   - **未確認**：Yahoo!リアルタイム検索の URL を実ブラウザで貼る操作（テストでは確認済み）。キーボードだけでの通し操作（シートの［×］へのフォーカスのみ確認）。
+   - **次に壊れやすい点**：#78 の［☆ お気に入りに保存］は、同じ保存シートを使うなら `SaveForm` を共通部品へ切り出す（今は `import-page.tsx` の中）。CORRUPT のとき［ホームで編集する］はチップを書かず `home_set` だけして移動する。
+
 # #74 S2 条件ボタンのページと D1 編集シート
 
 1. Goal: メニューの `/buttons` で、条件ボタンの一覧・並べ替え・表示の切替・コピー・削除（元に戻す）・追加・編集（D1）・サジェストの採用ができ、「新」印が出る。
