@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { ApiError, DEFAULT_PREFS, type Engine } from "@/api";
-import { EnginePicker } from "@/components/common/engine-picker";
+import { ApiError, DEFAULT_PREFS } from "@/api";
+import { FavoriteSaveForm } from "@/components/common/favorite-save-form";
 import { PageHead } from "@/components/common/page-head";
 import { useToast } from "@/components/common/toast";
 import { Button } from "@/components/ui/button";
@@ -127,77 +127,17 @@ export function ImportPage() {
           closeLabel={t.sheet.close}
         >
           {ok && (
-            <SaveForm
+            <FavoriteSaveForm
               key={ok.query}
               query={ok.query}
               engine={ok.engine}
               defaultName={defaultName}
+              note={p.saveNote}
               onClose={() => setSaveOpen(false)}
             />
           )}
         </Sheet>
       </div>
     </main>
-  );
-}
-
-function SaveForm({
-  query,
-  engine: initial,
-  defaultName,
-  onClose,
-}: {
-  query: string;
-  engine: Engine;
-  defaultName: string;
-  onClose: () => void;
-}) {
-  const { t } = useI18n();
-  const s = t.search.saveSheet;
-  const toast = useToast();
-  const save = useAppStore((st) => st.favorites_save);
-  const [name, setName] = useState(defaultName);
-  const [engine, setEngine] = useState<Engine>(initial);
-  const [error, setError] = useState("");
-
-  const submit = async () => {
-    if (!name.trim()) return setError(s.nameRequired);
-    try {
-      await save({ name: name.trim(), query, engine });
-      toast.show(s.saved);
-      onClose();
-    } catch (e) {
-      if (!(e instanceof ApiError && e.code === "CORRUPT")) console.error(e);
-      setError(s.failed);
-    }
-  };
-
-  return (
-    <>
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">{s.name}</span>
-        <input
-          value={name}
-          onChange={(ev) => setName(ev.target.value)}
-          className="w-full rounded-lg border bg-field px-3 py-2"
-        />
-      </label>
-      <code className="block rounded bg-muted p-2 font-mono text-xs break-all">
-        {query}
-      </code>
-      <p className="text-xs text-muted-foreground">{t.importPage.saveNote}</p>
-      <EnginePicker value={engine} onChange={setEngine} />
-      {error && (
-        <p role="alert" className="text-sm font-medium">
-          ⚠ {error}
-        </p>
-      )}
-      <div className="flex justify-end gap-2">
-        <Button variant="outline" onClick={onClose}>
-          {s.cancel}
-        </Button>
-        <Button onClick={submit}>{s.save}</Button>
-      </div>
-    </>
   );
 }

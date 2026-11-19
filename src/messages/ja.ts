@@ -329,6 +329,28 @@ export const ja = {
       "貼った URL を解析した検索文字列を、新しいお気に入りとして保存します。",
     failed: "操作できませんでした",
   },
+  historyPage: {
+    title: "履歴",
+    list: "履歴の一覧",
+    empty: "実行するとここに残ります",
+    clearAll: "全件削除",
+    confirmTitle: "履歴をすべて削除しますか？",
+    confirmBody: "元に戻せません。",
+    confirmAction: "削除する",
+    sourceHome: "ホーム",
+    sourceFavorite: (label: string) => `お気に入り「${label}」`,
+    sourceGroup: (label: string) => `いつものエゴサ「${label}」`,
+    sourceLaunch: (label: string) => `ランチャー「${label}」`,
+    sourceOther: "その他",
+    usedChips: (names: string) => `使った条件ボタン：${names}`,
+    chipSeparator: "、",
+    rerun: "再実行",
+    saveAsFavorite: "☆ お気に入りに保存",
+    sheetTitle: "お気に入りに保存",
+    saveNote:
+      "この履歴の検索文字列を、新しいお気に入りとして保存します。「昨日から」などは、開いたときの日付に展開された文字列のまま保存されます。",
+    failed: "操作できませんでした",
+  },
   favoritesPage: {
     title: "お気に入り",
     description:

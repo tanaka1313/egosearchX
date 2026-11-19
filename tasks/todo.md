@@ -1,3 +1,22 @@
+# #78 S5 履歴
+
+1. Goal: `/history`（一覧・再実行・☆ お気に入りに保存・全件削除）を作り、「使った条件ボタン」は保存せず文字列から導く。
+2. Plan:
+   - [x] ブランチ `feature/history-page`
+   - [x] `FavoriteSaveForm` を S7 から `common` へ切り出す
+   - [x] テスト先行（Red 確認：`./history-page` が無く失敗）、辞書 ja／en（`historyPage`）、`HistoryPage`、`app/(site)/history/page.tsx`
+   - [x] docs（requirements F9、screen-spec 5.6、api-spec 7.1、implementation-plan）
+   - [x] `make check`（テスト805件）、Chrome（Playwright）で 360px／1280px
+   - [x] main へマージして push、#78 を閉じる
+3. Verification: `make check`。テスト：空・新しい順・使った条件ボタン・再実行・保存シート・全件削除・101件で100件・英語。Playwright：360px で横にはみ出さない・D3 の初期フォーカス・コンソールのエラー 0。
+4. Review:
+   - 決定（ユーザー）：「使った条件ボタン」は保存せず、開いた文字列を今の対象の「表示」の条件ボタンに `query.parse` で当てはめて導く。スキーマは変えず、requirements F9・screen-spec 5.6 の記述をこれに直した。
+   - 判断：`HistoryItem.query` は X の構文（Yahoo の行も）なので、再実行・保存・照合にそのまま使える。検索先のバッジは正式名（S5 は短縮してよい場所ではない）。実行元は辞書で組み立てる（`source.label` は表示用）。
+   - 発見：DAO は日時の降順で並べるため、同じ時刻の履歴は順序が決まらない。テストは1秒ずつ進む時計を使った（実機では実行ごとに時刻が変わる）。
+   - 変更：S7 の `SaveForm` を `common/favorite-save-form.tsx` へ切り出した（S5 と共用。`note` を引数に）。
+   - **未確認**：マウスのドラッグ等は無い画面。保存シートで実際に保存する操作は Playwright では押していない（実データを増やさないため。jsdom のテストで確認）。「使った条件ボタン」が実機で出る場合は未目視（jsdom のテストまで）。en の文言は暫定（#67）。
+   - **次に壊れやすい点**：条件ボタンの名前や表示を直すと、過去の履歴の「使った条件ボタン」も変わる（保存していないため）。ホームの検索を履歴の保存シートから作る S5 の名前の初期値は `query.parse` の `word` に依存する。
+
 # #77 S4 いつものエゴサと S4-E 追加・編集、D2 ブックマーク URL の発行
 
 1. Goal: `/groups`（一覧・一括実行・削除・D2）と `/groups/edit`（①お気に入りから追加、②条件を指定して新しく作る）を作り、ホームと同じ検索の組み立てをページの中だけの状態で使う。
