@@ -108,6 +108,17 @@ export const ja = {
       about: "このサイトについて",
     },
   },
+  palette: {
+    title: "コマンドパレット",
+    shortcut: "Ctrl/⌘+K",
+    filterLabel: "実行・移動先を絞り込み",
+    placeholder: "名前を入力、Enter で実行、Esc で閉じる",
+    group: (name: string, count: number) =>
+      `▶ いつものエゴサ：${name}（${count}個）`,
+    favorite: (name: string) => `▶ お気に入り：${name}`,
+    page: (name: string) => `→ ${name}へ移動`,
+    empty: "該当なし",
+  },
   toast: {
     undo: "元に戻す",
     saveFailed: "保存できませんでした",

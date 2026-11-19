@@ -12,6 +12,7 @@ import type { OpenTarget } from "@/api";
 import { useAppStore } from "@/store/store-context";
 import { BlockedContext } from "./blocked-context";
 import { BlockedNotice } from "./blocked-notice";
+import { CommandPalette } from "./command-palette";
 import { CorruptNotice } from "./corrupt-notice";
 import { GroupStrip } from "./group-strip";
 import { SiteFooter } from "./site-footer";
@@ -38,8 +39,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const trashLoad = useAppStore((s) => s.trash_load);
   const [menuOpen, setMenuOpen] = useState(false);
   const [blocked, setBlocked] = useState<Blocked | null>(null);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const paletteReturnRef = useRef<HTMLElement | null>(null);
 
   // キャンセルの戻り先（S3-E・S4-E）のために、表示したページを覚える（画面仕様書 9章）
   useEffect(() => rememberPath(pathname), [pathname]);
@@ -65,6 +68,36 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen, closeMenu]);
 
+  // コマンドパレットを開く。閉じたときにフォーカスを戻す先（今フォーカスのある要素）を覚える
+  const openPalette = useCallback(() => {
+    paletteReturnRef.current = document.activeElement as HTMLElement | null;
+    setPaletteOpen(true);
+  }, []);
+
+  // Ctrl/⌘+K（Shift・Alt なし。押しっぱなしと日本語入力の変換中は除く）。ブラウザの既定（Firefox の開発ツールなど）は
+  // Shift 付きに割り当てられている。確認ダイアログなど、ほかのダイアログが開いている間は開かない
+  // （フォーカスの囲いが二重になり、後ろの画面で Enter が実行されるのを避ける）
+  useEffect(() => {
+    const onKey = (ev: KeyboardEvent) => {
+      if (
+        ev.key.toLowerCase() !== "k" ||
+        !(ev.ctrlKey || ev.metaKey) ||
+        ev.shiftKey ||
+        ev.altKey ||
+        ev.repeat ||
+        ev.isComposing
+      )
+        return;
+      if (document.querySelector('[role="dialog"], [role="alertdialog"]'))
+        return;
+      ev.preventDefault();
+      if (menuOpen) closeMenu();
+      openPalette();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen, closeMenu, openPalette]);
+
   const onBlocked = useCallback(
     (total: number, list: OpenTarget[]) => setBlocked({ total, blocked: list }),
     [],
@@ -74,7 +107,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <ToastProvider bottomClass={launcher ? "bottom-4" : "bottom-20"}>
       <SiteMeta />
       <div className="flex min-h-screen">
-        <MenuSidebar />
+        <MenuSidebar onPalette={openPalette} />
         <div className={`min-w-0 flex-1 ${launcher ? "" : "pb-20"}`}>
           <SiteHeader
             toggleRef={toggleRef}
@@ -97,8 +130,22 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         {!launcher && <SiteFooter onBlocked={onBlocked} />}
         {menuOpen && (
-          <MenuDrawer id={DRAWER_ID} closeRef={closeRef} onClose={closeMenu} />
+          <MenuDrawer
+            id={DRAWER_ID}
+            closeRef={closeRef}
+            onClose={closeMenu}
+            onPalette={() => {
+              closeMenu();
+              openPalette();
+            }}
+          />
         )}
+        <CommandPalette
+          open={paletteOpen}
+          onClose={() => setPaletteOpen(false)}
+          returnRef={paletteReturnRef}
+          onBlocked={onBlocked}
+        />
       </div>
     </ToastProvider>
   );

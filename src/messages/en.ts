@@ -99,6 +99,16 @@ export const en: Messages = {
       about: "About this site",
     },
   },
+  palette: {
+    title: "Command palette",
+    shortcut: "Ctrl/⌘+K",
+    filterLabel: "Filter actions and pages",
+    placeholder: "Type a name, Enter to run, Esc to close",
+    group: (name, count) => `▶ Routine: ${name} (${count})`,
+    favorite: (name) => `▶ Favorite: ${name}`,
+    page: (name) => `→ Go to ${name}`,
+    empty: "No matches",
+  },
   toast: {
     undo: "Undo",
     saveFailed: "Could not save",
