@@ -33,7 +33,7 @@ flowchart LR
 - **`@/backend` を import してよいのは、組み立ての1か所（`src/app/providers.tsx`）だけ。** そこで `createBackend(...)` を呼び、React のコンテキストに入れる。画面は `useApi()`（`src/store/`）で受け取る。
 - 契約はバックエンドの内部（`lib/*`）を import しない。エンティティの zod スキーマと `LIMITS` は**契約が持ち**、`lib/storage` がそれを import する（定義は1つ。**決定**）。保存の版（`SCHEMA_VERSION`）と移行（`migrate.ts`）は `lib/storage` に残す。
 - テストでは、`createBackend({ kv: new MemoryAdapter(), clock: 固定の日時 })` を渡す。画面のテストは、同じ契約を満たす別の実装に差し替えてもよい。
-- 状態：契約（`src/api/api.ts` の `EgoSearchApi`）、`createBackend`（`src/backend`）、`useApi()`（`src/store/api-context.tsx`）、`providers.tsx`、ESLint の import 制限は**作成済み**（#85）。ただし `data.reset()` は #87、`Group.lastRunAt` と `history.record` による `lastRunAt` の更新は #86。
+- 状態：契約（`src/api/api.ts` の `EgoSearchApi`）、`createBackend`（`src/backend`）、`useApi()`（`src/store/api-context.tsx`）、`providers.tsx`、ESLint の import 制限は**作成済み**（#85）。`Group.lastRunAt`（スキーマ版2）と `history.record` による `lastRunAt` の更新、`clock.isToday` も**作成済み**（#86）。ただし `data.reset()` は #87。
 - 組み立ての補助：`@/backend` は `createBackend({ kv, clock, newId? })` のほかに、端末の時計 `systemClock`（`today` は `localDate(new Date())`。`toISOString` は UTC なので使わない）と、localStorage 用の `createBrowserBackend()`（`window` が無い事前描画では何も保存しない入れ物にする）を出す。`providers.tsx` はこれだけを使う（`lib/storage` を直接 import しない）。
 
 ## 2. 共通の決まり
@@ -148,7 +148,7 @@ type WordGroup = { name: { ja: string; en: string }; words: Word[] };           
 - `ParamOp`・`FilterKey` は、**契約が持つ定数**（`PARAM_OP_TYPES: Record<ParamOp, "number" | "date">`、`FILTER_KEYS`）から導く。ラベル・接尾語などの文言は辞書が持つ。`operators.ts`（エンジン別の対応と `status`）は、この定数を import して、キーを1か所に揃える（**決定**）。
 - `onChipIds` は、モックの `onIds` を改名したもの（モックは破棄予定）。
 - `OpenTarget.query` は、開く時点の保存形（記号を日付に展開済み。X の構文）。履歴にはこれを残す（要件定義書 11.4「開く」。**決定**）。`url` だけが、検索先ごとの変換を受ける。
-- `Group` に `lastRunAt`（null 可）を足す（**決定**。「今日は実行済み」の判定に使う。スキーマの版を2にし、`migrate.ts` で既存のデータを null にする。実装は Issue）。エンティティの型は `src/api/entities.ts` が正で、直すのは実装 Issue（#86）。
+- `Group` に `lastRunAt`（null 可）を持つ（**決定**。「今日は実行済み」の判定に使う）。スキーマの版2で追加し、`migrate.ts` の1→2が、既存のいつものエゴサを null にして、5つの表を版2のキーへ運ぶ（groups 以外は文字列のまま。壊れた groups は何も書かず `CORRUPT`。版1のキーは消さない）。**作成済み**（#86）。
 
 ## 4. API 一覧（`EgoSearchApi`）
 ```ts
@@ -158,7 +158,7 @@ interface EgoSearchApi {
   url: UrlApi;           // 同期・純粋
   launcher: LauncherApi; // async
   data: DataApi;         // async（保存）
-  clock: { today(): string; now(): string };   // YYYY-MM-DD／ISO 8601
+  clock: { today(): string; now(): string; isToday(at: string | null): boolean };   // YYYY-MM-DD／ISO 8601。isToday は ISO（UTC）を端末の現地の日付に直し today() と比べる（null は false）
   limits: typeof LIMITS;                        // 契約が持つ上限（src/api/limits.ts）
 }
 ```
@@ -266,11 +266,11 @@ type TrashDetail =
 - `ChipInput`・`FavoriteInput`・`FavoritePatch`・`GroupInput` は、対応するエンティティから `id`・`order`・日時を除いた入力（`id` があれば更新。`ChipInput` の `on`・`visible` は省略可）。**作成済み**（`src/api/api.ts`）。
 - **お気に入りの複製は契約に持たない**（**決定** 2026-11-19）。「<名前>（複製）」は日本語の文言で、裏側が作ると英語の画面で直せない。S3-E の［複製］は、画面が辞書で作った名前で `data.favorites.save` を呼ぶ（編集中の内容を新規保存。いつものエゴサは更新しない）。
 - `adoptSuggestion` のラベルは、検索文字列から作る（20文字を超えたら先頭19文字＋「…」。`validateChip` と同じ規則）。
-- `history.record` は、#85 の時点では履歴を書くだけ（`source.groupId` は保存しない）。`lastRunAt` の更新は #86。
+- `history.record` は、履歴を書き、下の規則で `lastRunAt` を更新する（`source.groupId` は履歴に保存しない）。**作成済み**（#86）。
 - 対応する DAO：`chips`・`favorites`・`groups`・`history`・`trash`・`prefs`（**作成済み**。`src/lib/storage/types.ts`）。`data.*` は、これらを束ねて、上の規則（連動・上限・プリセット）を足す。
 - `data.favorites.update`：編集前の文字列と正規化して一致するいつものエゴサの項目を更新する（11.4）。**`undo` は関数で返す**（**決定**。MVP は同じブラウザの中で動く前提。保存先を移すときは、編集前の値を返す形に直す。要件定義書 12.4）。
 - `history.record` が更新するもの（**決定**）：①`targets[].stored` を正規化して比べ、**一致するお気に入りすべて**の `lastRunAt`（検索先は見ない。ランチャーからの実行でも更新する）、②`source.groupId` があれば、そのいつものエゴサの `lastRunAt`（ランチャーは ID を持たないので更新しない）。履歴にはどちらも保存しない（参照しない）。
-- 「今日は実行済み」は、いつものエゴサの `lastRunAt`（ISO・UTC）を**端末の現地の日付**に直し、`clock.today()` と同じかどうかで決める（履歴は見ない）。
+- 「今日は実行済み」は、いつものエゴサの `lastRunAt` を `api.clock.isToday(group.lastRunAt)` に渡して決める（ISO・UTC を**端末の現地の日付**に直し、`clock.today()` と同じかどうか。履歴は見ない。画面は `lib/*` を import できないので、判定は契約が出す）。無い・削除済みの `groupId` は、履歴だけ書いて黙って飛ばす。実行は編集ではないので `updatedAt` は動かさない。
 
 ### 4.6 実行の順番（**決定**）
 1. 通常：クリック → `url.plan(items)`（同期）→ **フロントエンドが `window.open`**（同じクリックの中）→ `data.history.record(plan, source)`（async。待たない）。
@@ -292,7 +292,7 @@ type TrashDetail =
 | 画面 | 読む・計算する（同期） | 保存する（async） | フロントで行うこと |
 |---|---|---|---|
 | ヘッダー・メニュー | `master.interests` | `data.prefs.set({ interest, lang })` | 辞書の切替、メニューの開閉 |
-| 帯（全ページ） | `url.plan` | `data.history.record`（source: group、`groupId`） | `window.open`、「今日は実行済み」を `Group.lastRunAt`・`clock.today()` から求める（4.5）。保存データが壊れているときの共通の表示と［データを初期化する］（`data.reset`。画面仕様書 2.7） |
+| 帯（全ページ） | `url.plan` | `data.history.record`（source: group、`groupId`） | `window.open`、「今日は実行済み」を `api.clock.isToday(Group.lastRunAt)` で求める（4.5）。保存データが壊れているときの共通の表示と［データを初期化する］（`data.reset`。画面仕様書 2.7） |
 | フッター | — | `data.history.record`（再実行） | 最後の1件を `history` から表示 |
 | **S1 ホーム** | `query.build`、`query.suggest`、`query.starters`、`master.wordSet`（D4）、`query.expand`、`url.plan` | `data.chips.setOn`／`setValue`、`data.saveSearch`（☆ 保存）、`data.history.record`（source: home）、`data.favorites`（［▶ 実行］は `url.plan`＋`record`）、`data.prefs.set({ favOpen })` | 入力中の検索語・詳細条件・期間の状態、`window.open`、クリップボード、保存シート |
 | **S2 条件ボタン・D1** | `query.chipConds`／`condsToQuery`／`validateChip`、`url.listId`、`query.suggest` | `data.chips.save`／`setVisible`／`reorder`／`remove`／`addPresets`／`adoptSuggestion` | 並べ替えの操作、コピー（クリップボード） |
@@ -339,6 +339,6 @@ type TrashDetail =
 ### 7.4 この文書で決めたため、実装 Issue が必要なもの
 | 項目 | 内容 |
 |---|---|
-| いつものエゴサの `lastRunAt` | `GroupSchema` に足し、`SCHEMA_VERSION` を2にして `migrate.ts` に移行を書く |
+| いつものエゴサの `lastRunAt` | **済**（#86）。`GroupSchema` に足し、`SCHEMA_VERSION` を2、`migrate.ts` に1→2の移行 |
 | 保存データが壊れたときの初期化 | `data.reset()`、DAO・KV の全消去、全ページ共通の表示と D3（画面仕様書 2.7） |
 | `LIMITS.wordSetStarter` | 履歴0件のときホームに出す検索ワード集の数（暫定60）。**済**（#88）。検索ワード集の型（`Word`・`WordGroup`）も #88 で作成 |

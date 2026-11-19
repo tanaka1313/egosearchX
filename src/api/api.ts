@@ -179,12 +179,18 @@ export type Clock = {
   now(): string;
 };
 
+/** 契約が出す時計。注入する `Clock` に、端末の現地の日付で決める判定を足したもの */
+export type AppClock = Clock & {
+  /** ISO 8601（UTC）の日時が、端末の現地の「今日」か。null は false。「今日は実行済み」の判定に使う（履歴は見ない） */
+  isToday(at: string | null): boolean;
+};
+
 export interface EgoSearchApi {
   master: MasterApi;
   query: QueryApi;
   url: UrlApi;
   launcher: LauncherApi;
   data: DataApi;
-  clock: Clock;
+  clock: AppClock;
   limits: typeof LIMITS;
 }

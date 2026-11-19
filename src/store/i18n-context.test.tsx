@@ -17,7 +17,7 @@ const clock = {
   today: () => "2026-11-19",
   now: () => "2026-11-19T03:00:00.000Z",
 };
-const PREFS_KEY = "egosearch:v1:prefs";
+const PREFS_KEY = "egosearch:v2:prefs";
 
 const Probe = () => {
   const { lang, t, setLang } = useI18n();
@@ -98,12 +98,12 @@ describe("I18nProvider", () => {
     browserLang(["en-US"]);
     const kv = new MemoryAdapter();
     await kv.set("egosearch:meta", JSON.stringify({ version: 1 }));
-    await kv.set("egosearch:v1:favorites", "{壊れた");
+    await kv.set("egosearch:v2:favorites", "{壊れた");
     mount(kv);
     await waitFor(() => expect(screen.getByText(/^lang=en:/)).toBeVisible());
     fireEvent.click(screen.getByText("to-ja"));
     await waitFor(() => expect(screen.getByText(/^lang=ja:/)).toBeVisible());
     expect(await kv.get(PREFS_KEY)).toBeNull();
-    expect(await kv.get("egosearch:v1:favorites")).toBe("{壊れた");
+    expect(await kv.get("egosearch:v2:favorites")).toBe("{壊れた");
   });
 });

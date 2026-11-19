@@ -26,11 +26,11 @@ const dump = async (kv: MemoryAdapter) =>
   Promise.all(
     [
       "egosearch:meta",
-      "egosearch:v1:chips",
-      "egosearch:v1:favorites",
-      "egosearch:v1:groups",
-      "egosearch:v1:history",
-      "egosearch:v1:prefs",
+      "egosearch:v2:chips",
+      "egosearch:v2:favorites",
+      "egosearch:v2:groups",
+      "egosearch:v2:history",
+      "egosearch:v2:prefs",
     ].map((k) => kv.get(k)),
   );
 
@@ -79,7 +79,7 @@ describe("壊れたデータ", () => {
   const corrupt = async () => {
     const kv = new MemoryAdapter();
     await ready(kv); // 一度正常に初期化してから壊す
-    await kv.set("egosearch:v1:favorites", "{壊れた");
+    await kv.set("egosearch:v2:favorites", "{壊れた");
     return setup(kv);
   };
   it("init は reject せず status が corrupt になる", async () => {

@@ -276,6 +276,7 @@ export function createDataApi({ kv, clock, newId }: Deps): DataApi {
           id: cur?.id ?? newId(),
           name: input.name.trim(),
           items: input.items,
+          lastRunAt: cur?.lastRunAt ?? null,
           createdAt: cur?.createdAt ?? clock.now(),
           updatedAt: clock.now(),
           deletedAt: null,
@@ -304,6 +305,7 @@ export function createDataApi({ kv, clock, newId }: Deps): DataApi {
         id: existing?.id ?? newId(),
         name: existing?.name ?? (target as { name: string }).name.trim(),
         items: [...(existing?.items ?? []), item],
+        lastRunAt: existing?.lastRunAt ?? null,
         createdAt: existing?.createdAt ?? clock.now(),
         updatedAt: clock.now(),
         deletedAt: null,
@@ -315,14 +317,26 @@ export function createDataApi({ kv, clock, newId }: Deps): DataApi {
     history: {
       record: async (plan, source) => {
         const dao = await open();
+        const at = clock.now(); // 履歴と lastRunAt で同じ時刻にする
         const items: HistoryItem[] = plan.targets.map((t) => ({
           id: newId(),
-          at: clock.now(),
+          at,
           query: t.query,
           engine: t.engine,
           source: { kind: source.kind, label: source.label },
         }));
         for (const item of items) await dao.history.add(item);
+        // lastRunAt：展開前の文字列が一致するお気に入りすべて（検索先は見ない）と、実行したいつものエゴサ。
+        // 実行は編集ではないので updatedAt は動かさない。無い・削除済みの groupId は黙って飛ばす（もう開いた後）
+        const stored = new Set(plan.targets.map((t) => normalize(t.stored)));
+        for (const f of await dao.favorites.list())
+          if (stored.has(normalize(f.query)))
+            await dao.favorites.save({ ...f, lastRunAt: at });
+        const group = source.groupId
+          ? await dao.groups.get(source.groupId)
+          : null;
+        if (group && !group.deletedAt)
+          await dao.groups.save({ ...group, lastRunAt: at });
         return items;
       },
       clear: async () => (await open()).history.clear(),

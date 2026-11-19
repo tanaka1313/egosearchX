@@ -63,7 +63,7 @@ src/
       types.ts            Dao とリポジトリのインターフェース（すべて async）
       kv-adapter.ts       KeyValueAdapter（LocalStorageAdapter／MemoryAdapter）
       kv-dao.ts           KeyValue の上の DAO（検証・上限・論理削除・削除済みの上限）
-      migrate.ts          バージョンと移行処理
+      migrate.ts          バージョンと移行処理（1→2：groups に lastRunAt を足し、5表を版2のキーへ運ぶ。#86）
   api/                    契約（フロントとバックの境界。docs/api-spec.md）：型・zod スキーマ・LIMITS・EgoSearchApi・Issue のコード
   backend/                createBackend({ kv, clock })：契約を実装し、lib/* と data/ を束ねる（作成済み。index.ts・query.ts・data.ts・errors.ts。ESLint で画面からの import を禁止）
   store/                  zustand のストアと useApi()（契約だけを使う。`api-context.tsx`・`app-store.ts`・`store-context.tsx` は作成済み）

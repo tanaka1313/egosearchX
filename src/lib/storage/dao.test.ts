@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { LIMITS, type Chip, type Favorite, type Group } from "@/api";
 import { LocalStorageAdapter, MemoryAdapter } from "./kv-adapter";
 import { StorageCorruptError, LimitError, openDao } from "./kv-dao";
-import type { Migration } from "./migrate";
+import { META_KEY, MIGRATIONS, type Migration } from "./migrate";
 import type { Dao } from "./types";
 
 const T0 = "2026-11-18T00:00:00.000Z";
@@ -37,6 +37,7 @@ const group = (id: string, queries: string[] = []): Group => ({
   name: id,
   items: queries.map((query) => ({ query, engine: "x" })),
   order: 0,
+  lastRunAt: null,
   createdAt: T0,
   updatedAt: T0,
   deletedAt: null,
@@ -201,7 +202,7 @@ describe("DAO（KeyValue の上のリポジトリ）", () => {
     const kv = new MemoryAdapter();
     const old = await openDao(kv);
     await kv.set(
-      "egosearch:v1:prefs",
+      "egosearch:v2:prefs",
       JSON.stringify({ interest: "hololive", lang: "ja", favOpen: false }),
     );
     expect((await old.prefs.get()).lang).toBe("ja");
@@ -217,17 +218,17 @@ describe("DAO（KeyValue の上のリポジトリ）", () => {
 describe("保存先の差し替えと移行", () => {
   it("壊れた JSON は StorageCorruptError にし、上書きしない", async () => {
     const kv = new MemoryAdapter();
-    await kv.set("egosearch:v1:favorites", "{壊れた");
+    await kv.set("egosearch:v2:favorites", "{壊れた");
     const dao = await openDao(kv);
     await expect(dao.favorites.list()).rejects.toBeInstanceOf(
       StorageCorruptError,
     );
-    expect(await kv.get("egosearch:v1:favorites")).toBe("{壊れた");
+    expect(await kv.get("egosearch:v2:favorites")).toBe("{壊れた");
   });
 
   it("スキーマに合わないデータも StorageCorruptError", async () => {
     const kv = new MemoryAdapter();
-    await kv.set("egosearch:v1:favorites", JSON.stringify([{ id: 1 }]));
+    await kv.set("egosearch:v2:favorites", JSON.stringify([{ id: 1 }]));
     const dao = await openDao(kv);
     await expect(dao.favorites.list()).rejects.toBeInstanceOf(
       StorageCorruptError,
@@ -236,11 +237,11 @@ describe("保存先の差し替えと移行", () => {
 
   it("古いバージョンのデータを、順に移行してから開く", async () => {
     const kv = new MemoryAdapter();
-    await kv.set("egosearch:meta", JSON.stringify({ version: 0 }));
+    await kv.set("egosearch:meta", JSON.stringify({ version: 1 }));
     await kv.set("old-favs", JSON.stringify([{ id: "f1", name: "n", q: "a" }]));
     const migrations: Migration[] = [
       {
-        to: 1,
+        to: 2,
         run: async (a) => {
           const old = JSON.parse((await a.get("old-favs")) ?? "[]") as {
             id: string;
@@ -248,7 +249,7 @@ describe("保存先の差し替えと移行", () => {
             q: string;
           }[];
           await a.set(
-            "egosearch:v1:favorites",
+            "egosearch:v2:favorites",
             JSON.stringify(
               old.map((o, i) => ({
                 ...fav(o.id, o.q),
@@ -267,7 +268,7 @@ describe("保存先の差し替えと移行", () => {
       query: "a",
     });
     expect(JSON.parse((await kv.get("egosearch:meta")) ?? "{}")).toEqual({
-      version: 1,
+      version: 2,
     });
     expect(await kv.get("old-favs")).toBeNull();
   });
@@ -288,5 +289,86 @@ describe("保存先の差し替えと移行", () => {
     expect((await b.groups.list())[0].items).toEqual([
       { query: "a b", engine: "x" },
     ]);
+  });
+});
+
+describe("版1 → 版2 の移行（いつものエゴサに lastRunAt を足す）", () => {
+  const V1_GROUP = {
+    id: "g1",
+    name: "朝",
+    items: [{ query: "a", engine: "x" }],
+    order: 0,
+    createdAt: T0,
+    updatedAt: T0,
+    deletedAt: null,
+  };
+  const v1Raw = {
+    chips: JSON.stringify([chip("c1")]),
+    favorites: JSON.stringify([fav("f1")]),
+    history: "[]",
+    prefs: JSON.stringify({ interest: "hololive", lang: "en", favOpen: true }),
+    groups: JSON.stringify([V1_GROUP]),
+  };
+  const seedV1 = async (kv: MemoryAdapter, raw: Record<string, string>) => {
+    await kv.set(META_KEY, JSON.stringify({ version: 1 }));
+    for (const [t, v] of Object.entries(raw))
+      await kv.set(`egosearch:v1:${t}`, v);
+  };
+  const metaOf = async (kv: MemoryAdapter) =>
+    JSON.parse((await kv.get(META_KEY)) ?? "{}");
+
+  it("MIGRATIONS に版2への移行がある", () => {
+    expect(MIGRATIONS.map((m) => m.to)).toEqual([2]);
+  });
+
+  it("groups の各要素に lastRunAt: null を足し、ほかの4表は同じ文字列のまま版2のキーへ運ぶ", async () => {
+    const kv = new MemoryAdapter();
+    await seedV1(kv, v1Raw);
+    const dao = await openDao(kv);
+    expect(await dao.groups.list()).toEqual([{ ...V1_GROUP, lastRunAt: null }]);
+    for (const t of ["chips", "favorites", "history", "prefs"] as const)
+      expect(await kv.get(`egosearch:v2:${t}`)).toBe(v1Raw[t]);
+    expect((await dao.prefs.get()).lang).toBe("en");
+    expect(await metaOf(kv)).toEqual({ version: 2 });
+  });
+
+  it("版1のキーは消さない（meta を戻して再実行しても同じ結果）", async () => {
+    const kv = new MemoryAdapter();
+    await seedV1(kv, v1Raw);
+    await openDao(kv);
+    for (const [t, v] of Object.entries(v1Raw))
+      expect(await kv.get(`egosearch:v1:${t}`)).toBe(v);
+    await kv.set(META_KEY, JSON.stringify({ version: 1 }));
+    const again = await openDao(kv);
+    expect(await again.groups.list()).toEqual([
+      { ...V1_GROUP, lastRunAt: null },
+    ]);
+  });
+
+  it("版1のキーが無い表は、版2に空を書かない", async () => {
+    const kv = new MemoryAdapter();
+    await seedV1(kv, { favorites: v1Raw.favorites });
+    await openDao(kv);
+    expect(await kv.get("egosearch:v2:favorites")).toBe(v1Raw.favorites);
+    for (const t of ["chips", "groups", "history", "prefs"])
+      expect(await kv.get(`egosearch:v2:${t}`)).toBeNull();
+  });
+
+  it("壊れた groups は何も書かず、meta も版1のまま（StorageCorruptError）", async () => {
+    for (const broken of ["{壊れた", JSON.stringify({ a: 1 }), "[1]"]) {
+      const kv = new MemoryAdapter();
+      await seedV1(kv, { ...v1Raw, groups: broken });
+      await expect(openDao(kv)).rejects.toBeInstanceOf(StorageCorruptError);
+      expect(await kv.get("egosearch:v1:groups")).toBe(broken);
+      expect(await metaOf(kv)).toEqual({ version: 1 });
+      for (const t of Object.keys(v1Raw))
+        expect(await kv.get(`egosearch:v2:${t}`)).toBeNull();
+    }
+  });
+
+  it("初回（データ無し）は移行せず、版2として記録するだけ", async () => {
+    const kv = new MemoryAdapter();
+    await openDao(kv);
+    expect(await metaOf(kv)).toEqual({ version: 2 });
   });
 });

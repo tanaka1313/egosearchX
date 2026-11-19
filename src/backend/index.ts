@@ -2,7 +2,7 @@
  * バックエンドの束ね（docs/api-spec.md 1.2）。契約 `EgoSearchApi` を実装し、lib/* と data/ をつなぐ。
  * 画面が import してよいのは `@/api` だけで、ここを import するのは組み立ての1か所（`app/providers.tsx`）だけ。
  */
-import { LIMITS, type Clock, type EgoSearchApi } from "@/api";
+import { LIMITS, type AppClock, type Clock, type EgoSearchApi } from "@/api";
 import { interests, wordSet } from "@/data";
 import { decodeLauncher, encodeLauncher } from "@/lib/launch/codec";
 import { localDate } from "@/lib/query/dates";
@@ -45,7 +45,10 @@ export function createBackend({
     },
     launcher: { encode: encodeLauncher, decode: decodeLauncher },
     data: createDataApi({ kv, clock, newId }),
-    clock,
+    clock: {
+      ...clock,
+      isToday: (at) => at !== null && localDate(new Date(at)) === clock.today(),
+    } satisfies AppClock,
     limits: LIMITS,
   };
 }

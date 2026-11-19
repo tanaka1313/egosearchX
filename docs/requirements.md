@@ -451,7 +451,7 @@ erDiagram
 |---|---|---|
 | Chip（条件ボタン） | `id`、`interestId`、`label`（1〜20字）、`query`、`on`、`visible`、`isPreset`、`order`、日時 | 本体は `query`。興味の対象ごとに別の並び（上限30は対象ごと）。値付きの条件（`min_faves:50`、`since:2026-11-07`）は、ホームの入力欄で値を変えると `query` を書き換えて保存する |
 | Favorite（お気に入り） | `id`、`name`、`query`、`engine`（`x`／`yahoo`／`both`）、`order`、`lastRunAt`、日時 | 本体は `query`（相対期間の記号を含む）＋`engine` |
-| Group（いつものエゴサ） | `id`、`name`、`items: GroupItem[]`、`order`、`lastRunAt`、日時 | 項目の並び順＝開く順。`lastRunAt` は最後に一括実行した日時で、「今日は実行済み」の判定に使う（F7。スキーマの版2で追加） |
+| Group（いつものエゴサ） | `id`、`name`、`items: GroupItem[]`、`order`、`lastRunAt`、日時 | 項目の並び順＝開く順。`lastRunAt` は最後に一括実行した日時で、「今日は実行済み」の判定に使う（F7。スキーマの版2で追加。移行は既存を null にする） |
 | GroupItem（項目） | `query`、`engine` | 名前を持たない。RDB では `group_items(group_id, position, query, engine)` |
 | HistoryItem（履歴） | `id`、`at`、`query`（日付に展開済み）、`engine`（`x`／`yahoo`）、`source: { kind, label }` | 新しい順、上限100。両方で開いたときは2件 |
 | Prefs（設定） | `interest`、`lang`（`ja`／`en`／`null`）、`favOpen` | 端末内だけ。`lang` の `null` は「選んでいない」＝ブラウザの言語に従う（初期値。ほかの設定を保存しても言語が日本語に固定されない） |
@@ -530,7 +530,7 @@ flowchart LR
 | 段階 | 保存先 | すること |
 |---|---|---|
 | MVP | localStorage（`LocalStorageAdapter`） | キーは `egosearch:v<版>:<表>`（chips／favorites／groups／history／prefs）と `egosearch:meta`（版） |
-| スキーマを変える | 同じ | `SCHEMA_VERSION` を上げ、`migrate.ts` に移行処理を1件足す。新しい版で保存されたデータは古いアプリでは開かない |
+| スキーマを変える | 同じ | `SCHEMA_VERSION` を上げ、`migrate.ts` に移行処理を1件足す（キーに版が入るので、変えない表も新しい版のキーへ運ぶ）。新しい版で保存されたデータは古いアプリでは開かない |
 | 編集の［元に戻す］ | （MVP）API が「戻す関数」を返す | 保存先をサーバーへ移すときは、関数を返せないので、編集前の値を返す形に直す |
 | 端末内で容量を増やす | IndexedDB など | `KeyValueAdapter` を1つ実装するだけ（DAO はそのまま） |
 | ブラウザをまたいで共有・RDB | API ＋ RDB（または BaaS） | `Dao` を API 向けに実装して差し替える。静的書き出しのままでは API を持てないので、**外部の API／BaaS とユーザー認証が必要**（3章の対象外を見直す。CLAUDE.md の「サーバー側の処理を足さない」も同時に見直す）。表は11.1のとおり（`interests`、`chips`、`favorites`、`groups`、`group_items`、`history`、`prefs`）。端末の localStorage から読み出して API に送る移行を1回だけ行う |
