@@ -16,9 +16,12 @@ describe("formatBuildTime", () => {
       "2026-11-18 01:00 (JST)",
     );
   });
-  it.each(["", "not-a-date"])("不正な値「%s」は「不明」", (v) => {
-    expect(formatBuildTime(v)).toBe("不明");
-  });
+  it.each(["", "not-a-date"])(
+    "不正な値「%s」は null（文言は画面が出す）",
+    (v) => {
+      expect(formatBuildTime(v)).toBeNull();
+    },
+  );
 });
 
 describe("VersionDialog", () => {

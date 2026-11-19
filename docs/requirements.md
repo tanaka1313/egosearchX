@@ -454,7 +454,7 @@ erDiagram
 | Group（いつものエゴサ） | `id`、`name`、`items: GroupItem[]`、`order`、`lastRunAt`、日時 | 項目の並び順＝開く順。`lastRunAt` は最後に一括実行した日時で、「今日は実行済み」の判定に使う（F7。スキーマの版2で追加） |
 | GroupItem（項目） | `query`、`engine` | 名前を持たない。RDB では `group_items(group_id, position, query, engine)` |
 | HistoryItem（履歴） | `id`、`at`、`query`（日付に展開済み）、`engine`（`x`／`yahoo`）、`source: { kind, label }` | 新しい順、上限100。両方で開いたときは2件 |
-| Prefs（設定） | `interest`、`lang`（`ja`／`en`）、`favOpen` | 端末内だけ |
+| Prefs（設定） | `interest`、`lang`（`ja`／`en`／`null`）、`favOpen` | 端末内だけ。`lang` の `null` は「選んでいない」＝ブラウザの言語に従う（初期値。ほかの設定を保存しても言語が日本語に固定されない） |
 | 削除済み | Chip・Favorite・Group の `deletedAt` | 別の表を作らない（論理削除）。種類ごとに上限20、超えたら古い順に完全削除 |
 
 ### 11.3 検索文字列の規則（`lib/query/model.ts`）

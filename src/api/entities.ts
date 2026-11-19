@@ -89,7 +89,8 @@ export type HistoryItem = z.infer<typeof HistorySchema>;
 
 export const PrefsSchema = z.object({
   interest: InterestIdSchema,
-  lang: z.enum(["ja", "en"]),
+  /** 表示言語。null は「選んでいない」＝ブラウザの言語に従う（ほかの設定を保存しても ja に固定されない） */
+  lang: z.enum(["ja", "en"]).nullable(),
   /** ホームのお気に入りの開閉 */
   favOpen: z.boolean(),
 });
@@ -97,7 +98,7 @@ export type Prefs = z.infer<typeof PrefsSchema>;
 
 export const DEFAULT_PREFS: Prefs = {
   interest: "hololive",
-  lang: "ja",
+  lang: null,
   favOpen: false,
 };
 

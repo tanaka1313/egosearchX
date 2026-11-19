@@ -1,3 +1,22 @@
+# #72 i18n の基盤（辞書 ja／en、言語の判定と切替）
+
+1. Goal: 以降の画面が最初から辞書の文言で作れるよう、辞書（ja／en）・言語の判定と保存・`ISSUE_CODES` の文言を用意する。
+2. Plan:
+   - [x] ブランチ `feature/i18n`、テスト先行（Red 確認：`@/messages`・`i18n-context`・`language-switch` が無く失敗、`lang: null` の3件が失敗）
+   - [x] `Prefs.lang` を nullable に（null＝ブラウザの言語。版は上げない）
+   - [x] `src/messages`（`ja`・`en`・`engine`・`index`）、`store/i18n-context.tsx`、`LanguageSwitch`
+   - [x] フッター・バージョン情報を辞書へ（`formatBuildTime` は不正なとき null を返す）
+   - [x] docs（requirements 11章、api-spec 実装の状態、implementation-plan 5章）
+   - [x] make check（テスト557件）・format:check、en のキーを1つ消してビルドが失敗することを確認
+   - [ ] main へマージして push、#72 を閉じ、#73 に `LanguageSwitch` の配置を追記
+3. Verification: `make check`、`npm run format:check`。`ISSUE_CODES` × ja／en の網羅、`detectLang` の境界、言語が再読み込み後も残ること、ほかの設定を保存しても `lang` が null のままであること。
+4. Review:
+   - 決定（承認済み）：ライブラリは使わず自前。`Prefs.lang` を nullable に（以前は `set` が既定の `ja` を丸ごと保存し、英語のブラウザでも日本語に固定されたため）。言語切替の置き場所は左メニュー下部＝#73（#72 は部品まで）。
+   - 判断：読み込み中と事前描画は ja。読み込み後は 保存 → ブラウザの言語。`CORRUPT` のときもブラウザの言語で出し、切替はその画面だけに効く（何も書かない）。ブラウザの言語は `useSyncExternalStore`（サーバー側は ja）。`Provider` が無いときの既定は ja（部品の単体テスト用）。
+   - 判断：en の文言は暫定（#67 で確定）。`ENGINE_LABEL` の英語名も同じ正式名のまま。`layout.tsx` の metadata は静的なので #75 に残す。
+   - **未確認**：dev サーバー・ブラウザでのハイドレーション確認はしていない（`make check` のビルドと jsdom のテストまで）。
+   - **次に壊れやすい点**：#73 が `LanguageSwitch` を置くこと。画面を足すとき、文言は `t.<画面>.…` に足し、en の抜けは型エラーで気づく。警告の文言は `t.issues[code](params)`。モックの文言は辞書に移していない（破棄予定）。
+
 # #24 ストア（zustand）と API（契約）の接続
 
 1. Goal: ストアが `@/api` だけを使って `data.init()` で読み、変更のたびに `data.*` を呼んで戻り値を状態へ反映する。

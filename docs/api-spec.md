@@ -324,7 +324,7 @@ type TrashDetail =
 | ランチャーの codec（`lib/launch/codec.ts`） | **作成済み**（#20） | 圧縮あり `v1.`／なし `v1u.`。壊れた入力は `LAUNCHER_BROKEN`、知らない版は `LAUNCHER_VERSION`。長さの警告は持たない |
 | マスタ JSON と zod（`src/data`） | **作成済み**（#21） | `interests`・`presets`・`suggest-rules`・`word-set` の4つ。読み出しは `interests()`・`presetsFor(id)`・`suggestRules()`・`wordSet(id)`。`MasterSchema` が対象の実在・重複などを検証し、`prebuild` で走る。中身は仮の値で、本番は #70。束ねて `master`・`data.chips.addPresets`・`query.suggest` にするのは #85 |
 | ストア ⇄ バックエンド | **作成済み**（#24） | `src/store/app-store.ts`（`createAppStore(api)`）と `store-context.tsx`（`StoreProvider`・`useAppStore`）。エンティティを返す操作は戻り値を状態へ差し込み、戻り値の無い操作と `history.record` は `data.init()` で読み直す。`corrupt` の間は何も書かず `CORRUPT` を throw する。`data.reset()` 後に `ready` へ戻す処理は #87 |
-| 辞書（ja／en） | 予定 | #72（`Issue` のコードを辞書で文言にする） |
+| 辞書（ja／en）と言語の切替 | **作成済み**（#72） | `src/messages`（`ja.ts`・`en.ts`・`engine.ts`・`index.ts`）。`Messages` 型は `ja` から導き、`en` に欠けや余計なキーがあると型エラーでビルドが止まる。警告・エラーはコードごとの関数（`issues[code](params)`）。`ENGINE_LABEL`・`ENGINE_SHORT` は `engine.ts` の1か所。`src/store/i18n-context.tsx`（`I18nProvider`・`useI18n()`）は、保存した言語 → ブラウザの言語の順で決め、保存データが壊れていてもブラウザの言語で出す（切替はその画面だけ）。en の文言は暫定（#67 で確定）。切替の部品 `LanguageSwitch` を左メニュー下部に置くのは #73 |
 | **`createBackend`・`useApi()`・import の制限** | **作成済み**（#85） | `src/backend`（`index.ts`・`query.ts`・`data.ts`・`errors.ts`）、`src/store/api-context.tsx`、`src/app/providers.tsx`、`eslint.config.mjs`。`query.validateChip`・`starters`・`suggest` の中身は `lib/query/chip.ts`・`suggest.ts`。DAO は最初の async の呼び出しで1回だけ開き、**初回（meta が無い）のときだけ**すべての興味の対象にプリセットを入れる（条件ボタンが0件かどうかでは判定しない）。下位のエラーは `errors.ts` が `ApiError` に直す |
 
 ### 7.2 実装の順（案。M1〜M4 に組み込む）

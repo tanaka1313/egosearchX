@@ -506,6 +506,17 @@ describe("履歴・削除済み・設定", () => {
       "INVALID",
     );
   });
+  it("言語は再読み込み後も残り、選ぶ前は null（ほかの設定を保存しても変わらない）", async () => {
+    const kv = new MemoryAdapter();
+    const first = createBackend({ kv, clock, newId });
+    expect((await first.data.init()).prefs.lang).toBeNull();
+    await first.data.prefs.set({ interest: "other" });
+    const again = await createBackend({ kv, clock, newId }).data.init();
+    expect(again.prefs.lang).toBeNull();
+    await first.data.prefs.set({ lang: "en" });
+    const reloaded = await createBackend({ kv, clock, newId }).data.init();
+    expect(reloaded.prefs).toMatchObject({ lang: "en", interest: "other" });
+  });
 });
 
 describe("clock と計算", () => {
