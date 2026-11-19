@@ -105,11 +105,13 @@ function ParamChip({
   conds: Cond[];
   isNew: boolean;
 }) {
+  const api = useApi();
   const { t } = useI18n();
   const { isOn, toggle, period, setChipValue } = useSearchScope();
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const on = isOn(chip.id);
-  const periodActive = period.kind !== "none";
+  // 期間が使われるかはバックエンドの判定に合わせる（［日付］を押しただけで日付が空なら、期間は出力されず、日付ボタンも使われる）
+  const periodActive = api.query.periodTokens(period).length > 0;
   const blocked = periodActive && conds.some((c) => c.kind === "date");
   const reasonId = `chip-${chip.id}-reason`;
 

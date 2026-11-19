@@ -241,6 +241,25 @@ describe("値付きの条件ボタン", () => {
     expect(favesInput().value).toBe("50");
   });
 
+  it("［日付］を押しただけで日付が空のときは、期間が出力されないので日付ボタンは使える", async () => {
+    const a = api();
+    const date = (await chipsOf(a)).find((c) => c.label === "日付");
+    await a.data.chips.setOn(date!.id, true);
+    await mount(
+      a,
+      <>
+        <Seed home={{ period: { kind: "date", from: "", to: "" } }} />
+        <ChipRow />
+        <QueryPreview />
+      </>,
+    );
+    const group = await screen.findByRole("group", { name: "日付" });
+    expect(within(group).getByLabelText("日付の開始日")).toBeEnabled();
+    expect(
+      screen.getByLabelText("組み立てた検索クエリ（長いときは横にスクロール）"),
+    ).toHaveTextContent("since:2026-11-07");
+  });
+
   it("期間を指定中は、日付の条件を持つボタンが無効（入力不可・理由を伝える）。数値のボタンは使える", async () => {
     const a = api();
     await chipsOf(a);
