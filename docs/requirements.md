@@ -2,7 +2,7 @@
 
 > 2026-11-17 に mock1〜5 への感想を受けて全面改訂した（mock6 の方針）。同日の4巡目で mock6 を最終案として `/mock` に昇格した（mock1〜5 は削除）。旧番号（F1〜F9、S1〜S4、M1〜M3）との対応は付録Bにある。
 > 同日の5巡目で、初回カードを廃止して「ホロライブ前提＋ヘッダーで興味の対象を切り替え」に変え、サイト名を「EgoSearch Studio（仮称）」から「Hololive EgoSearch」に変えた（F11、9章）。
-> 2026-11-18 に、**モック（`/mock`）を絶対の正**として全体を照合し直した。あわせて、①条件ボタン・お気に入り・いつものエゴサの本体をすべて検索文字列にし（相対期間も `since:yesterday` などの記号で文字列に入れる）、②興味の対象に「その他」を足して条件ボタンを興味の対象ごとの並びにし、③保存先を差し替えられる DAO を置いた。モックと同じアプリを作る方法を10章、データ構造とつながりを11章、DAO を12章、開発者が決めることを13章に書いた。**モックとこの文書が食い違うときはモックに合わせる。**
+> 2026-11-18 に、**モック（`/mock`）を絶対の正**として全体を照合し直した。あわせて、①条件ボタン・お気に入り・いつものエゴサの本体をすべて検索文字列にし（相対期間も `since:yesterday` などの記号で文字列に入れる）、②興味の対象に「その他」を足して条件ボタンを興味の対象ごとの並びにし、③保存先を差し替えられる DAO を置いた。モックと同じアプリを作る方法を10章、データ構造とつながりを11章、DAO を12章、開発者が決めることを13章に書いた。（2026-11-20：モックは #61 で破棄した。今は、この文書と本実装が正で、食い違いを見つけたらユーザーに確認する。）
 > **用語**：検索先の正式名は「Yahoo!リアルタイム検索」。画面の文言（警告・説明・選択肢）では正式名を使い、「Yahoo」と短く書いてよいのはボタン（［Yahoo で開く］）、［⋯］のメニュー項目、お気に入り・いつものエゴサの行の検索先バッジ（「X」「Yahoo」「X＋Yahoo」。ただの識別子）だけ。この文書の技術的な記述（変換規則・演算子・URL）の「Yahoo」は略記。
 
 ## 1. 目的
@@ -298,22 +298,22 @@ UIは、ホーム（日課の実行と直感操作）と、左メニュー（複
 - 静的 HTML に出る場所に置く（クライアントの状態で隠さない）。サイト名と、興味の対象の既定（ホロライブ）は静的 HTML に含める。
 - リポジトリ名（egosearchX）と配信 URL は変えない。
 
-## 10. 実装方式（モックと同じアプリを作る方法）
-> 2026-11-18 追加。**モック（`/mock`）が正。** 本実装は、モックの画面・部品・状態の分け方をそのまま移し、モックで固定値や React の state で済ませている部分だけを、本物の仕組みに置き換える。
+## 10. 実装方式
+> 2026-11-18 追加。2026-11-20 に、役目を終えた画面モック（`/mock`）の記述を外した（#61）。画面と部品の構成、層の分け方、技術スタックをここにまとめる。
 
 ### 10.1 技術スタック
-| 層 | 採用技術 | モックでの扱い | 本実装 |
-|---|---|---|---|
-| フレームワーク | Next.js（App Router、`output: 'export'` の静的書き出し）＋ React 19 ＋ TypeScript（strict） | 同じ | 同じ。サーバー処理（API ルート・Server Actions）は使わない |
-| 見た目 | Tailwind CSS 4 ＋ shadcn/ui（Button など）＋ lucide-react（アイコン）。ダークモード固定 | 同じ（色は `globals.css` のトークン） | 同じ。モックの className をそのまま移す |
-| 並べ替え | `@dnd-kit/react`（`useSortable`）＋ `@dnd-kit/helpers`（`move`） | 同じ | 同じ |
-| 状態管理 | zustand（画面をまたぐ状態） | React Context ＋ `useState`（`_parts/store.tsx`）。再読み込みで初期状態に戻る | zustand のストア。初期化時に DAO から読み、変更のたびに DAO へ書く（persist ミドルウェアは使わず、DAO を通す） |
-| 検索の組み立て | `SearchScope`（コンテキスト）＋同じ部品 | `_parts/search-scope.tsx`。ホームはストア、編集ページはページ内の状態 | 同じ設計で移す |
-| 検索文字列の規則 | 純粋関数（`lib/query`） | `lib/query/model.ts`（分割・正規化・相対期間・展開・連動。テストあり。#71 で移した） | `lib/query` に移し、AST（演算子の定義・X／Yahoo の変換器）と合わせる |
-| 保存 | DAO（12章）＋ localStorage | 使わない（固定のダミーデータ） | `src/lib/storage`（作成済み。テストあり） |
-| 検証 | zod 4 | 使わない | 保存データ・マスタ JSON・ランチャー URL を検証 |
-| URL 圧縮 | `CompressionStream('deflate-raw')` ＋ base64url | ダミーの URL | ランチャーの codec |
-| テスト | Vitest ＋ Testing Library（jsdom） | `lib/query/model.test.ts` | 純粋関数・DAO・主要な部品 |
+| 層 | 採用技術 | 実装上の決まり |
+|---|---|---|
+| フレームワーク | Next.js（App Router、`output: 'export'` の静的書き出し）＋ React 19 ＋ TypeScript（strict） | サーバー処理（API ルート・Server Actions）は使わない |
+| 見た目 | Tailwind CSS 4 ＋ shadcn/ui（Button など）＋ lucide-react（アイコン）。ダークモード固定 | 色は `globals.css` のトークンに集め、ON の見た目は `toggleClass`（1か所）にする |
+| 並べ替え | `@dnd-kit/react`（`useSortable`）＋ `@dnd-kit/helpers`（`move`） | 既定のセンサーでキーボード（Space で持ち上げ、矢印で移動）にも対応する |
+| 状態管理 | zustand（画面をまたぐ状態） | zustand のストア。初期化時に DAO から読み、変更のたびに DAO へ書く（persist ミドルウェアは使わず、DAO を通す） |
+| 検索の組み立て | `SearchScope`（コンテキスト）＋同じ部品 | ホームはストアの状態、編集ページはページの中だけの状態を渡す（ホームの ON/OFF・期間に影響しない） |
+| 検索文字列の規則 | 純粋関数（`lib/query`） | `lib/query` に移し、AST（演算子の定義・X／Yahoo の変換器）と合わせる |
+| 保存 | DAO（12章）＋ localStorage | `src/lib/storage`（作成済み。テストあり） |
+| 検証 | zod 4 | 保存データ・マスタ JSON・ランチャー URL を検証 |
+| URL 圧縮 | `CompressionStream('deflate-raw')` ＋ base64url | ランチャーの codec |
+| テスト | Vitest ＋ Testing Library（jsdom） | 純粋関数・DAO・主要な部品 |
 
 ### 10.2 層の構成
 ```mermaid
@@ -335,22 +335,19 @@ flowchart TD
 - 検索文字列の解析・組み立て・比較は、すべて `lib/query` の純粋関数で行う（画面ごとに書かない）。画面へは契約の `query` を通して渡す。
 
 ### 10.3 画面と部品の対応
-| 画面・部品 | モックのファイル | 本実装 |
-|---|---|---|
-| ヘッダー・左メニュー・いつものエゴサの帯・フッター | `_parts/shell.tsx` | `app/layout.tsx`＋`components/common` |
-| 興味の対象の切替 | `_parts/interest-picker.tsx` | 同じ（定義は `data/interests.json`） |
-| 検索語・クエリ表示・開くボタン・☆ 保存 | `_parts/open-bar.tsx` | `components/home` |
-| 「条件」の枠・条件ボタン・期間・詳細条件 | `_parts/condition-frame.tsx`・`chips.tsx`・`period-picker.tsx`・`detail-panel.tsx` | `components/home`（`SearchScope` から読む） |
-| 検索ワード集のボタン・D4 ダイアログ | `_parts/word-set-dialog.tsx`（ボタンは `chips.tsx` の `ChipRow`） | `components/home` |
-| S2 条件ボタン・D1 編集シート | `buttons/page.tsx`・`_parts/chip-editor.tsx` | `app/buttons`・`components/chips` |
-| S3 お気に入り・S3-E 編集ページ | `favorites/page.tsx`・`favorites/edit/page.tsx` | `app/favorites`・`app/favorites/edit` |
-| S4 いつものエゴサ・S4-E 追加と編集 | `groups/page.tsx`・`groups/edit/page.tsx` | `app/groups`・`app/groups/edit` |
-| S5 履歴・S6 削除済み・S7 URL解析・S9 ランチャー・S10 このサイトについて | `history`・`trash`・`import`・`launch`・`about` | 同じパス |
+| 画面・部品 | 置き場所 |
+|---|---|
+| ヘッダー・左メニュー・いつものエゴサの帯・フッター | `app/(site)/layout.tsx`＋`components/common` |
+| 興味の対象の切替 | `components/common`（定義は `data/interests.json`） |
+| 検索語・クエリ表示・開くボタン・☆ 保存 | `components/search` |
+| 「条件」の枠・条件ボタン・期間・詳細条件 | `components/search`（`SearchScope` から読む） |
+| 検索ワード集のボタン・D4 ダイアログ | `components/dialogs` |
+| ホーム | `app/(site)/page.tsx`・`components/home` |
+| S2 条件ボタン・D1 編集シート | `app/(site)/buttons`・`components/chips` |
+| S3 お気に入り・S3-E 編集ページ | `app/(site)/favorites`・`app/(site)/favorites/edit`・`components/favorites` |
+| S4 いつものエゴサ・S4-E 追加と編集 | `app/(site)/groups`・`app/(site)/groups/edit`・`components/groups` |
+| S5 履歴・S6 削除済み・S7 URL解析・S9 ランチャー・S10 このサイトについて | `app/(site)/` の同じ名前のパス（`history`・`trash`・`import`・`launch`・`about`）と `components/` の同じ名前のディレクトリ |
 
-### 10.4 モックから本実装へ持っていくもの
-- **そのまま持っていく**：画面の構成と className、部品の分け方、`SearchScope` の設計、`lib/query/model.ts` の規則とテスト（移し済み）、上限値（`LIMITS`）、用語と文言（辞書へ移す）。
-- **置き換える**：固定のダミーデータ（`WORD_SET` を含む → マスタ JSON と DAO）、`TODAY` の固定日付（→ 実行時の日付）、簡易の組み立て（→ AST と X／Yahoo の変換器）、ダミーのタブ開き（→ `window.open`）、ダミーのランチャー URL（→ codec）、`doneToday`（→ いつものエゴサの `lastRunAt` から求める）。
-- **捨てる**：上部のバナー、`SUGGEST_SEEDS`（サジェストを20件に満たすためのダミー）。
 
 ## 11. データ構造
 > 2026-11-18 追加。**条件ボタン・お気に入り・いつものエゴサの本体は、すべて検索文字列。** 互いに ID で参照せず、関係は文字列から導く。保存の型（zod）は `src/api/entities.ts`。
@@ -546,7 +543,7 @@ flowchart LR
 ## 13. 開発者が決めること
 > 2026-11-18 追加。値は推測で埋めず、確認したものだけを入れる。作業は Issue #70（[データ整備] 条件ボタンのプリセットとサジェスト規則の作成）。Claude が Excel のひな形を作り、ユーザーが仕上げて、JSON に移す予定。
 
-| 決めること | 置き場所（予定） | 今のモックの仮の値 |
+| 決めること | 置き場所（予定） | 仮の値（モックで使っていたもの。モックは #61 で削除済みで、git の履歴にだけ残る） |
 |---|---|---|
 | 興味の対象の一覧（ID・表示名（ja／en）・既定リスト） | `src/data/interests.json` | ホロライブ／hololive（既定リスト `1412278227767218179`）、にじさんじ／NIJISANJI（`1478366370727608323`）、その他／Others（リストなし）。英語の画面では英語表記を出す |
 | 条件ボタンのプリセット（対象ごと） | `src/data/presets.json` | 共通：RTを除く（ON）、ファボ［50］件以上、日付［2026-11-07］以降、画像つき、返信のみ、日本語のみ、リンクなし（非表示）。ホロライブ：＋ホロメンから、ネタバレ除外（ON）、配信タグ、ファンアート、切り抜き（タグは `#配信タグA` などの仮の値）。にじさんじ：＋にじさんじから。その他：共通だけ |

@@ -3,7 +3,7 @@
 ## 0. 前提
 - **これは HTTP の API ではない。** アプリは静的書き出しのままで、サーバーを持たない。ここでいう「フロントエンド」と「バックエンド」は、**同じブラウザの中で動くコードの2つの層**である。層を分けるのは、画面を作り直しても規則・保存を触らずに済み、規則・保存先を差し替えても画面を触らずに済むようにするため。両者の境界（インターフェース）をこの文書で決める。
 - 関連文書：`docs/requirements.md`（機能 F1〜F12、データ構造 11章、DAO 12章）、`docs/screen-spec.md`（S1〜S10、D1〜D4）、`docs/implementation-plan.md`（ファイル構成、AST）、`docs/research-phase0.md`（URL 形式の確度）。**意味と規則はそちらが正で、この文書には写さない。** ここには、境界をまたぐ関数の形・型・エラーの形だけを書く。
-- 正にするもの：保存データの型と DAO は作成済みの `src/lib/storage`、検索文字列の規則は `src/lib/query/model.ts`（#71 でモックから移した。要件定義書 10.4）。**既存のシグネチャは変えない**（変えるときは、先にこの文書を直す）。
+- 正にするもの：保存データの型と DAO は作成済みの `src/lib/storage`、検索文字列の規則は `src/lib/query/model.ts`（#71 でモックから移した）。**既存のシグネチャは変えない**（変えるときは、先にこの文書を直す）。
 - 各項目の状態の凡例：**作成済み**（コードがある）／**予定（#番号）**（Issue がある。書かれていない挙動は書かない）／**決定**（この文書で決めた）／**未決定**（7.3。推測で埋めない）。
 - 用語：検索先は「X」「Yahoo!リアルタイム検索」。コード中の識別子 `'x'`・`'yahoo'` は、そのまま書く。複数の検索をまとめたものは「いつものエゴサ」。
 
@@ -96,7 +96,7 @@ class ApiError extends Error { code: ApiErrorCode; params?: Record<string, strin
 
 ## 3. データの型（`src/api`）
 - **エンティティ**（`Chip`・`Favorite`・`Group`・`GroupItem`・`HistoryItem`・`Prefs`・`TrashEntry`・`TrashKind`・`Engine`・`InterestId`）は、`src/api/entities.ts`（zod）が定義する（**作成済み**。#88 で `lib/storage/schema.ts` から移した）。この文書には写さない。
-- 以下は、**境界で使う型**。形はモックの `_parts/data.ts` に合わせた（#71 で `lib/query/model.ts` がこの型で動く。AST は #12）。
+- 以下は、**境界で使う型**。形は #71 で決めた（#71 で `lib/query/model.ts` がこの型で動く。AST は #12）。
 ```ts
 type Period = { kind: "none" | "d1" | "d3" | "d7" | "date"; from: string; to: string };
 type Tri = "any" | "inc" | "exc";
@@ -146,7 +146,7 @@ type WordGroup = { name: { ja: string; en: string }; words: Word[] };           
 ```
 - 検索ワード集（`Word`・`WordGroup`）は、マスタ JSON（`src/data/word-set.json`。興味の対象 ID をキーにした Record）から読む。保存はしない。ワードの ON は、サジェストと同じく `SearchState.suggestionTokens`（その検索だけ）に入る。
 - `ParamOp`・`FilterKey` は、**契約が持つ定数**（`PARAM_OP_TYPES: Record<ParamOp, "number" | "date">`、`FILTER_KEYS`）から導く。ラベル・接尾語などの文言は辞書が持つ。`operators.ts`（エンジン別の対応と `status`）は、この定数を import して、キーを1か所に揃える（**決定**）。
-- `onChipIds` は、モックの `onIds` を改名したもの（モックは破棄予定）。
+- `onChipIds` は、モックの `onIds` を改名したもの。
 - `OpenTarget.query` は、開く時点の保存形（記号を日付に展開済み。X の構文）。履歴にはこれを残す（要件定義書 11.4「開く」。**決定**）。`url` だけが、検索先ごとの変換を受ける。
 - `Group` に `lastRunAt`（null 可）を持つ（**決定**。「今日は実行済み」の判定に使う）。スキーマの版2で追加し、`migrate.ts` の1→2が、既存のいつものエゴサを null にして、5つの表を版2のキーへ運ぶ（groups 以外は文字列のまま。壊れた groups は何も書かず `CORRUPT`。版1のキーは消さない）。**作成済み**（#86）。
 
@@ -174,8 +174,8 @@ interface EgoSearchApi {
 ### 4.2 `query`（同期・純粋。**予定** #71・#12〜#17。規則は要件定義書 F2・F3・F6・11.3・11.4）
 | メソッド | 戻り値 | 備考 |
 |---|---|---|
-| `build(state: SearchState, chips: Chip[])` | `BuiltQuery` | 共通（ON かつ「表示」の条件ボタン、無効化した項目を除く）と個別の合成。期間を指定中は日付の条件ボタンを除いて警告。モックの `buildQuery`。実装は `lib/query/merge.ts` の `buildQuery(state, chips, today)`（`today` は #85 のバックエンドが clock から渡す。使う条件ボタンは `onChipIds` かつ「表示」で、`chip.on` は見ない） |
-| `parse(stored: string, chips: Chip[])` | `ParsedScope` | 文字列 → 条件ボタンの ON・検索語・期間・詳細条件（11.4）。**内容は欠かさない**。モックの `parseToScope` |
+| `build(state: SearchState, chips: Chip[])` | `BuiltQuery` | 共通（ON かつ「表示」の条件ボタン、無効化した項目を除く）と個別の合成。期間を指定中は日付の条件ボタンを除いて警告。実装は `lib/query/merge.ts` の `buildQuery(state, chips, today)`（`today` は #85 のバックエンドが clock から渡す。使う条件ボタンは `onChipIds` かつ「表示」で、`chip.on` は見ない） |
+| `parse(stored: string, chips: Chip[])` | `ParsedScope` | 文字列 → 条件ボタンの ON・検索語・期間・詳細条件（11.4）。**内容は欠かさない**。 |
 | `expand(stored: string)` | `string` | 相対期間の記号を `clock` の日付に展開する（`expandRelative`）。詳細条件の「開くときは since:…」に使う |
 | `periodTokens(p: Period)` | `string[]` | 期間 → 保存形のトークン（`periodToTokens`）。`until:` は終了日をそのまま出す |
 | `tokenize(q)`／`normalize(q)` | `string[]`／`string` | 一致の判定は必ず `normalize` で行う（11.3） |
@@ -183,7 +183,7 @@ interface EgoSearchApi {
 | `chipConds(chip)`／`condsToQuery(conds)` | `Cond[]`／`string` | 条件ボタンの本体 ⇄ 条件の行（D1） |
 | `validateChip(label: string, conds: Cond[])` | `Result<{ label: string; query: string }>` | D1 の保存前の検証。値が空の行は無視する（`index` は元の行の位置）。ラベルが空なら**検索文字列から作る**（20文字〔`LIMITS.chipLabel`〕を超えたら先頭19文字＋「…」。**決定** 2026-11-19。演算子名を補うと裏側が日本語の名前を作ってしまう）。上限は見ない |
 | `favName(query, favorites)` | `string \| null` | いつものエゴサの項目の表示名（`favNameFor`） |
-| `starters(input: { interest: InterestId; chips: Chip[]; history: HistoryItem[] })` | `string[]` | 履歴が**0件のときだけ**、今の対象の `starter` の `Word.query` を、グループ順・ワード順に、条件ボタンにあるものを除いて最大 `LIMITS.wordSetStarter` 件返す。履歴が1件でもあれば `[]`（**決定**。#89。モックの `starterWords`） |
+| `starters(input: { interest: InterestId; chips: Chip[]; history: HistoryItem[] })` | `string[]` | 履歴が**0件のときだけ**、今の対象の `starter` の `Word.query` を、グループ順・ワード順に、条件ボタンにあるものを除いて最大 `LIMITS.wordSetStarter` 件返す。履歴が1件でもあれば `[]`（**決定**。#89） |
 | `suggest(input: { text: string; chips: Chip[]; history: HistoryItem[] })` | `string[]` | 規則 → 履歴のトークンの順。条件ボタンにあるもの・検索に入っているものを除き、最大 `LIMITS.suggest`。履歴からは、**期間（`since:`／`until:`）だけを除き、検索語も条件も候補にする**（**決定**。#80） |
 - `applyFavEdit`（お気に入りの編集 → いつものエゴサ）は契約に出さない。`data.favorites.update` の中で使う。
 
@@ -192,7 +192,7 @@ interface EgoSearchApi {
 |---|---|---|
 | `plan(items: PlanItem[])` | `RunPlan` | 相対期間を展開 → 検索先ごとに URL を作る。`both` は2件。Yahoo!リアルタイム検索で使えない演算子と長さの警告（F5・F8）。X は常に「最新」タブ（`f=live`）で開く。URL 形式は5章 |
 | `parse(input: string)` | `Result<ParsedUrl>` | X（`x.com`・`twitter.com`）と Yahoo!リアルタイム検索の URL → 保存形（F4）。保存形は X の構文で、Yahoo!リアルタイム検索の URL は要件定義書 F4 の逆変換の表で戻す。解析できない演算子は `raw: true` のトークンとして保つ |
-| `listId(input: string)` | `Result<string>` | リストの URL または数字 → ID（`parseListId`）。モックは null を返す |
+| `listId(input: string)` | `Result<string>` | リストの URL または数字 → ID（`parseListId`）。 |
 - 開くタブ：X は常に「最新」（`f=live`）で開く（**決定**）。画面にも保存にも「最新」の設定は持たない。今後変わりうるので、値は X の URL を作る1か所の定数にする。
 
 ### 4.4 `launcher`（async。**作成済み**＝#20、`lib/launch/codec.ts` の `encodeLauncher`・`decodeLauncher`）

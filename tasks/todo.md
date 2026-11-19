@@ -1,3 +1,20 @@
+# #61 モック（紙芝居）の破棄
+
+1. Goal: 本画面が揃ったので `src/app/mock/` を削除し、「モックが正」と書いた文書を「本実装と文書が正」に直す。
+2. Plan:
+   - [x] ブランチ `chore/remove-mock`（#37 のマージ後の main から）
+   - [x] `src/app/mock/` を削除、`eslint.config.mjs` の `ignores`、`(site)/layout.tsx` のコメント
+   - [x] docs：CLAUDE.md・screen-spec・requirements（冒頭・10章・13章の見出し）・implementation-plan・api-spec の「今の決まり」としてのモック参照を直す（履歴・付録の記述は残す）
+   - [x] #61 の完了条件を「`tasks/todo.md` の作業記録を除いて」に直してから `make check`、main へマージして push、#61 を閉じる
+3. Verification: `git grep "MOCK: 破棄予定\|app/mock"` が `tasks/todo.md` 以外で 0 件。`make check`。build の経路一覧に `/mock` が無い。
+4. Review:
+   - 結果：`git grep` は `tasks/todo.md` 以外で 0 件。`make check` 通過（テスト 861 件。モックの `buildQuery` に依存した1件が消えた）。build の経路一覧に `/mock` は無い。`package.json` は変えていない（依存はすべて本実装でも使用）。
+   - 判断：消えたテスト（`-to:`／`-@` が Yahoo!リアルタイム検索で使えない旨の警告）は、本実装の `serialize-yahoo.test.ts`（`yahoo.accountExcludeUnsupported`）が同じ振る舞いを本物のシリアライザーで押さえているので、移していない。
+   - 判断：要件定義書 10章は「モックと同じアプリを作る方法」だった。役目が終わったので、「モックでの扱い」の列と 10.4「モックから本実装へ持っていくもの」を削り、10.3 の置き場所を実際のディレクトリに直した（`components/home` と書いていたものは実際は `components/search`・`components/dialogs`）。`docs/requirements.md` の冒頭の日付つきの注記・付録（mock1〜6 への感想）、`implementation-plan` の「#71 でモックから移した」は履歴なので残した。
+   - 発見：モックを消したあと、`.next/types/validator.ts`・`.next/dev/types/validator.ts`（git 管理外の生成物）が古いルートを覚えていて tsc が落ちた。該当ファイルだけ消して再実行（`rm -rf` はガードレールで禁止）。
+   - **未確認**：dev サーバーで `/mock` が 404 になること（build の経路一覧に無いことまで）。
+   - **次に壊れやすい点**：`docs/data/presets-and-suggest-rules.xlsx` など、データ整備の文書が「今のモックの仮の値」を参照していないか（requirements 13章の表の列名は直したが、各セルの値自体はモックの `data.ts` 由来のまま。#70 で本番の値に置き換える）。
+
 # #37 キーボード操作とアクセシビリティ
 
 1. Goal: 全画面をキーボードだけで操作でき、状態が色だけで示されない（画面仕様書 8章）ようにする。
