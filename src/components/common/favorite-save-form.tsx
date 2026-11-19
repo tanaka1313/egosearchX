@@ -1,0 +1,77 @@
+"use client";
+
+import { useState } from "react";
+import { ApiError, type Engine } from "@/api";
+import { Button } from "@/components/ui/button";
+import { useI18n } from "@/store/i18n-context";
+import { useAppStore } from "@/store/store-context";
+import { EnginePicker } from "./engine-picker";
+import { useToast } from "./toast";
+
+/**
+ * 文字列と検索先を、新しいお気に入りとして保存する小さなフォーム（シートの中身）。
+ * S7（URL解析）と S5（履歴）が使う。既存のお気に入りは上書きしない。
+ * 名前の初期値と検索先の初期値は呼び出し側が決める（画面仕様書 3.10）。
+ */
+export function FavoriteSaveForm({
+  query,
+  engine: initial,
+  defaultName,
+  note,
+  onClose,
+}: {
+  query: string;
+  engine: Engine;
+  defaultName: string;
+  note: string;
+  onClose: () => void;
+}) {
+  const { t } = useI18n();
+  const s = t.search.saveSheet;
+  const toast = useToast();
+  const save = useAppStore((st) => st.favorites_save);
+  const [name, setName] = useState(defaultName);
+  const [engine, setEngine] = useState<Engine>(initial);
+  const [error, setError] = useState("");
+
+  const submit = async () => {
+    if (!name.trim()) return setError(s.nameRequired);
+    try {
+      await save({ name: name.trim(), query, engine });
+      toast.show(s.saved);
+      onClose();
+    } catch (e) {
+      if (!(e instanceof ApiError && e.code === "CORRUPT")) console.error(e);
+      setError(s.failed);
+    }
+  };
+
+  return (
+    <>
+      <label className="block space-y-1 text-sm">
+        <span className="font-medium">{s.name}</span>
+        <input
+          value={name}
+          onChange={(ev) => setName(ev.target.value)}
+          className="w-full rounded-lg border bg-field px-3 py-2"
+        />
+      </label>
+      <code className="block rounded bg-muted p-2 font-mono text-xs break-all">
+        {query}
+      </code>
+      <p className="text-xs text-muted-foreground">{note}</p>
+      <EnginePicker value={engine} onChange={setEngine} />
+      {error && (
+        <p role="alert" className="text-sm font-medium">
+          ⚠ {error}
+        </p>
+      )}
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" onClick={onClose}>
+          {s.cancel}
+        </Button>
+        <Button onClick={submit}>{s.save}</Button>
+      </div>
+    </>
+  );
+}

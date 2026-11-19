@@ -321,6 +321,28 @@ export const en: Messages = {
       "The search text analyzed from the pasted URL is saved as a new favorite.",
     failed: "Could not complete the action",
   },
+  historyPage: {
+    title: "History",
+    list: "History",
+    empty: "Searches you run will appear here",
+    clearAll: "Delete all",
+    confirmTitle: "Delete all history?",
+    confirmBody: "This cannot be undone.",
+    confirmAction: "Delete",
+    sourceHome: "Home",
+    sourceFavorite: (label: string) => `Favorite “${label}”`,
+    sourceGroup: (label: string) => `Routine “${label}”`,
+    sourceLaunch: (label: string) => `Launcher “${label}”`,
+    sourceOther: "Other",
+    usedChips: (names: string) => `Condition buttons used: ${names}`,
+    chipSeparator: ", ",
+    rerun: "Run again",
+    saveAsFavorite: "☆ Save to favorites",
+    sheetTitle: "Save to favorites",
+    saveNote:
+      "The search text of this history entry is saved as a new favorite. Relative dates such as “since yesterday” stay as the dates they were expanded to when it was opened.",
+    failed: "Could not complete the action",
+  },
   favoritesPage: {
     title: "Favorites",
     description:
