@@ -42,6 +42,13 @@ describe("documentTitle", () => {
     expect(pageName(en, "/favorites/edit")).toBe(en.favoriteEdit.title);
   });
 
+  it("いつものエゴサの追加・編集は、追加か編集かを問わない固定の名前（タブ名は静的）", () => {
+    expect(documentTitle(ja, "/groups/edit")).toBe(
+      "いつものエゴサの追加・編集｜Hololive EgoSearch",
+    );
+    expect(pageName(en, "/groups/edit")).toBe(en.groupEdit.tabTitle);
+  });
+
   it("メニューに無い道は、サイト全体の title", () => {
     expect(documentTitle(ja, "/unknown")).toBe(ja.meta.title);
   });

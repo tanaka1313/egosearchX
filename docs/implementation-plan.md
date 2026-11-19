@@ -37,7 +37,7 @@ src/
     common/               QueryPreview, EngineBadge, WarningList, CorruptNotice, CommandPalette
                           シェル（作成済み＝#73）：app-shell, site-header, interest-picker, group-strip, blocked-notice,
                           site-footer, site-menu（項目の定義は menu-items.ts）, toast, use-runner（検索を開く共通の処理）,
-                          blocked-context（本文の画面から帯の下の `BlockedNotice` を出す入口）, engine-picker（検索先の選択。#32）,
+                          blocked-context（本文の画面から帯の下の `BlockedNotice` を出す入口）, engine-picker（検索先の選択。#32）, engine-badge（検索先バッジの表示名。#77）,
                           page-head・empty-state（メニューのページの見出しと空状態。#74）
     search/               検索の組み立ての共通部品（作成済み＝#30・#32）。画面の状態は `SearchScope`（`search-scope.tsx`）を読むだけで、
                           ホームもほかの組み立て画面も同じ部品を使う：search-scope（型・`HomeScopeProvider`）, chip-row・chip-button（値付き・サジェスト・検索ワード集 `WordChip`）, dialogs/word-set-dialog（D4）,
@@ -47,8 +47,9 @@ src/
     chips/                S2 条件ボタン（作成済み＝#74）：chips-page, chip-editor（D1。`ChipEditorSheet`）
     import/               S7 URL解析（作成済み＝#31）：import-page（解析結果の表示、［ホームで編集する］、保存シート）
     about/                S10 このサイトについて（作成済み＝#75）：about-page。SEO：common/page-title（ページ名と `document.title`）・common/site-meta（言語・移動に合わせた差し替え）、`messages/site.ts`（サイト名・別名・`SITE_URL`・`websiteJsonLd`）
-    favorites/            FavoriteRow, GroupButton, GroupEditor
-    dialogs/              PublishGroup(D2), ConfirmDialog(D3。作成済み)
+    favorites/            S3・S3-E（作成済み＝#76）：favorites-page, favorite-row, favorite-edit-page
+    groups/               S4・S4-E・D2（作成済み＝#77）：groups-page, group-edit-page, bookmark-sheet（D2）, item-label（項目の名前）
+    dialogs/              ConfirmDialog(D3。作成済み), word-set-dialog(D4。作成済み)
   lib/
     query/
       ast.ts              検索条件モデル（木構造）の型
@@ -135,7 +136,7 @@ GitHub のマイルストーン（M0〜M7）と対応する（名前：M3 マス
 
 - **i18n**：文言は言語ごとの辞書（置き場所は `src/messages/ja.ts`・`en.ts` を想定）から出し、画面のコードに直書きしない。**ライブラリは使わず自前で作る（決定、#72）**：next-intl はロケール別のルーティングとサーバー処理が中心で、静的書き出しとクライアント側の切替には過剰。辞書は文字列と、値（params）を受け取る関数の入れ子のオブジェクトにする。静的書き出しのため、言語はクライアント側で切り替える（初期値はブラウザの言語、切替はメニューの下部、保存先は localStorage。設定画面は置かない。要件定義書 F12）。**辞書の型は `ja` から導き、`en` に欠けがあればビルドで検出する。**
 
-- **実装時の注意：検索の組み立ては「内部の状態と部品」を共通にする。UI の置き場所（シート・ページ）は共通にしない。** 検索語・完全一致・条件ボタン（サジェストを含む）・期間・詳細条件の組み立ては、ホームといつものエゴサの追加・編集ページ（S4-E の②）で、同じ部品（`ConditionFrame`・`ChipRow`・`DetailPanel`・`QueryPreview`・`PeriodPicker`）を使う。部品は状態をコンテキスト（`SearchScope`）から読み、ホームはストアの状態、S4-E はページの中だけの状態を渡す（ホームの ON/OFF・期間に影響しない）。画面ごとに違う操作（ホームの開くボタン群、S4-E の［お気に入りに保存して追加］）は `footer` などで差し込む。期間はホームと詳細条件が**同じ状態を共有する**。モックの実装は `src/app/mock/_parts/search-scope.tsx` と `condition-frame.tsx`。保存はお気に入りの保存処理に一本化し、保存する検索文字列は組み立てた結果から期間のトークンだけを除いて作る（`queryWithoutPeriod`）。
+- **実装時の注意：検索の組み立ては「内部の状態と部品」を共通にする。UI の置き場所（シート・ページ）は共通にしない。** 検索語・完全一致・条件ボタン（サジェストを含む）・期間・詳細条件の組み立ては、ホームといつものエゴサの追加・編集ページ（S4-E の②）で、同じ部品（`ConditionFrame`・`ChipRow`・`DetailPanel`・`QueryPreview`・`PeriodPicker`）を使う。部品は状態をコンテキスト（`SearchScope`）から読み、ホームはストアの状態、S4-E はページの中だけの状態を渡す（ホームの ON/OFF・期間に影響しない）。画面ごとに違う操作（ホームの開くボタン群、S4-E の［お気に入りに保存して追加］）は `footer` などで差し込む。期間はホームと詳細条件が**同じ状態を共有する**。モックの実装は `src/app/mock/_parts/search-scope.tsx` と `condition-frame.tsx`。保存はお気に入りの保存処理に一本化し、保存する検索文字列は組み立てた結果の `built.stored`（相対期間は `since:yesterday` などの記号のまま）。
 - **実装時の注意：お気に入りといつものエゴサは ID で参照しあわない。** いつものエゴサは `items`（検索文字列＋検索先）を持ち、お気に入りを参照しないので、削除に連動も確認も要らない。連動するのはお気に入りの編集だけで、編集前の文字列と正規化して一致する項目を更新する（要件定義書 11.4）。削除は削除済みへ移すだけ（［元に戻す］で戻す）。削除済みは種類ごとに20件で、超えたらその種類の古いものから完全削除する（`pushTrash`）。**一気に完全削除する経路を作らない。** 以前の案（`favIds` の参照、`batch`、`groupsUsing`、［まとめて復元］、2段確認）は廃案。
 - **実装時の注意：機能タイトルは差し替え前提。** ヘッダーの機能タイトル（「X（Twitter）」）は定数にまとめる。YouTube／TikTok の同様のツールは今後の予定で、まだ作らない（Issue も作らない）。
 - 既定リストのJSONには、確認済みのリストID（ホロライブ・にじさんじ）だけを入れる。ほかのリストIDやハンドルは推測で埋めず、開発者が確認して追加する。

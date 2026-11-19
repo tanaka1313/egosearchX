@@ -1,3 +1,23 @@
+# #77 S4 いつものエゴサと S4-E 追加・編集、D2 ブックマーク URL の発行
+
+1. Goal: `/groups`（一覧・一括実行・削除・D2）と `/groups/edit`（①お気に入りから追加、②条件を指定して新しく作る）を作り、ホームと同じ検索の組み立てをページの中だけの状態で使う。
+2. Plan:
+   - [x] ブランチ `feature/groups-page`、テスト先行（Red 確認：`./groups-page`・`./group-edit-page` が無く、`/groups/edit` の title が失敗）
+   - [x] `engine-badge.ts`（S3 から切り出し）、`item-label.ts`、辞書 ja／en（`groupsPage`・`bookmark`・`groupEdit`）
+   - [x] S4：`GroupsPage`（一括実行＝ブロックはページの中、削除と［元に戻す］）、D2：`BookmarkSheet`
+   - [x] S4-E：`GroupEditPage`（名前・項目はページの状態、①、②は `LocalScopeProvider` を `key` で作り直す）
+   - [x] docs（api-spec 7.1、implementation-plan の `queryWithoutPeriod` の記述）
+   - [x] `make check`（テスト795件）、Chrome（Playwright）で 360px／1280px
+   - [x] main へマージして push、#77 の完了条件を直して閉じ、#35 に追記
+3. Verification: `make check`。Playwright：360px で横にはみ出さない・シートは下から／1280px は右 448px・D2 を閉じるとフォーカスが戻る・一括実行で2タブが開き「✓ 今日は済」になる・S4-E の②で追加して保存し一覧へ移る・コンソールのエラー 0。
+4. Review:
+   - 完了条件の修正：「URL が長いときは警告欄に出す」「`LIMITS.launcherUrlWarn`」の2行は #20 の決定（全体の長さの警告を廃止）と食い違うので削った（D2 に警告は出さない）。「一覧・並べ替え」は画面仕様書 5.4（一覧では並べ替えない）に合わせた。「発行した URL を S9 で開ける」は S9 が #35 なので、#77 は encode → decode の往復テストにし、#35 へ移した。
+   - 判断：ブロックされたときの表示は、S3 の行（帯の下）と違い、画面仕様書 5.4 のとおりこのページの中。タブ名「いつものエゴサの追加・編集」は追加か編集かを問わない固定（タブ名は静的）。保存後は `/groups` 固定、［キャンセル］は `previousPath`。
+   - 観測：jsdom の Blob に `stream()` が無く、D2 のテストでは `CompressionStream` を無効にして `v1u.` で確かめた（`v1.` の往復は `codec.test.ts`）。
+   - 発見（Playwright）：項目の行のキーを「文字列＋位置」にすると、［↓］で入れ替えた行が作り直されてフォーカスが `body` に落ちた。内容に依らない安定したキー（`KeyedItem`）にし、フォーカスが残るテストを足した（旧キーで Red を確認）。
+   - **未確認**：mock の `/launch` は URL を読まないので、発行した URL を開く確認は #35。マウスでのシート操作以外の、キーボードだけでの通し操作（［↑］［↓］のフォーカス保持は確認済み）。en の文言は暫定（#67）。
+   - **次に壊れやすい点**：#35 が `LauncherPayload`（`name`・`items`）と `/launch#<hash>` の形を前提にしている。`engine-badge.ts` は S5（#78）の行でも使える。`useItemLabel` は項目の名前の規則（11.4）の1か所。
+
 # #76 S3 お気に入りと S3-E 編集ページ
 
 1. Goal: `/favorites`（一覧・絞り込み・並べ替え・実行・削除）と `/favorites/edit?id=`（文字列を検索の組み立てに展開して直す）を作り、編集で一致するいつものエゴサの項目も更新する。
