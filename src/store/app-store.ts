@@ -9,9 +9,12 @@
 import { createStore, type StoreApi } from "zustand/vanilla";
 import {
   ApiError,
+  EMPTY_DETAIL,
+  EMPTY_PERIOD,
   type AppData,
   type Chip,
   type ChipInput,
+  type Detail,
   type EgoSearchApi,
   type Favorite,
   type FavoriteInput,
@@ -21,6 +24,7 @@ import {
   type GroupInput,
   type HistoryItem,
   type InterestId,
+  type Period,
   type Prefs,
   type RunPlan,
   type RunSource,
@@ -39,8 +43,32 @@ type Data = {
   history: HistoryItem[];
 };
 
+/**
+ * ホームの検索の組み立て（画面の状態。保存しない＝再読み込みで消える。docs/api-spec.md 1.1）。
+ * ページを移って戻っても残り、S7 の［ホームで編集する］が外から書き込める。条件ボタンの ON は `Chip.on`（保存する）。
+ */
+export type HomeState = {
+  word: string;
+  exact: boolean;
+  detail: Detail;
+  period: Period;
+  /** この検索だけ ON にしたサジェスト */
+  suggestionTokens: string[];
+};
+
+export const EMPTY_HOME: HomeState = {
+  word: "",
+  exact: false,
+  detail: EMPTY_DETAIL,
+  period: EMPTY_PERIOD,
+  suggestionTokens: [],
+};
+
 export type AppState = Data & {
   status: StoreStatus;
+  home: HomeState;
+  /** 指定した項目だけ変える。保存しないので、壊れたデータ（corrupt）でも使える */
+  home_set(patch: Partial<HomeState>): void;
   /** 削除済み。`trash_load` を呼ぶまでは null */
   trash: TrashEntry[] | null;
   /** 一度だけ読む。壊れていれば status を corrupt にする（throw しない） */
@@ -174,6 +202,8 @@ export function createAppStore(api: EgoSearchApi): AppStore {
       groups: [],
       history: [],
       trash: null,
+      home: EMPTY_HOME,
+      home_set: (patch) => set((s) => ({ home: { ...s.home, ...patch } })),
 
       init: async () => {
         if (get().status !== "loading") return;

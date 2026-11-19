@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { ApiError, type RunPlan } from "@/api";
+import { ApiError, EMPTY_DETAIL, EMPTY_PERIOD, type RunPlan } from "@/api";
 import { createBackend } from "@/backend";
 import { MemoryAdapter } from "@/lib/storage/kv-adapter";
 import { createAppStore } from "./app-store";
@@ -239,5 +239,49 @@ describe("お気に入りといつものエゴサ", () => {
     await store.getState().undo(res.undo);
     expect(store.getState().favorites[0].query).toBe("ぺこら");
     expect(store.getState().groups[0].items[0].query).toBe("ぺこら");
+  });
+});
+
+describe("home（ホームの検索の組み立て。保存しない）", () => {
+  it("初期値は空の検索で、読み込みの前後で変わらない", async () => {
+    const { store } = setup();
+    expect(store.getState().home).toEqual({
+      word: "",
+      exact: false,
+      detail: EMPTY_DETAIL,
+      period: EMPTY_PERIOD,
+      suggestionTokens: [],
+    });
+    await store.getState().init();
+    expect(store.getState().home.word).toBe("");
+  });
+  it("home_set は指定した項目だけを変え、ほかは残す", async () => {
+    const { store } = await ready();
+    store.getState().home_set({ word: "ぺこら" });
+    store.getState().home_set({ exact: true });
+    expect(store.getState().home).toMatchObject({
+      word: "ぺこら",
+      exact: true,
+      suggestionTokens: [],
+    });
+  });
+  it("保存しない：home_set は kv を1バイトも変えない", async () => {
+    const { kv, store } = await ready();
+    const before = await dump(kv);
+    store.getState().home_set({
+      word: "ぺこら",
+      period: { kind: "d1", from: "", to: "" },
+      suggestionTokens: ["min_faves:10"],
+    });
+    expect(await dump(kv)).toEqual(before);
+  });
+  it("データが壊れている間も、検索の組み立てはできる（書き込みではない）", async () => {
+    const kv = new MemoryAdapter();
+    await kv.set("egosearch:meta", "{broken");
+    const { store } = setup(kv);
+    await store.getState().init();
+    expect(store.getState().status).toBe("corrupt");
+    store.getState().home_set({ word: "あ" });
+    expect(store.getState().home.word).toBe("あ");
   });
 });

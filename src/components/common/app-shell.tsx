@@ -10,6 +10,7 @@ import {
 } from "react";
 import type { OpenTarget } from "@/api";
 import { useAppStore } from "@/store/store-context";
+import { BlockedContext } from "./blocked-context";
 import { BlockedNotice } from "./blocked-notice";
 import { CorruptNotice } from "./corrupt-notice";
 import { GroupStrip } from "./group-strip";
@@ -83,7 +84,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             />
           )}
           <CorruptNotice />
-          {children}
+          <BlockedContext.Provider value={onBlocked}>
+            {children}
+          </BlockedContext.Provider>
         </div>
         {!launcher && <SiteFooter onBlocked={onBlocked} />}
         {menuOpen && (

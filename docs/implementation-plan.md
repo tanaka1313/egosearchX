@@ -35,8 +35,13 @@ src/
   components/
     common/               QueryPreview, EngineBadge, WarningList, CorruptNotice, CommandPalette
                           シェル（作成済み＝#73）：app-shell, site-header, interest-picker, group-strip, blocked-notice,
-                          site-footer, site-menu（項目の定義は menu-items.ts）, toast, use-runner（検索を開く共通の処理）
-    home/                 SearchBuilder, ChipRow（折りたたみ）, PeriodPicker, DetailPanel, SaveSheet
+                          site-footer, site-menu（項目の定義は menu-items.ts）, toast, use-runner（検索を開く共通の処理）,
+                          blocked-context（本文の画面から帯の下の `BlockedNotice` を出す入口）, engine-picker（検索先の選択。#32）
+    search/               検索の組み立ての共通部品（作成済み＝#30・#32）。画面の状態は `SearchScope`（`search-scope.tsx`）を読むだけで、
+                          ホームもほかの組み立て画面も同じ部品を使う：search-scope（型・`HomeScopeProvider`）, chip-row・chip-button（値付き・サジェスト）,
+                          period-picker, detail-panel・detail-form, condition-frame, query-preview（実験的バッジ）, warning-note,
+                          open-bar（開くボタン・［⋯］）, save-sheet, styles（`toggleClass` 1か所）, harness（テスト用）
+    home/                 S1 ホーム（作成済み＝#32）：home-page, favorites-fold
     chips/                ChipEditor(D1), SortableChip
     favorites/            FavoriteRow, GroupButton, GroupEditor
     dialogs/              PublishGroup(D2), ConfirmDialog(D3。作成済み)
@@ -69,7 +74,7 @@ src/
       migrate.ts          バージョンと移行処理（1→2：groups に lastRunAt を足し、5表を版2のキーへ運ぶ。#86）
   api/                    契約（フロントとバックの境界。docs/api-spec.md）：型・zod スキーマ・LIMITS・EgoSearchApi・Issue のコード
   backend/                createBackend({ kv, clock })：契約を実装し、lib/* と data/ を束ねる（作成済み。index.ts・query.ts・data.ts・errors.ts。ESLint で画面からの import を禁止）
-  store/                  zustand のストアと useApi()（契約だけを使う。`api-context.tsx`・`app-store.ts`・`store-context.tsx` は作成済み）
+  store/                  zustand のストアと useApi()（契約だけを使う。`api-context.tsx`・`app-store.ts`・`store-context.tsx` は作成済み。ホームの検索の組み立て `home` はここにあり、保存しない）
   data/
     interests.json        興味の対象（ID・表示名・既定リスト）。ID をキーにした Map で扱う
     presets.json          条件ボタンのプリセット。共通＋各対象の1本の並び（`interest` が `common` か対象 ID）。既定リストは目印の行の位置に入る（中身は Issue #70）
