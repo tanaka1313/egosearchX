@@ -171,6 +171,14 @@ export const en: Messages = {
     suggestHeading:
       "Suggestions (from recent searches; added to this search only)",
     suggestEmpty: "Suggestions appear here after you search",
+    wordSet: {
+      open: "Word sets",
+      title: "Word sets",
+      filterLabel: "Filter word sets",
+      filterPlaceholder: "Filter by name or tag",
+      none: "No matches",
+      close: "Close",
+    },
     paramLabel: {
       min_faves: "Likes",
       min_retweets: "Reposts",

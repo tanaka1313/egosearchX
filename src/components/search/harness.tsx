@@ -56,3 +56,21 @@ export function Seed({ home }: { home: Partial<HomeState> }) {
   }, []);
   return null;
 }
+
+/**
+ * 履歴を1件にする（履歴0件のときだけ出る検索ワード集の表示を、テストで切り分けるため）。
+ * 既定の検索文字列は条件ボタン（画像つき）と同じにして、サジェストの候補を増やさない。
+ */
+export async function recordOneHistory(
+  api: EgoSearchApi,
+  query = "filter:images",
+) {
+  const plan = api.url.plan([{ query, engine: "x" }]);
+  await api.data.history.record(plan, { kind: "home", label: query });
+}
+
+/** ボタンの名前は「OFF ラベル」のように状態のアイコンの読み上げが先頭に付くので、ラベルで終わるものに一致させる */
+export function labeled(label: string): RegExp {
+  const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`^(ON|OFF)?\\s*${escaped}$`);
+}

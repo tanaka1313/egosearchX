@@ -1,3 +1,21 @@
+# #89 検索ワード集（D4 ダイアログと履歴0件のときのホーム表示）
+
+1. Goal: 条件の枠の［検索ワード集］で D4 を開けるようにし、履歴0件のときは starter（約60件）を条件ボタンの続きに出す。
+2. Plan:
+   - [x] ブランチ `feature/word-set`、テスト先行（Red 確認：D4 のテストが import できず、starter のテストが失敗）
+   - [x] `SearchScope` に `starters`・`wordSet`、`WordChip`（`suggestionTokens` を切り替える。ON を新設しない）、`ChipRow`（starter を連結して先頭8個、サジェストから starter を除く）
+   - [x] `WordSetDialog`（radix Dialog。［×］へ初期フォーカス、起点へフォーカス復帰、本文だけスクロール、下端に QueryPreview と［閉じる］）、辞書 ja／en
+   - [x] docs（api-spec 7.1、implementation-plan）
+   - [x] make check（テスト686件）・format:check
+   - [x] main へマージして push、#89 の完了条件を直して閉じる
+3. Verification: `make check`、`npm run format:check`。履歴0件で starter が並び N に入る／履歴1件で出ない／押して同じ位置のまま ON・OFF／D4 の開く・フォーカス・絞り込み・ON/OFF・クエリ表示・閉じる3通り・フォーカス復帰・英語のグループ名。
+4. Review:
+   - 決定：ON は `suggestionTokens`（画面ごとの状態）。ホームの ON が他画面へ漏れないのはこの構造による。`SearchScope` の型に `starters`・`wordSet` を足したので、#76・#77 の `LocalScopeProvider` が渡し忘れると型エラーになる。
+   - 判断：既存の条件ボタンの並びのテストは、履歴0件だと starter が混ざるので、履歴を1件入れて前提にした（`recordOneHistory`）。D4 の全件（約600個）は jsdom で重く、ファイルだけタイムアウトを30秒にした。
+   - **未確認**：Chrome での 360px／1280px・日英の目視（ブラウザ操作の道具が無かった）。jsdom のテストまで。トーストの z-index（70）は D4 のオーバーレイ（60）より前面なので隠れない（コード上の確認のみ）。
+   - **完了条件の移し替え**：S3-E・S4-E で ON が各ページの状態になる行は、画面がまだ無いので #76・#77 へ移した。
+   - **次に壊れやすい点**：本番データ（#70）で空白や `OR` を含む query が入ると、1つのトークンとして `suggestionTokens` に入る。starter の件数が60を超える分は `query.starters` が切る。
+
 # #30・#32 S1 ホーム（検索の組み立て・クエリ表示・警告欄・開くボタン）
 
 1. Goal: ホーム `/` を画面仕様書 3・4章どおりに作る。部品は `SearchScope`（検索の組み立ての状態）だけを読む形にして、S3-E・S4-E で使い回せるようにする。
