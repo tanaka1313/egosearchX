@@ -68,6 +68,8 @@ export const GroupSchema = z.object({
   /** 開く順（RDB では group_items テーブルの position 列） */
   items: z.array(GroupItemSchema),
   order,
+  /** 最後に一括実行した日時。「今日は実行済み」の判定に使う（履歴は見ない）。版2で追加 */
+  lastRunAt: isoDate.nullable(),
   ...timestamps,
 });
 export type Group = z.infer<typeof GroupSchema>;

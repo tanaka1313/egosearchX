@@ -19,21 +19,13 @@ import {
   type TrashEntry,
   type TrashKind,
 } from "@/api";
+import { StorageCorruptError } from "./corrupt-error";
 import type { KeyValueAdapter } from "./kv-adapter";
 import { migrate, type Migration } from "./migrate";
 import { SCHEMA_VERSION } from "./schema";
 import type { CrudRepo, Dao, Saveable } from "./types";
 
-/** 保存データが壊れている（JSON として読めない、またはスキーマに合わない） */
-export class StorageCorruptError extends Error {
-  constructor(
-    readonly key: string,
-    cause: unknown,
-  ) {
-    super(`保存データ（${key}）が壊れています`, { cause });
-    this.name = "StorageCorruptError";
-  }
-}
+export { StorageCorruptError };
 
 /** 上限に達していて追加・復元できない */
 export class LimitError extends Error {

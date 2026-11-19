@@ -1,3 +1,23 @@
+# #86 いつものエゴサに lastRunAt を足す（スキーマ版2）
+
+1. Goal: 「今日は実行済み」を履歴ではなく `Group.lastRunAt` で決めるため、版2のスキーマ・移行・`history.record` による更新・契約の判定 `clock.isToday` を作る。
+2. Plan:
+   - [x] ブランチ `feature/last-run-at`、テスト先行（Red 確認：19件失敗）
+   - [x] `GroupSchema.lastRunAt`、`SCHEMA_VERSION = 2`、`migrate.ts` の1→2（5表を版2のキーへ。groups だけ変換、他は文字列のまま。版1のキーは消さない）
+   - [x] `groups.save`・`saveSearch` が `lastRunAt` を引き継ぐ
+   - [x] `history.record` が、一致するお気に入りすべてと `source.groupId` のいつものエゴサの `lastRunAt` を更新（`updatedAt` は動かさない）
+   - [x] 契約 `AppClock`（`clock.isToday`）、`StorageCorruptError` を `corrupt-error.ts` へ（migrate との循環 import を避ける）
+   - [x] docs（api-spec、implementation-plan、requirements）
+   - [x] make check（テスト572件）・format:check
+   - [ ] main へマージして push、#86 を閉じ、#87 に版1のキーの消去を追記
+3. Verification: `make check`、`npm run format:check`。移行（バイト不変・壊れた groups は何も書かない・再実行）、`isToday` の日付の境目（日本時間 0:00）、履歴の全件削除後も判定が変わらない、編集しても `lastRunAt` が残る。
+4. Review:
+   - 判断：版が上がるとキー名が全部変わるため、移行は5表すべてを運ぶ。壊れた groups は `CORRUPT`（版1のデータと meta は変えない）。
+   - 判断：無い・削除済みの `groupId` は例外にせず黙って飛ばす（タブは開いた後）。実行は編集ではないので `updatedAt` は動かさない。
+   - 判断：「今日は実行済み」は画面が `lib/*` を import できないので、契約の `clock.isToday` にした（注入する `Clock` は変えない）。
+   - **未確認**：ブラウザ（実際の localStorage）での移行。jsdom のテストと `MemoryAdapter` まで。
+   - **次に壊れやすい点**：#87 の `data.reset` は版1のキー（`egosearch:v1:*`）も消すこと。#73 は `api.clock.isToday`、#76 の「前回」は `Favorite.lastRunAt` を現地時刻で整形する。localStorage の1つの版1キーが残るので、版3を作るときも同じ「全表を運ぶ」規則にする。
+
 # #72 i18n の基盤（辞書 ja／en、言語の判定と切替）
 
 1. Goal: 以降の画面が最初から辞書の文言で作れるよう、辞書（ja／en）・言語の判定と保存・`ISSUE_CODES` の文言を用意する。
@@ -8,7 +28,7 @@
    - [x] フッター・バージョン情報を辞書へ（`formatBuildTime` は不正なとき null を返す）
    - [x] docs（requirements 11章、api-spec 実装の状態、implementation-plan 5章）
    - [x] make check（テスト557件）・format:check、en のキーを1つ消してビルドが失敗することを確認
-   - [ ] main へマージして push、#72 を閉じ、#73 に `LanguageSwitch` の配置を追記
+   - [x] main へマージして push、#72 を閉じ、#73 に `LanguageSwitch` の配置を追記
 3. Verification: `make check`、`npm run format:check`。`ISSUE_CODES` × ja／en の網羅、`detectLang` の境界、言語が再読み込み後も残ること、ほかの設定を保存しても `lang` が null のままであること。
 4. Review:
    - 決定（承認済み）：ライブラリは使わず自前。`Prefs.lang` を nullable に（以前は `set` が既定の `ja` を丸ごと保存し、英語のブラウザでも日本語に固定されたため）。言語切替の置き場所は左メニュー下部＝#73（#72 は部品まで）。

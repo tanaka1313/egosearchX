@@ -43,12 +43,12 @@ describe("StoreProvider", () => {
   it("保存データが壊れていても落ちず、子を描画し、corrupt を示す", async () => {
     const kv = new MemoryAdapter();
     await kv.set("egosearch:meta", JSON.stringify({ version: 1 }));
-    await kv.set("egosearch:v1:favorites", "{壊れた");
+    await kv.set("egosearch:v2:favorites", "{壊れた");
     mount(kv);
     await waitFor(() =>
       expect(screen.getByText("corrupt:0")).toBeInTheDocument(),
     );
     expect(screen.getByText("子")).toBeInTheDocument();
-    expect(await kv.get("egosearch:v1:favorites")).toBe("{壊れた");
+    expect(await kv.get("egosearch:v2:favorites")).toBe("{壊れた");
   });
 });

@@ -89,13 +89,13 @@ describe("壊れた保存データ", () => {
   it("表が壊れていると CORRUPT（params.key つき）で、上書きしない", async () => {
     const kv = new MemoryAdapter();
     await make(kv).api.data.init();
-    await kv.set("egosearch:v1:favorites", "not json");
+    await kv.set("egosearch:v2:favorites", "not json");
     const api = createBackend({ kv, clock, newId });
     const err = await api.data.init().catch((e: unknown) => e);
     expect(err).toBeInstanceOf(ApiError);
     expect((err as ApiError).code).toBe("CORRUPT");
-    expect((err as ApiError).params?.key).toBe("egosearch:v1:favorites");
-    expect(await kv.get("egosearch:v1:favorites")).toBe("not json");
+    expect((err as ApiError).params?.key).toBe("egosearch:v2:favorites");
+    expect(await kv.get("egosearch:v2:favorites")).toBe("not json");
   });
   it("今より新しい版で保存されたデータは CORRUPT と同じ扱い", async () => {
     const kv = new MemoryAdapter();
@@ -575,5 +575,223 @@ describe("clock と計算", () => {
     expect(api.query.suggest({ text: "", chips: [], history: hist })).toEqual([
       "ぺこら",
     ]);
+  });
+});
+
+describe("lastRunAt（いつものエゴサ・お気に入り）と「今日は実行済み」", () => {
+  const T_RUN = "2026-11-19T05:00:00.000Z";
+  let kv: MemoryAdapter;
+  let api: EgoSearchApi;
+  let nowIso = NOW;
+  const mutableClock = { today: () => "2026-11-19", now: () => nowIso };
+  const target = (
+    engine: "x" | "yahoo",
+    stored: string,
+  ): RunPlan["targets"][number] => ({
+    engine,
+    url: "u",
+    query: stored,
+    stored,
+    warnings: [],
+  });
+  const planOf = (...t: RunPlan["targets"]): RunPlan => ({
+    targets: t,
+    warnings: [],
+  });
+  const reload = () => api.data.init();
+
+  beforeEach(async () => {
+    nowIso = NOW;
+    kv = new MemoryAdapter();
+    api = createBackend({ kv, clock: mutableClock, newId });
+    await api.data.init();
+  });
+
+  it("record は、source.groupId のいつものエゴサの lastRunAt を現在時刻にする（updatedAt は動かさない）", async () => {
+    const g = await api.data.groups.save({
+      name: "朝",
+      items: [{ query: "a", engine: "x" }],
+    });
+    expect(g.lastRunAt).toBeNull();
+    nowIso = T_RUN;
+    await api.data.history.record(planOf(target("x", "a")), {
+      kind: "group",
+      label: "朝",
+      groupId: g.id,
+    });
+    const after = (await reload()).groups[0];
+    expect(after.lastRunAt).toBe(T_RUN);
+    expect(after.updatedAt).toBe(g.updatedAt);
+  });
+
+  it("record は、stored を正規化して一致するお気に入りすべての lastRunAt を更新する（検索先は見ない・削除済みは除く）", async () => {
+    const x = await api.data.favorites.save({
+      name: "X",
+      query: "b a",
+      engine: "x",
+    });
+    const y = await api.data.favorites.save({
+      name: "Y",
+      query: "a  b",
+      engine: "yahoo",
+    });
+    const other = await api.data.favorites.save({
+      name: "他",
+      query: "z",
+      engine: "x",
+    });
+    const gone = await api.data.favorites.save({
+      name: "削除済み",
+      query: "a b",
+      engine: "x",
+    });
+    await api.data.favorites.remove(gone.id);
+    nowIso = T_RUN;
+    // both は同じ stored の2件になる
+    await api.data.history.record(
+      planOf(target("x", "a b"), target("yahoo", "a b")),
+      { kind: "favorite", label: "X" },
+    );
+    const data = await reload();
+    const byId = (id: string) => data.favorites.find((f) => f.id === id)!;
+    expect(byId(x.id).lastRunAt).toBe(T_RUN);
+    expect(byId(y.id).lastRunAt).toBe(T_RUN);
+    expect(byId(x.id).updatedAt).toBe(x.updatedAt);
+    expect(byId(other.id).lastRunAt).toBeNull();
+    // 削除済みのお気に入りは更新しない
+    await api.data.trash.restore("favorite", gone.id);
+    expect(
+      (await reload()).favorites.find((f) => f.id === gone.id)!.lastRunAt,
+    ).toBeNull();
+  });
+
+  it("ランチャーからの実行（groupId なし）は、お気に入りだけ更新し、いつものエゴサは更新しない", async () => {
+    const f = await api.data.favorites.save({
+      name: "F",
+      query: "a",
+      engine: "x",
+    });
+    const g = await api.data.groups.save({
+      name: "G",
+      items: [{ query: "a", engine: "x" }],
+    });
+    nowIso = T_RUN;
+    await api.data.history.record(planOf(target("x", "a")), {
+      kind: "launch",
+      label: "L",
+    });
+    const data = await reload();
+    expect(data.favorites.find((x) => x.id === f.id)!.lastRunAt).toBe(T_RUN);
+    expect(data.groups.find((x) => x.id === g.id)!.lastRunAt).toBeNull();
+  });
+
+  it("存在しない・削除済みの groupId は、例外にせず履歴だけ書く", async () => {
+    const g = await api.data.groups.save({
+      name: "G",
+      items: [{ query: "a", engine: "x" }],
+    });
+    await api.data.groups.remove(g.id);
+    for (const groupId of ["nope", g.id]) {
+      const items = await api.data.history.record(planOf(target("x", "a")), {
+        kind: "group",
+        label: "G",
+        groupId,
+      });
+      expect(items).toHaveLength(1);
+    }
+    await api.data.trash.restore("group", g.id);
+    expect((await reload()).groups[0].lastRunAt).toBeNull();
+  });
+
+  it("groups.save（編集）と saveSearch（追加）は lastRunAt を保つ", async () => {
+    const g = await api.data.groups.save({
+      name: "G",
+      items: [{ query: "a", engine: "x" }],
+    });
+    nowIso = T_RUN;
+    await api.data.history.record(planOf(target("x", "a")), {
+      kind: "group",
+      label: "G",
+      groupId: g.id,
+    });
+    const renamed = await api.data.groups.save({
+      id: g.id,
+      name: "改名",
+      items: [{ query: "a", engine: "x" }],
+    });
+    expect(renamed.lastRunAt).toBe(T_RUN);
+    const added = await api.data.saveSearch({
+      favorite: { name: "F", query: "q", engine: "x" },
+      target: { kind: "group", groupId: g.id },
+    });
+    expect(added.group?.lastRunAt).toBe(T_RUN);
+  });
+
+  it("履歴を全件削除しても、「今日は実行済み」は変わらない", async () => {
+    const g = await api.data.groups.save({
+      name: "G",
+      items: [{ query: "a", engine: "x" }],
+    });
+    nowIso = T_RUN;
+    await api.data.history.record(planOf(target("x", "a")), {
+      kind: "group",
+      label: "G",
+      groupId: g.id,
+    });
+    await api.data.history.clear();
+    const data = await reload();
+    expect(data.history).toEqual([]);
+    expect(api.clock.isToday(data.groups[0].lastRunAt)).toBe(true);
+  });
+
+  it("clock.isToday は、現地（日本時間）の日付が today と同じかで決める（境目と null）", () => {
+    const cases: [string | null, boolean][] = [
+      ["2026-11-18T14:59:59.999Z", false], // 11/18 23:59:59 JST
+      ["2026-11-18T15:00:00.000Z", true], // 11/19 00:00:00 JST
+      ["2026-11-19T14:59:59.999Z", true], // 11/19 23:59:59 JST
+      ["2026-11-19T15:00:00.000Z", false], // 11/20 00:00:00 JST
+      [null, false],
+    ];
+    for (const [at, expected] of cases)
+      expect([at, api.clock.isToday(at)]).toEqual([at, expected]);
+  });
+
+  it("版1のデータは init で版2へ移行し、groups の lastRunAt は null になる", async () => {
+    const old = new MemoryAdapter();
+    await old.set(META_KEY, JSON.stringify({ version: 1 }));
+    await old.set(
+      "egosearch:v1:groups",
+      JSON.stringify([
+        {
+          id: "g1",
+          name: "朝",
+          items: [{ query: "a", engine: "x" }],
+          order: 0,
+          createdAt: NOW,
+          updatedAt: NOW,
+          deletedAt: null,
+        },
+      ]),
+    );
+    const data = await createBackend({
+      kv: old,
+      clock: mutableClock,
+      newId,
+    }).data.init();
+    expect(data.groups).toHaveLength(1);
+    expect(data.groups[0]).toMatchObject({ id: "g1", lastRunAt: null });
+  });
+
+  it("版1の groups が壊れていると CORRUPT で、版1のデータも meta も変えない", async () => {
+    const old = new MemoryAdapter();
+    await old.set(META_KEY, JSON.stringify({ version: 1 }));
+    await old.set("egosearch:v1:groups", "{壊れた");
+    const err = await createBackend({ kv: old, clock: mutableClock, newId })
+      .data.init()
+      .catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(ApiError);
+    expect((err as ApiError).code).toBe("CORRUPT");
+    expect(await old.get("egosearch:v1:groups")).toBe("{壊れた");
+    expect(await old.get(META_KEY)).toBe(JSON.stringify({ version: 1 }));
   });
 });
