@@ -71,11 +71,11 @@ const items = () =>
     "listitem",
   );
 const homeText = () => screen.getByLabelText("home").textContent;
-const openMaker = () =>
-  fireEvent.click(
-    screen.getByRole("button", { name: /条件を指定して新しく作る/ }),
-  );
 const tab = (name: string) => screen.getByRole("tab", { name });
+const openMaker = () => fireEvent.click(tab("新しく作る"));
+/** 項目の行の、検索先のラジオ（正式名）が選ばれているか */
+const engineOf = (row: HTMLElement, name: string) =>
+  within(row).getByRole("radio", { name });
 /** 履歴を1件残す（履歴は日付に展開済みの文字列で残る） */
 const runOnce = (
   api: EgoSearchApi,
@@ -210,10 +210,8 @@ describe("S4-E：編集（?id=）", () => {
     ).toBeInTheDocument();
     expect(nameInput().value).toBe("配信後エゴサ");
     expect(items()).toHaveLength(2);
-    expect(within(items()[0]).getByTitle("検索先：X")).toHaveTextContent(/^X$/);
-    expect(
-      within(items()[1]).getByTitle("検索先：Yahoo!リアルタイム検索"),
-    ).toHaveTextContent(/^Yahoo$/);
+    expect(engineOf(items()[0], "X")).toBeChecked();
+    expect(engineOf(items()[1], "Yahoo!リアルタイム検索")).toBeChecked();
     // お気に入りに無い文字列は、そのまま名前の代わりに出る
     expect(
       within(items()[1]).getAllByText("歌枠 min_faves:100").length,
@@ -278,18 +276,55 @@ describe("S4-E：編集（?id=）", () => {
   });
 });
 
-describe("S4-E：追加元（お気に入り・履歴）と②の開閉", () => {
-  it("②は閉じた状態で始まり、押すと開く（組み立ては閉じている間は出ない）", async () => {
+describe("S4-E：追加元（お気に入り・履歴・新しく作る）のタブ", () => {
+  it("［新しく作る］は3つ目のタブで、選ぶまで組み立ては出ず、矢印キーで3つを回れる", async () => {
     const { api } = await setup();
     await mountPage(api);
-    const toggle = screen.getByRole("button", {
-      name: /条件を指定して新しく作る/,
-    });
-    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.getAllByRole("tab").map((t) => t.textContent)).toEqual([
+      "お気に入り",
+      "履歴",
+      "新しく作る",
+    ]);
+    expect(tab("お気に入り")).toHaveAttribute("aria-selected", "true");
     expect(screen.queryByLabelText("検索する語")).toBeNull();
-    fireEvent.click(toggle);
-    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    fireEvent.keyDown(tab("お気に入り"), { key: "ArrowRight" });
+    fireEvent.keyDown(tab("履歴"), { key: "ArrowRight" });
+    expect(tab("新しく作る")).toHaveAttribute("aria-selected", "true");
     expect(word()).toBeInTheDocument();
+    // 作るタブだけ高さが自由（お気に入り・履歴は高さ固定）
+    expect(screen.getByRole("tabpanel")).not.toHaveClass("h-64");
+    fireEvent.keyDown(tab("新しく作る"), { key: "ArrowRight" });
+    expect(tab("お気に入り")).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel")).toHaveClass("h-64");
+  });
+
+  it("項目の検索先を変えて保存すると、その項目だけが変わり、お気に入りの検索先は変わらない。追加済み（［削除］）のままになる", async () => {
+    const { api, group } = await setup();
+    const favBefore = (await api.data.init()).favorites.map((f) => ({
+      query: f.query,
+      engine: f.engine,
+    }));
+    search = `id=${group.id}`;
+    await mountPage(api);
+    // 1つ目（X）を、Yahoo に変える
+    fireEvent.click(engineOf(items()[0], "Yahoo!リアルタイム検索"));
+    expect(engineOf(items()[0], "Yahoo!リアルタイム検索")).toBeChecked();
+    expect(engineOf(items()[1], "Yahoo!リアルタイム検索")).toBeChecked();
+    // お気に入りの行は、検索先を変えても［削除］のまま（文字列だけで追加済みを判定する）
+    expect(
+      screen.getByRole("button", {
+        name: /^ぺこらエゴサをこのいつものエゴサから削除$/,
+      }),
+    ).toBeInTheDocument();
+    save();
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/groups"));
+    const d = await api.data.init();
+    const after = d.groups.find((g) => g.id === group.id)!;
+    expect(after.items.map((i) => i.engine)).toEqual(["yahoo", "yahoo"]);
+    expect(after.items[0].query).toBe(group.items[0].query);
+    expect(
+      d.favorites.map((f) => ({ query: f.query, engine: f.engine })),
+    ).toEqual(favBefore);
   });
 
   it("切替は［お気に入り］が初期で、矢印キーで［履歴］に移ると履歴の一覧が出る", async () => {
@@ -342,9 +377,7 @@ describe("S4-E：追加元（お気に入り・履歴）と②の開閉", () => 
       (f) => f.name === "毎朝エゴサ：さくら",
     )!;
     expect(made).toMatchObject({ query: "さくら", engine: "yahoo" });
-    expect(
-      within(items()[0]).getByTitle("検索先：Yahoo!リアルタイム検索"),
-    ).toBeInTheDocument();
+    expect(engineOf(items()[0], "Yahoo!リアルタイム検索")).toBeChecked();
   });
 
   it("同じ検索文字列のお気に入りが既にあるときは、お気に入りを作らず項目だけに足す", async () => {
@@ -438,9 +471,7 @@ describe("S4-E：②条件を指定して新しく作る", () => {
       expect(r).toBeChecked();
     addToGroup();
     await waitFor(() => expect(items()).toHaveLength(1));
-    expect(
-      within(items()[0]).getByTitle("検索先：Yahoo!リアルタイム検索"),
-    ).toBeInTheDocument();
+    expect(engineOf(items()[0], "Yahoo!リアルタイム検索")).toBeChecked();
     expect(
       (await api.data.init()).favorites.find(
         (f) => f.name === "毎朝エゴサ：さくら",

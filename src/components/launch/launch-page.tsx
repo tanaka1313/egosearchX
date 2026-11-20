@@ -8,7 +8,8 @@ import {
   type LauncherPayload,
   type OpenTarget,
 } from "@/api";
-import { Check } from "lucide-react";
+import { Check, Play } from "lucide-react";
+import { TONE } from "@/components/common/tone";
 import { BlockedNotice } from "@/components/common/blocked-notice";
 import {
   useLaunchHandoff,
@@ -82,7 +83,10 @@ export function LaunchPage() {
   if (state.kind !== "ok")
     return (
       <main className="mx-auto max-w-xl space-y-3 p-4">
-        <EmptyState text={state.kind === "version" ? p.version : p.broken}>
+        <EmptyState
+          error
+          text={state.kind === "version" ? p.version : p.broken}
+        >
           <Link href="/" className={buttonVariants({ size: "sm" })}>
             {p.home}
           </Link>
@@ -182,51 +186,82 @@ function Launcher({
           onOpen={(b) => setOpenedUrls((o) => new Set(o).add(b.url))}
         />
       )}
-      <ol aria-label={p.list} className="space-y-2">
-        {payload.items.map((item, i) => {
-          const name = label(item);
-          // 実行したあとだけ、行に「開いた」「未」を付ける（色だけにしない。幅は固定）
-          const waiting =
-            ran && api.url.plan([item]).targets.some((x) => pending.has(x.url));
-          return (
-            <li
-              key={`${i}:${item.engine}:${item.query}`}
-              className="flex items-center gap-2 rounded-lg border p-2 text-sm"
-            >
-              <span aria-hidden>{i + 1}.</span>
-              <div className="min-w-0 flex-1">
-                <div className="font-medium">
-                  {name}（{engineName(item.engine)}）
-                </div>
-                <div className="truncate font-mono text-xs text-muted-foreground">
-                  {api.query.expand(item.query)}
-                </div>
-              </div>
-              {ran && (
-                <span className="flex w-14 shrink-0 items-center gap-0.5 text-xs">
-                  {waiting ? (
-                    p.pending
-                  ) : (
-                    <>
-                      <Check className="size-3.5" aria-hidden />
-                      {t.blocked.opened}
-                    </>
-                  )}
-                </span>
-              )}
-              <Button
-                size="sm"
-                variant="outline"
-                className="shrink-0"
-                aria-label={p.openLabel(name)}
-                onClick={() => run([item])}
+      {/* どのお気に入りが開かれるかが、このページで一番見たいところ。いつものエゴサの色（S4-E の「中身」と同じ）で囲む */}
+      <section
+        aria-label={p.list}
+        className={`space-y-2 rounded-lg border p-3 ${TONE.group.card}`}
+      >
+        <h2 className="flex items-center gap-1.5 text-sm font-medium">
+          <Play className={`size-4 ${TONE.group.icon}`} aria-hidden />
+          {p.listHeading(payload.items.length)}
+        </h2>
+        <ol aria-label={p.list} className="space-y-2">
+          {payload.items.map((item, i) => {
+            const name = label(item);
+            // 実行したあとだけ、行に「開いた」「未」を付ける（色だけにしない。幅は固定）
+            const waiting =
+              ran &&
+              api.url.plan([item]).targets.some((x) => pending.has(x.url));
+            return (
+              <li
+                key={`${i}:${item.engine}:${item.query}`}
+                className="space-y-1.5 rounded-lg border bg-background p-2 text-sm"
               >
-                {p.open}
-              </Button>
-            </li>
-          );
-        })}
-      </ol>
+                <div className="flex items-center gap-2">
+                  <span
+                    aria-hidden
+                    className={`flex size-6 shrink-0 items-center justify-center rounded-full text-xs ${TONE.group.dot}`}
+                  >
+                    {i + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-bold">
+                      {name}
+                      <span className="ml-1 text-xs font-normal text-muted-foreground">
+                        （{engineName(item.engine)}）
+                      </span>
+                    </div>
+                    <div className="truncate font-mono text-xs text-muted-foreground">
+                      {api.query.expand(item.query)}
+                    </div>
+                  </div>
+                  {ran && (
+                    <span className="flex w-14 shrink-0 items-center gap-0.5 text-xs">
+                      {waiting ? (
+                        p.pending
+                      ) : (
+                        <>
+                          <Check className="size-3.5" aria-hidden />
+                          {t.blocked.opened}
+                        </>
+                      )}
+                    </span>
+                  )}
+                </div>
+                {/* 一括は各項目の検索先で開くが、個別には、どちらの検索先でも開けるようにする */}
+                <div className="flex justify-end gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    aria-label={p.openXLabel(name)}
+                    onClick={() => run([{ ...item, engine: "x" }])}
+                  >
+                    {p.openX}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    aria-label={p.openYahooLabel(name)}
+                    onClick={() => run([{ ...item, engine: "yahoo" }])}
+                  >
+                    {p.openYahoo}
+                  </Button>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
       <Link href="/" className={buttonVariants({ variant: "outline" })}>
         {p.home}
       </Link>

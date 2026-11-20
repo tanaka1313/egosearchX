@@ -49,6 +49,15 @@ describe("S11：設定（興味の対象）", () => {
     ).not.toBeChecked();
   });
 
+  it("試験的な「興味の対象」は、一番下（「データ」より後）に置く", async () => {
+    const api = createBackend({ kv: new MemoryAdapter(), clock });
+    await mount(api, <SettingsPage />, { scope: false });
+    const order = screen
+      .getAllByRole("heading", { level: 2 })
+      .map((h) => h.textContent);
+    expect(order).toEqual(["データ", "興味の対象"]);
+  });
+
   it("選ぶと prefs.interest が保存され、再読み込み後も残る", async () => {
     const kv = new MemoryAdapter();
     const api = createBackend({ kv, clock });

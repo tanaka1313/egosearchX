@@ -1,7 +1,13 @@
 "use client";
 
-import { Clock, Star } from "lucide-react";
-import { useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { Clock, Plus, Star } from "lucide-react";
+import {
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import { DEFAULT_PREFS, type GroupItem, type HistoryItem } from "@/api";
 import { engineBadge } from "@/components/common/engine-badge";
 import { useToast } from "@/components/common/toast";
@@ -12,15 +18,17 @@ import { useApi } from "@/store/api-context";
 import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
 
-type Source = "favorites" | "history";
+type Source = "favorites" | "history" | "make";
 const SOURCES: { id: Source; tone: ToneKind; icon: typeof Star }[] = [
   { id: "favorites", tone: "fav", icon: Star },
   { id: "history", tone: "history", icon: Clock },
+  { id: "make", tone: "cond", icon: Plus },
 ];
 
 /**
- * S4-E の「追加する」（画面仕様書 5.5）。［お気に入り］［履歴］の切替と、高さ固定でスクロールする一覧。
- * 高さを固定するので、切り替えても下の部品は動かない。押した行は、追加のあとも同じ位置に残る。
+ * S4-E の「追加する」（画面仕様書 5.5）。［お気に入り］［履歴］［新しく作る］の切替。
+ * お気に入り・履歴は、高さ固定でスクロールする一覧（切り替えても下の部品は動かない）。
+ * ［新しく作る］は中身（検索語・条件の枠・詳細条件）が多いので、そのタブだけ高さを自由にして `maker` を出す。押した行は、追加のあとも同じ位置に残る。
  * 履歴から足すときは、同じ検索文字列のお気に入りが無ければ新しく作ってから足す（あれば作らない）。
  * 履歴の文字列は日付に展開済みなので、足した項目の期間は固定になる（#91）。
  */
@@ -29,6 +37,7 @@ export function AddSources({
   items,
   onAdd,
   onRemove,
+  maker,
 }: {
   groupName: string;
   /** 今このいつものエゴサに入っている項目（追加済みの判定に使う） */
@@ -36,24 +45,24 @@ export function AddSources({
   onAdd: (item: GroupItem) => void;
   /** 追加済みの行の［削除］ */
   onRemove: (item: GroupItem) => void;
+  /** ［新しく作る］のタブの中身（検索の組み立て） */
+  maker: ReactNode;
 }) {
   const api = useApi();
   const { t } = useI18n();
-  // 正規化した検索文字列と検索先が同じなら追加済み（要件定義書 11.4）
+  // 正規化した検索文字列が同じなら追加済み（要件定義書 11.4。検索先は見ない）。
+  // 項目の検索先を変えても、元のお気に入りの行が［＋ 追加］に戻らないようにする
   const added = useMemo(
-    () =>
-      new Set(
-        items.map((it) => `${api.query.normalize(it.query)}|${it.engine}`),
-      ),
+    () => new Set(items.map((it) => api.query.normalize(it.query))),
     [api, items],
   );
-  const isAdded = (it: GroupItem) =>
-    added.has(`${api.query.normalize(it.query)}|${it.engine}`);
+  const isAdded = (it: GroupItem) => added.has(api.query.normalize(it.query));
   const ed = t.groupEdit;
   const [active, setActive] = useState<Source>("favorites");
   const refs = useRef<Record<Source, HTMLButtonElement | null>>({
     favorites: null,
     history: null,
+    make: null,
   });
 
   const go = (to: Source) => {
@@ -109,28 +118,38 @@ export function AddSources({
               }`}
             >
               <Icon className={`size-4 ${TONE[tone].icon}`} aria-hidden />
-              {id === "favorites" ? ed.tabFavorites : ed.tabHistory}
+              {id === "favorites"
+                ? ed.tabFavorites
+                : id === "history"
+                  ? ed.tabHistory
+                  : ed.tabMake}
             </button>
           );
         })}
       </div>
-      {/* 高さ固定：切り替えても、件数が増えても、下の部品が動かない */}
+      {/* お気に入り・履歴は高さ固定：切り替えても、件数が増えても、下の部品が動かない。作るタブだけ高さ自由 */}
       <div
         role="tabpanel"
         id="add-source-panel"
         aria-labelledby={`add-source-tab-${active}`}
         tabIndex={0}
-        className="h-64 overflow-y-auto rounded-lg border focus-visible:ring-2 focus-visible:ring-ring"
+        className={
+          active === "make"
+            ? "rounded-lg border p-3 focus-visible:ring-2 focus-visible:ring-ring"
+            : "h-64 overflow-y-auto rounded-lg border focus-visible:ring-2 focus-visible:ring-ring"
+        }
       >
         {active === "favorites" ? (
           <FavoriteList isAdded={isAdded} onAdd={onAdd} onRemove={onRemove} />
-        ) : (
+        ) : active === "history" ? (
           <HistoryList
             groupName={groupName}
             isAdded={isAdded}
             onAdd={onAdd}
             onRemove={onRemove}
           />
+        ) : (
+          maker
         )}
       </div>
     </section>

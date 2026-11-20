@@ -96,14 +96,14 @@ describe("S9 ランチャー：表示", () => {
     const r = rows();
     expect(r).toHaveLength(3);
     // 一致するお気に入りがあればその名前、無ければ文字列
-    expect(within(r[0]).getByText(/^1\./)).toBeInTheDocument();
-    expect(within(r[0]).getByText("ぺこらエゴサ（X）")).toBeInTheDocument();
-    expect(
-      within(r[1]).getByText("歌枠 since:yesterday（Yahoo!リアルタイム検索）"),
-    ).toBeInTheDocument();
-    expect(
-      within(r[2]).getByText("切り抜き（XとYahoo!リアルタイム検索の両方）"),
-    ).toBeInTheDocument();
+    expect(within(r[0]).getByText("1")).toBeInTheDocument();
+    expect(r[0]).toHaveTextContent("ぺこらエゴサ（X）");
+    expect(r[1]).toHaveTextContent(
+      "歌枠 since:yesterday（Yahoo!リアルタイム検索）",
+    );
+    expect(r[2]).toHaveTextContent(
+      "切り抜き（XとYahoo!リアルタイム検索の両方）",
+    );
     // 相対期間は日付に展開して出す
     expect(within(r[1]).getByText("歌枠 since:2026-11-18")).toBeInTheDocument();
     expect(window.open).not.toHaveBeenCalled();
@@ -166,17 +166,33 @@ describe("S9 ランチャー：実行", () => {
     expect(lts).toBe(String(Date.parse("2026-11-30T00:00:00+09:00") / 1000));
   });
 
-  it("行の［開く］は、その項目だけを開く", async () => {
+  it("各行に［X で開く］［Yahoo で開く］があり、押した検索先だけで、その項目だけを開く", async () => {
     const api = await setup();
     await open(api, await hashOf(api));
     await screen.findByRole("list", { name: "開く検索の一覧" });
+    // 3行とも、項目の検索先（X・Yahoo・両方）に関係なく、2つのボタンが出る
+    for (const row of rows()) {
+      expect(
+        within(row).getByRole("button", { name: /を X で開く$/ }),
+      ).toBeInTheDocument();
+      expect(
+        within(row).getByRole("button", { name: /を Yahoo で開く$/ }),
+      ).toBeInTheDocument();
+    }
+    // Yahoo の項目を、X で開く
     fireEvent.click(
       within(rows()[1]).getByRole("button", {
-        name: "歌枠 since:yesterdayを開く",
+        name: "歌枠 since:yesterdayを X で開く",
       }),
     );
     expect(window.open).toHaveBeenCalledTimes(1);
-    expect(String(vi.mocked(window.open).mock.calls[0][0])).toContain(
+    expect(String(vi.mocked(window.open).mock.calls[0][0])).toContain("x.com");
+    // X の項目を、Yahoo で開く
+    fireEvent.click(
+      within(rows()[0]).getByRole("button", { name: /を Yahoo で開く$/ }),
+    );
+    expect(window.open).toHaveBeenCalledTimes(2);
+    expect(String(vi.mocked(window.open).mock.calls[1][0])).toContain(
       "search.yahoo.co.jp",
     );
   });
@@ -248,6 +264,10 @@ describe("S9 ランチャー：エラーと保存しないこと", () => {
       "/",
     );
     expect(screen.queryByRole("button", { name: "▶ すべて開く" })).toBeNull();
+    // エラーは通常の空状態と区別する（role=alert。色だけにせず、アイコンと文言を添える）
+    const alert = screen.getByRole("alert");
+    expect(alert).toHaveTextContent("ブックマークURLを読み込めませんでした");
+    expect(alert.querySelector("svg")).not.toBeNull();
   });
 
   it("知らない版：更新の案内と［ホームへ］を出す", async () => {
