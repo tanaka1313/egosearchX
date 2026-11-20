@@ -52,15 +52,17 @@ export const en: Messages = {
   },
   header: {
     openMenu: "Open menu",
-    siteName: "EgoSearch",
+    siteName: "Hololive EgoSearch",
     feature: "X (Twitter)",
     featureLabel: "Feature: X (Twitter)",
   },
-  interest: {
-    button: (name) => `Interest: ${name} (press to switch)`,
-    menu: "Interest",
-    close: "Close the switcher",
-    note: "Switches the condition buttons to the selected interest (favorites and routines are shared). Saved on this device only.",
+  settings: {
+    title: "Settings",
+    interestLegend: "Interest",
+    experimental: "Experimental",
+    interestNote:
+      "Switches the condition buttons to the selected interest (favorites and routines are shared). Saved on this device only.",
+    failed: "Could not save",
   },
   strip: {
     label: "Routines",
@@ -96,6 +98,7 @@ export const en: Messages = {
       history: "History",
       trash: "Trash",
       import: "Parse URL",
+      settings: "Settings",
       about: "About this site",
     },
   },
@@ -437,7 +440,7 @@ export const en: Messages = {
   groupsPage: {
     title: "Routines",
     description:
-      "Open several searches at once for a given timing (after a stream, every morning, and so on). The first two appear in the band under the header on every page. You can add one by picking favorites, or by building a new search from conditions. A routine holds a list of search texts. Editing a favorite also updates items with the same search text here (deleting a favorite does not remove them).",
+      "Open several searches at once for a given timing (after a stream, every morning, and so on). The first two appear in the band under the header on every page. You can add one by picking from favorites or history, or by building a new search from conditions. A routine holds a list of search texts. Editing a favorite also updates items with the same search text here (deleting a favorite does not remove them).",
     add: "+ Add",
     empty: "No routines yet. Try making one like “After-stream search”",
     list: "Routines",
@@ -492,16 +495,19 @@ export const en: Messages = {
     namePlaceholder: "e.g. After-stream search",
     itemsLabel: "Searches inside",
     items: (n) => `Searches inside (${n}; opened in order)`,
-    itemsEmpty: "None yet. Add some with ① or ② below.",
+    itemsEmpty: "None yet. Add some from “Add” below.",
     engineBadge: (name) => `Search on: ${name}`,
     up: (label) => `Move ${label} up`,
     down: (label) => `Move ${label} down`,
     removeItem: (label) => `Remove ${label}`,
-    fromFavorites: "① Add from favorites",
-    noFavorites: "No favorites yet. Build one with ② below.",
+    addSource: "Add",
+    sourceTabs: "Source",
+    tabFavorites: "Favorites",
+    tabHistory: "History",
+    noFavorites: "No favorites yet. Build one with “Build a new search” below.",
     add: "+ Add",
     addLabel: (name) => `Add ${name}`,
-    make: "② Build a new search from conditions",
+    make: "Build a new search from conditions",
     wordPlaceholder: "Enter a name or #tag",
     autoNameNote:
       "It is also saved as a favorite. The name is set automatically: ",
@@ -524,7 +530,7 @@ export const en: Messages = {
     addPresetsFor: (name) => `Add presets (${name})`,
     add: "+ Add",
     description: (interest) =>
-      `These buttons appear on Home (the set for “${interest}”; switching it in the header shows another set). Drag to reorder (keyboard: Space, then arrow keys) and edit the label and contents (several conditions). Copy puts a button's conditions on the clipboard. Unchecking “Show” hides it from Home (it is not deleted). Deleted buttons move to “Deleted items” and can be restored.`,
+      `These buttons appear on Home (the set for “${interest}”; switching it in Settings shows another set). Drag to reorder (keyboard: Space, then arrow keys) and edit the label and contents (several conditions). Copy puts a button's conditions on the clipboard. Unchecking “Show” hides it from Home (it is not deleted). Deleted buttons move to “Deleted items” and can be restored.`,
     full: (max) => `⚠ Limit reached (${max}). Delete buttons you do not need.`,
     empty: "No condition buttons",
     list: "Condition buttons",

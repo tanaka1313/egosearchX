@@ -20,5 +20,6 @@ export const MENU_ITEMS: readonly MenuItem[] = [
   { key: "history", href: "/history", manage: false },
   { key: "trash", href: "/trash", manage: false },
   { key: "import", href: "/import", manage: false },
+  { key: "settings", href: "/settings", manage: false },
   { key: "about", href: "/about", manage: false },
 ];

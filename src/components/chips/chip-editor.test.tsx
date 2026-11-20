@@ -37,6 +37,10 @@ const save = () =>
 const alertText = () => within(dialog()).getByRole("alert").textContent;
 const openAdd = () =>
   fireEvent.click(screen.getByRole("button", { name: "＋ 追加" }));
+const openList = () =>
+  fireEvent.click(
+    within(dialog()).getByRole("button", { name: "リストを登録" }),
+  );
 const openEdit = (label: string) =>
   fireEvent.click(screen.getByRole("button", { name: `${label}を編集` }));
 
@@ -183,10 +187,27 @@ describe("D1 保存できない理由（シートの中に出す）", () => {
 });
 
 describe("D1 リストの登録と Yahoo の注意", () => {
+  it("「リストを登録」は初期は閉じていて、押すと入力欄が出る", async () => {
+    const { api } = await setup();
+    await mountPage(api);
+    openAdd();
+    const toggle = within(dialog()).getByRole("button", {
+      name: "リストを登録",
+    });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(
+      within(dialog()).queryByLabelText("リストの URL または ID"),
+    ).toBeNull();
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(field("リストの URL または ID")).toBeInTheDocument();
+  });
+
   it("リストの URL から ID を取り出して条件に足し、ラベルが空なら仮の名前を入れる", async () => {
     const { api } = await setup();
     await mountPage(api);
     openAdd();
+    openList();
     fireEvent.change(field("リストの URL または ID"), {
       target: { value: "https://x.com/i/lists/1234567890123" },
     });
@@ -202,6 +223,7 @@ describe("D1 リストの登録と Yahoo の注意", () => {
     const { api } = await setup();
     await mountPage(api);
     openAdd();
+    openList();
     fireEvent.change(field("リストの URL または ID"), {
       target: { value: "これはリストではない" },
     });

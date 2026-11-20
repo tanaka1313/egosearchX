@@ -24,6 +24,10 @@ describe("documentTitle", () => {
     expect(documentTitle(ja, "/import")).toBe("URL解析｜Hololive EgoSearch");
   });
 
+  it("設定ページのタブ名は、管理ではなくメニューの名前のまま", () => {
+    expect(documentTitle(ja, "/settings")).toBe("設定｜Hololive EgoSearch");
+  });
+
   it("英語の画面では英語の名前になる", () => {
     expect(documentTitle(en, "/about")).toBe(
       `${en.menu.items.about}｜Hololive EgoSearch`,

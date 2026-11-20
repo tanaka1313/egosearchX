@@ -71,6 +71,21 @@ const items = () =>
     "listitem",
   );
 const homeText = () => screen.getByLabelText("home").textContent;
+const openMaker = () =>
+  fireEvent.click(
+    screen.getByRole("button", { name: /条件を指定して新しく作る/ }),
+  );
+const tab = (name: string) => screen.getByRole("tab", { name });
+/** 履歴を1件残す（履歴は日付に展開済みの文字列で残る） */
+const runOnce = (
+  api: EgoSearchApi,
+  query: string,
+  engine: "x" | "yahoo" = "x",
+) =>
+  api.data.history.record(api.url.plan([{ query, engine }]), {
+    kind: "home",
+    label: query,
+  });
 const addToGroup = () =>
   fireEvent.click(
     screen.getAllByRole("button", { name: "お気に入りに保存して追加" })[0],
@@ -101,7 +116,7 @@ describe("S4-E：追加（id なし）", () => {
     expect(nameInput().value).toBe("");
     expect(items()).toHaveLength(0);
     expect(
-      screen.getByText("まだありません。下の①か②で追加してください。"),
+      screen.getByText("まだありません。下の「追加する」から足してください。"),
     ).toBeInTheDocument();
   });
 
@@ -133,7 +148,7 @@ describe("S4-E：追加（id なし）", () => {
     fireEvent.change(nameInput(), { target: { value: "毎朝エゴサ" } });
     fireEvent.click(screen.getByRole("button", { name: "ぺこらエゴサを追加" }));
     expect(items()).toHaveLength(1);
-    expect(within(items()[0]).getByText("1. ぺこらエゴサ")).toBeInTheDocument();
+    expect(within(items()[0]).getByText("ぺこらエゴサ")).toBeInTheDocument();
     save();
     await waitFor(() => expect(push).toHaveBeenCalledWith("/groups"));
     const created = (await api.data.init()).groups.find(
@@ -178,7 +193,10 @@ describe("S4-E：編集（?id=）", () => {
       within(items()[1]).getByTitle("検索先：Yahoo!リアルタイム検索"),
     ).toHaveTextContent(/^Yahoo$/);
     // お気に入りに無い文字列は、そのまま名前の代わりに出る
-    expect(within(items()[1]).getByText(/2\. 歌枠 min_faves:100/)).toBeTruthy();
+    expect(
+      within(items()[1]).getAllByText("歌枠 min_faves:100").length,
+    ).toBeGreaterThan(0);
+    expect(within(items()[1]).getByText("2")).toBeInTheDocument();
 
     fireEvent.change(nameInput(), { target: { value: "改名" } });
     save();
@@ -238,10 +256,104 @@ describe("S4-E：編集（?id=）", () => {
   });
 });
 
+describe("S4-E：追加元（お気に入り・履歴）と②の開閉", () => {
+  it("②は閉じた状態で始まり、押すと開く（組み立ては閉じている間は出ない）", async () => {
+    const { api } = await setup();
+    await mountPage(api);
+    const toggle = screen.getByRole("button", {
+      name: /条件を指定して新しく作る/,
+    });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByLabelText("検索する語")).toBeNull();
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(word()).toBeInTheDocument();
+  });
+
+  it("切替は［お気に入り］が初期で、矢印キーで［履歴］に移ると履歴の一覧が出る", async () => {
+    const { api } = await setup();
+    await runOnce(api, "さくら");
+    await mountPage(api);
+    expect(tab("お気に入り")).toHaveAttribute("aria-selected", "true");
+    expect(
+      screen.getByRole("button", { name: "ぺこらエゴサを追加" }),
+    ).toBeInTheDocument();
+    tab("お気に入り").focus();
+    fireEvent.keyDown(tab("お気に入り"), { key: "ArrowRight" });
+    expect(tab("履歴")).toHaveAttribute("aria-selected", "true");
+    expect(tab("履歴")).toHaveFocus();
+    expect(
+      screen.queryByRole("button", { name: "ぺこらエゴサを追加" }),
+    ).toBeNull();
+    expect(
+      screen.getByRole("button", { name: "さくらを追加" }),
+    ).toBeInTheDocument();
+  });
+
+  it("履歴は、同じ検索文字列と検索先の重複を1件にまとめる（検索先が違えば別）", async () => {
+    const { api } = await setup();
+    await runOnce(api, "さくら");
+    await runOnce(api, "さくら");
+    await runOnce(api, "さくら", "yahoo");
+    await mountPage(api);
+    fireEvent.click(tab("履歴"));
+    const rows = screen.getAllByRole("button", { name: "さくらを追加" });
+    expect(rows).toHaveLength(2);
+  });
+
+  it("履歴が0件のときは案内を出す", async () => {
+    const { api } = await setup();
+    await mountPage(api);
+    fireEvent.click(tab("履歴"));
+    expect(screen.getByText("実行するとここに残ります")).toBeInTheDocument();
+  });
+
+  it("履歴から追加すると、お気に入りも新しく作り（名前は「<いつものエゴサ名>：<検索語>」）、項目に足す", async () => {
+    const { api } = await setup();
+    await runOnce(api, "さくら", "yahoo");
+    await mountPage(api);
+    fireEvent.change(nameInput(), { target: { value: "毎朝エゴサ" } });
+    fireEvent.click(tab("履歴"));
+    fireEvent.click(screen.getByRole("button", { name: "さくらを追加" }));
+    await waitFor(() => expect(items()).toHaveLength(1));
+    const made = (await api.data.init()).favorites.find(
+      (f) => f.name === "毎朝エゴサ：さくら",
+    )!;
+    expect(made).toMatchObject({ query: "さくら", engine: "yahoo" });
+    expect(
+      within(items()[0]).getByTitle("検索先：Yahoo!リアルタイム検索"),
+    ).toBeInTheDocument();
+  });
+
+  it("同じ検索文字列のお気に入りが既にあるときは、お気に入りを作らず項目だけに足す", async () => {
+    const { api } = await setup();
+    await runOnce(api, "ぺこら -filter:retweets");
+    await mountPage(api);
+    fireEvent.click(tab("履歴"));
+    fireEvent.click(screen.getByRole("button", { name: "ぺこらエゴサを追加" }));
+    await waitFor(() => expect(items()).toHaveLength(1));
+    expect((await api.data.init()).favorites).toHaveLength(1);
+    expect(items()[0]).toHaveTextContent("ぺこらエゴサ");
+  });
+
+  it("追加したあと、押したボタンにフォーカスが残る（続けて追加できる）", async () => {
+    const { api } = await setup();
+    await mountPage(api);
+    const add = screen.getByRole("button", { name: "ぺこらエゴサを追加" });
+    add.focus();
+    fireEvent.click(add);
+    await waitFor(() => expect(items()).toHaveLength(1));
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: "ぺこらエゴサを追加" }),
+    );
+  });
+});
+
 describe("S4-E：②条件を指定して新しく作る", () => {
   it("お気に入りに保存して項目に足し、組み立てを空に戻す。名前は「<いつものエゴサ名>：<検索語>」で自動", async () => {
     const { api } = await setup();
     await mountPage(api);
+    openMaker();
     fireEvent.change(nameInput(), { target: { value: "毎朝エゴサ" } });
     fireEvent.change(word(), { target: { value: "さくら" } });
     expect(screen.getByText("毎朝エゴサ：さくら")).toBeInTheDocument();
@@ -263,6 +375,7 @@ describe("S4-E：②条件を指定して新しく作る", () => {
   it("検索先を選んで追加すると、その検索先が項目と新しいお気に入りに入る", async () => {
     const { api } = await setup();
     await mountPage(api);
+    openMaker();
     fireEvent.change(nameInput(), { target: { value: "毎朝エゴサ" } });
     fireEvent.change(word(), { target: { value: "さくら" } });
     fireEvent.click(
@@ -288,6 +401,7 @@ describe("S4-E：②条件を指定して新しく作る", () => {
   it("検索語も条件も無いときは追加せず、理由を出し、お気に入りも作らない", async () => {
     const { api } = await setup();
     await mountPage(api);
+    openMaker();
     addToGroup();
     expect(items()).toHaveLength(0);
     expect(screen.getAllByRole("alert")[0]).toHaveTextContent(
@@ -299,6 +413,7 @@ describe("S4-E：②条件を指定して新しく作る", () => {
   it("名前も検索語も空で、1つ目の ON のボタン名があればそれを名前にする。何も無ければ辞書の既定名", async () => {
     const { api } = await setup();
     await mountPage(api);
+    openMaker();
     fireEvent.click(
       screen.getAllByRole("button", { name: labeled("画像つき") })[0],
     );
@@ -312,6 +427,7 @@ describe("S4-E：②条件を指定して新しく作る", () => {
     const { api } = await setup();
     const before = (await hololive(api)).map((c) => [c.id, c.on]);
     await mountPage(api);
+    openMaker();
     const homeBefore = homeText();
     fireEvent.click(
       screen.getAllByRole("button", { name: labeled("返信のみ") })[0],

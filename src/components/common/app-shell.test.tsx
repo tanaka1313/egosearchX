@@ -86,61 +86,15 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("ヘッダーと興味の対象の切替", () => {
-  it("［興味の対象▾］は既定でホロライブ。サイト名・機能タイトル・本文が出る", async () => {
+describe("ヘッダー", () => {
+  it("サイト名（ホームへのリンク）・機能タイトル・本文が出る。興味の対象の切替は置かない（設定ページへ移した）", async () => {
     mount(apiOf(new MemoryAdapter()));
     expect(
-      await screen.findByRole("button", { name: /興味の対象：ホロライブ/ }),
-    ).toBeVisible();
-    expect(screen.getByRole("link", { name: "EgoSearch" })).toHaveAttribute(
-      "href",
-      "/",
-    );
+      await screen.findByRole("link", { name: "Hololive EgoSearch" }),
+    ).toHaveAttribute("href", "/");
     expect(screen.getByLabelText("機能：X（Twitter）")).toBeVisible();
     expect(screen.getByText("本文")).toBeVisible();
-  });
-
-  it("押すと選択中の項目にフォーカスが移り、選ぶと保存されて再読み込み後も残る", async () => {
-    const kv = new MemoryAdapter();
-    mount(apiOf(kv));
-    fireEvent.click(
-      await screen.findByRole("button", { name: /興味の対象：ホロライブ/ }),
-    );
-    const items = await screen.findAllByRole("menuitemradio");
-    expect(items.map((i) => i.textContent)).toEqual([
-      "ホロライブ",
-      "にじさんじ",
-      "その他",
-    ]);
-    await waitFor(() => expect(items[0]).toHaveFocus());
-    expect(items[0]).toHaveAttribute("aria-checked", "true");
-    fireEvent.click(items[1]);
-    expect(
-      await screen.findByRole("button", { name: /興味の対象：にじさんじ/ }),
-    ).toHaveFocus();
-    expect(screen.queryByRole("menu")).toBeNull();
-
-    cleanup();
-    mount(apiOf(kv)); // 再読み込み：同じ保存先から作り直す
-    expect(
-      await screen.findByRole("button", { name: /興味の対象：にじさんじ/ }),
-    ).toBeVisible();
-  });
-
-  it("Esc で閉じて、ボタンへフォーカスが戻る。何も保存しない", async () => {
-    const kv = new MemoryAdapter();
-    mount(apiOf(kv));
-    const button = await screen.findByRole("button", {
-      name: /興味の対象：ホロライブ/,
-    });
-    fireEvent.click(button);
-    const menu = await screen.findByRole("menu");
-    fireEvent.keyDown(menu, { key: "Escape" });
-    expect(screen.queryByRole("menu")).toBeNull();
-    expect(button).toHaveFocus();
-    expect(
-      screen.getByRole("button", { name: /興味の対象：ホロライブ/ }),
-    ).toBeVisible();
+    expect(screen.queryByRole("button", { name: /興味の対象/ })).toBeNull();
   });
 });
 
@@ -316,8 +270,10 @@ describe("左メニュー", () => {
       "/history",
       "/trash",
       "/import",
+      "/settings",
       "/about",
     ]);
+    expect(within(nav).getByRole("link", { name: "設定" })).toBeVisible();
     const here = within(nav).getByRole("link", { name: /履歴/ });
     expect(here).toHaveAttribute("aria-current", "page");
     expect(here).toHaveTextContent("表示中");
@@ -413,7 +369,7 @@ describe("左メニュー", () => {
     ).toBeVisible();
     expect(screen.getByText(/unofficial/i)).toBeVisible();
     expect(
-      screen.getByRole("button", { name: /Interest: hololive/ }),
+      screen.getByRole("link", { name: "Hololive EgoSearch" }),
     ).toBeVisible();
   });
 });

@@ -4,11 +4,11 @@ import { Menu } from "lucide-react";
 import Link from "next/link";
 import type { RefObject } from "react";
 import { useI18n } from "@/store/i18n-context";
-import { InterestPicker } from "./interest-picker";
 
 /**
  * ヘッダー（画面仕様書 2.1）。左から［≡］（1280px 以上はサイドバーが常にあるので出さない）、
- * サイト名＝［興味の対象▾］＋「EgoSearch」（ホームへのリンク）、機能タイトル。`sticky` にしない。
+ * サイト名「Hololive EgoSearch」（ホームへのリンク）、機能タイトル。`sticky` にしない。
+ * 興味の対象の切替は設定ページ（S11）にある。
  */
 export function SiteHeader({
   toggleRef,
@@ -35,8 +35,6 @@ export function SiteHeader({
       >
         <Menu className="size-6" aria-hidden />
       </button>
-      {/* サイト名 ＝ ［興味の対象▾］ EgoSearch。興味の対象はここでいつでも切り替える */}
-      <InterestPicker />
       <Link href="/" className="shrink-0 font-bold">
         {t.header.siteName}
       </Link>

@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronDown, ChevronRight, Play } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -17,6 +18,7 @@ import { engineBadge } from "@/components/common/engine-badge";
 import { PageHead } from "@/components/common/page-head";
 import { previousPath } from "@/components/common/previous-path";
 import { useToast } from "@/components/common/toast";
+import { TONE } from "@/components/common/tone";
 import { ConditionFrame } from "@/components/search/condition-frame";
 import { OpenButtons } from "@/components/search/open-bar";
 import { QueryPreview } from "@/components/search/query-preview";
@@ -27,6 +29,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
+import { AddSources } from "./add-sources";
 import { useItemLabel } from "./item-label";
 
 /** 一覧（S4）。保存したあと・直接開いてキャンセルしたときの戻り先 */
@@ -106,10 +109,10 @@ function GroupEditor({ group }: { group: Group | null }) {
   const router = useRouter();
   const toast = useToast();
   const label = useItemLabel();
-  const favorites = useAppStore((s) => s.favorites);
   const save = useAppStore((s) => s.groups_save);
 
   const [name, setName] = useState(group?.name ?? "");
+  const [makerOpen, setMakerOpen] = useState(false);
   const [items, setItems] = useState<KeyedItem[]>(() =>
     (group?.items ?? []).map(keyed),
   );
@@ -181,8 +184,14 @@ function GroupEditor({ group }: { group: Group | null }) {
         />
       </label>
 
-      <section aria-label={ed.itemsLabel} className="space-y-1 text-sm">
-        <h2 className="font-medium">{ed.items(items.length)}</h2>
+      <section
+        aria-label={ed.itemsLabel}
+        className={`space-y-2 rounded-lg border p-3 text-sm ${TONE.group.card}`}
+      >
+        <h2 className="flex items-center gap-1.5 font-medium">
+          <Play className={`size-4 ${TONE.group.icon}`} aria-hidden />
+          {ed.items(items.length)}
+        </h2>
         {items.length === 0 && (
           <p className="text-muted-foreground">{ed.itemsEmpty}</p>
         )}
@@ -193,12 +202,18 @@ function GroupEditor({ group }: { group: Group | null }) {
             return (
               <li
                 key={it.key}
-                className="flex items-center gap-1 rounded border px-2 py-1"
+                className="flex items-center gap-1 rounded border bg-background px-2 py-1"
               >
+                <span
+                  aria-hidden
+                  className={`flex size-5 shrink-0 items-center justify-center rounded-full text-xs ${TONE.group.dot}`}
+                >
+                  {i + 1}
+                </span>
                 <span className="min-w-0 flex-1">
                   <span className="flex min-w-0 items-center gap-1">
                     <span className="min-w-0 truncate" title={itemName}>
-                      {i + 1}. {itemName}
+                      {itemName}
                     </span>
                     <span
                       title={ed.engineBadge(b.full)}
@@ -242,40 +257,40 @@ function GroupEditor({ group }: { group: Group | null }) {
         </ol>
       </section>
 
-      <section aria-label={ed.fromFavorites} className="space-y-1 text-sm">
-        <h2 className="font-medium">{ed.fromFavorites}</h2>
-        {favorites.length === 0 && (
-          <p className="text-muted-foreground">{ed.noFavorites}</p>
-        )}
-        {favorites.map((f) => (
-          <div key={f.id} className="flex items-center gap-2">
-            <span className="min-w-0 flex-1 truncate" title={f.name}>
-              {f.name}
-            </span>
-            <Button
-              type="button"
-              size="xs"
-              variant="outline"
-              aria-label={ed.addLabel(f.name)}
-              onClick={() => setItems((v) => [...v, keyed(f)])}
-            >
-              {ed.add}
-            </Button>
-          </div>
-        ))}
-      </section>
+      <AddSources
+        groupName={name}
+        onAdd={(item) => setItems((v) => [...v, keyed(item)])}
+      />
 
+      {/* 標準の使い方はお気に入り・履歴から足すこと。条件を指定して作るのは初期は閉じる（開閉は保存しない） */}
       <section aria-label={ed.make} className="space-y-2">
-        <h2 className="text-sm font-medium">{ed.make}</h2>
-        <LocalScopeProvider key={makerKey} initial={EMPTY_SCOPE}>
-          <NewSearchMaker
-            groupName={name}
-            onMade={(item) => {
-              setItems((v) => [...v, keyed(item)]);
-              setMakerKey((k) => k + 1);
-            }}
-          />
-        </LocalScopeProvider>
+        <button
+          type="button"
+          aria-expanded={makerOpen}
+          aria-controls="group-maker"
+          onClick={() => setMakerOpen((v) => !v)}
+          className="flex items-center gap-1.5 rounded text-sm font-medium focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {makerOpen ? (
+            <ChevronDown className="size-4" aria-hidden />
+          ) : (
+            <ChevronRight className="size-4" aria-hidden />
+          )}
+          {ed.make}
+        </button>
+        {makerOpen && (
+          <div id="group-maker">
+            <LocalScopeProvider key={makerKey} initial={EMPTY_SCOPE}>
+              <NewSearchMaker
+                groupName={name}
+                onMade={(item) => {
+                  setItems((v) => [...v, keyed(item)]);
+                  setMakerKey((k) => k + 1);
+                }}
+              />
+            </LocalScopeProvider>
+          </div>
+        )}
       </section>
 
       <div className="border-t pt-3">{actions}</div>
