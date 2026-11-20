@@ -196,6 +196,41 @@ describe("S9 ランチャー：実行", () => {
     fireEvent.click(within(status).getByRole("button", { name: "閉じる" }));
     expect(screen.queryByRole("status")).toBeNull();
   });
+
+  it("1回のタップで1件しか開けない端末（2件目以降が null）では、［次を開く］で残りを1件ずつ開く", async () => {
+    // iPhone の Safari の挙動（実機。1件目だけ開き、残りはブロックされる）
+    vi.mocked(window.open)
+      .mockImplementationOnce(() => ({ opener: "x" }) as unknown as Window)
+      .mockImplementation(() => null);
+    const api = await setup();
+    await open(api, await hashOf(api));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "▶ すべて開く" }),
+    );
+    const status = await screen.findByRole("status");
+    expect(
+      within(status).getByText("4件中3件を開けませんでした。"),
+    ).toBeInTheDocument();
+    // 以降のタップは開ける端末になったとして、1回ごとに1件だけ開く
+    vi.mocked(window.open).mockImplementation(
+      () => ({ opener: "x" }) as unknown as Window,
+    );
+    const callsBefore = vi.mocked(window.open).mock.calls.length;
+    fireEvent.click(
+      within(status).getByRole("button", { name: "次を開く（1/3）" }),
+    );
+    expect(vi.mocked(window.open).mock.calls.length).toBe(callsBefore + 1);
+    fireEvent.click(
+      within(status).getByRole("button", { name: "次を開く（2/3）" }),
+    );
+    fireEvent.click(
+      within(status).getByRole("button", { name: "次を開く（3/3）" }),
+    );
+    expect(vi.mocked(window.open).mock.calls.length).toBe(callsBefore + 3);
+    expect(
+      within(status).getByRole("button", { name: "すべて開きました" }),
+    ).toBeDisabled();
+  });
 });
 
 describe("S9 ランチャー：エラーと保存しないこと", () => {

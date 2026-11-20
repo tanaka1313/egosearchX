@@ -79,7 +79,10 @@ export const en: Messages = {
   blocked: {
     summary: (total, failed) =>
       `${failed} of ${total} ${total === 1 ? "tab" : "tabs"} could not be opened.`,
-    hint: "Allow pop-ups in your browser. You can also open each one from the links below.",
+    hint: "Some browsers open only one tab per tap. Use Open next or the links below to open them one by one.",
+    openNext: (k, total) => `Open next (${k}/${total})`,
+    allOpened: "All opened",
+    opened: "opened",
     close: "Close",
   },
   menu: {
