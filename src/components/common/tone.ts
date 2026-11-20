@@ -4,7 +4,7 @@
  * 色だけで種類を示さず、必ずアイコンか文字を添える。主ボタンの青と ON の条件ボタン（toggleClass）は変えない。
  * Tailwind が拾えるよう、クラス名は完全な文字列で書く。
  */
-export type ToneKind = "fav" | "history" | "group";
+export type ToneKind = "fav" | "history" | "group" | "cond";
 
 export const TONE: Record<
   ToneKind,
@@ -36,5 +36,11 @@ export const TONE: Record<
     card: "border-l-4 border-l-tone-group bg-tone-group/5",
     dot: "bg-tone-group/20 text-foreground",
     tabOn: "border-b-tone-group",
+  },
+  cond: {
+    icon: "text-tone-cond",
+    card: "border-l-4 border-l-tone-cond bg-tone-cond/5",
+    dot: "bg-tone-cond/20 text-foreground",
+    tabOn: "border-b-tone-cond",
   },
 };

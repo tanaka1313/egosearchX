@@ -22,12 +22,14 @@ import { MemoryAdapter } from "@/lib/storage/kv-adapter";
 import { ApiProvider } from "@/store/api-context";
 import { I18nProvider } from "@/store/i18n-context";
 import { StoreProvider } from "@/store/store-context";
+import { LaunchPage } from "@/components/launch/launch-page";
 import { AppShell } from "./app-shell";
 
 let pathname = "/";
+const push = vi.hoisted(() => vi.fn());
 vi.mock("next/navigation", () => ({
   usePathname: () => pathname,
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push }),
 }));
 
 const TODAY = {
@@ -77,13 +79,18 @@ let open: Mock<
 >;
 beforeEach(() => {
   pathname = "/";
+  push.mockReset();
+  // jsdom の Blob に stream() が無いので、ランチャーの URL は圧縮なし（v1u.）で作る
+  vi.stubGlobal("CompressionStream", undefined);
   vi.spyOn(window.navigator, "languages", "get").mockReturnValue(["ja-JP"]);
   open = vi.fn(() => ({ opener: "x" }) as unknown as Window);
   vi.spyOn(window, "open").mockImplementation(open);
 });
 afterEach(() => {
   cleanup();
+  window.location.hash = "";
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe("ヘッダー", () => {
@@ -150,9 +157,78 @@ describe("いつものエゴサの帯", () => {
     );
     const data = await api.data.init();
     expect(data.history).toHaveLength(3);
+    // 開いたあと、結果を持ってランチャー（そのいつものエゴサの URL）へ移る
+    await waitFor(() => expect(push).toHaveBeenCalledTimes(1));
+    const to = String(push.mock.calls[0][0]);
+    expect(to).toMatch(/^\/launch#v1/);
+    expect(await api.launcher.decode(to.split("#")[1])).toEqual({
+      name: "配信後",
+      items: [
+        { query: "ぺこら", engine: "both" },
+        { query: "まりん", engine: "x" },
+      ],
+    });
   });
 
-  it("ポップアップがブロックされたら、帯の下に件数と個別リンクを出す（モーダルにしない・フォーカスを奪わない）", async () => {
+  it("ブロックされても帯の下には出さず、ランチャーへ移る（続きはランチャーの［次を開く］）", async () => {
+    const api = apiOf(new MemoryAdapter());
+    await seedGroup(api, "配信後", [
+      { query: "ぺこら", engine: "x" },
+      { query: "まりん", engine: "yahoo" },
+    ]);
+    open
+      .mockImplementationOnce(() => ({ opener: "x" }) as unknown as Window)
+      .mockImplementationOnce(() => null);
+    mount(api);
+    fireEvent.click(
+      await screen.findByRole("button", { name: "配信後（2個）を実行" }),
+    );
+    await waitFor(() => expect(push).toHaveBeenCalledTimes(1));
+    expect(screen.queryByRole("status")).toBeNull();
+    // 履歴には、開けなかったものも含め実行したすべてを残す
+    await waitFor(async () =>
+      expect((await api.data.init()).history).toHaveLength(2),
+    );
+  });
+
+  it("ランチャーへ移ると、開けた数・［次を開く］・各行の「開いた／未」が最初から出る（履歴は増えない）", async () => {
+    const api = apiOf(new MemoryAdapter());
+    await seedGroup(api, "配信後", [
+      { query: "ぺこら", engine: "x" },
+      { query: "まりん", engine: "yahoo" },
+    ]);
+    open
+      .mockImplementationOnce(() => ({ opener: "x" }) as unknown as Window)
+      .mockImplementationOnce(() => null);
+    // 移動の代わりに、ランチャーのパスとハッシュへ切り替える
+    push.mockImplementation((to: string) => {
+      pathname = "/launch";
+      window.location.hash = to.split("#")[1];
+    });
+    mount(api, <LaunchPage />);
+    window.location.hash = "";
+    fireEvent.click(
+      await screen.findByRole("button", { name: "配信後（2個）を実行" }),
+    );
+    const notice = await screen.findByRole("status");
+    expect(notice).toHaveTextContent("2件中1件を開けませんでした");
+    expect(
+      within(notice).getByRole("button", { name: "次を開く（1/1）" }),
+    ).toBeEnabled();
+    const rows = within(
+      screen.getByRole("list", { name: "開く検索の一覧" }),
+    ).getAllByRole("listitem");
+    expect(rows[0]).toHaveTextContent("開いた");
+    expect(rows[1]).toHaveTextContent("未");
+    // ［次を開く］で続きを開くと、その行が「開いた」になる。履歴はランチャーでは増やさない
+    fireEvent.click(
+      within(notice).getByRole("button", { name: "次を開く（1/1）" }),
+    );
+    await waitFor(() => expect(rows[1]).toHaveTextContent("開いた"));
+    expect((await api.data.init()).history).toHaveLength(2);
+  });
+
+  it("ランチャーの URL を作れなかったときだけ、帯の下に件数と個別リンクを出す（モーダルにしない・フォーカスを奪わない）", async () => {
     const api = apiOf(new MemoryAdapter());
     await seedGroup(api, "配信後", [
       { query: "ぺこら", engine: "x" },
@@ -162,11 +238,14 @@ describe("いつものエゴサの帯", () => {
     open
       .mockImplementationOnce(() => ({ opener: "x" }) as unknown as Window)
       .mockImplementationOnce(() => null);
+    vi.spyOn(api.launcher, "encode").mockRejectedValue(new Error("x"));
+    vi.spyOn(console, "error").mockImplementation(() => {});
     mount(api);
     fireEvent.click(
       await screen.findByRole("button", { name: "配信後（2個）を実行" }),
     );
     const notice = await screen.findByRole("status");
+    expect(push).not.toHaveBeenCalled();
     expect(notice).toHaveTextContent("2件中1件を開けませんでした");
     const link = within(notice).getByRole("link", { name: /まりん/ });
     expect(link).toHaveAttribute("href", expect.stringContaining("yahoo"));

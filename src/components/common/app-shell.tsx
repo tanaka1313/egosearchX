@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -14,6 +15,7 @@ import { BlockedContext } from "./blocked-context";
 import { BlockedNotice } from "./blocked-notice";
 import { CommandPalette } from "./command-palette";
 import { CorruptNotice } from "./corrupt-notice";
+import { LaunchHandoffContext, type LaunchHandoff } from "./launch-handoff";
 import { GroupStrip } from "./group-strip";
 import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
@@ -40,6 +42,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [blocked, setBlocked] = useState<Blocked | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [handoff, setHandoff] = useState<LaunchHandoff | null>(null);
+  const handoffId = useRef(0);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const paletteReturnRef = useRef<HTMLElement | null>(null);
@@ -99,6 +103,22 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [menuOpen, closeMenu, openPalette]);
 
+  // ランチャーを離れたら、引き継いだ結果を捨てる（あとで同じブックマークを開いたときに古い結果を出さない）
+  const wasLauncher = useRef(false);
+  useEffect(() => {
+    if (wasLauncher.current && !launcher) setHandoff(null);
+    wasLauncher.current = launcher;
+  }, [launcher]);
+
+  const handoffStore = useMemo(
+    () => ({
+      current: handoff,
+      put: (h: Omit<LaunchHandoff, "id">) =>
+        setHandoff({ ...h, id: ++handoffId.current }),
+    }),
+    [handoff],
+  );
+
   const onBlocked = useCallback(
     (total: number, list: OpenTarget[]) => setBlocked({ total, blocked: list }),
     [],
@@ -106,51 +126,54 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <ToastProvider bottomClass={launcher ? "bottom-4" : "bottom-20"}>
-      <SiteMeta />
-      <div className="flex min-h-screen">
-        <MenuSidebar onPalette={openPalette} />
-        {/* 本文の列：外側の背景（黒）より少し明るい面にして、領域の境目が分かるようにする */}
-        <div
-          className={`mx-auto min-w-0 max-w-3xl flex-1 bg-background ${launcher ? "" : "pb-20"}`}
-        >
-          <SiteHeader
-            toggleRef={toggleRef}
-            menuOpen={menuOpen}
-            menuId={DRAWER_ID}
-            onOpenMenu={() => setMenuOpen(true)}
-          />
-          <GroupStrip onBlocked={onBlocked} />
-          {blocked && (
-            <BlockedNotice
-              total={blocked.total}
-              blocked={blocked.blocked}
-              onClose={() => setBlocked(null)}
+      {/* 帯（一括実行）と本文のランチャーの両方が使うので、枠全体を囲む */}
+      <LaunchHandoffContext.Provider value={handoffStore}>
+        <SiteMeta />
+        <div className="flex min-h-screen">
+          <MenuSidebar onPalette={openPalette} />
+          {/* 本文の列：外側の背景（黒）より少し明るい面にして、領域の境目が分かるようにする */}
+          <div
+            className={`mx-auto min-w-0 max-w-3xl flex-1 bg-background ${launcher ? "" : "pb-20"}`}
+          >
+            <SiteHeader
+              toggleRef={toggleRef}
+              menuOpen={menuOpen}
+              menuId={DRAWER_ID}
+              onOpenMenu={() => setMenuOpen(true)}
+            />
+            <GroupStrip onBlocked={onBlocked} />
+            {blocked && (
+              <BlockedNotice
+                total={blocked.total}
+                blocked={blocked.blocked}
+                onClose={() => setBlocked(null)}
+              />
+            )}
+            <CorruptNotice />
+            <BlockedContext.Provider value={onBlocked}>
+              {children}
+            </BlockedContext.Provider>
+          </div>
+          {!launcher && <SiteFooter onBlocked={onBlocked} />}
+          {menuOpen && (
+            <MenuDrawer
+              id={DRAWER_ID}
+              closeRef={closeRef}
+              onClose={closeMenu}
+              onPalette={() => {
+                closeMenu();
+                openPalette();
+              }}
             />
           )}
-          <CorruptNotice />
-          <BlockedContext.Provider value={onBlocked}>
-            {children}
-          </BlockedContext.Provider>
-        </div>
-        {!launcher && <SiteFooter onBlocked={onBlocked} />}
-        {menuOpen && (
-          <MenuDrawer
-            id={DRAWER_ID}
-            closeRef={closeRef}
-            onClose={closeMenu}
-            onPalette={() => {
-              closeMenu();
-              openPalette();
-            }}
+          <CommandPalette
+            open={paletteOpen}
+            onClose={() => setPaletteOpen(false)}
+            returnRef={paletteReturnRef}
+            onBlocked={onBlocked}
           />
-        )}
-        <CommandPalette
-          open={paletteOpen}
-          onClose={() => setPaletteOpen(false)}
-          returnRef={paletteReturnRef}
-          onBlocked={onBlocked}
-        />
-      </div>
+        </div>
+      </LaunchHandoffContext.Provider>
     </ToastProvider>
   );
 }

@@ -7,7 +7,7 @@ import { LIMITS, type OpenTarget } from "@/api";
 import { useApi } from "@/store/api-context";
 import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
-import { useRunner } from "./use-runner";
+import { useRunGroup } from "./use-run-group";
 
 /**
  * 「いつものエゴサ」の帯（画面仕様書 2.2）。ヘッダーの下、全ページ（ランチャー含む）に出す。
@@ -22,7 +22,7 @@ export function GroupStrip({
 }) {
   const api = useApi();
   const { t } = useI18n();
-  const run = useRunner();
+  const runGroup = useRunGroup(onBlocked);
   const ready = useAppStore((s) => s.status === "ready");
   const shown = useAppStore(
     useShallow((s) => s.groups.slice(0, LIMITS.headerGroups)),
@@ -65,14 +65,7 @@ export function GroupStrip({
                 <button
                   key={g.id}
                   type="button"
-                  onClick={() => {
-                    const { total, blocked } = run(g.items, {
-                      kind: "group",
-                      label: g.name,
-                      groupId: g.id,
-                    });
-                    if (blocked.length > 0) onBlocked(total, blocked);
-                  }}
+                  onClick={() => runGroup(g)}
                   title={t.strip.title(g.name, g.items.length, done)}
                   aria-label={t.strip.run(g.name, g.items.length, done)}
                   className="flex min-w-0 items-center gap-1 rounded-full border-2 px-2.5 py-1 text-sm font-medium hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"

@@ -7,7 +7,7 @@ import { BlockedNotice } from "@/components/common/blocked-notice";
 import { EmptyState } from "@/components/common/empty-state";
 import { PageHead } from "@/components/common/page-head";
 import { useToast } from "@/components/common/toast";
-import { useRunner } from "@/components/common/use-runner";
+import { useRunGroup } from "@/components/common/use-run-group";
 import { Button } from "@/components/ui/button";
 import { useApi } from "@/store/api-context";
 import { useI18n } from "@/store/i18n-context";
@@ -90,26 +90,17 @@ function GroupRow({
   onRemove,
 }: {
   group: Group;
-  /** 実行したあと（開こうとした数と、ブロックされて開けなかったもの。無ければ空） */
+  /** ランチャーへ移れなかったとき（ふつうは移るので呼ばれない。開こうとした数と、開けなかったもの） */
   onRun: (total: number, blocked: OpenTarget[]) => void;
   onRemove: () => void;
 }) {
   const api = useApi();
   const { t } = useI18n();
   const p = t.groupsPage;
-  const runner = useRunner();
+  const runGroup = useRunGroup(onRun);
   const label = useItemLabel();
   // 「今日は済」は履歴ではなく lastRunAt が端末の現地の今日かで決める（api-spec 4.5）
   const done = api.clock.isToday(group.lastRunAt);
-
-  const run = () => {
-    const { total, blocked } = runner(group.items, {
-      kind: "group",
-      label: group.name,
-      groupId: group.id,
-    });
-    onRun(total, blocked);
-  };
 
   return (
     <li className="space-y-2 rounded-lg border p-3 text-sm">
@@ -124,7 +115,7 @@ function GroupRow({
             size="sm"
             variant="secondary"
             aria-label={p.runLabel(group.name)}
-            onClick={run}
+            onClick={() => runGroup(group)}
           >
             {p.run}
           </Button>

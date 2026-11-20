@@ -20,12 +20,15 @@ export function BlockedNotice({
   total,
   blocked,
   onClose,
+  onOpen,
 }: {
   /** 開こうとした検索の数 */
   total: number;
   /** 開けなかった検索 */
   blocked: OpenTarget[];
   onClose?: () => void;
+  /** ［次を開く］や個別リンクで1件開いたとき（ランチャーが各行の印に使う） */
+  onOpen?: (target: OpenTarget) => void;
 }) {
   const { t } = useI18n();
   // 開いた検索の位置。一覧が新しくなったら（新しい実行）リセットする
@@ -36,7 +39,10 @@ export function BlockedNotice({
     setOpened(new Set());
   }
 
-  const mark = (i: number) => setOpened((o) => new Set(o).add(i));
+  const mark = (i: number) => {
+    setOpened((o) => new Set(o).add(i));
+    onOpen?.(blocked[i]);
+  };
   const remaining = blocked.length - opened.size;
   const openNext = () => {
     const i = blocked.findIndex((_, k) => !opened.has(k));

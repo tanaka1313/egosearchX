@@ -12,6 +12,9 @@ import { mount } from "@/components/search/harness";
 import { MemoryAdapter } from "@/lib/storage/kv-adapter";
 import { GroupsPage } from "./groups-page";
 
+const push = vi.hoisted(() => vi.fn());
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+
 // jsdom の描画が重く、並列実行の負荷で5秒を超えることがあるため、このファイルだけ延ばす
 vi.setConfig({ testTimeout: 30_000 });
 
@@ -46,6 +49,9 @@ const rows = () =>
   ).getAllByRole("listitem");
 
 beforeEach(() => {
+  push.mockReset();
+  // jsdom の Blob に stream() が無いので、ランチャーの URL は圧縮なし（v1u.）で作る
+  vi.stubGlobal("CompressionStream", undefined);
   vi.spyOn(window.navigator, "languages", "get").mockImplementation(() => [
     "ja-JP",
   ]);
@@ -56,6 +62,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe("S4 いつものエゴサ：一覧の行", () => {
@@ -114,10 +121,30 @@ describe("S4 いつものエゴサ：一括実行", () => {
     expect(g.lastRunAt).toBe(clock.now());
   });
 
-  it("ブロックされたら、このページの中に件数と個別リンクを出す（［×］で消せる）", async () => {
+  it("開いたあと、結果を持ってランチャー（そのいつものエゴサの URL）へ移る。ブロックされても同じで、このページには出さない", async () => {
     vi.mocked(window.open).mockImplementation(() => null);
+    const api = await setup();
+    await mountPage(api);
+    fireEvent.click(
+      screen.getByRole("button", { name: "配信後エゴサを一括実行" }),
+    );
+    await waitFor(() => expect(push).toHaveBeenCalledTimes(1));
+    const to = String(push.mock.calls[0][0]);
+    expect(to).toMatch(/^\/launch#v1/);
+    const [g] = (await api.data.init()).groups;
+    expect(await api.launcher.decode(to.split("#")[1])).toEqual({
+      name: g.name,
+      items: g.items,
+    });
+    expect(screen.queryByRole("status")).toBeNull();
+  });
+
+  it("ランチャーの URL を作れなかったときだけ、このページの中に件数と個別リンクを出す（［×］で消せる）", async () => {
+    vi.mocked(window.open).mockImplementation(() => null);
+    vi.spyOn(console, "error").mockImplementation(() => {});
     const onBlocked = vi.fn();
     const api = await setup();
+    vi.spyOn(api.launcher, "encode").mockRejectedValue(new Error("x"));
     await mount(api, <GroupsPage />, { scope: false, onBlocked });
     fireEvent.click(
       screen.getByRole("button", { name: "配信後エゴサを一括実行" }),

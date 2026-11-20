@@ -1,16 +1,20 @@
 "use client";
 
-import { useId, useMemo } from "react";
+import { useId, useMemo, useState } from "react";
 import { ApiError, DEFAULT_PREFS } from "@/api";
 import { PageHead } from "@/components/common/page-head";
 import { useToast } from "@/components/common/toast";
+import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
+import { Button } from "@/components/ui/button";
+import { focusMain } from "@/lib/focus";
 import { useApi } from "@/store/api-context";
 import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
 
 /**
- * S11：設定（画面仕様書 5.10）。今は「興味の対象」の選択だけ（試験的）。
+ * S11：設定（画面仕様書 5.10）。「興味の対象」の選択（試験的）と、［データをすべて初期化］。
  * 選ぶと `prefs.interest` を保存し、条件ボタンの並びが切り替わる。一覧は `master.interests()`（JSON の並び）。
+ * 初期化は確認ダイアログ（D3）を経て `data_reset` を呼ぶ（壊れたときの初期化と同じ処理。画面仕様書 2.7）。
  */
 export function SettingsPage() {
   const api = useApi();
@@ -20,6 +24,8 @@ export function SettingsPage() {
   const legendId = useId();
   const saved = useAppStore((st) => st.prefs?.interest);
   const prefsSet = useAppStore((st) => st.prefs_set);
+  const reset = useAppStore((st) => st.data_reset);
+  const [confirming, setConfirming] = useState(false);
   const interests = useMemo(() => [...api.master.interests().values()], [api]);
   const current = saved ?? DEFAULT_PREFS.interest;
 
@@ -65,6 +71,38 @@ export function SettingsPage() {
             </label>
           ))}
         </div>
+      </section>
+      <section className="space-y-2 rounded-lg border p-3 text-sm">
+        <h2 className="font-medium">{s.dataLegend}</h2>
+        <p className="text-xs text-muted-foreground">{s.dataNote}</p>
+        <Button
+          type="button"
+          variant="destructive"
+          size="sm"
+          onClick={() => setConfirming(true)}
+        >
+          {s.resetButton}
+        </Button>
+        <ConfirmDialog
+          open={confirming}
+          onOpenChange={setConfirming}
+          title={t.resetData.title}
+          body={t.resetData.body}
+          action={t.resetData.action}
+          // 失敗しても画面はそのまま。成功したら本文へフォーカスを移し、トーストで知らせる
+          onConfirm={() =>
+            reset().then(
+              () => {
+                focusMain();
+                toast.show(s.resetDone);
+              },
+              (e: unknown) => {
+                console.error(e);
+                toast.show(t.toast.resetFailed);
+              },
+            )
+          }
+        />
       </section>
     </main>
   );

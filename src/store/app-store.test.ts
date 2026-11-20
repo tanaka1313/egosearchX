@@ -121,15 +121,38 @@ describe("data_reset（壊れたデータの初期化）", () => {
     await s.favorites_save({ name: "a", query: "a", engine: "x" });
     expect(store.getState().favorites).toHaveLength(1);
   });
-  it("ready のときは throw し、保存データを1バイトも消さない", async () => {
-    const { kv, store } = await ready();
-    await store
+  it("ready のとき（設定の［データをすべて初期化］）も、お気に入り・いつものエゴサ・履歴を消してプリセットに戻す", async () => {
+    const { store } = await ready();
+    const s0 = store.getState();
+    await s0.favorites_save({ name: "a", query: "a", engine: "x" });
+    await s0.groups_save({
+      name: "g",
+      items: [{ query: "a", engine: "x" }],
+    });
+    await s0.history_record(
+      { targets: [], warnings: [] },
+      { kind: "home", label: "" },
+    );
+    expect(store.getState().favorites).toHaveLength(1);
+
+    await store.getState().data_reset();
+    const s = store.getState();
+    expect(s.status).toBe("ready");
+    expect(s.favorites).toEqual([]);
+    expect(s.groups).toEqual([]);
+    expect(s.history).toEqual([]);
+    expect(s.chips.get("hololive")?.length).toBeGreaterThan(0);
+  });
+  it("読み込み中は throw し、保存データを1バイトも消さない", async () => {
+    const { kv, store: ready0 } = await ready();
+    await ready0
       .getState()
       .favorites_save({ name: "a", query: "a", engine: "x" });
     const before = await dump(kv);
+    const { store } = setup(kv); // init() の前＝loading
+    expect(store.getState().status).toBe("loading");
     await expect(store.getState().data_reset()).rejects.toThrow();
     expect(await dump(kv)).toEqual(before);
-    expect(store.getState().favorites).toHaveLength(1);
   });
 });
 
