@@ -251,3 +251,23 @@ describe("D2 ブックマークURLの発行", () => {
     expect((await api.data.init()).groups).toEqual(before);
   });
 });
+
+describe("S4 いつものエゴサ：絞り込み", () => {
+  const box = () => screen.getByLabelText("名前や検索文字列で絞り込み");
+
+  it("名前・項目の検索文字列・項目の表示名（お気に入りの名前）で絞れる", async () => {
+    await mountPage(await setup());
+    for (const v of ["配信後", "min_faves:100", "ぺこらエゴサ"]) {
+      fireEvent.change(box(), { target: { value: v } });
+      expect(rows()).toHaveLength(1);
+      expect(within(rows()[0]).getByText(/配信後エゴサ/)).toBeInTheDocument();
+    }
+  });
+
+  it("該当が無いと「該当なし」を出し、並べ替えの注記は出さない", async () => {
+    await mountPage(await setup());
+    fireEvent.change(box(), { target: { value: "存在しない語zzz" } });
+    expect(screen.getByText("該当なし")).toBeInTheDocument();
+    expect(screen.queryByText(/並べ替えを反映しません/)).toBeNull();
+  });
+});

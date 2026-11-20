@@ -34,8 +34,8 @@ export const MENU_SECTIONS: readonly MenuSection[] = [
       { key: "buttons", href: "/buttons", manage: true },
       { key: "favorites", href: "/favorites", manage: true },
       { key: "groups", href: "/groups", manage: true },
-      { key: "history", href: "/history", manage: false },
-      { key: "trash", href: "/trash", manage: false },
+      { key: "history", href: "/history", manage: true },
+      { key: "trash", href: "/trash", manage: true },
     ],
   },
   {

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ApiError, type Group, type OpenTarget } from "@/api";
 import { BlockedNotice } from "@/components/common/blocked-notice";
 import { EmptyState } from "@/components/common/empty-state";
+import { ListFilter, matchesFilter } from "@/components/common/list-filter";
 import { PageHead } from "@/components/common/page-head";
 import { useToast } from "@/components/common/toast";
 import { useRunGroup } from "@/components/common/use-run-group";
@@ -31,6 +32,15 @@ export function GroupsPage() {
     total: number;
     items: OpenTarget[];
   } | null>(null);
+  const [filter, setFilter] = useState("");
+  const itemLabel = useItemLabel();
+  // 名前・項目の検索文字列・項目の表示名（一致するお気に入りの名前）のどれかに含まれるもの
+  const shown = groups.filter((g) =>
+    matchesFilter(filter, [
+      g.name,
+      ...g.items.flatMap((it) => [it.query, itemLabel(it)]),
+    ]),
+  );
 
   const fail = (e: unknown) => {
     if (e instanceof ApiError && e.code === "CORRUPT") return;
@@ -55,11 +65,17 @@ export function GroupsPage() {
           onClose={() => setBlocked(null)}
         />
       )}
+      <ListFilter
+        value={filter}
+        onChange={setFilter}
+        label={p.filter}
+        noMatch={groups.length > 0 && shown.length === 0}
+      />
       {groups.length === 0 ? (
         <EmptyState text={p.empty}>{add}</EmptyState>
       ) : (
         <ul aria-label={p.list} className="space-y-2">
-          {groups.map((g) => (
+          {shown.map((g) => (
             <GroupRow
               key={g.id}
               group={g}

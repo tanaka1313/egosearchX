@@ -106,7 +106,16 @@ export const ja = {
     closeOutside: "メニューの外を押して閉じる",
     current: "表示中",
     manage: (name: string) => `${name}の管理`,
-    manageTitle: (name: string) => `${name}の管理（追加・編集・削除）`,
+    manageTitle: (name: string, actions: string) =>
+      `${name}の管理（${actions}）`,
+    // 管理ページごとにできること（歯車の title）。キーは menu.items と同じ
+    manageActions: {
+      buttons: "追加・編集・削除",
+      favorites: "追加・編集・削除",
+      groups: "追加・編集・削除",
+      history: "再実行・お気に入りに保存・全件削除",
+      trash: "復元・完全削除",
+    } as Record<string, string>,
     sections: {
       data: "データ管理",
       tools: "ツール",
@@ -354,6 +363,7 @@ export const ja = {
   },
   historyPage: {
     title: "履歴",
+    filter: "検索文字列や実行元で絞り込み",
     list: "履歴の一覧",
     empty: "実行するとここに残ります",
     clearAll: "全件削除",
@@ -368,6 +378,7 @@ export const ja = {
     usedChips: (names: string) => `使った条件ボタン：${names}`,
     chipSeparator: "、",
     rerun: "再実行",
+    otherWarn: (engine: string, text: string) => `${engine}で開くと：${text}`,
     saveAsFavorite: "☆ お気に入りに保存",
     sheetTitle: "お気に入りに保存",
     saveNote:
@@ -409,12 +420,15 @@ export const ja = {
     confirmAction: "完全に削除",
     failed: "操作できませんでした",
   },
+  listFilter: {
+    none: "該当なし",
+    sortNote: "絞り込み中は並べ替えを反映しません",
+  },
   favoritesPage: {
     title: "お気に入り",
     description:
       "保存した検索です。検索文字列そのものを持つので、条件ボタンを直しても変わりません。［編集］では文字列を条件ボタンと詳細条件に展開して直せます。編集すると、同じ検索文字列を持ついつものエゴサの項目も一緒に更新されます。削除しても、いつものエゴサには影響しません（削除済みから戻せます）。",
-    filter: "名前で絞り込み",
-    filterNote: "絞り込み中は並べ替えを反映しません",
+    filter: "名前や検索文字列で絞り込み",
     empty: "ホームで条件を触って ☆ 保存 するとここに入ります",
     list: "お気に入りの一覧",
     reorder: (name: string) =>
@@ -458,6 +472,7 @@ export const ja = {
   },
   groupsPage: {
     title: "いつものエゴサ",
+    filter: "名前や検索文字列で絞り込み",
     description:
       "エゴサのタイミング（配信後・毎朝など）ごとに、複数の検索をまとめて一括で開けます。先頭2件はどのページでもヘッダー下の帯に並びます。追加は、お気に入りや履歴から選ぶ方法と、条件を指定して新しく作る方法があります。中身は検索文字列の並びです。お気に入りを編集すると、同じ検索文字列の項目も一緒に更新されます（お気に入りを削除しても、ここからは消えません）。",
     add: "＋ 追加",
@@ -556,6 +571,7 @@ export const ja = {
   },
   chips: {
     title: "条件ボタン",
+    filter: "ラベルや検索文字列で絞り込み",
     count: (n: number, max: number) => `${n}/${max}`,
     countLabel: "条件ボタンの数",
     addPresets: "プリセットを追加",

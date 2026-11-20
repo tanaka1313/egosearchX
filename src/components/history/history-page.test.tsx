@@ -257,3 +257,71 @@ describe("S5 履歴：英語", () => {
     ).toBeInTheDocument();
   });
 });
+
+describe("S5 履歴：もう一方の検索先で開く", () => {
+  it("X の行には［Yahoo で開く］があり、Yahoo!リアルタイム検索の URL で同じ検索を開いて履歴に1件足す", async () => {
+    const api = await setup();
+    await mountPage(api);
+    // r[0]=雑談（X）
+    fireEvent.click(
+      within(rows()[0]).getByRole("button", { name: "Yahoo で開く" }),
+    );
+    expect(window.open).toHaveBeenCalledTimes(1);
+    const url = new URL(vi.mocked(window.open).mock.calls[0][0] as string);
+    expect(url.hostname).toBe("search.yahoo.co.jp");
+    expect(url.searchParams.get("p")).toBe("雑談");
+    await waitFor(() =>
+      expect(screen.getByText(`4/${LIMITS.history}`)).toBeInTheDocument(),
+    );
+    expect(
+      within(rows()[0]).getByText("Yahoo!リアルタイム検索"),
+    ).toBeInTheDocument();
+  });
+
+  it("Yahoo の行には［X で開く］があり、［Yahoo で開く］は無い", async () => {
+    const api = await setup();
+    await mountPage(api);
+    // r[1]=歌枠（Yahoo）
+    expect(
+      within(rows()[1]).queryByRole("button", { name: "Yahoo で開く" }),
+    ).toBeNull();
+    fireEvent.click(
+      within(rows()[1]).getByRole("button", { name: "X で開く" }),
+    );
+    const url = new URL(vi.mocked(window.open).mock.calls[0][0] as string);
+    expect(url.hostname).toBe("x.com");
+  });
+
+  it("Yahoo で使えない演算子を含む X の行は、行の下に Yahoo!リアルタイム検索での警告を出す。無い行は出さない", async () => {
+    const api = await setup();
+    await mountPage(api);
+    // r[2]=ぺこら filter:images（X）
+    expect(
+      within(rows()[2]).getByText(/Yahoo!リアルタイム検索で開くと：/),
+    ).toBeInTheDocument();
+    expect(
+      within(rows()[0]).queryByText(/Yahoo!リアルタイム検索で開くと：/),
+    ).toBeNull();
+  });
+});
+
+describe("S5 履歴：絞り込み", () => {
+  it("検索文字列で絞れる", async () => {
+    await mountPage(await setup());
+    fireEvent.change(screen.getByLabelText("検索文字列や実行元で絞り込み"), {
+      target: { value: "filter:images" },
+    });
+    expect(rows()).toHaveLength(1);
+    expect(within(rows()[0]).getByText("ホーム")).toBeInTheDocument();
+  });
+
+  it("実行元の表示名で絞れ、該当が無いと「該当なし」を出す", async () => {
+    await mountPage(await setup());
+    const input = screen.getByLabelText("検索文字列や実行元で絞り込み");
+    fireEvent.change(input, { target: { value: "配信後エゴサ" } });
+    expect(rows()).toHaveLength(1);
+    fireEvent.change(input, { target: { value: "存在しない語zzz" } });
+    expect(screen.getByText("該当なし")).toBeInTheDocument();
+    expect(screen.queryByRole("listitem")).toBeNull();
+  });
+});

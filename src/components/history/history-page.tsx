@@ -1,10 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ApiError, DEFAULT_PREFS, LIMITS, type HistoryItem } from "@/api";
+import {
+  ApiError,
+  DEFAULT_PREFS,
+  LIMITS,
+  type Engine,
+  type HistoryItem,
+} from "@/api";
 import { useReportBlocked } from "@/components/common/blocked-context";
 import { searchAutoName } from "@/components/common/auto-name";
 import { EmptyState } from "@/components/common/empty-state";
+import { ListFilter, matchesFilter } from "@/components/common/list-filter";
 import { FavoriteSaveForm } from "@/components/common/favorite-save-form";
 import { PageHead } from "@/components/common/page-head";
 import { useToast } from "@/components/common/toast";
@@ -14,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
 import { focusMain } from "@/lib/focus";
 import { formatRunAt } from "@/lib/format-date";
-import { ENGINE_LABEL, type Messages } from "@/messages";
+import { ENGINE_LABEL, ENGINE_SHORT, type Messages } from "@/messages";
 import { useApi } from "@/store/api-context";
 import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
@@ -65,6 +72,14 @@ export function HistoryPage() {
     });
   }, [api, history, allChips, interest]);
 
+  const [filter, setFilter] = useState("");
+  // 検索文字列と実行元の表示名に含まれるもの（表示用の derived は履歴と同じ並びなので、添字を保ったまま絞る）
+  const shown = history
+    .map((h, i) => ({ h, d: derived[i] }))
+    .filter(({ h }) =>
+      matchesFilter(filter, [h.query, sourceText(p, h.source)]),
+    );
+
   const fail = (e: unknown) => {
     if (e instanceof ApiError && e.code === "CORRUPT") return;
     console.error(e);
@@ -91,16 +106,22 @@ export function HistoryPage() {
           </>
         }
       />
+      <ListFilter
+        value={filter}
+        onChange={setFilter}
+        label={p.filter}
+        noMatch={history.length > 0 && shown.length === 0}
+      />
       {history.length === 0 ? (
         <EmptyState text={p.empty} />
       ) : (
         <ul aria-label={p.list} className="space-y-2">
-          {history.map((h, i) => (
+          {shown.map(({ h, d }) => (
             <HistoryRow
               key={h.id}
               item={h}
-              word={derived[i].word}
-              chipNames={derived[i].chipNames}
+              word={d.word}
+              chipNames={d.chipNames}
             />
           ))}
         </ul>
@@ -133,14 +154,26 @@ function HistoryRow({
   const reportBlocked = useReportBlocked();
   const [saveOpen, setSaveOpen] = useState(false);
 
-  const rerun = () => {
+  const api = useApi();
+  const other = item.engine === "x" ? "yahoo" : "x";
+
+  const open = (engine: Engine) => {
     // いつものエゴサの lastRunAt は動かさない（groupId を付けない）。フッターの［再実行］と同じ
     const { total, blocked } = run(
-      [{ query: item.query, engine: item.engine }],
+      [{ query: item.query, engine }],
       item.source,
     );
     if (blocked.length > 0) reportBlocked(total, blocked);
   };
+
+  // もう一方の検索先で開いたときに出る警告（Yahoo!リアルタイム検索で使えない演算子など）。ボタンには印を付けず、行の下に書く
+  const otherWarnings = useMemo(
+    () =>
+      api.url
+        .plan([{ query: item.query, engine: other }])
+        .warnings.map((w) => t.issues[w.code](w.params ?? {})),
+    [api, item.query, other, t],
+  );
 
   const defaultName =
     searchAutoName(word, chipNames, LIMITS.autoName) ||
@@ -166,8 +199,11 @@ function HistoryRow({
         </div>
       )}
       <div className="flex flex-wrap gap-1">
-        <Button size="xs" onClick={rerun}>
+        <Button size="xs" onClick={() => open(item.engine)}>
           {p.rerun}
+        </Button>
+        <Button size="xs" variant="outline" onClick={() => open(other)}>
+          {t.search.open.openIn(ENGINE_SHORT[other])}
         </Button>
         <Sheet
           open={saveOpen}
@@ -189,6 +225,11 @@ function HistoryRow({
           />
         </Sheet>
       </div>
+      {otherWarnings.length > 0 && (
+        <div className="text-xs text-muted-foreground">
+          {p.otherWarn(ENGINE_LABEL[other], otherWarnings.join(" / "))}
+        </div>
+      )}
     </li>
   );
 }

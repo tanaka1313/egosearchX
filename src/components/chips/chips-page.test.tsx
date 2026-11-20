@@ -230,3 +230,38 @@ describe("S2 サジェストと「新」の印", () => {
     expect(within(homeChip).queryByText("新")).toBeNull();
   });
 });
+
+describe("S2 条件ボタン：絞り込み", () => {
+  const box = () => screen.getByLabelText("ラベルや検索文字列で絞り込み");
+
+  it("ラベルでも検索文字列でも絞れる", async () => {
+    const { api, chips } = await setup();
+    await mountPage(api);
+    fireEvent.change(box(), { target: { value: chips[0].label } });
+    expect(
+      within(rowOf(chips[0].label)).getByText(chips[0].query),
+    ).toBeInTheDocument();
+    expect(rows().length).toBeLessThan(chips.length);
+    fireEvent.change(box(), { target: { value: chips[0].query } });
+    expect(
+      within(rowOf(chips[0].label)).getByText(chips[0].query),
+    ).toBeInTheDocument();
+    expect(rows().length).toBeLessThan(chips.length);
+  });
+
+  it("該当が無いと「該当なし」と並べ替えの注記を出し、消すと全件に戻る", async () => {
+    const { api, chips } = await setup();
+    await mountPage(api);
+    fireEvent.change(box(), { target: { value: "存在しない語zzz" } });
+    expect(screen.getByText("該当なし")).toBeInTheDocument();
+    expect(
+      screen.getByText("絞り込み中は並べ替えを反映しません"),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("list", { name: "条件ボタンの一覧" })?.children
+        .length ?? 0,
+    ).toBe(0);
+    fireEvent.change(box(), { target: { value: "" } });
+    expect(rows()).toHaveLength(chips.length);
+  });
+});

@@ -119,7 +119,7 @@ describe("S3 お気に入り：一覧の行", () => {
 describe("S3 お気に入り：絞り込み", () => {
   it("名前に含むものだけを出し、並べ替えを反映しない旨を注記する。空に戻すと注記は消える", async () => {
     await mountPage(await setup());
-    const input = screen.getByLabelText("名前で絞り込み");
+    const input = screen.getByLabelText("名前や検索文字列で絞り込み");
     expect(screen.queryByText("絞り込み中は並べ替えを反映しません")).toBeNull();
     fireEvent.change(input, { target: { value: "歌枠" } });
     expect(rows().map((r) => r.textContent)).toEqual([
@@ -208,8 +208,37 @@ describe("S3 お気に入り：編集への導線と英語", () => {
       "en-US",
     ]);
     await mountPage(await setup());
-    expect(screen.getByLabelText("Filter by name")).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Filter by name or search text"),
+    ).toBeInTheDocument();
     const list = screen.getByRole("list", { name: "Favorites" });
     expect(within(list).getAllByText("Never run")).toHaveLength(3);
+  });
+});
+
+describe("S3 お気に入り：絞り込み", () => {
+  const box = () => screen.getByLabelText("名前や検索文字列で絞り込み");
+
+  it("名前でも検索文字列でも絞れる", async () => {
+    await mountPage(await setup());
+    fireEvent.change(box(), { target: { value: "両方" } });
+    expect(rows()).toHaveLength(1);
+    expect(within(rows()[0]).getByText("両方で見る")).toBeInTheDocument();
+    // 「歌枠チェック」の名前には含まれない、検索文字列だけにある語
+    fireEvent.change(box(), { target: { value: "filter:images" } });
+    expect(rows()).toHaveLength(1);
+    expect(within(rows()[0]).getByText("歌枠チェック")).toBeInTheDocument();
+  });
+
+  it("該当が無いと「該当なし」と並べ替えの注記を出し、入力を消すと全件に戻る", async () => {
+    await mountPage(await setup());
+    fireEvent.change(box(), { target: { value: "存在しない語zzz" } });
+    expect(screen.getByText("該当なし")).toBeInTheDocument();
+    expect(
+      screen.getByText("絞り込み中は並べ替えを反映しません"),
+    ).toBeInTheDocument();
+    fireEvent.change(box(), { target: { value: "" } });
+    expect(rows()).toHaveLength(3);
+    expect(screen.queryByText("該当なし")).toBeNull();
   });
 });
