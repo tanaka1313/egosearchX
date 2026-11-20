@@ -394,11 +394,18 @@ describe("左メニュー", () => {
   it("管理ページの読み上げは「〇〇の管理」", async () => {
     mount(apiOf(new MemoryAdapter()));
     const { nav } = await openMenu();
-    for (const name of ["条件ボタン", "お気に入り", "いつものエゴサ"])
+    for (const name of [
+      "条件ボタン",
+      "お気に入り",
+      "いつものエゴサ",
+      "履歴",
+      "削除済み",
+    ])
       expect(
         within(nav).getByRole("link", { name: `${name}の管理` }),
       ).toBeVisible();
-    expect(within(nav).getByRole("link", { name: "履歴" })).toBeVisible();
+    // 管理ページではない項目には「の管理」は付かない
+    expect(within(nav).getByRole("link", { name: "URL解析" })).toBeVisible();
   });
 
   it("開くと［×］にフォーカス。Esc で閉じて［≡］へ戻る。項目を押すと閉じる", async () => {
@@ -443,7 +450,7 @@ describe("左メニュー", () => {
       within(nav).getByRole("button", { name: "バージョン情報" }),
     ).toBeVisible();
     expect(
-      within(nav).getByRole("link", { name: "削除済み" }),
+      within(nav).getByRole("link", { name: "削除済みの管理" }),
     ).toHaveTextContent(/^削除済み$/);
   });
 

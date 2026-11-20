@@ -5,6 +5,7 @@ import { DragDropProvider } from "@dnd-kit/react";
 import { useState } from "react";
 import { ApiError, type Favorite } from "@/api";
 import { EmptyState } from "@/components/common/empty-state";
+import { ListFilter, matchesFilter } from "@/components/common/list-filter";
 import { PageHead } from "@/components/common/page-head";
 import { useToast } from "@/components/common/toast";
 import { useI18n } from "@/store/i18n-context";
@@ -37,9 +38,7 @@ export function FavoritesPage() {
           .filter((f): f is Favorite => f !== undefined)
       : favorites;
   const needle = filter.trim();
-  const shown = needle
-    ? ordered.filter((f) => f.name.includes(needle))
-    : ordered;
+  const shown = ordered.filter((f) => matchesFilter(needle, [f.name, f.query]));
 
   const fail = (e: unknown) => {
     if (e instanceof ApiError && e.code === "CORRUPT") return;
@@ -51,12 +50,12 @@ export function FavoritesPage() {
     <main className="mx-auto max-w-3xl space-y-3 p-3 md:p-4">
       <PageHead title={p.title} />
       <p className="text-sm text-muted-foreground">{p.description}</p>
-      <input
+      <ListFilter
         value={filter}
-        onChange={(ev) => setFilter(ev.target.value)}
-        aria-label={p.filter}
-        placeholder={p.filter}
-        className="w-full rounded-lg border bg-field px-3 py-2 text-sm"
+        onChange={setFilter}
+        label={p.filter}
+        noMatch={favorites.length > 0 && shown.length === 0}
+        sortable
       />
 
       {favorites.length === 0 ? (
@@ -89,9 +88,6 @@ export function FavoritesPage() {
             ))}
           </ul>
         </DragDropProvider>
-      )}
-      {needle && (
-        <p className="text-xs text-muted-foreground">{p.filterNote}</p>
       )}
     </main>
   );

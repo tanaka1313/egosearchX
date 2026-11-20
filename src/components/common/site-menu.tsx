@@ -17,13 +17,13 @@ import { VersionDialog } from "./version-dialog";
 
 /** ホーム（見出しなし）。見出しの下の項目より大きい文字 */
 const ITEM_CLASS =
-  "flex w-full items-center gap-2 rounded-lg px-3 py-1 text-left text-base hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring";
+  "flex w-full items-center gap-2 rounded-lg px-3 py-1 tall:py-2 text-left text-base hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-ring";
 /**
  * 見出しの下の項目：小さめの文字で、行を詰める（iPhone SE でも全部開いたまま収め、項目が増えても収まるように）。
  * 左に余白を足して、見出しの下にあることを示す
  */
 const SUB_ITEM_CLASS =
-  "flex w-full items-center gap-2 rounded-lg py-1 pr-3 pl-6 text-left text-sm hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring";
+  "flex w-full items-center gap-2 rounded-lg py-1 tall:py-2 pr-3 pl-6 text-left text-sm hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-ring";
 
 /** ドロワーとサイドバーで共通の項目（画面仕様書 2.4）。縦に並べ、見出しごとに分ける */
 function MenuList({
@@ -46,8 +46,12 @@ function MenuList({
         onClick={onNavigate}
         aria-current={here ? "page" : undefined}
         aria-label={m.manage ? t.menu.manage(name) : undefined}
-        title={m.manage ? t.menu.manageTitle(name) : undefined}
-        className={`${className} ${here ? "bg-muted font-bold" : ""}`}
+        title={
+          m.manage
+            ? t.menu.manageTitle(name, t.menu.manageActions[m.key] ?? "")
+            : undefined
+        }
+        className={`${className} ${here ? "bg-sidebar-accent font-bold" : ""}`}
       >
         <span className="flex-1">{name}</span>
         {/* 管理ページの印（歯車）。文言を足さずに「管理する場所」だと示す */}
@@ -82,7 +86,7 @@ function MenuList({
           <section key={section.key} aria-labelledby={headingId}>
             <h2
               id={headingId}
-              className="px-3 pt-1 pb-0.5 text-xs font-medium text-muted-foreground"
+              className="px-3 pt-1 tall:pt-3 pb-0.5 text-xs font-medium text-muted-foreground"
             >
               {t.menu.sections[section.key]}
             </h2>
@@ -135,7 +139,7 @@ export function MenuSidebar({ onPalette }: { onPalette: () => void }) {
   return (
     <aside
       aria-label={t.menu.fixedLabel}
-      className="hidden w-64 shrink-0 border-r bg-background p-3 xl:block"
+      className="hidden w-64 shrink-0 border-r bg-sidebar p-3 xl:block"
     >
       <p className="mb-3 px-3 font-bold">Hololive EgoSearch</p>
       <MenuList onPalette={onPalette} />
@@ -165,7 +169,7 @@ export function MenuDrawer({
       <nav
         id={id}
         aria-label={t.menu.label}
-        className="flex h-full w-[70%] max-w-[22.5rem] flex-col overflow-auto border-r bg-background p-3 shadow-xl"
+        className="flex h-full w-[70%] max-w-[22.5rem] flex-col overflow-auto border-r bg-sidebar p-3 shadow-xl"
       >
         <div className="mb-1 flex items-center justify-between">
           <span className="font-bold">Hololive EgoSearch</span>
@@ -174,7 +178,7 @@ export function MenuDrawer({
             type="button"
             aria-label={t.menu.close}
             onClick={onClose}
-            className="rounded-lg p-2 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+            className="rounded-lg p-2 hover:bg-sidebar-accent focus-visible:ring-2 focus-visible:ring-ring"
           >
             <X className="size-5" aria-hidden />
           </button>

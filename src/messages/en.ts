@@ -97,7 +97,14 @@ export const en: Messages = {
     closeOutside: "Close menu (press outside)",
     current: "Current",
     manage: (name) => `Manage ${name}`,
-    manageTitle: (name) => `Manage ${name} (add, edit, delete)`,
+    manageTitle: (name, actions) => `Manage ${name} (${actions})`,
+    manageActions: {
+      buttons: "add, edit, delete",
+      favorites: "add, edit, delete",
+      groups: "add, edit, delete",
+      history: "run again, save to favorites, delete all",
+      trash: "restore, delete permanently",
+    },
     sections: {
       data: "Data",
       tools: "Tools",
@@ -345,6 +352,7 @@ export const en: Messages = {
   },
   historyPage: {
     title: "History",
+    filter: "Filter by search text or source",
     list: "History",
     empty: "Searches you run will appear here",
     clearAll: "Delete all",
@@ -359,6 +367,7 @@ export const en: Messages = {
     usedChips: (names: string) => `Condition buttons used: ${names}`,
     chipSeparator: ", ",
     rerun: "Run again",
+    otherWarn: (engine, text) => `Opening in ${engine}: ${text}`,
     saveAsFavorite: "☆ Save to favorites",
     sheetTitle: "Save to favorites",
     saveNote:
@@ -400,12 +409,15 @@ export const en: Messages = {
     confirmAction: "Delete permanently",
     failed: "Could not complete the action",
   },
+  listFilter: {
+    none: "No matches",
+    sortNote: "Reordering is not applied while filtering",
+  },
   favoritesPage: {
     title: "Favorites",
     description:
       "Saved searches. Each keeps its search text itself, so editing a condition button does not change it. Edit expands the text into condition buttons and advanced conditions. Saving an edit also updates items with the same search text in your routines. Deleting does not affect routines (you can restore it from Trash).",
-    filter: "Filter by name",
-    filterNote: "Reordering is not applied while filtering",
+    filter: "Filter by name or search text",
     empty: "Set conditions on Home and use ☆ Save to add favorites here",
     list: "Favorites",
     reorder: (name) => `Reorder ${name} (Space to lift, arrow keys to move)`,
@@ -448,6 +460,7 @@ export const en: Messages = {
   },
   groupsPage: {
     title: "Routines",
+    filter: "Filter by name or search text",
     description:
       "Open several searches at once for a given timing (after a stream, every morning, and so on). The first two appear in the band under the header on every page. You can add one by picking from favorites or history, or by building a new search from conditions. A routine holds a list of search texts. Editing a favorite also updates items with the same search text here (deleting a favorite does not remove them).",
     add: "+ Add",
@@ -539,6 +552,7 @@ export const en: Messages = {
   },
   chips: {
     title: "Condition buttons",
+    filter: "Filter by label or search text",
     count: (n, max) => `${n}/${max}`,
     countLabel: "Number of condition buttons",
     addPresets: "Add presets",

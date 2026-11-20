@@ -3,6 +3,8 @@
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
+/* 縦に余裕のある画面（PC など）だけ、メニューの行間を広げる。しきい値はここ1か所（iPhone SE の 548px は含まない） */
+@custom-variant tall (@media (min-height: 800px));
 
 @theme inline {
   --color-background: var(--background);
@@ -91,10 +93,10 @@
 
 .dark {
   /* ページの外側（本文の列の左右・フッターの外）はほぼ黒、本文・サイドバー・ドロワー・ダイアログの面は少し明るくして、領域の境目を見せる */
-  --backdrop: oklch(0.1 0 0);
-  --background: oklch(0.185 0 0);
+  --backdrop: oklch(0.07 0 0);
+  --background: oklch(0.215 0 0);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
+  --card: oklch(0.245 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
@@ -110,23 +112,23 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   /* 入力欄の枠。背景（--field）と合わせて、入力できる場所だと分かる濃さにする */
-  --input: oklch(1 0 0 / 22%);
+  --input: oklch(1 0 0 / 32%);
   --ring: oklch(0.556 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
+  --sidebar: oklch(0.15 0.02 265);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent: oklch(0.25 0.03 265);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
   /* 入力欄の面（ページの背景 0.145 より明るく、「条件」の枠よりも明るい） */
-  --field: oklch(0.255 0 0);
+  --field: oklch(0.31 0 0);
   --scroll-thumb: oklch(1 0 0 / 22%);
   /* 種類ごとのアクセント色（お気に入り＝琥珀、履歴＝シアン、いつものエゴサ＝紫）。線・アイコン・丸だけに使い、本文の文字色にはしない。使い分けは components/common/tone.ts */
   --tone-fav: oklch(0.8 0.15 80);

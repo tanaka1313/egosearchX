@@ -8,6 +8,7 @@ import { useCallback } from "react";
 import { useState } from "react";
 import { ApiError, DEFAULT_PREFS, LIMITS, type Chip } from "@/api";
 import { EmptyState } from "@/components/common/empty-state";
+import { ListFilter, matchesFilter } from "@/components/common/list-filter";
 import { PageHead } from "@/components/common/page-head";
 import { useToast } from "@/components/common/toast";
 import {
@@ -183,12 +184,17 @@ function ChipsBody() {
   const [local, setLocal] = useState<{ base: Chip[]; ids: string[] } | null>(
     null,
   );
-  const shown =
+  const ordered =
     local && local.base === chips
       ? local.ids
           .map((id) => chips.find((x) => x.id === id))
           .filter((x): x is Chip => x !== undefined)
       : chips;
+  const [filter, setFilter] = useState("");
+  const needle = filter.trim();
+  const shown = ordered.filter((x) =>
+    matchesFilter(needle, [x.label, x.query]),
+  );
 
   const interestLabel = api.master.interests().get(interest)?.label[lang] ?? "";
   const full = chips.length >= LIMITS.chips;
@@ -235,6 +241,14 @@ function ChipsBody() {
       </p>
       {full && <p className="text-sm">{c.full(LIMITS.chips)}</p>}
 
+      <ListFilter
+        value={filter}
+        onChange={setFilter}
+        label={c.filter}
+        noMatch={chips.length > 0 && shown.length === 0}
+        sortable
+      />
+
       {chips.length === 0 ? (
         <EmptyState text={c.empty}>
           <Button type="button" size="sm" onClick={addPresetsAndTell}>
@@ -244,8 +258,9 @@ function ChipsBody() {
       ) : (
         <DragDropProvider
           onDragEnd={(ev) => {
-            if (ev.canceled) return;
-            const ids = move(shown, ev).map((x) => x.id);
+            // 絞り込み中は、見えている一部だけの並びなので反映しない
+            if (ev.canceled || needle) return;
+            const ids = move(ordered, ev).map((x) => x.id);
             setLocal({ base: chips, ids });
             reorder(interest, ids).catch((e: unknown) => {
               setLocal(null);
