@@ -6,6 +6,13 @@
  */
 export type ToneKind = "fav" | "history" | "group" | "cond";
 
+/**
+ * エラー・失敗の表示（通常の領域と区別する。画面仕様書 3.13）。赤い左の線＋薄い赤の面。
+ * 色だけにせず、`TriangleAlert` のアイコンと「エラー」などの文字を必ず添える。
+ */
+export const ERROR_CARD =
+  "border-l-4 border-l-destructive bg-destructive/10 text-foreground";
+
 export const TONE: Record<
   ToneKind,
   {

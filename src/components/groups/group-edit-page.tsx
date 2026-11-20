@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Play } from "lucide-react";
+import { Play } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -16,7 +16,6 @@ import {
 import { truncateName } from "@/components/common/auto-name";
 import { EmptyState } from "@/components/common/empty-state";
 import { EnginePicker } from "@/components/common/engine-picker";
-import { engineBadge } from "@/components/common/engine-badge";
 import { PageHead } from "@/components/common/page-head";
 import { previousPath } from "@/components/common/previous-path";
 import { useToast } from "@/components/common/toast";
@@ -117,7 +116,6 @@ function GroupEditor({ group }: { group: Group | null }) {
   const groupCount = useAppStore((s) => s.groups.length);
 
   const [name, setName] = useState(group?.name ?? "");
-  const [makerOpen, setMakerOpen] = useState(false);
   const [items, setItems] = useState<KeyedItem[]>(() =>
     (group?.items ?? []).map(keyed),
   );
@@ -135,16 +133,15 @@ function GroupEditor({ group }: { group: Group | null }) {
         )
       : ed.autoGroupNameEmpty(groupCount + 1);
 
-  /** 追加済みの項目を外す（同じ検索文字列・検索先をすべて。お気に入り自体は消さない） */
+  /** 追加済みの項目を外す（同じ検索文字列をすべて。検索先は見ない。お気に入り自体は消さない） */
   const removeItem = (item: GroupItem) => {
     const key = api.query.normalize(item.query);
-    setItems((v) =>
-      v.filter(
-        (it) =>
-          !(api.query.normalize(it.query) === key && it.engine === item.engine),
-      ),
-    );
+    setItems((v) => v.filter((it) => api.query.normalize(it.query) !== key));
   };
+
+  /** 項目の検索先を変える（その項目だけ。お気に入りは変えない） */
+  const setEngine = (key: number, engine: Engine) =>
+    setItems((v) => v.map((it) => (it.key === key ? { ...it, engine } : it)));
 
   const move = (i: number, d: number) => {
     const j = i + d;
@@ -225,59 +222,60 @@ function GroupEditor({ group }: { group: Group | null }) {
         <ol aria-label={ed.itemsLabel} className="space-y-1">
           {items.map((it, i) => {
             const itemName = label(it);
-            const b = engineBadge(it.engine);
             return (
               <li
                 key={it.key}
-                className="flex items-center gap-1 rounded border bg-background px-2 py-1"
+                className="space-y-1 rounded border bg-background px-2 py-1"
               >
-                <span
-                  aria-hidden
-                  className={`flex size-5 shrink-0 items-center justify-center rounded-full text-xs ${TONE.group.dot}`}
-                >
-                  {i + 1}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="flex min-w-0 items-center gap-1">
-                    <span className="min-w-0 truncate" title={itemName}>
+                <div className="flex items-center gap-1">
+                  <span
+                    aria-hidden
+                    className={`flex size-5 shrink-0 items-center justify-center rounded-full text-xs ${TONE.group.dot}`}
+                  >
+                    {i + 1}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block min-w-0 truncate" title={itemName}>
                       {itemName}
                     </span>
-                    <span
-                      title={ed.engineBadge(b.full)}
-                      aria-label={ed.engineBadge(b.full)}
-                      className="shrink-0 rounded border px-1 text-xs whitespace-nowrap"
-                    >
-                      {b.short}
+                    <span className="block truncate font-mono text-xs text-muted-foreground">
+                      {it.query || t.home.noCondition}
                     </span>
                   </span>
-                  <span className="block truncate font-mono text-xs text-muted-foreground">
-                    {it.query || t.home.noCondition}
-                  </span>
-                </span>
-                <button
-                  type="button"
-                  aria-label={ed.up(itemName)}
-                  onClick={() => move(i, -1)}
-                  className="shrink-0 px-1 focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  ↑
-                </button>
-                <button
-                  type="button"
-                  aria-label={ed.down(itemName)}
-                  onClick={() => move(i, 1)}
-                  className="shrink-0 px-1 focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  ↓
-                </button>
-                <button
-                  type="button"
-                  aria-label={ed.removeItem(itemName)}
-                  onClick={() => setItems(items.filter((_, j) => j !== i))}
-                  className="shrink-0 px-1 focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  ×
-                </button>
+                  <button
+                    type="button"
+                    aria-label={ed.up(itemName)}
+                    onClick={() => move(i, -1)}
+                    className="shrink-0 px-1 focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={ed.down(itemName)}
+                    onClick={() => move(i, 1)}
+                    className="shrink-0 px-1 focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    ↓
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={ed.removeItem(itemName)}
+                    onClick={() => setItems(items.filter((_, j) => j !== i))}
+                    className="shrink-0 px-1 focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    ×
+                  </button>
+                </div>
+                {/* この項目の検索先だけを変える（元のお気に入りは変わらない） */}
+                <div className="pl-6">
+                  <EnginePicker
+                    compact
+                    legend={ed.itemEngine(itemName)}
+                    value={it.engine}
+                    onChange={(engine) => setEngine(it.key, engine)}
+                  />
+                </div>
               </li>
             );
           })}
@@ -289,38 +287,19 @@ function GroupEditor({ group }: { group: Group | null }) {
         items={items}
         onAdd={(item) => setItems((v) => [...v, keyed(item)])}
         onRemove={removeItem}
+        // 3つ目のタブ「新しく作る」。選んだときだけ、パネルの高さが中身に合わせて伸びる
+        maker={
+          <LocalScopeProvider key={makerKey} initial={EMPTY_SCOPE}>
+            <NewSearchMaker
+              groupName={name}
+              onMade={(item) => {
+                setItems((v) => [...v, keyed(item)]);
+                setMakerKey((k) => k + 1);
+              }}
+            />
+          </LocalScopeProvider>
+        }
       />
-
-      {/* 標準の使い方はお気に入り・履歴から足すこと。条件を指定して作るのは初期は閉じる（開閉は保存しない） */}
-      <section aria-label={ed.make} className="space-y-2">
-        <button
-          type="button"
-          aria-expanded={makerOpen}
-          aria-controls="group-maker"
-          onClick={() => setMakerOpen((v) => !v)}
-          className="flex items-center gap-1.5 rounded text-sm font-medium focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {makerOpen ? (
-            <ChevronDown className="size-4" aria-hidden />
-          ) : (
-            <ChevronRight className="size-4" aria-hidden />
-          )}
-          {ed.make}
-        </button>
-        {makerOpen && (
-          <div id="group-maker">
-            <LocalScopeProvider key={makerKey} initial={EMPTY_SCOPE}>
-              <NewSearchMaker
-                groupName={name}
-                onMade={(item) => {
-                  setItems((v) => [...v, keyed(item)]);
-                  setMakerKey((k) => k + 1);
-                }}
-              />
-            </LocalScopeProvider>
-          </div>
-        )}
-      </section>
 
       <div className="border-t pt-3">{actions}</div>
     </main>

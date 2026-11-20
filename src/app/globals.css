@@ -196,6 +196,27 @@
   }
 }
 
+/* クリックできる部品のマウスカーソル（Tailwind 4 は button を既定の矢印にするので、ここ1か所で揃える） */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"],
+  summary,
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  label:has(> input[type="checkbox"]:not(:disabled)),
+  label:has(> input[type="radio"]:not(:disabled)) {
+    cursor: pointer;
+  }
+  button:disabled,
+  [aria-disabled="true"],
+  input:disabled,
+  select:disabled {
+    cursor: not-allowed;
+  }
+}
+
 /* 数値の入力欄に標準の上下ボタンを出さない（固定幅の入力欄で値が見切れるため。値は直接入力する） */
 @layer base {
   input[type="number"] {

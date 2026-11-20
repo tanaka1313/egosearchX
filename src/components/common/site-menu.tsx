@@ -139,7 +139,7 @@ export function MenuSidebar({ onPalette }: { onPalette: () => void }) {
   return (
     <aside
       aria-label={t.menu.fixedLabel}
-      className="hidden w-64 shrink-0 border-r bg-sidebar p-3 xl:block"
+      className="hidden w-64 shrink-0 border-r bg-sidebar p-3 xl:sticky xl:top-0 xl:block xl:h-screen xl:self-start xl:overflow-y-auto"
     >
       <p className="mb-3 px-3 font-bold">Hololive EgoSearch</p>
       <MenuList onPalette={onPalette} />
