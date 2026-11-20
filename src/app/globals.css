@@ -22,6 +22,7 @@
   --color-tone-fav: var(--tone-fav);
   --color-tone-history: var(--tone-history);
   --color-tone-group: var(--tone-group);
+  --color-tone-cond: var(--tone-cond);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -131,6 +132,8 @@
   --tone-fav: oklch(0.8 0.15 80);
   --tone-history: oklch(0.78 0.12 210);
   --tone-group: oklch(0.72 0.17 305);
+  /* ホームの「条件」の枠（緑。主ボタン・ON の条件ボタンの青とは別の色） */
+  --tone-cond: oklch(0.78 0.14 160);
 }
 
 @layer base {

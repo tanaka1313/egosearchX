@@ -77,7 +77,7 @@ export type AppState = Data & {
   /** 一度だけ読む。壊れていれば status を corrupt にする（throw しない） */
   init(): Promise<void>;
   trash_load(): Promise<void>;
-  /** 壊れたデータ（corrupt）のときだけ、保存データをすべて破棄してプリセットから作り直す（D3 の確認の後） */
+  /** 保存データをすべて破棄してプリセットから作り直す（D3 の確認の後。壊れたとき（2.7）と、設定の［データをすべて初期化］）。読み込み中は使えない */
   data_reset(): Promise<void>;
 
   chips_save(input: ChipInput): Promise<Chip>;
@@ -226,8 +226,8 @@ export function createAppStore(api: EgoSearchApi): AppStore {
         }
       },
       data_reset: async () => {
-        if (get().status !== "corrupt")
-          throw new Error("data_reset は保存データが壊れているときだけ使う");
+        if (get().status === "loading")
+          throw new Error("data_reset は読み込みが終わってから使う");
         set({
           ...dataOf(await data.reset()),
           trash: null,

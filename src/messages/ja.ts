@@ -73,6 +73,11 @@ export const ja = {
     interestNote:
       "条件ボタンを、選んだ対象のものに切り替えます（お気に入り・いつものエゴサは共通）。この端末にだけ保存します。",
     failed: "保存できませんでした",
+    dataLegend: "データ",
+    dataNote:
+      "この端末に保存したデータ（条件ボタン・お気に入り・いつものエゴサ・履歴・削除済み・設定）をすべて消して、最初の状態に戻します。元に戻せません。",
+    resetButton: "データをすべて初期化",
+    resetDone: "データを初期化しました",
   },
   strip: {
     label: "いつものエゴサ",
@@ -88,7 +93,7 @@ export const ja = {
   blocked: {
     summary: (total: number, failed: number) =>
       `${total}件中${failed}件を開けませんでした。`,
-    hint: "ブラウザによっては、1回の操作で開けるタブは1つだけです。［次を開く］か下のリンクで、1件ずつ開けます。",
+    hint: "iPhone の Safari と、Windows 11 の Google Chrome では、1回の操作で開けるタブは1つだけでした。［次を開く］か下のリンクで、1件ずつ開けます。",
     openNext: (k: number, total: number) => `次を開く（${k}/${total}）`,
     allOpened: "すべて開きました",
     opened: "開いた",
@@ -498,6 +503,10 @@ export const ja = {
     broken: "ブックマークURLを読み込めませんでした",
     version: "新しい形式のURLです。アプリを更新してください",
     home: "ホームへ",
+    /** 一括実行のあとに移ってきて、すべて開けていたときの表示 */
+    ranAll: (n: number) => `${n}件をすべて開きました。`,
+    /** 一括実行の結果の各行の印（開けた行は blocked.opened を使う） */
+    pending: "未",
   },
   groupEdit: {
     /** ブラウザのタブの名前（静的なので、追加か編集かは問わない） */

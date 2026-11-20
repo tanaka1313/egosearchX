@@ -63,6 +63,11 @@ export const en: Messages = {
     interestNote:
       "Switches the condition buttons to the selected interest (favorites and routines are shared). Saved on this device only.",
     failed: "Could not save",
+    dataLegend: "Data",
+    dataNote:
+      "Deletes everything saved on this device (condition buttons, favorites, routines, history, trash and settings) and returns to the initial state. This cannot be undone.",
+    resetButton: "Reset all data",
+    resetDone: "Data has been reset",
   },
   strip: {
     label: "Routines",
@@ -79,7 +84,7 @@ export const en: Messages = {
   blocked: {
     summary: (total, failed) =>
       `${failed} of ${total} ${total === 1 ? "tab" : "tabs"} could not be opened.`,
-    hint: "Some browsers open only one tab per tap. Use Open next or the links below to open them one by one.",
+    hint: "Safari on iPhone and Google Chrome on Windows 11 opened only one tab per tap. Use Open next or the links below to open them one by one.",
     openNext: (k, total) => `Open next (${k}/${total})`,
     allOpened: "All opened",
     opened: "opened",
@@ -487,6 +492,8 @@ export const en: Messages = {
     broken: "Could not read the bookmark URL",
     version: "This URL uses a newer format. Please update the app.",
     home: "Go to home",
+    ranAll: (n) => `Opened all ${n} ${n === 1 ? "tab" : "tabs"}.`,
+    pending: "not yet",
   },
   groupEdit: {
     tabTitle: "Add / edit routine",

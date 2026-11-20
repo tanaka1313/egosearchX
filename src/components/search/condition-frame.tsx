@@ -1,6 +1,8 @@
 "use client";
 
+import { SlidersHorizontal } from "lucide-react";
 import type { ReactNode } from "react";
+import { TONE } from "@/components/common/tone";
 import { useI18n } from "@/store/i18n-context";
 import { ChipRow } from "./chip-row";
 import { DetailPanel } from "./detail-panel";
@@ -11,7 +13,7 @@ import { WarningNote } from "./warning-note";
 /**
  * 「条件」の枠（画面仕様書 3.8）：見出し＋完全一致・条件ボタンの並び・期間・詳細条件・警告欄を1つの枠に入れる。
  * 状態は SearchScope から読むので、ホームとほかの検索の組み立て画面で同じ部品を使う。
- * 枠の背景はページより少しだけ明るくし、入力欄（--field）よりは暗くする。
+ * 枠の背景はページより少しだけ明るくし、入力欄（--field）よりは暗くする。左の線・見出しのアイコンに緑（TONE.cond。色だけで示さず、アイコンと文字を添える）。
  * footer：詳細条件の末尾に置く操作（画面ごとに違う）。
  */
 export function ConditionFrame({ footer }: { footer?: ReactNode }) {
@@ -20,10 +22,16 @@ export function ConditionFrame({ footer }: { footer?: ReactNode }) {
   return (
     <section
       aria-label={t.search.condition}
-      className="space-y-3 rounded-xl border border-white/15 bg-muted/35 p-3"
+      className={`space-y-3 rounded-xl border border-white/15 bg-muted/35 p-3 ${TONE.cond.card}`}
     >
       <div className="flex items-center justify-between gap-2">
-        <h2 className="font-bold">{t.search.condition}</h2>
+        <h2 className="flex items-center gap-1.5 font-bold">
+          <SlidersHorizontal
+            className={`size-4 ${TONE.cond.icon}`}
+            aria-hidden
+          />
+          {t.search.condition}
+        </h2>
         {/* ON/OFF の設定なので、ボタンではなくチェックボックス＋ラベル */}
         <label className="flex shrink-0 items-center gap-1.5 text-sm">
           <input

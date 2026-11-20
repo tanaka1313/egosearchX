@@ -8,7 +8,12 @@ import {
   type LauncherPayload,
   type OpenTarget,
 } from "@/api";
+import { Check } from "lucide-react";
 import { BlockedNotice } from "@/components/common/blocked-notice";
+import {
+  useLaunchHandoff,
+  type LaunchHandoff,
+} from "@/components/common/launch-handoff";
 import { EmptyState } from "@/components/common/empty-state";
 import { useRunner } from "@/components/common/use-runner";
 import { useItemLabel } from "@/components/groups/item-label";
@@ -19,7 +24,7 @@ import { useI18n } from "@/store/i18n-context";
 
 type State =
   | { kind: "loading" }
-  | { kind: "ok"; payload: LauncherPayload }
+  | { kind: "ok"; payload: LauncherPayload; hash: string }
   | { kind: "broken" }
   | { kind: "version" };
 
@@ -36,15 +41,17 @@ export function LaunchPage() {
   const { t } = useI18n();
   const p = t.launchPage;
   const [state, setState] = useState<State>({ kind: "loading" });
+  const handoff = useLaunchHandoff().current;
 
   // ハッシュは、サーバーの事前描画に無いので、マウントしてから読む。別のブックマークへの移動
   // （同じタブでハッシュだけが変わる）では再マウントされないので、hashchange も見る
   useEffect(() => {
     let cancelled = false;
     const load = () => {
-      api.launcher.decode(window.location.hash.replace(/^#/, "")).then(
+      const hash = window.location.hash.replace(/^#/, "");
+      api.launcher.decode(hash).then(
         (payload) => {
-          if (!cancelled) setState({ kind: "ok", payload });
+          if (!cancelled) setState({ kind: "ok", payload, hash });
         },
         (e: unknown) => {
           if (cancelled) return;
@@ -83,10 +90,25 @@ export function LaunchPage() {
       </main>
     );
 
-  return <Launcher payload={state.payload} />;
+  // 一括実行から移ってきたとき（同じブックマークのときだけ）、その結果を引き継ぐ。実行のたびに作り直す
+  const mine = handoff?.hash === state.hash ? handoff : null;
+  return (
+    <Launcher
+      key={`${state.hash}:${mine?.id ?? 0}`}
+      payload={state.payload}
+      handoff={mine}
+    />
+  );
 }
 
-function Launcher({ payload }: { payload: LauncherPayload }) {
+function Launcher({
+  payload,
+  handoff,
+}: {
+  payload: LauncherPayload;
+  /** 一括実行の結果（無ければ、ページを開いただけ） */
+  handoff: LaunchHandoff | null;
+}) {
   const api = useApi();
   const { t } = useI18n();
   const p = t.launchPage;
@@ -95,7 +117,23 @@ function Launcher({ payload }: { payload: LauncherPayload }) {
   const [blocked, setBlocked] = useState<{
     total: number;
     items: OpenTarget[];
-  } | null>(null);
+  } | null>(
+    handoff && handoff.blocked.length > 0
+      ? { total: handoff.total, items: handoff.blocked }
+      : null,
+  );
+  // 実行した（または一括実行から移ってきた）かどうかと、すべて開けたときの件数。各行の印に使う
+  const [ran, setRan] = useState(handoff !== null);
+  const [allOpened, setAllOpened] = useState<number | null>(
+    handoff && handoff.blocked.length === 0 ? handoff.total : null,
+  );
+  // ［次を開く］や個別リンクで開いた検索（ブロックされた一覧のうち）
+  const [openedUrls, setOpenedUrls] = useState<ReadonlySet<string>>(new Set());
+  const pending = new Set(
+    (blocked?.items ?? [])
+      .filter((b) => !openedUrls.has(b.url))
+      .map((b) => b.url),
+  );
 
   const engineName = (e: Engine) =>
     e === "both" ? p.engineBoth : ENGINE_LABEL[e];
@@ -105,8 +143,23 @@ function Launcher({ payload }: { payload: LauncherPayload }) {
       kind: "launch",
       label: payload.name,
     });
-    // 開けたときは、前回のブロックの表示を残さない
-    setBlocked(failed.length > 0 ? { total, items: failed } : null);
+    // すべての項目を開き直すときは、前回の結果を残さない。1項目だけのときは、ほかの項目の未開封を残す
+    const all = items.length === payload.items.length;
+    const rerun = new Set(api.url.plan(items).targets.map((x) => x.url));
+    const kept = all
+      ? []
+      : (blocked?.items ?? []).filter(
+          (b) => !openedUrls.has(b.url) && !rerun.has(b.url),
+        );
+    const merged = [...kept, ...failed];
+    setBlocked(
+      merged.length > 0
+        ? { total: all ? total : (blocked?.total ?? total), items: merged }
+        : null,
+    );
+    setOpenedUrls(new Set());
+    setRan(true);
+    setAllOpened(merged.length === 0 ? total : null);
   };
 
   return (
@@ -116,16 +169,25 @@ function Launcher({ payload }: { payload: LauncherPayload }) {
       <Button size="lg" onClick={() => run(payload.items)}>
         {p.openAll}
       </Button>
+      {allOpened !== null && (
+        <p role="status" className="text-sm">
+          {p.ranAll(allOpened)}
+        </p>
+      )}
       {blocked && (
         <BlockedNotice
           total={blocked.total}
           blocked={blocked.items}
           onClose={() => setBlocked(null)}
+          onOpen={(b) => setOpenedUrls((o) => new Set(o).add(b.url))}
         />
       )}
       <ol aria-label={p.list} className="space-y-2">
         {payload.items.map((item, i) => {
           const name = label(item);
+          // 実行したあとだけ、行に「開いた」「未」を付ける（色だけにしない。幅は固定）
+          const waiting =
+            ran && api.url.plan([item]).targets.some((x) => pending.has(x.url));
           return (
             <li
               key={`${i}:${item.engine}:${item.query}`}
@@ -140,6 +202,18 @@ function Launcher({ payload }: { payload: LauncherPayload }) {
                   {api.query.expand(item.query)}
                 </div>
               </div>
+              {ran && (
+                <span className="flex w-14 shrink-0 items-center gap-0.5 text-xs">
+                  {waiting ? (
+                    p.pending
+                  ) : (
+                    <>
+                      <Check className="size-3.5" aria-hidden />
+                      {t.blocked.opened}
+                    </>
+                  )}
+                </span>
+              )}
               <Button
                 size="sm"
                 variant="outline"

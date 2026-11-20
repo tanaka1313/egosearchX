@@ -75,3 +75,52 @@ describe("S11：設定（興味の対象）", () => {
     expect(screen.getByText(/この端末にだけ保存します/)).toBeInTheDocument();
   });
 });
+
+describe("S11：設定（データをすべて初期化）", () => {
+  const setupData = async () => {
+    const api = createBackend({ kv: new MemoryAdapter(), clock });
+    await api.data.init();
+    await api.data.favorites.save({
+      name: "ぺこら",
+      query: "ぺこら",
+      engine: "x",
+    });
+    await api.data.groups.save({
+      name: "配信後",
+      items: [{ query: "ぺこら", engine: "x" }],
+    });
+    await mount(api, <SettingsPage />, { scope: false });
+    return api;
+  };
+
+  it("［データをすべて初期化］を押すと、消える内容を書いた確認を出し、［キャンセル］では何も消さない", async () => {
+    const api = await setupData();
+    fireEvent.click(
+      screen.getByRole("button", { name: "データをすべて初期化" }),
+    );
+    const dialog = await screen.findByRole("alertdialog");
+    expect(dialog).toHaveTextContent("データを初期化しますか？");
+    expect(dialog).toHaveTextContent("元に戻せません");
+    fireEvent.click(within(dialog).getByRole("button", { name: "キャンセル" }));
+    await waitFor(() => expect(screen.queryByRole("alertdialog")).toBeNull());
+    const data = await api.data.init();
+    expect(data.favorites).toHaveLength(1);
+    expect(data.groups).toHaveLength(1);
+  });
+
+  it("確認で［初期化する］を押すと、お気に入り・いつものエゴサを消してプリセットに戻し、トーストで知らせる", async () => {
+    const api = await setupData();
+    fireEvent.click(
+      screen.getByRole("button", { name: "データをすべて初期化" }),
+    );
+    const dialog = await screen.findByRole("alertdialog");
+    fireEvent.click(within(dialog).getByRole("button", { name: "初期化する" }));
+    expect(
+      await screen.findByText("データを初期化しました"),
+    ).toBeInTheDocument();
+    const data = await api.data.init();
+    expect(data.favorites).toEqual([]);
+    expect(data.groups).toEqual([]);
+    expect(data.chips.get("hololive")?.length).toBeGreaterThan(0);
+  });
+});
