@@ -1,6 +1,6 @@
 "use client";
 
-import { Info, Search, Settings2, X } from "lucide-react";
+import { Info, Search, Settings2, SlidersHorizontal, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { RefObject } from "react";
@@ -43,6 +43,12 @@ function MenuList({
               {/* 管理ページの印（歯車）。文言を足さずに「管理する場所」だと示す */}
               {m.manage && (
                 <Settings2
+                  className="size-4 shrink-0 text-muted-foreground"
+                  aria-hidden
+                />
+              )}
+              {m.key === "settings" && (
+                <SlidersHorizontal
                   className="size-4 shrink-0 text-muted-foreground"
                   aria-hidden
                 />

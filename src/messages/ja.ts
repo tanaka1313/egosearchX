@@ -62,15 +62,17 @@ export const ja = {
   },
   header: {
     openMenu: "メニューを開く",
-    siteName: "EgoSearch",
+    siteName: "Hololive EgoSearch",
     feature: "X（Twitter）",
     featureLabel: "機能：X（Twitter）",
   },
-  interest: {
-    button: (name: string) => `興味の対象：${name}（押して切り替え）`,
-    menu: "興味の対象",
-    close: "切り替えを閉じる",
-    note: "条件ボタンを、選んだ対象のものに切り替えます（お気に入り・いつものエゴサは共通）。この端末にだけ保存します。",
+  settings: {
+    title: "設定",
+    interestLegend: "興味の対象",
+    experimental: "試験的",
+    interestNote:
+      "条件ボタンを、選んだ対象のものに切り替えます（お気に入り・いつものエゴサは共通）。この端末にだけ保存します。",
+    failed: "保存できませんでした",
   },
   strip: {
     label: "いつものエゴサ",
@@ -105,6 +107,7 @@ export const ja = {
       history: "履歴",
       trash: "削除済み",
       import: "URL解析",
+      settings: "設定",
       about: "このサイトについて",
     },
   },
@@ -447,7 +450,7 @@ export const ja = {
   groupsPage: {
     title: "いつものエゴサ",
     description:
-      "エゴサのタイミング（配信後・毎朝など）ごとに、複数の検索をまとめて一括で開けます。先頭2件はどのページでもヘッダー下の帯に並びます。追加は、お気に入りを選んでまとめる方法と、条件を指定して新しく作る方法の2つです。中身は検索文字列の並びです。お気に入りを編集すると、同じ検索文字列の項目も一緒に更新されます（お気に入りを削除しても、ここからは消えません）。",
+      "エゴサのタイミング（配信後・毎朝など）ごとに、複数の検索をまとめて一括で開けます。先頭2件はどのページでもヘッダー下の帯に並びます。追加は、お気に入りや履歴から選ぶ方法と、条件を指定して新しく作る方法があります。中身は検索文字列の並びです。お気に入りを編集すると、同じ検索文字列の項目も一緒に更新されます（お気に入りを削除しても、ここからは消えません）。",
     add: "＋ 追加",
     empty: "いつものエゴサがありません。「配信後エゴサ」などを作ってみましょう",
     list: "いつものエゴサの一覧",
@@ -505,16 +508,20 @@ export const ja = {
     namePlaceholder: "例：配信後エゴサ",
     itemsLabel: "中身の検索",
     items: (n: number) => `中身の検索（${n}個。順に開きます）`,
-    itemsEmpty: "まだありません。下の①か②で追加してください。",
+    itemsEmpty: "まだありません。下の「追加する」から足してください。",
     engineBadge: (name: string) => `検索先：${name}`,
     up: (label: string) => `${label}を上へ`,
     down: (label: string) => `${label}を下へ`,
     removeItem: (label: string) => `${label}を外す`,
-    fromFavorites: "①お気に入りから追加",
-    noFavorites: "お気に入りがありません。下の②で作れます。",
+    addSource: "追加する",
+    sourceTabs: "追加元",
+    tabFavorites: "お気に入り",
+    tabHistory: "履歴",
+    noFavorites:
+      "お気に入りがありません。下の「条件を指定して新しく作る」で作れます。",
     add: "＋ 追加",
     addLabel: (name: string) => `${name}を追加`,
-    make: "②条件を指定して新しく作る",
+    make: "条件を指定して新しく作る",
     wordPlaceholder: "名前や #タグ を入力",
     autoNameNote: "お気に入りにも保存されます。名前は自動で付きます：",
     autoNamePending: "（検索語を入れると決まります）",
@@ -537,7 +544,7 @@ export const ja = {
     addPresetsFor: (name: string) => `プリセット（${name}）を追加`,
     add: "＋ 追加",
     description: (interest: string) =>
-      `ホームに並ぶボタンです（いま選んでいる「${interest}」の並び。ヘッダーで切り替えると別の並びになります）。ドラッグ（キーボードは Space＋矢印）で並べ替え、ラベルと中身（複数の条件）を編集できます。［コピー］で条件の文字列をクリップボードにコピーできます。「表示」を外すと、ホームには出ません（削除はされません）。削除すると「削除済み」に移り、復元できます。`,
+      `ホームに並ぶボタンです（いま選んでいる「${interest}」の並び。設定で切り替えると別の並びになります）。ドラッグ（キーボードは Space＋矢印）で並べ替え、ラベルと中身（複数の条件）を編集できます。［コピー］で条件の文字列をクリップボードにコピーできます。「表示」を外すと、ホームには出ません（削除はされません）。削除すると「削除済み」に移り、復元できます。`,
     full: (max: number) =>
       `⚠ 上限（${max}件）です。不要なボタンを削除してください。`,
     empty: "条件ボタンがありません",

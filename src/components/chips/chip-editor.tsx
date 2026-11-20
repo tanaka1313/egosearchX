@@ -3,7 +3,7 @@
 import { move } from "@dnd-kit/helpers";
 import { DragDropProvider } from "@dnd-kit/react";
 import { useSortable } from "@dnd-kit/react/sortable";
-import { GripVertical, X } from "lucide-react";
+import { ChevronDown, ChevronRight, GripVertical, X } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 import {
   ApiError,
@@ -183,6 +183,10 @@ function EditorForm({
     chip ? api.query.chipConds(chip) : [blankCond()],
   );
   const [listInput, setListInput] = useState("");
+  // 初期は閉じる。リストの条件を持つボタンを編集するときは開く
+  const [listOpen, setListOpen] = useState(() =>
+    conds.some((c) => c.kind === "list"),
+  );
   const [error, setError] = useState("");
 
   const preview = useMemo(() => api.query.condsToQuery(conds), [api, conds]);
@@ -274,19 +278,34 @@ function EditorForm({
       </div>
 
       <div className="space-y-1 rounded-lg border p-2">
-        <div className="text-sm font-medium">{e.listSection}</div>
-        <div className="flex gap-1">
-          <input
-            value={listInput}
-            onChange={(ev) => setListInput(ev.target.value)}
-            aria-label={e.listInput}
-            placeholder={e.listPlaceholder}
-            className={`${inputClass} min-w-0 flex-1`}
-          />
-          <Button type="button" size="sm" variant="outline" onClick={addList}>
-            {e.listExtract}
-          </Button>
-        </div>
+        <button
+          type="button"
+          aria-expanded={listOpen}
+          aria-controls="chip-list-register"
+          onClick={() => setListOpen((v) => !v)}
+          className="flex items-center gap-1 rounded text-sm font-medium focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {listOpen ? (
+            <ChevronDown className="size-4" aria-hidden />
+          ) : (
+            <ChevronRight className="size-4" aria-hidden />
+          )}
+          {e.listSection}
+        </button>
+        {listOpen && (
+          <div id="chip-list-register" className="flex gap-1">
+            <input
+              value={listInput}
+              onChange={(ev) => setListInput(ev.target.value)}
+              aria-label={e.listInput}
+              placeholder={e.listPlaceholder}
+              className={`${inputClass} min-w-0 flex-1`}
+            />
+            <Button type="button" size="sm" variant="outline" onClick={addList}>
+              {e.listExtract}
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="space-y-1">

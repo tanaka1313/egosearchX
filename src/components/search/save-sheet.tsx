@@ -1,9 +1,11 @@
 "use client";
 
+import { Play, Star } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { ApiError, type Engine, type SaveSearchInput } from "@/api";
 import { EnginePicker } from "@/components/common/engine-picker";
 import { useToast } from "@/components/common/toast";
+import { TONE } from "@/components/common/tone";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
 import { useI18n } from "@/store/i18n-context";
@@ -88,21 +90,32 @@ function SaveForm({ onClose }: { onClose: () => void }) {
 
   return (
     <>
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">{s.name}</span>
-        <input
-          value={name}
-          onChange={(ev) => setName(ev.target.value)}
-          className="w-full rounded-lg border px-3 py-2"
-        />
-      </label>
-      <code className="block rounded bg-muted p-2 font-mono text-xs break-all">
-        {built.stored || t.home.noCondition}
-      </code>
-      <p className="text-xs text-muted-foreground">{s.note}</p>
-      <EnginePicker value={engine} onChange={setEngine} />
-      <fieldset className="space-y-1 text-sm">
-        <legend className="font-medium">{s.groupLegend}</legend>
+      {/* お気に入り（名前・文字列・検索先）と、いつものエゴサへの追加を、別のカードに分ける */}
+      <div className={`space-y-3 rounded-lg border p-3 ${TONE.fav.card}`}>
+        <label className="block space-y-1 text-sm">
+          <span className="flex items-center gap-1.5 font-medium">
+            <Star className={`size-4 ${TONE.fav.icon}`} aria-hidden />
+            {s.name}
+          </span>
+          <input
+            value={name}
+            onChange={(ev) => setName(ev.target.value)}
+            className="w-full rounded-lg border bg-field px-3 py-2"
+          />
+        </label>
+        <code className="block rounded bg-muted p-2 font-mono text-xs break-all">
+          {built.stored || t.home.noCondition}
+        </code>
+        <p className="text-xs text-muted-foreground">{s.note}</p>
+        <EnginePicker value={engine} onChange={setEngine} />
+      </div>
+      <fieldset
+        className={`space-y-1 rounded-lg border p-3 text-sm ${TONE.group.card}`}
+      >
+        <legend className="flex items-center gap-1.5 px-1 font-medium">
+          <Play className={`size-4 ${TONE.group.icon}`} aria-hidden />
+          {s.groupLegend}
+        </legend>
         <label className="flex items-center gap-2">
           <input
             type="radio"

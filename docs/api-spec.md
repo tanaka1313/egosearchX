@@ -2,7 +2,7 @@
 
 ## 0. 前提
 - **これは HTTP の API ではない。** アプリは静的書き出しのままで、サーバーを持たない。ここでいう「フロントエンド」と「バックエンド」は、**同じブラウザの中で動くコードの2つの層**である。層を分けるのは、画面を作り直しても規則・保存を触らずに済み、規則・保存先を差し替えても画面を触らずに済むようにするため。両者の境界（インターフェース）をこの文書で決める。
-- 関連文書：`docs/requirements.md`（機能 F1〜F12、データ構造 11章、DAO 12章）、`docs/screen-spec.md`（S1〜S10、D1〜D4）、`docs/implementation-plan.md`（ファイル構成、AST）、`docs/research-phase0.md`（URL 形式の確度）。**意味と規則はそちらが正で、この文書には写さない。** ここには、境界をまたぐ関数の形・型・エラーの形だけを書く。
+- 関連文書：`docs/requirements.md`（機能 F1〜F12、データ構造 11章、DAO 12章）、`docs/screen-spec.md`（S1〜S11、D1〜D4）、`docs/implementation-plan.md`（ファイル構成、AST）、`docs/research-phase0.md`（URL 形式の確度）。**意味と規則はそちらが正で、この文書には写さない。** ここには、境界をまたぐ関数の形・型・エラーの形だけを書く。
 - 正にするもの：保存データの型と DAO は作成済みの `src/lib/storage`、検索文字列の規則は `src/lib/query/model.ts`（#71 でモックから移した）。**既存のシグネチャは変えない**（変えるときは、先にこの文書を直す）。
 - 各項目の状態の凡例：**作成済み**（コードがある）／**予定（#番号）**（Issue がある。書かれていない挙動は書かない）／**決定**（この文書で決めた）／**未決定**（7.3。推測で埋めない）。
 - 用語：検索先は「X」「Yahoo!リアルタイム検索」。コード中の識別子 `'x'`・`'yahoo'` は、そのまま書く。複数の検索をまとめたものは「いつものエゴサ」。
@@ -291,7 +291,7 @@ type TrashDetail =
 画面は `useApi()` で受け取った `EgoSearchApi` だけを呼ぶ。「フロント」は、ブラウザの操作と画面の状態。
 | 画面 | 読む・計算する（同期） | 保存する（async） | フロントで行うこと |
 |---|---|---|---|
-| ヘッダー・メニュー | `master.interests` | `data.prefs.set({ interest, lang })` | 辞書の切替、メニューの開閉 |
+| メニュー（言語） | — | `data.prefs.set({ lang })` | 辞書の切替、メニューの開閉 |
 | 帯（全ページ） | `url.plan` | `data.history.record`（source: group、`groupId`） | `window.open`、「今日は実行済み」を `api.clock.isToday(Group.lastRunAt)` で求める（4.5）。保存データが壊れているときの共通の表示と［データを初期化する］（`data.reset`。画面仕様書 2.7） |
 | フッター | — | `data.history.record`（再実行） | 最後の1件を `history` から表示 |
 | **S1 ホーム** | `query.build`、`query.suggest`、`query.starters`、`master.wordSet`（D4）、`query.expand`、`url.plan` | `data.chips.setOn`／`setValue`、`data.saveSearch`（☆ 保存）、`data.history.record`（source: home）、`data.favorites`（［▶ 実行］は `url.plan`＋`record`）、`data.prefs.set({ favOpen })` | 入力中の検索語・詳細条件・期間の状態、`window.open`、クリップボード、保存シート |
@@ -299,14 +299,15 @@ type TrashDetail =
 | **S3 お気に入り** | `url.plan` | `data.favorites.reorder`／`remove`、`record`（source: favorite） | 名前の絞り込み、`window.open`、行の「前回」（`Favorite.lastRunAt`）の表示 |
 | **S3-E お気に入りの編集** | `query.parse`、`query.starters`、`master.wordSet`（D4）、`query.build`、`query.normalize`（関連するいつものエゴサの表示）、`url.plan` | `data.favorites.update`／`save`（［複製］） | ページ内の検索の組み立ての状態、トーストの［元に戻す］（`undo`） |
 | **S4 いつものエゴサ** | `url.plan`、`query.favName` | `data.groups.remove`、`launcher.encode`（D2）、`record`（source: group、`groupId`） | 一括の `window.open` とブロック時の表示、URL のコピー |
-| **S4-E 追加・編集** | `query.build`、`query.starters`、`master.wordSet`（D4）、`query.favName`、`url.plan` | `data.groups.save`、`data.favorites.save`（② お気に入りに保存して追加） | ページ内の項目の並び（保存まで持つ）、検索の組み立ての状態 |
+| **S4-E 追加・編集** | `query.build`、`query.starters`、`master.wordSet`（D4）、`query.favName`、`query.normalize`、`query.parse`（履歴の重複のまとめと名前）、`url.plan` | `data.groups.save`、`data.favorites.save`（「条件を指定して新しく作る」と履歴からの追加。履歴からは、`query.favName` が無いときだけ作る） | ページ内の項目の並び（保存まで持つ）、検索の組み立ての状態 |
 | **S5 履歴** | `url.plan` | `data.history.clear`（D3）、`data.favorites.save`（検索先は履歴の `engine` を引き継ぐ）、`record` | 一覧の表示、`window.open` |
 | **S6 削除済み** | **作成済み**（#79） | `src/components/trash/trash-page.tsx`。種類のタブ（すべて／条件ボタン／お気に入り／いつものエゴサ。矢印キーで移動）と、`store.trash`（`trash_load` で読む。読み込み前は何も出さない）の一覧。行は種類のバッジ（条件ボタンは `TrashEntry.interestId` から「条件ボタン（<対象名>）」。対象名は `master.interests()` の `label[lang]`）・名前・削除日時。［中身を見る］で `data.trash.detail`（お気に入りは `query.expand` の文字列、いつものエゴサの項目の名前は `useItemLabel`）。［復元］は確認なし（`trash_restore`）で、戻す先の対象の有効な条件ボタンがストアの `chips` で `LIMITS.chips` 件なら押せず、行の下に辞書の文言を出す（`LIMIT` で失敗したときも同じ。DAO の `e.message` は出さない）。完全削除（1件・種類ごと・すべて）は `ConfirmDialog`（D3）1つを対象で切り替えて必ず挟む。行が消えるので、実行後と復元後のフォーカスは選んでいるタブへ、キャンセルでは押した要素へ戻す（`ConfirmDialog.onCloseAutoFocus`）。`TrashEntry.interestId` は条件ボタンの行だけ |
 | **S6 削除済み・D3** | — | `data.trash.list`／`detail`／`restore`／`purge`／`purgeKind`／`purgeAll` | 種類のタブ、確認ダイアログ |
 | **S7 URL解析** | `url.parse`、`query.parse`（ホームで編集する） | `data.favorites.save`（保存シートの検索先。初期値は貼った URL のもの） | 貼り付けの入力、ホームの状態への展開、`location` |
 | **S9 ランチャー** | `url.plan`、`query.favName` | `launcher.decode`（ページを開いたとき）、`record`（source: launch） | `window.open`、ブロック時の表示、［ホームへ］ |
 | S10 このサイトについて | — | — | 静的な文言だけ |
-- 画面仕様書の S1〜S10・D1〜D4 の操作は、すべて上のどれかの呼び出しに対応させた。対応できない操作が見つかったときは、画面ではなく、この表と4章を直す。
+| S11 設定 | `master.interests` | `data.prefs.set({ interest })` | なし |
+- 画面仕様書の S1〜S11・D1〜D4 の操作は、すべて上のどれかの呼び出しに対応させた。対応できない操作が見つかったときは、画面ではなく、この表と4章を直す。
 
 ## 7. 実装の状態
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { Star } from "lucide-react";
 import { useState } from "react";
 import { ApiError, type Engine } from "@/api";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
 import { EnginePicker } from "./engine-picker";
 import { useToast } from "./toast";
+import { TONE } from "./tone";
 
 /**
  * 文字列と検索先を、新しいお気に入りとして保存する小さなフォーム（シートの中身）。
@@ -48,19 +50,25 @@ export function FavoriteSaveForm({
 
   return (
     <>
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">{s.name}</span>
-        <input
-          value={name}
-          onChange={(ev) => setName(ev.target.value)}
-          className="w-full rounded-lg border bg-field px-3 py-2"
-        />
-      </label>
-      <code className="block rounded bg-muted p-2 font-mono text-xs break-all">
-        {query}
-      </code>
-      <p className="text-xs text-muted-foreground">{note}</p>
-      <EnginePicker value={engine} onChange={setEngine} />
+      {/* 名前・文字列・検索先を1枚のカードにまとめる（お気に入りの色） */}
+      <div className={`space-y-3 rounded-lg border p-3 ${TONE.fav.card}`}>
+        <label className="block space-y-1 text-sm">
+          <span className="flex items-center gap-1.5 font-medium">
+            <Star className={`size-4 ${TONE.fav.icon}`} aria-hidden />
+            {s.name}
+          </span>
+          <input
+            value={name}
+            onChange={(ev) => setName(ev.target.value)}
+            className="w-full rounded-lg border bg-field px-3 py-2"
+          />
+        </label>
+        <code className="block rounded bg-muted p-2 font-mono text-xs break-all">
+          {query}
+        </code>
+        <p className="text-xs text-muted-foreground">{note}</p>
+        <EnginePicker value={engine} onChange={setEngine} />
+      </div>
       {error && (
         <p role="alert" className="text-sm font-medium">
           ⚠ {error}

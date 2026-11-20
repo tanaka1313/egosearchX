@@ -18,6 +18,9 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
+  --color-tone-fav: var(--tone-fav);
+  --color-tone-history: var(--tone-history);
+  --color-tone-group: var(--tone-group);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -120,6 +123,10 @@
   /* 入力欄の面（ページの背景 0.145 より明るく、「条件」の枠よりも明るい） */
   --field: oklch(0.225 0 0);
   --scroll-thumb: oklch(1 0 0 / 22%);
+  /* 種類ごとのアクセント色（お気に入り＝琥珀、履歴＝シアン、いつものエゴサ＝紫）。線・アイコン・丸だけに使い、本文の文字色にはしない。使い分けは components/common/tone.ts */
+  --tone-fav: oklch(0.8 0.15 80);
+  --tone-history: oklch(0.78 0.12 210);
+  --tone-group: oklch(0.72 0.17 305);
 }
 
 @layer base {

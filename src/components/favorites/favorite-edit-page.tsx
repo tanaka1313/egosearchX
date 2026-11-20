@@ -1,5 +1,6 @@
 "use client";
 
+import { Star } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useState } from "react";
@@ -9,6 +10,7 @@ import { EnginePicker } from "@/components/common/engine-picker";
 import { PageHead } from "@/components/common/page-head";
 import { previousPath } from "@/components/common/previous-path";
 import { useToast } from "@/components/common/toast";
+import { TONE } from "@/components/common/tone";
 import { ConditionFrame } from "@/components/search/condition-frame";
 import { OpenButtons } from "@/components/search/open-bar";
 import { QueryPreview } from "@/components/search/query-preview";
@@ -195,21 +197,29 @@ function EditorBody({ fav }: { fav: Favorite }) {
     <main className="mx-auto max-w-2xl space-y-4 p-3 md:p-4">
       <PageHead title={ed.title} right={actions} />
 
-      <label className="block space-y-1 text-sm">
-        <span className="font-medium">{ed.name}</span>
-        <input
-          value={name}
-          onChange={(ev) => {
-            setName(ev.target.value);
-            setError("");
-          }}
-          className="w-full rounded-lg border bg-field px-3 py-2"
-        />
-      </label>
+      {/* 名前と検索先を1枚のカードに（お気に入りの色） */}
+      <div className={`space-y-3 rounded-lg border p-3 ${TONE.fav.card}`}>
+        <label className="block space-y-1 text-sm">
+          <span className="flex items-center gap-1.5 font-medium">
+            <Star className={`size-4 ${TONE.fav.icon}`} aria-hidden />
+            {ed.name}
+          </span>
+          <input
+            value={name}
+            onChange={(ev) => {
+              setName(ev.target.value);
+              setError("");
+            }}
+            className="w-full rounded-lg border bg-field px-3 py-2"
+          />
+        </label>
+        <EnginePicker value={engine} onChange={setEngine} />
+      </div>
 
-      <EnginePicker value={engine} onChange={setEngine} />
-
-      <section aria-label={ed.before} className="space-y-1 text-sm">
+      <section
+        aria-label={ed.before}
+        className="space-y-1 rounded-lg border p-3 text-sm"
+      >
         <h2 className="font-medium">{ed.before}</h2>
         <code className="block rounded bg-muted p-2 font-mono text-xs break-all">
           {fav.query || ed.noCondition}
