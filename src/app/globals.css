@@ -6,6 +6,7 @@
 
 @theme inline {
   --color-background: var(--background);
+  --color-backdrop: var(--backdrop);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
@@ -52,6 +53,7 @@
 }
 
 :root {
+  --backdrop: oklch(0.97 0 0);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -87,7 +89,9 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
+  /* ページの外側（本文の列の左右・フッターの外）はほぼ黒、本文・サイドバー・ドロワー・ダイアログの面は少し明るくして、領域の境目を見せる */
+  --backdrop: oklch(0.1 0 0);
+  --background: oklch(0.185 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
@@ -121,7 +125,7 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
   /* 入力欄の面（ページの背景 0.145 より明るく、「条件」の枠よりも明るい） */
-  --field: oklch(0.225 0 0);
+  --field: oklch(0.255 0 0);
   --scroll-thumb: oklch(1 0 0 / 22%);
   /* 種類ごとのアクセント色（お気に入り＝琥珀、履歴＝シアン、いつものエゴサ＝紫）。線・アイコン・丸だけに使い、本文の文字色にはしない。使い分けは components/common/tone.ts */
   --tone-fav: oklch(0.8 0.15 80);
@@ -134,7 +138,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-backdrop text-foreground;
   }
   html {
     @apply font-sans;

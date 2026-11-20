@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import {
+  LIMITS,
   EMPTY_DETAIL,
   EMPTY_PERIOD,
   type Engine,
@@ -12,6 +13,7 @@ import {
   type GroupItem,
   type ParsedScope,
 } from "@/api";
+import { truncateName } from "@/components/common/auto-name";
 import { EmptyState } from "@/components/common/empty-state";
 import { EnginePicker } from "@/components/common/engine-picker";
 import { engineBadge } from "@/components/common/engine-badge";
@@ -27,6 +29,7 @@ import {
   useSearchScope,
 } from "@/components/search/search-scope";
 import { Button } from "@/components/ui/button";
+import { useApi } from "@/store/api-context";
 import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
 import { AddSources } from "./add-sources";
@@ -109,7 +112,9 @@ function GroupEditor({ group }: { group: Group | null }) {
   const router = useRouter();
   const toast = useToast();
   const label = useItemLabel();
+  const api = useApi();
   const save = useAppStore((s) => s.groups_save);
+  const groupCount = useAppStore((s) => s.groups.length);
 
   const [name, setName] = useState(group?.name ?? "");
   const [makerOpen, setMakerOpen] = useState(false);
@@ -120,6 +125,27 @@ function GroupEditor({ group }: { group: Group | null }) {
   // ②で1件作るたびに、組み立てを空に戻す（LocalScopeProvider を作り直す）
   const [makerKey, setMakerKey] = useState(0);
 
+  // 新規で名前が空のときに付く名前（名前欄のプレースホルダー）。1件目の名前＋ほかN件、中身が無ければ連番
+  const autoName = group
+    ? ""
+    : items.length > 0
+      ? ed.autoGroupName(
+          truncateName(label(items[0]), LIMITS.autoName),
+          items.length - 1,
+        )
+      : ed.autoGroupNameEmpty(groupCount + 1);
+
+  /** 追加済みの項目を外す（同じ検索文字列・検索先をすべて。お気に入り自体は消さない） */
+  const removeItem = (item: GroupItem) => {
+    const key = api.query.normalize(item.query);
+    setItems((v) =>
+      v.filter(
+        (it) =>
+          !(api.query.normalize(it.query) === key && it.engine === item.engine),
+      ),
+    );
+  };
+
   const move = (i: number, d: number) => {
     const j = i + d;
     if (j < 0 || j >= items.length) return;
@@ -129,13 +155,14 @@ function GroupEditor({ group }: { group: Group | null }) {
   };
 
   const submit = async () => {
-    if (!name.trim()) return setError(ed.nameRequired);
+    const finalName = name.trim() || autoName;
+    if (!finalName) return setError(ed.nameRequired);
     if (items.length === 0) return setError(ed.itemsRequired);
     setError("");
     try {
       await save({
         id: group?.id,
-        name: name.trim(),
+        name: finalName,
         items: items.map(({ query, engine }) => ({ query, engine })),
       });
       toast.show(ed.saved);
@@ -179,7 +206,7 @@ function GroupEditor({ group }: { group: Group | null }) {
             setName(ev.target.value);
             setError("");
           }}
-          placeholder={ed.namePlaceholder}
+          placeholder={autoName}
           className="w-full rounded-lg border bg-field px-3 py-2"
         />
       </label>
@@ -259,7 +286,9 @@ function GroupEditor({ group }: { group: Group | null }) {
 
       <AddSources
         groupName={name}
+        items={items}
         onAdd={(item) => setItems((v) => [...v, keyed(item)])}
+        onRemove={removeItem}
       />
 
       {/* 標準の使い方はお気に入り・履歴から足すこと。条件を指定して作るのは初期は閉じる（開閉は保存しない） */}
@@ -318,7 +347,10 @@ function NewSearchMaker({
   const [engine, setEngine] = useState<Engine>("x");
 
   // 名前は「<いつものエゴサ名>：<検索語、無ければ1つ目の ON のボタン名>」（入力済みの値から導く）
-  const base = scope.word.trim() || (scope.usedChips[0]?.label ?? "");
+  const base = truncateName(
+    scope.word.trim() || (scope.usedChips[0]?.label ?? ""),
+    LIMITS.autoName,
+  );
   const autoName = ed.autoName(groupName.trim(), base);
 
   const make = async () => {

@@ -220,16 +220,16 @@ describe("S7 URL解析：ホームで編集する", () => {
 });
 
 describe("S7 URL解析：新規お気に入りとして保存", () => {
-  it("シートを開き、名前の初期値は「<検索語> の検索」、検索先の初期値は貼った URL のもの", async () => {
+  it("シートを開き、名前欄のプレースホルダーは検索語から作った名前、検索先の初期値は貼った URL のもの", async () => {
     await mountPage(await setup());
     paste(YAHOO_URL);
     fireEvent.click(
       screen.getByRole("button", { name: "新規お気に入りとして保存" }),
     );
     const dialog = await screen.findByRole("dialog");
-    expect(within(dialog).getByLabelText("お気に入りの名前")).toHaveValue(
-      "ぺこら の検索",
-    );
+    const name = within(dialog).getByLabelText("お気に入りの名前");
+    expect(name).toHaveValue("");
+    expect(name).toHaveAttribute("placeholder", "ぺこら");
     expect(
       within(dialog).getByRole("radio", { name: "Yahoo!リアルタイム検索" }),
     ).toBeChecked();
@@ -268,7 +268,7 @@ describe("S7 URL解析：新規お気に入りとして保存", () => {
     expect(screen.getByText("お気に入りに保存しました")).toBeInTheDocument();
   });
 
-  it("名前が空のときは保存せず、シートの中に理由を出す", async () => {
+  it("名前が空のときは、プレースホルダーの名前で保存する", async () => {
     const api = await setup();
     await mountPage(api);
     paste(X_URL);
@@ -280,9 +280,10 @@ describe("S7 URL解析：新規お気に入りとして保存", () => {
       target: { value: "  " },
     });
     fireEvent.click(within(dialog).getByRole("button", { name: "保存" }));
-    expect(within(dialog).getByRole("alert")).toHaveTextContent(
-      "名前を入力してください",
-    );
-    expect((await api.data.init()).favorites).toHaveLength(0);
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    // 検索語と ON の条件ボタン名をつないだ名前
+    expect((await api.data.init()).favorites.map((f) => f.name)).toEqual([
+      "ぺこら・RTを除く・画像つき",
+    ]);
   });
 });

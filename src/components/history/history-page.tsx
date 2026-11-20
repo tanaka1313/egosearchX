@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { ApiError, DEFAULT_PREFS, LIMITS, type HistoryItem } from "@/api";
 import { useReportBlocked } from "@/components/common/blocked-context";
+import { searchAutoName } from "@/components/common/auto-name";
 import { EmptyState } from "@/components/common/empty-state";
 import { FavoriteSaveForm } from "@/components/common/favorite-save-form";
 import { PageHead } from "@/components/common/page-head";
@@ -141,9 +142,9 @@ function HistoryRow({
     if (blocked.length > 0) reportBlocked(total, blocked);
   };
 
-  const defaultName = word
-    ? t.search.saveSheet.defaultName(word)
-    : t.search.saveSheet.defaultNameEmpty;
+  const defaultName =
+    searchAutoName(word, chipNames, LIMITS.autoName) ||
+    t.search.saveSheet.defaultNameEmpty;
 
   return (
     <li className="space-y-1 rounded-lg border p-3 text-sm">

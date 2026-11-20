@@ -1,19 +1,31 @@
 "use client";
 
-import { Info, Search, Settings2, SlidersHorizontal, X } from "lucide-react";
+import { Settings2, SlidersHorizontal, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { RefObject } from "react";
 import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
 import { LanguageSwitch } from "./language-switch";
-import { MENU_ITEMS } from "./menu-items";
+import {
+  isMenuAction,
+  MENU_HOME,
+  MENU_SECTIONS,
+  type MenuItem,
+} from "./menu-items";
 import { VersionDialog } from "./version-dialog";
 
+/** ホーム（見出しなし）。見出しの下の項目より大きい文字 */
 const ITEM_CLASS =
-  "flex w-full items-center gap-2 rounded-lg px-3 py-3 text-left text-base hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring";
+  "flex w-full items-center gap-2 rounded-lg px-3 py-1 text-left text-base hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring";
+/**
+ * 見出しの下の項目：小さめの文字で、行を詰める（iPhone SE でも全部開いたまま収め、項目が増えても収まるように）。
+ * 左に余白を足して、見出しの下にあることを示す
+ */
+const SUB_ITEM_CLASS =
+  "flex w-full items-center gap-2 rounded-lg py-1 pr-3 pl-6 text-left text-sm hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring";
 
-/** ドロワーとサイドバーで共通の項目（画面仕様書 2.4）。縦に並べる */
+/** ドロワーとサイドバーで共通の項目（画面仕様書 2.4）。縦に並べ、見出しごとに分ける */
 function MenuList({
   onNavigate,
   onPalette,
@@ -24,69 +36,96 @@ function MenuList({
   const { t } = useI18n();
   const path = usePathname();
   const trashCount = useAppStore((s) => s.trash?.length ?? 0);
+
+  const pageLink = (m: MenuItem, className: string) => {
+    const here = path === m.href;
+    const name = t.menu.items[m.key];
+    return (
+      <Link
+        href={m.href}
+        onClick={onNavigate}
+        aria-current={here ? "page" : undefined}
+        aria-label={m.manage ? t.menu.manage(name) : undefined}
+        title={m.manage ? t.menu.manageTitle(name) : undefined}
+        className={`${className} ${here ? "bg-muted font-bold" : ""}`}
+      >
+        <span className="flex-1">{name}</span>
+        {/* 管理ページの印（歯車）。文言を足さずに「管理する場所」だと示す */}
+        {m.manage && (
+          <Settings2
+            className="size-4 shrink-0 text-muted-foreground"
+            aria-hidden
+          />
+        )}
+        {m.key === "settings" && (
+          <SlidersHorizontal
+            className="size-4 shrink-0 text-muted-foreground"
+            aria-hidden
+          />
+        )}
+        {m.key === "trash" && trashCount > 0 && (
+          <span className="rounded-full border px-2 text-xs">{trashCount}</span>
+        )}
+        {here && <span className="text-xs">{t.menu.current}</span>}
+      </Link>
+    );
+  };
+
   return (
-    <ul className="space-y-1">
-      {MENU_ITEMS.map((m) => {
-        const here = path === m.href;
-        const name = t.menu.items[m.key];
+    <div className="space-y-0.5">
+      <ul>
+        <li>{pageLink(MENU_HOME, ITEM_CLASS)}</li>
+      </ul>
+      {MENU_SECTIONS.map((section) => {
+        const headingId = `menu-section-${section.key}`;
         return (
-          <li key={m.href}>
-            <Link
-              href={m.href}
-              onClick={onNavigate}
-              aria-current={here ? "page" : undefined}
-              aria-label={m.manage ? t.menu.manage(name) : undefined}
-              title={m.manage ? t.menu.manageTitle(name) : undefined}
-              className={`${ITEM_CLASS} ${here ? "bg-muted font-bold" : ""}`}
+          <section key={section.key} aria-labelledby={headingId}>
+            <h2
+              id={headingId}
+              className="px-3 pt-1 pb-0.5 text-xs font-medium text-muted-foreground"
             >
-              <span className="flex-1">{name}</span>
-              {/* 管理ページの印（歯車）。文言を足さずに「管理する場所」だと示す */}
-              {m.manage && (
-                <Settings2
-                  className="size-4 shrink-0 text-muted-foreground"
-                  aria-hidden
-                />
-              )}
-              {m.key === "settings" && (
-                <SlidersHorizontal
-                  className="size-4 shrink-0 text-muted-foreground"
-                  aria-hidden
-                />
-              )}
-              {m.key === "trash" && trashCount > 0 && (
-                <span className="rounded-full border px-2 text-xs">
-                  {trashCount}
-                </span>
-              )}
-              {here && <span className="text-xs">{t.menu.current}</span>}
-            </Link>
-          </li>
+              {t.menu.sections[section.key]}
+            </h2>
+            <ul>
+              {section.entries.map((e) => {
+                if (!isMenuAction(e))
+                  return <li key={e.href}>{pageLink(e, SUB_ITEM_CLASS)}</li>;
+                if (e.action === "palette")
+                  return (
+                    <li key="palette">
+                      <button
+                        type="button"
+                        onClick={onPalette}
+                        className={SUB_ITEM_CLASS}
+                      >
+                        <span className="flex-1">{t.palette.title}</span>
+                        <kbd className="rounded border px-1 text-xs">
+                          {t.palette.shortcut}
+                        </kbd>
+                      </button>
+                    </li>
+                  );
+                return (
+                  <li key="version">
+                    <VersionDialog
+                      trigger={
+                        <button type="button" className={SUB_ITEM_CLASS}>
+                          <span className="flex-1">{t.version.open}</span>
+                        </button>
+                      }
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
         );
       })}
-      <li>
-        <button type="button" onClick={onPalette} className={ITEM_CLASS}>
-          <Search className="size-4" aria-hidden />
-          <span className="flex-1">{t.palette.title}</span>
-          <kbd className="rounded border px-1 text-xs">
-            {t.palette.shortcut}
-          </kbd>
-        </button>
-      </li>
-      <li>
-        <VersionDialog
-          trigger={
-            <button type="button" className={ITEM_CLASS}>
-              <Info className="size-4" aria-hidden />
-              <span className="flex-1">{t.version.open}</span>
-            </button>
-          }
-        />
-      </li>
       {/* 言語の切替（設定画面は置かない）。初期値はブラウザの言語 */}
-      <li className="px-3 pt-3">
+      <div className="px-3 pt-1">
         <LanguageSwitch />
-      </li>
-    </ul>
+      </div>
+    </div>
   );
 }
 
@@ -96,7 +135,7 @@ export function MenuSidebar({ onPalette }: { onPalette: () => void }) {
   return (
     <aside
       aria-label={t.menu.fixedLabel}
-      className="hidden w-64 shrink-0 border-r p-3 xl:block"
+      className="hidden w-64 shrink-0 border-r bg-background p-3 xl:block"
     >
       <p className="mb-3 px-3 font-bold">Hololive EgoSearch</p>
       <MenuList onPalette={onPalette} />
@@ -128,7 +167,7 @@ export function MenuDrawer({
         aria-label={t.menu.label}
         className="flex h-full w-[70%] max-w-[22.5rem] flex-col overflow-auto border-r bg-background p-3 shadow-xl"
       >
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-1 flex items-center justify-between">
           <span className="font-bold">Hololive EgoSearch</span>
           <button
             ref={closeRef}

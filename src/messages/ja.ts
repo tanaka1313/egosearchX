@@ -102,6 +102,11 @@ export const ja = {
     current: "表示中",
     manage: (name: string) => `${name}の管理`,
     manageTitle: (name: string) => `${name}の管理（追加・編集・削除）`,
+    sections: {
+      data: "データ管理",
+      tools: "ツール",
+      other: "その他",
+    },
     items: {
       home: "ホーム",
       buttons: "条件ボタン",
@@ -312,7 +317,6 @@ export const ja = {
     saveSheet: {
       title: "この検索を保存",
       name: "お気に入りの名前",
-      defaultName: (word: string) => `${word} の検索`,
       defaultNameEmpty: "新しい検索",
       note: "この検索文字列を保存します。「昨日から」などは since:yesterday のまま保存し、開くときの日付で計算します。条件ボタンを後から直しても、保存したものは変わりません。",
       groupLegend: "いつものエゴサに追加（まとめて実行できます）",
@@ -320,11 +324,8 @@ export const ja = {
       addTo: (name: string) => `「${name}」に追加`,
       newGroup: "新しいいつものエゴサを作る",
       newGroupName: "新しいいつものエゴサの名前（初期値はお気に入りの名前）",
-      newGroupPlaceholder: "例：配信後エゴサ",
       cancel: "キャンセル",
       save: "保存",
-      nameRequired: "名前を入力してください",
-      groupNameRequired: "いつものエゴサの名前を入力してください",
       saved: "お気に入りに保存しました",
       savedToGroup: (name: string) =>
         `お気に入りに保存し、「${name}」に追加しました`,
@@ -508,7 +509,10 @@ export const ja = {
       "このいつものエゴサは見つかりません（削除済みの可能性があります）",
     backToList: "いつものエゴサの一覧へ",
     name: "名前",
-    namePlaceholder: "例：配信後エゴサ",
+    /** 名前が空のときに付く名前（名前欄のプレースホルダー）。1件目の名前＋残りの件数。0件は連番 */
+    autoGroupName: (first: string, others: number) =>
+      others > 0 ? `${first} ほか${others}件` : first,
+    autoGroupNameEmpty: (n: number) => `いつものエゴサ ${n}`,
     itemsLabel: "中身の検索",
     items: (n: number) => `中身の検索（${n}個。順に開きます）`,
     itemsEmpty: "まだありません。下の「追加する」から足してください。",
@@ -524,6 +528,8 @@ export const ja = {
       "お気に入りがありません。下の「条件を指定して新しく作る」で作れます。",
     add: "＋ 追加",
     addLabel: (name: string) => `${name}を追加`,
+    remove: "削除",
+    removeLabel: (name: string) => `${name}をこのいつものエゴサから削除`,
     make: "条件を指定して新しく作る",
     wordPlaceholder: "名前や #タグ を入力",
     autoNameNote: "お気に入りにも保存されます。名前は自動で付きます：",

@@ -236,12 +236,12 @@ describe("OpenBar：☆ 保存", () => {
     return screen.findByRole("dialog", { name: "この検索を保存" });
   };
 
-  it("名前の初期値は「<検索語> の検索」（検索語が無いと「新しい検索」）で、保存する検索文字列を見せる", async () => {
+  it("名前欄は空で、プレースホルダーに検索語から作った名前を出し、保存する検索文字列を見せる", async () => {
     await mount(await setup(), withWord("ぺこら"));
     const dialog = await openSheet();
-    expect(within(dialog).getByLabelText("お気に入りの名前")).toHaveValue(
-      "ぺこら の検索",
-    );
+    const name = within(dialog).getByLabelText("お気に入りの名前");
+    expect(name).toHaveValue("");
+    expect(name).toHaveAttribute("placeholder", "ぺこら");
     expect(within(dialog).getByText("ぺこら")).toBeVisible();
     // 検索先の初期値は X
     expect(within(dialog).getByRole("radio", { name: "X" })).toBeChecked();
@@ -267,26 +267,52 @@ describe("OpenBar：☆ 保存", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
     const { favorites } = await api.data.init();
     expect(favorites).toHaveLength(1);
+    // 名前を入力していないので、プレースホルダーの名前で保存する
     expect(favorites[0]).toMatchObject({
-      name: "ぺこら の検索",
+      name: "ぺこら",
       query: "ぺこら since:yesterday",
       engine: "yahoo",
       lastRunAt: null,
     });
   });
 
-  it("名前が空のときは保存せず、理由をシートの中に出す（モーダルやトーストにしない）", async () => {
+  it("名前が空白だけでも、プレースホルダーの名前で保存する。入力すればその名前で保存する", async () => {
     const api = await setup();
     await mount(api, withWord());
-    const dialog = await openSheet();
+    let dialog = await openSheet();
     fireEvent.change(within(dialog).getByLabelText("お気に入りの名前"), {
       target: { value: "  " },
     });
     fireEvent.click(within(dialog).getByRole("button", { name: "保存" }));
-    expect(within(dialog).getByRole("alert")).toHaveTextContent(
-      "名前を入力してください",
+    await waitFor(async () =>
+      expect((await api.data.init()).favorites.map((f) => f.name)).toEqual([
+        "ぺこら",
+      ]),
     );
-    expect((await api.data.init()).favorites).toHaveLength(0);
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+
+    dialog = await openSheet();
+    fireEvent.change(within(dialog).getByLabelText("お気に入りの名前"), {
+      target: { value: "朝の確認" },
+    });
+    fireEvent.click(within(dialog).getByRole("button", { name: "保存" }));
+    await waitFor(async () =>
+      expect((await api.data.init()).favorites.map((f) => f.name)).toContain(
+        "朝の確認",
+      ),
+    );
+  });
+
+  it("長い検索語は切り詰めて末尾に「…」を付けた名前になる", async () => {
+    await mount(
+      await setup(),
+      withWord("あいうえおかきくけこさしすせそたちつてとなにぬねの"),
+    );
+    const dialog = await openSheet();
+    expect(within(dialog).getByLabelText("お気に入りの名前")).toHaveAttribute(
+      "placeholder",
+      "あいうえおかきくけこさしすせそたちつてとなにぬ…",
+    );
   });
 
   it("期間の開始日が終了日より後のときは保存せず、理由を出す", async () => {
@@ -335,7 +361,7 @@ describe("OpenBar：☆ 保存", () => {
     ]);
   });
 
-  it("新しいいつものエゴサを作る：名前は触るまでお気に入りの名前と同じ。空なら保存しない", async () => {
+  it("新しいいつものエゴサを作る：名前が空ならお気に入りの名前と同じ（プレースホルダー）。入力すればその名前", async () => {
     const api = await setup();
     await mount(api, withWord());
     const dialog = await openSheet();
@@ -345,18 +371,13 @@ describe("OpenBar：☆ 保存", () => {
     const groupName = within(dialog).getByLabelText(
       "新しいいつものエゴサの名前（初期値はお気に入りの名前）",
     );
-    expect(groupName).toHaveValue("ぺこら の検索");
-    // お気に入りの名前を直すと、触るまでは追従する
+    expect(groupName).toHaveValue("");
+    expect(groupName).toHaveAttribute("placeholder", "ぺこら");
+    // お気に入りの名前を直すと、空のうちは追従する
     fireEvent.change(within(dialog).getByLabelText("お気に入りの名前"), {
       target: { value: "朝の確認" },
     });
-    expect(groupName).toHaveValue("朝の確認");
-    fireEvent.change(groupName, { target: { value: "" } });
-    fireEvent.click(within(dialog).getByRole("button", { name: "保存" }));
-    expect(within(dialog).getByRole("alert")).toHaveTextContent(
-      "いつものエゴサの名前を入力してください",
-    );
-    expect((await api.data.init()).groups).toHaveLength(0);
+    expect(groupName).toHaveAttribute("placeholder", "朝の確認");
 
     fireEvent.change(groupName, { target: { value: "毎朝" } });
     fireEvent.click(within(dialog).getByRole("button", { name: "保存" }));
@@ -397,8 +418,6 @@ describe("OpenBar：☆ 保存", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: "キャンセル" }));
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     dialog = await openSheet();
-    expect(within(dialog).getByLabelText("お気に入りの名前")).toHaveValue(
-      "ぺこら の検索",
-    );
+    expect(within(dialog).getByLabelText("お気に入りの名前")).toHaveValue("");
   });
 });

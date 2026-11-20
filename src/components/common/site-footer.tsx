@@ -22,40 +22,50 @@ export function SiteFooter({
   const last = useAppStore((s) => s.history[0]);
 
   return (
-    <footer className="fixed inset-x-0 bottom-0 z-40 border-t bg-background px-3 pt-2 pb-1 text-xs">
-      {/* 1行目の高さは［再実行］の有無で変えない（履歴が付いた瞬間にフッターが伸びて本文がずれるため） */}
-      <div className="flex h-6.5 items-center gap-2">
-        <span className="shrink-0 text-muted-foreground">{t.footer.last}</span>
-        {last ? (
-          <>
-            <span className="shrink-0">{formatRunAt(last.at)}</span>
-            <span className="min-w-0 flex-1 truncate font-mono">
-              {last.query}
+    <footer className="fixed right-0 bottom-0 left-0 z-40 border-t bg-backdrop text-xs xl:left-64">
+      {/* 中身は本文の列と同じ幅・同じ面（外側は背景色の黒） */}
+      <div className="mx-auto max-w-3xl bg-background px-3 pt-2 pb-1">
+        {/* 1行目の高さは［再実行］の有無で変えない（履歴が付いた瞬間にフッターが伸びて本文がずれるため） */}
+        <div className="flex h-6.5 items-center gap-2">
+          <span className="shrink-0 text-muted-foreground">
+            {t.footer.last}
+          </span>
+          {last ? (
+            <>
+              <span className="shrink-0">{formatRunAt(last.at)}</span>
+              <span className="min-w-0 flex-1 truncate font-mono">
+                {last.query}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  const { total, blocked } = run(
+                    [{ query: last.query, engine: last.engine }],
+                    last.source,
+                  );
+                  if (blocked.length > 0) onBlocked(total, blocked);
+                }}
+                className="shrink-0 rounded border px-2 py-1 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {t.footer.rerun}
+              </button>
+            </>
+          ) : (
+            <span className="flex-1 text-muted-foreground">
+              {t.footer.empty}
             </span>
-            <button
-              type="button"
-              onClick={() => {
-                const { total, blocked } = run(
-                  [{ query: last.query, engine: last.engine }],
-                  last.source,
-                );
-                if (blocked.length > 0) onBlocked(total, blocked);
-              }}
-              className="shrink-0 rounded border px-2 py-1 hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              {t.footer.rerun}
-            </button>
-          </>
-        ) : (
-          <span className="flex-1 text-muted-foreground">{t.footer.empty}</span>
-        )}
-        <Link href="/history" className="shrink-0 underline underline-offset-4">
-          {t.footer.history}
-        </Link>
+          )}
+          <Link
+            href="/history"
+            className="shrink-0 underline underline-offset-4"
+          >
+            {t.footer.history}
+          </Link>
+        </div>
+        <p className="truncate pt-1 text-[11px] text-muted-foreground">
+          {t.footer.unofficial}
+        </p>
       </div>
-      <p className="truncate pt-1 text-[11px] text-muted-foreground">
-        {t.footer.unofficial}
-      </p>
     </footer>
   );
 }

@@ -147,16 +147,16 @@ describe("S5 履歴：再実行", () => {
 });
 
 describe("S5 履歴：☆ お気に入りに保存", () => {
-  it("名前の初期値は「<検索語> の検索」、検索先の初期値は実行した検索先。保存で新規に足す", async () => {
+  it("名前欄のプレースホルダーは検索語から作った名前、検索先の初期値は実行した検索先。保存で新規に足す", async () => {
     const api = await setup();
     await mountPage(api);
     fireEvent.click(
       within(rows()[1]).getByRole("button", { name: "☆ お気に入りに保存" }),
     );
     const dialog = await screen.findByRole("dialog");
-    expect(within(dialog).getByLabelText("お気に入りの名前")).toHaveValue(
-      "歌枠 の検索",
-    );
+    const name = within(dialog).getByLabelText("お気に入りの名前");
+    expect(name).toHaveValue("");
+    expect(name).toHaveAttribute("placeholder", "歌枠");
     expect(
       within(dialog).getByRole("radio", { name: "Yahoo!リアルタイム検索" }),
     ).toBeChecked();
@@ -165,13 +165,13 @@ describe("S5 履歴：☆ お気に入りに保存", () => {
     const favorites = (await api.data.init()).favorites;
     expect(favorites).toHaveLength(1);
     expect(favorites[0]).toMatchObject({
-      name: "歌枠 の検索",
+      name: "歌枠",
       query: "歌枠",
       engine: "yahoo",
     });
   });
 
-  it("検索語が無い履歴の名前の初期値は「新しい検索」。名前が空なら保存しない", async () => {
+  it("検索語が無い履歴のプレースホルダーは ON の条件ボタン名。名前が空なら、その名前で保存する", async () => {
     const api = createBackend({ kv: new MemoryAdapter(), clock: makeClock() });
     await api.data.init();
     await record(api, "filter:images", "x", { kind: "other", label: "" });
@@ -179,13 +179,13 @@ describe("S5 履歴：☆ お気に入りに保存", () => {
     fireEvent.click(screen.getByRole("button", { name: "☆ お気に入りに保存" }));
     const dialog = await screen.findByRole("dialog");
     const name = within(dialog).getByLabelText("お気に入りの名前");
-    expect(name).toHaveValue("新しい検索");
+    expect(name).toHaveAttribute("placeholder", "画像つき");
     fireEvent.change(name, { target: { value: "  " } });
     fireEvent.click(within(dialog).getByRole("button", { name: "保存" }));
-    expect(
-      await within(dialog).findByText("⚠ 名前を入力してください"),
-    ).toBeInTheDocument();
-    expect((await api.data.init()).favorites).toHaveLength(0);
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    expect((await api.data.init()).favorites.map((f) => f.name)).toEqual([
+      "画像つき",
+    ]);
   });
 });
 

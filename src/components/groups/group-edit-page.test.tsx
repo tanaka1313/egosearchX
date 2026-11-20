@@ -120,12 +120,34 @@ describe("S4-E：追加（id なし）", () => {
     ).toBeInTheDocument();
   });
 
-  it("名前が空のときは保存せず、理由を出す", async () => {
+  it("名前が空でも、中身があれば自動の名前（1件目の名前＋ほかN件）で保存する。名前欄のプレースホルダーに出している", async () => {
+    const { api } = await setup();
+    await api.data.favorites.save({
+      name: "歌枠",
+      query: "歌枠 min_faves:100",
+      engine: "yahoo",
+    });
+    await mountPage(api);
+    expect(nameInput()).toHaveAttribute("placeholder", "いつものエゴサ 2");
+    fireEvent.click(screen.getByRole("button", { name: "ぺこらエゴサを追加" }));
+    expect(nameInput()).toHaveAttribute("placeholder", "ぺこらエゴサ");
+    fireEvent.click(screen.getByRole("button", { name: "歌枠を追加" }));
+    expect(nameInput()).toHaveAttribute("placeholder", "ぺこらエゴサ ほか1件");
+    save();
+    await waitFor(() => expect(push).toHaveBeenCalledWith("/groups"));
+    expect(
+      (await api.data.init()).groups.some(
+        (g) => g.name === "ぺこらエゴサ ほか1件",
+      ),
+    ).toBe(true);
+  });
+
+  it("名前も中身も空のときは、中身が無い理由を出して保存しない", async () => {
     const { api } = await setup();
     await mountPage(api);
     save();
     expect(screen.getAllByRole("alert")[0]).toHaveTextContent(
-      "名前を入力してください",
+      "検索を1つ以上入れてください",
     );
     expect(push).not.toHaveBeenCalled();
   });
@@ -343,9 +365,37 @@ describe("S4-E：追加元（お気に入り・履歴）と②の開閉", () => 
     add.focus();
     fireEvent.click(add);
     await waitFor(() => expect(items()).toHaveLength(1));
-    expect(document.activeElement).toBe(
-      screen.getByRole("button", { name: "ぺこらエゴサを追加" }),
+    // 同じボタンが［削除］に変わり、フォーカスはそのまま
+    expect(document.activeElement).toBe(add);
+    expect(add).toHaveAccessibleName(
+      "ぺこらエゴサをこのいつものエゴサから削除",
     );
+  });
+
+  it("追加済みの行は［削除］になり、押すと項目だけが外れて［＋ 追加］に戻る（お気に入りは残る）。幅は変わらない", async () => {
+    const { api } = await setup();
+    await mountPage(api);
+    const btn = screen.getByRole("button", { name: "ぺこらエゴサを追加" });
+    const before = btn.className;
+    fireEvent.click(btn);
+    await waitFor(() => expect(items()).toHaveLength(1));
+    expect(btn).toHaveTextContent("削除");
+    expect(btn.className).toBe(before);
+    fireEvent.click(btn);
+    await waitFor(() => expect(items()).toHaveLength(0));
+    expect(btn).toHaveTextContent("＋ 追加");
+    expect((await api.data.init()).favorites).toHaveLength(1);
+  });
+
+  it("編集で、すでに入っている項目と同じお気に入りの行は最初から［削除］になる", async () => {
+    const { api, group } = await setup();
+    search = `id=${group.id}`;
+    await mountPage(api);
+    expect(
+      screen.getByRole("button", {
+        name: "ぺこらエゴサをこのいつものエゴサから削除",
+      }),
+    ).toHaveTextContent("削除");
   });
 });
 
