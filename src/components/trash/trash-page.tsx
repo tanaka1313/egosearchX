@@ -27,6 +27,7 @@ import { formatRunAt } from "@/lib/format-date";
 import { useApi } from "@/store/api-context";
 import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
+import { PAGE_MAIN } from "@/components/common/layout";
 
 const KINDS: TrashKind[] = ["chip", "favorite", "group"];
 type Tab = "all" | TrashKind;
@@ -141,7 +142,7 @@ export function TrashPage() {
           : "";
 
   return (
-    <main className="mx-auto max-w-3xl space-y-3 p-3 md:p-4">
+    <main className={`${PAGE_MAIN} space-y-3`}>
       <PageHead
         title={p.title}
         right={

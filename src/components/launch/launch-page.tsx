@@ -22,6 +22,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { ENGINE_LABEL } from "@/messages";
 import { useApi } from "@/store/api-context";
 import { useI18n } from "@/store/i18n-context";
+import { PAGE_MAIN } from "@/components/common/layout";
 
 type State =
   | { kind: "loading" }
@@ -75,14 +76,14 @@ export function LaunchPage() {
 
   if (state.kind === "loading")
     return (
-      <main className="mx-auto max-w-xl space-y-3 p-4">
+      <main className={`${PAGE_MAIN} space-y-3`}>
         <p className="text-sm text-muted-foreground">{p.loading}</p>
       </main>
     );
 
   if (state.kind !== "ok")
     return (
-      <main className="mx-auto max-w-xl space-y-3 p-4">
+      <main className={`${PAGE_MAIN} space-y-3`}>
         <EmptyState
           error
           text={state.kind === "version" ? p.version : p.broken}
@@ -167,12 +168,15 @@ function Launcher({
   };
 
   return (
-    <main className="mx-auto max-w-xl space-y-3 p-4">
+    <main className={`${PAGE_MAIN} space-y-3`}>
       <h1 className="text-xl font-bold">{p.title(payload.name)}</h1>
       <p className="text-sm">{p.count(payload.items.length)}</p>
-      <Button size="lg" onClick={() => run(payload.items)}>
-        {p.openAll}
-      </Button>
+      {/* 開けなかった分があるときは［次を開く］を優先して押させる。［すべて開く］は［×］で閉じると戻る */}
+      {!blocked && (
+        <Button size="lg" onClick={() => run(payload.items)}>
+          {p.openAll}
+        </Button>
+      )}
       {allOpened !== null && (
         <p role="status" className="text-sm">
           {p.ranAll(allOpened)}

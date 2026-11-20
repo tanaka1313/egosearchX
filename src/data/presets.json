@@ -3,7 +3,7 @@
     "interest": "common",
     "label": "RTを除く",
     "query": "-filter:retweets",
-    "on": true,
+    "on": false,
     "visible": true
   },
   {
@@ -13,7 +13,7 @@
     "interest": "hololive",
     "label": "ネタバレ除外",
     "query": "-ネタバレ語A -ネタバレ語B",
-    "on": true,
+    "on": false,
     "visible": true
   },
   {

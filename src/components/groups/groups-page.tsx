@@ -15,6 +15,7 @@ import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
 import { BookmarkSheet } from "./bookmark-sheet";
 import { useItemLabel } from "./item-label";
+import { PAGE_MAIN } from "@/components/common/layout";
 
 /**
  * S4：いつものエゴサ（画面仕様書 5.4）。一括実行・ブックマークURLの発行（D2）・編集（S4-E）・削除（削除済みへ。
@@ -55,7 +56,7 @@ export function GroupsPage() {
   );
 
   return (
-    <main className="mx-auto max-w-3xl space-y-3 p-3 md:p-4">
+    <main className={`${PAGE_MAIN} space-y-3`}>
       <PageHead title={p.title} right={add} />
       <p className="text-sm text-muted-foreground">{p.description}</p>
       {blocked && (

@@ -43,9 +43,7 @@ describe("ChipRow（条件ボタンの並び）", () => {
     await mount(a, <ChipRow />);
 
     const group = screen.getByRole("group", { name: "条件ボタン" });
-    const shown =
-      within(group).getAllByRole("button", { pressed: false }).length +
-      within(group).getAllByRole("button", { pressed: true }).length;
+    const shown = group.querySelectorAll("button[aria-pressed]").length;
     // ［もっと開く］・［ボタンを編集］は aria-pressed を持たないので数えない
     expect(shown).toBe(LIMITS.foldChips);
     const hidden = visible.length - LIMITS.foldChips;
@@ -60,7 +58,7 @@ describe("ChipRow（条件ボタンの並び）", () => {
     expect(screen.getByText(visible[visible.length - 1].label)).toBeVisible();
   });
 
-  it("押すと aria-pressed が変わり、ON の状態が保存される（再読み込みしても残る）", async () => {
+  it("押すと aria-pressed が変わる。ON の状態は保存しない（ボタンの ON は画面の状態）", async () => {
     const a = api();
     await chipsOf(a);
     await mount(a, <ChipRow />);
@@ -74,7 +72,7 @@ describe("ChipRow（条件ボタンの並び）", () => {
       ),
     );
     const saved = (await chipsOf(a)).find((c) => c.label === "画像つき");
-    expect(saved?.on).toBe(true);
+    expect(saved?.on).toBe(false);
     // title は検索文字列
     expect(screen.getByRole("button", { name: /画像つき/ })).toHaveAttribute(
       "title",
@@ -274,8 +272,11 @@ describe("値付きの条件ボタン", () => {
     await waitFor(async () => {
       const saved = (await chipsOf(a)).find((c) => c.label === "ファボ");
       expect(saved?.query).toBe("min_faves:120");
-      expect(saved?.on).toBe(true);
     });
+    // 値だけをボタンに保存する。ON は画面の状態（保存しない）
+    expect((await chipsOf(a)).find((c) => c.label === "ファボ")?.on).toBe(
+      false,
+    );
     expect(
       within(faves()).getByRole("button", { pressed: true }),
     ).toBeVisible();
@@ -315,11 +316,15 @@ describe("値付きの条件ボタン", () => {
   it("［日付］を押しただけで日付が空のときは、期間が出力されないので日付ボタンは使える", async () => {
     const a = api();
     const date = (await chipsOf(a)).find((c) => c.label === "日付");
-    await a.data.chips.setOn(date!.id, true);
     await mount(
       a,
       <>
-        <Seed home={{ period: { kind: "date", from: "", to: "" } }} />
+        <Seed
+          home={{
+            onChipIds: [date!.id],
+            period: { kind: "date", from: "", to: "" },
+          }}
+        />
         <ChipRow />
         <QueryPreview />
       </>,

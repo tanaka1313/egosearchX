@@ -445,11 +445,13 @@ describe("S4-E：②条件を指定して新しく作る", () => {
     await waitFor(() => expect(items()).toHaveLength(1));
     const favs = (await api.data.init()).favorites;
     const made = favs.find((f) => f.name === "毎朝エゴサ：さくら")!;
-    expect(made.query).toBe("さくら");
+    // 完全一致が初期で ON なので、検索語は引用符で囲まれる
+    expect(made.query).toBe('"さくら"');
     expect(made.engine).toBe("x");
     expect(items()[0]).toHaveTextContent("毎朝エゴサ：さくら");
-    // 組み立ては空に戻る。いつものエゴサ自体はまだ保存していない
+    // 組み立ては空に戻る（完全一致 ON）。いつものエゴサ自体はまだ保存していない
     expect(word().value).toBe("");
+    expect(screen.getByRole("checkbox", { name: "完全一致" })).toBeChecked();
     expect((await api.data.init()).groups.map((g) => g.name)).toEqual([
       "配信後エゴサ",
     ]);

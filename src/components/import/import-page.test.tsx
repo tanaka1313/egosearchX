@@ -59,6 +59,7 @@ const homeState = () =>
   JSON.parse(screen.getByLabelText("home").textContent ?? "{}") as {
     word: string;
     exact: boolean;
+    onChipIds: string[];
   };
 const hololiveChips = async (api: EgoSearchApi) =>
   (await api.data.init()).chips.get("hololive")!;
@@ -163,32 +164,27 @@ describe("S7 URL解析：ホームで編集する", () => {
     const chips = await hololiveChips(api);
     const images = chips.find((c) => c.query === "filter:images")!;
     const noRt = chips.find((c) => c.query === "-filter:retweets")!;
-    // 貼る URL とは逆の状態にしておく：画像つきが ON、RTを除くが OFF
-    await api.data.chips.setOn(images.id, false);
-    await api.data.chips.setOn(noRt.id, false);
-    await api.data.chips.setOn(
-      chips.find((c) => c.query === "lang:ja")!.id,
-      true,
-    );
+    const lang = chips.find((c) => c.query === "lang:ja")!;
     await mountPage(api);
     paste(X_URL);
     fireEvent.click(screen.getByRole("button", { name: "ホームで編集する" }));
 
     await waitFor(() => expect(push).toHaveBeenCalledWith("/"));
-    const after = await hololiveChips(api);
-    expect(after.find((c) => c.id === images.id)!.on).toBe(true);
-    expect(after.find((c) => c.id === noRt.id)!.on).toBe(true);
-    expect(after.find((c) => c.query === "lang:ja")!.on).toBe(false);
+    // ON はホームの状態として渡す（保存済みの条件ボタンは書き換えない）
+    const { onChipIds } = homeState();
+    expect(onChipIds).toContain(images.id);
+    expect(onChipIds).toContain(noRt.id);
+    expect(onChipIds).not.toContain(lang.id);
+    expect((await hololiveChips(api)).some((c) => c.on)).toBe(false);
     expect(homeState().word).toBe("ぺこら");
     expect(screen.getByLabelText("home").textContent).toContain("foo:bar");
   });
 
-  it("非表示の条件ボタンは照合せず、ON なら OFF にして、その条件は詳細条件へ回す（要件定義書 11.4 ①）", async () => {
+  it("非表示の条件ボタンは照合せず、ON にせず、その条件は詳細条件へ回す（要件定義書 11.4 ①）", async () => {
     const api = await setup();
     const images = (await hololiveChips(api)).find(
       (c) => c.query === "filter:images",
     )!;
-    await api.data.chips.setOn(images.id, true);
     await api.data.chips.setVisible(images.id, false);
     await mountPage(api);
     paste(X_URL);
@@ -196,11 +192,11 @@ describe("S7 URL解析：ホームで編集する", () => {
 
     await waitFor(() => expect(push).toHaveBeenCalledWith("/"));
     const after = (await hololiveChips(api)).find((c) => c.id === images.id)!;
-    expect(after.on).toBe(false);
     expect(after.visible).toBe(false);
     const home = JSON.parse(
       screen.getByLabelText("home").textContent ?? "{}",
-    ) as { detail: { flt: Record<string, string> } };
+    ) as { onChipIds: string[]; detail: { flt: Record<string, string> } };
+    expect(home.onChipIds).not.toContain(images.id);
     expect(home.detail.flt.images).toBe("inc");
   });
 

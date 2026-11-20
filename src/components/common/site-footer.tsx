@@ -1,5 +1,6 @@
 "use client";
 
+import { PAGE_X } from "@/components/common/layout";
 import Link from "next/link";
 import type { OpenTarget } from "@/api";
 import { formatRunAt } from "@/lib/format-date";
@@ -24,7 +25,7 @@ export function SiteFooter({
   return (
     <footer className="fixed right-0 bottom-0 left-0 z-40 border-t bg-backdrop text-xs xl:left-64">
       {/* 中身は本文の列と同じ幅・同じ面（外側は背景色の黒） */}
-      <div className="mx-auto max-w-3xl bg-background px-3 pt-2 pb-1">
+      <div className={`mx-auto max-w-3xl bg-background pt-2 pb-1 ${PAGE_X}`}>
         {/* 1行目の高さは［再実行］の有無で変えない（履歴が付いた瞬間にフッターが伸びて本文がずれるため） */}
         <div className="flex h-6.5 items-center gap-2">
           <span className="shrink-0 text-muted-foreground">

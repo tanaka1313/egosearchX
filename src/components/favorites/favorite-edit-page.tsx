@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { useApi } from "@/store/api-context";
 import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
+import { PAGE_MAIN } from "@/components/common/layout";
 
 /** 一覧（S3）。直接開いた（遷移前の記録が無い）ときの戻り先 */
 const LIST_PATH = "/favorites";
@@ -43,9 +44,7 @@ export function FavoriteEditPage() {
 function Loading() {
   const { t } = useI18n();
   return (
-    <main className="mx-auto max-w-2xl p-3 text-sm md:p-4">
-      {t.favoriteEdit.loading}
-    </main>
+    <main className={`${PAGE_MAIN} text-sm`}>{t.favoriteEdit.loading}</main>
   );
 }
 
@@ -61,7 +60,7 @@ function FavoriteEditRoute() {
   if (!ready) return <Loading />;
   if (!fav)
     return (
-      <main className="mx-auto max-w-2xl p-3 md:p-4">
+      <main className={PAGE_MAIN}>
         <EmptyState text={t.favoriteEdit.notFound}>
           <Link href={LIST_PATH} className="text-sm underline">
             {t.favoriteEdit.backToList}
@@ -194,7 +193,7 @@ function EditorBody({ fav }: { fav: Favorite }) {
   );
 
   return (
-    <main className="mx-auto max-w-2xl space-y-4 p-3 md:p-4">
+    <main className={`${PAGE_MAIN} space-y-4`}>
       <PageHead title={ed.title} right={actions} />
 
       {/* 名前と検索先を1枚のカードに（お気に入りの色） */}

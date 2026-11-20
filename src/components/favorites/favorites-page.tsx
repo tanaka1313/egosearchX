@@ -11,6 +11,7 @@ import { useToast } from "@/components/common/toast";
 import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
 import { FavoriteRow } from "./favorite-row";
+import { PAGE_MAIN } from "@/components/common/layout";
 
 /**
  * S3：お気に入り（画面仕様書 5.2）。名前で絞り込み、並べ替え（取っ手。絞り込み中は反映しない）、
@@ -47,7 +48,7 @@ export function FavoritesPage() {
   };
 
   return (
-    <main className="mx-auto max-w-3xl space-y-3 p-3 md:p-4">
+    <main className={`${PAGE_MAIN} space-y-3`}>
       <PageHead title={p.title} />
       <p className="text-sm text-muted-foreground">{p.description}</p>
       <ListFilter

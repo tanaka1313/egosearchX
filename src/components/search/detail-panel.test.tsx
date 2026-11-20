@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createBackend } from "@/backend";
 import { MemoryAdapter } from "@/lib/storage/kv-adapter";
 import { DetailPanel } from "./detail-panel";
-import { mount } from "./harness";
+import { chipIdsByLabel, mount, Seed } from "./harness";
 import { QueryPreview } from "./query-preview";
 
 const clock = {
@@ -17,13 +17,9 @@ const clock = {
   now: () => "2026-11-19T03:00:00.000Z",
 };
 
-/** keepOn：OFF にしないボタンのラベル */
-async function setup(keepOn: string[] = []) {
+async function setup() {
   const api = createBackend({ kv: new MemoryAdapter(), clock });
-  const data = await api.data.init();
-  for (const list of data.chips.values())
-    for (const c of list)
-      await api.data.chips.setOn(c.id, keepOn.includes(c.label));
+  await api.data.init();
   return api;
 }
 const query = () =>
@@ -137,7 +133,16 @@ describe("DetailPanel（詳細条件）", () => {
   });
 
   it("ON の条件ボタンの項目別の無効化：外した項目はその検索でだけ使われない", async () => {
-    await mount(await setup(["ネタバレ除外"]), <Panel />);
+    const api = await setup();
+    await mount(
+      api,
+      <>
+        <Seed
+          home={{ onChipIds: await chipIdsByLabel(api, ["ネタバレ除外"]) }}
+        />
+        <Panel />
+      </>,
+    );
     expect(
       await screen.findByText(
         "共通（ONの条件ボタン）の項目別の無効化（1個のボタン）",

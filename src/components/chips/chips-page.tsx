@@ -20,6 +20,7 @@ import { useApi } from "@/store/api-context";
 import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
 import { ChipEditorSheet } from "./chip-editor";
+import { PAGE_MAIN } from "@/components/common/layout";
 
 /**
  * S2：条件ボタン（画面仕様書 5.1）。今の興味の対象の条件ボタンを全件並べ、並べ替え・表示の切替・編集（D1）・
@@ -209,7 +210,7 @@ function ChipsBody() {
     );
 
   return (
-    <main className="mx-auto max-w-3xl space-y-3 p-3 md:p-4">
+    <main className={`${PAGE_MAIN} space-y-3`}>
       <PageHead
         title={c.title}
         right={

@@ -95,10 +95,20 @@ describe("ホーム：構成", () => {
       ),
     ).toHaveLength(1);
     fireEvent.click(buttons[1]);
+    // 完全一致が初期で ON なので、検索語は引用符で囲まれる（%22 = "）
     expect(String(open.mock.calls[0][0])).toContain(
-      "q=%E3%81%BA%E3%81%93%E3%82%89",
+      "q=%22%E3%81%BA%E3%81%93%E3%82%89%22",
     );
-    expect(preview()).toHaveTextContent("ぺこら");
+    expect(preview()).toHaveTextContent('"ぺこら"');
+  });
+
+  it("開いたときは、完全一致が ON で、条件ボタンはすべて OFF", async () => {
+    await mountHome(await setup());
+    expect(screen.getByRole("checkbox", { name: "完全一致" })).toBeChecked();
+    const group = screen.getByRole("group", { name: "条件ボタン" });
+    expect(group.querySelectorAll('button[aria-pressed="true"]')).toHaveLength(
+      0,
+    );
   });
 
   it("英語の画面では、文言が英語になる", async () => {
@@ -145,7 +155,7 @@ describe("ホーム：検索語と Enter", () => {
     expect(open).not.toHaveBeenCalled();
   });
 
-  it("別のページへ移って戻っても、検索語・期間・完全一致が残る（保存はしない）", async () => {
+  it("ホームを離れてホーム以外へ移ると組み立てが空に戻る。ホームの中の再描画では残る（保存はしない）", async () => {
     const kv = new MemoryAdapter();
     const api = await setup(true, kv);
     const before = await kv.get("egosearch:v2:prefs");
@@ -164,18 +174,25 @@ describe("ホーム：検索語と Enter", () => {
     fireEvent.change(word(), { target: { value: "ぺこら" } });
     fireEvent.click(screen.getByRole("checkbox", { name: "完全一致" }));
     fireEvent.click(screen.getAllByRole("button", { name: "昨日から" })[0]);
+    fireEvent.click(screen.getByRole("button", { name: /画像つき/ }));
+    // ホーム自体が外れただけ（AppShell が「/」を離れたと見ない）では、状態は残る
     fireEvent.click(screen.getByRole("button", { name: "切替" }));
     expect(screen.queryByLabelText("検索する語")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "切替" }));
     expect(word()).toHaveValue("ぺこら");
-    expect(preview()).toHaveTextContent('"ぺこら" since:2026-11-18');
-    // 検索の組み立ては保存しない
+    expect(preview()).toHaveTextContent(
+      "ぺこら filter:images since:2026-11-18",
+    );
+    // 検索の組み立て（条件ボタンの ON を含む）は保存しない
     expect(await kv.get("egosearch:v2:prefs")).toEqual(before);
+    expect(
+      (await api.data.init()).chips.get("hololive")!.some((c) => c.on),
+    ).toBe(false);
   });
 });
 
 describe("ホーム：条件ボタンの ON と警告欄", () => {
-  it("ON の条件ボタンが検索に入り、再読み込み後も ON のまま", async () => {
+  it("ON の条件ボタンが検索に入る。再読み込みすると OFF に戻る（前回の ON を覚えない）", async () => {
     const kv = new MemoryAdapter();
     const api = await setup(true, kv);
     await mountHome(api);
@@ -183,7 +200,11 @@ describe("ホーム：条件ボタンの ON と警告欄", () => {
     await waitFor(() => expect(preview()).toHaveTextContent("filter:images"));
     cleanup();
     await mountHome(await setup(false, kv));
-    expect(preview()).toHaveTextContent("filter:images");
+    expect(screen.getByRole("button", { name: /画像つき/ })).toHaveAttribute(
+      "aria-pressed",
+      "false",
+    );
+    expect(preview()).not.toHaveTextContent("filter:images");
   });
 
   it("Yahoo!リアルタイム検索で使えない条件の警告は、「条件」の枠の一番下に出る（枠の外・クエリの横には出ない）", async () => {

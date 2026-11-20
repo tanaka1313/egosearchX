@@ -21,7 +21,7 @@ import { createBackend } from "@/backend";
 import { MemoryAdapter } from "@/lib/storage/kv-adapter";
 import { ApiProvider } from "@/store/api-context";
 import { I18nProvider } from "@/store/i18n-context";
-import { StoreProvider } from "@/store/store-context";
+import { StoreProvider, useAppStore } from "@/store/store-context";
 import { LaunchPage } from "@/components/launch/launch-page";
 import { AppShell } from "./app-shell";
 
@@ -498,5 +498,77 @@ describe("保存データが壊れているとき", () => {
     mount(apiOf(kv));
     expect(await screen.findByText(/復元できません/)).toBeVisible();
     expect(screen.queryByText("まとめて1タップで開けます")).toBeNull();
+  });
+});
+
+describe("ホームの検索の組み立て（毎回まっさらから始める）", () => {
+  /** ストアの `home` を読み書きするだけの本文 */
+  function Probe() {
+    const home = useAppStore((s) => s.home);
+    const set = useAppStore((s) => s.home_set);
+    return (
+      <>
+        <output aria-label="home">{JSON.stringify(home)}</output>
+        <button
+          type="button"
+          onClick={() =>
+            set({ word: "ぺこら", exact: false, onChipIds: ["a"] })
+          }
+        >
+          入力
+        </button>
+      </>
+    );
+  }
+  const home = () =>
+    JSON.parse(screen.getByLabelText("home").textContent ?? "{}") as {
+      word: string;
+      exact: boolean;
+      onChipIds: string[];
+    };
+
+  it("ホームを離れて別のページへ移ると、空（完全一致 ON・条件ボタンはすべて OFF）に戻る", async () => {
+    const api = apiOf(new MemoryAdapter());
+    const view = mount(api, <Probe />);
+    fireEvent.click(await screen.findByRole("button", { name: "入力" }));
+    expect(home()).toMatchObject({ word: "ぺこら", exact: false });
+
+    pathname = "/history";
+    view.rerender(
+      <ApiProvider api={api}>
+        <StoreProvider>
+          <I18nProvider>
+            <AppShell>
+              <Probe />
+            </AppShell>
+          </I18nProvider>
+        </StoreProvider>
+      </ApiProvider>,
+    );
+    await waitFor(() =>
+      expect(home()).toMatchObject({ word: "", exact: true, onChipIds: [] }),
+    );
+  });
+
+  it("ホーム以外のページで書いた内容（S7 の［ホームで編集する］）は、ホームへ移っても消えない", async () => {
+    pathname = "/import";
+    const api = apiOf(new MemoryAdapter());
+    const view = mount(api, <Probe />);
+    fireEvent.click(await screen.findByRole("button", { name: "入力" }));
+
+    pathname = "/";
+    view.rerender(
+      <ApiProvider api={api}>
+        <StoreProvider>
+          <I18nProvider>
+            <AppShell>
+              <Probe />
+            </AppShell>
+          </I18nProvider>
+        </StoreProvider>
+      </ApiProvider>,
+    );
+    await waitFor(() => expect(home().word).toBe("ぺこら"));
+    expect(home().onChipIds).toEqual(["a"]);
   });
 });
