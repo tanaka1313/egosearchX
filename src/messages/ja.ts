@@ -88,7 +88,10 @@ export const ja = {
   blocked: {
     summary: (total: number, failed: number) =>
       `${total}件中${failed}件を開けませんでした。`,
-    hint: "ブラウザのポップアップを許可してください。下のリンクから個別に開けます。",
+    hint: "ブラウザによっては、1回の操作で開けるタブは1つだけです。［次を開く］か下のリンクで、1件ずつ開けます。",
+    openNext: (k: number, total: number) => `次を開く（${k}/${total}）`,
+    allOpened: "すべて開きました",
+    opened: "開いた",
     close: "閉じる",
   },
   menu: {
