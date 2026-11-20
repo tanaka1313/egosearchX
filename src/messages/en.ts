@@ -93,6 +93,11 @@ export const en: Messages = {
     current: "Current",
     manage: (name) => `Manage ${name}`,
     manageTitle: (name) => `Manage ${name} (add, edit, delete)`,
+    sections: {
+      data: "Data",
+      tools: "Tools",
+      other: "More",
+    },
     items: {
       home: "Home",
       buttons: "Condition buttons",
@@ -304,7 +309,6 @@ export const en: Messages = {
     saveSheet: {
       title: "Save this search",
       name: "Favorite name",
-      defaultName: (word) => `Search for ${word}`,
       defaultNameEmpty: "New search",
       note: "This search text is saved as is. Things like “since yesterday” are kept as since:yesterday and worked out from the date you open it. Changing the condition buttons later does not change what you saved.",
       groupLegend: "Add to a routine (run several at once)",
@@ -312,11 +316,8 @@ export const en: Messages = {
       addTo: (name) => `Add to “${name}”`,
       newGroup: "Create a new routine",
       newGroupName: "Name of the new routine (starts as the favorite name)",
-      newGroupPlaceholder: "e.g. After-stream check",
       cancel: "Cancel",
       save: "Save",
-      nameRequired: "Enter a name",
-      groupNameRequired: "Enter a name for the routine",
       saved: "Saved to favorites",
       savedToGroup: (name) => `Saved to favorites and added to “${name}”`,
       failed: "Could not save",
@@ -495,7 +496,9 @@ export const en: Messages = {
     notFound: "This routine was not found (it may have been deleted)",
     backToList: "Back to routines",
     name: "Name",
-    namePlaceholder: "e.g. After-stream search",
+    autoGroupName: (first, others) =>
+      others > 0 ? `${first} +${others} more` : first,
+    autoGroupNameEmpty: (n) => `Routine ${n}`,
     itemsLabel: "Searches inside",
     items: (n) => `Searches inside (${n}; opened in order)`,
     itemsEmpty: "None yet. Add some from “Add” below.",
@@ -510,6 +513,8 @@ export const en: Messages = {
     noFavorites: "No favorites yet. Build one with “Build a new search” below.",
     add: "+ Add",
     addLabel: (name) => `Add ${name}`,
+    remove: "Remove",
+    removeLabel: (name) => `Remove ${name} from this routine`,
     make: "Build a new search from conditions",
     wordPlaceholder: "Enter a name or #tag",
     autoNameNote:

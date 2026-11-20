@@ -26,12 +26,29 @@ const SOURCES: { id: Source; tone: ToneKind; icon: typeof Star }[] = [
  */
 export function AddSources({
   groupName,
+  items,
   onAdd,
+  onRemove,
 }: {
   groupName: string;
+  /** 今このいつものエゴサに入っている項目（追加済みの判定に使う） */
+  items: readonly GroupItem[];
   onAdd: (item: GroupItem) => void;
+  /** 追加済みの行の［削除］ */
+  onRemove: (item: GroupItem) => void;
 }) {
+  const api = useApi();
   const { t } = useI18n();
+  // 正規化した検索文字列と検索先が同じなら追加済み（要件定義書 11.4）
+  const added = useMemo(
+    () =>
+      new Set(
+        items.map((it) => `${api.query.normalize(it.query)}|${it.engine}`),
+      ),
+    [api, items],
+  );
+  const isAdded = (it: GroupItem) =>
+    added.has(`${api.query.normalize(it.query)}|${it.engine}`);
   const ed = t.groupEdit;
   const [active, setActive] = useState<Source>("favorites");
   const refs = useRef<Record<Source, HTMLButtonElement | null>>({
@@ -106,9 +123,14 @@ export function AddSources({
         className="h-64 overflow-y-auto rounded-lg border focus-visible:ring-2 focus-visible:ring-ring"
       >
         {active === "favorites" ? (
-          <FavoriteList onAdd={onAdd} />
+          <FavoriteList isAdded={isAdded} onAdd={onAdd} onRemove={onRemove} />
         ) : (
-          <HistoryList groupName={groupName} onAdd={onAdd} />
+          <HistoryList
+            groupName={groupName}
+            isAdded={isAdded}
+            onAdd={onAdd}
+            onRemove={onRemove}
+          />
         )}
       </div>
     </section>
@@ -122,7 +144,9 @@ function Row({
   sub,
   note,
   addLabel,
+  added,
   onAdd,
+  onRemove,
 }: {
   tone: ToneKind;
   name: string;
@@ -130,7 +154,10 @@ function Row({
   sub: string;
   note?: string | null;
   addLabel: string;
+  /** 追加済み（［削除］にする） */
+  added: boolean;
   onAdd: () => void;
+  onRemove: () => void;
 }) {
   const { t } = useI18n();
   const b = engineBadge(engine);
@@ -160,20 +187,30 @@ function Row({
           {sub || t.home.noCondition}
         </span>
       </span>
+      {/* 幅は固定（［＋ 追加］と［削除］で切り替わっても、行の中身がずれない） */}
       <Button
         type="button"
         size="xs"
         variant="outline"
-        aria-label={addLabel}
-        onClick={onAdd}
+        className="w-16 shrink-0"
+        aria-label={added ? t.groupEdit.removeLabel(name) : addLabel}
+        onClick={added ? onRemove : onAdd}
       >
-        {t.groupEdit.add}
+        {added ? t.groupEdit.remove : t.groupEdit.add}
       </Button>
     </li>
   );
 }
 
-function FavoriteList({ onAdd }: { onAdd: (item: GroupItem) => void }) {
+function FavoriteList({
+  isAdded,
+  onAdd,
+  onRemove,
+}: {
+  isAdded: (item: GroupItem) => boolean;
+  onAdd: (item: GroupItem) => void;
+  onRemove: (item: GroupItem) => void;
+}) {
   const { t } = useI18n();
   const ed = t.groupEdit;
   const favorites = useAppStore((s) => s.favorites);
@@ -189,7 +226,9 @@ function FavoriteList({ onAdd }: { onAdd: (item: GroupItem) => void }) {
           engine={f.engine}
           sub={f.query}
           addLabel={ed.addLabel(f.name)}
+          added={isAdded(f)}
           onAdd={() => onAdd({ query: f.query, engine: f.engine })}
+          onRemove={() => onRemove({ query: f.query, engine: f.engine })}
         />
       ))}
     </ul>
@@ -198,10 +237,14 @@ function FavoriteList({ onAdd }: { onAdd: (item: GroupItem) => void }) {
 
 function HistoryList({
   groupName,
+  isAdded,
   onAdd,
+  onRemove,
 }: {
   groupName: string;
+  isAdded: (item: GroupItem) => boolean;
   onAdd: (item: GroupItem) => void;
+  onRemove: (item: GroupItem) => void;
 }) {
   const api = useApi();
   const { t } = useI18n();
@@ -275,7 +318,9 @@ function HistoryList({
           sub={r.h.query}
           note={formatRunAt(r.h.at)}
           addLabel={ed.addLabel(r.label)}
+          added={isAdded(r.h)}
           onAdd={() => void add(r)}
+          onRemove={() => onRemove({ query: r.h.query, engine: r.h.engine })}
         />
       ))}
     </ul>

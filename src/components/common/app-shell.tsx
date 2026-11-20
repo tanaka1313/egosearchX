@@ -109,7 +109,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       <SiteMeta />
       <div className="flex min-h-screen">
         <MenuSidebar onPalette={openPalette} />
-        <div className={`min-w-0 flex-1 ${launcher ? "" : "pb-20"}`}>
+        {/* 本文の列：外側の背景（黒）より少し明るい面にして、領域の境目が分かるようにする */}
+        <div
+          className={`mx-auto min-w-0 max-w-3xl flex-1 bg-background ${launcher ? "" : "pb-20"}`}
+        >
           <SiteHeader
             toggleRef={toggleRef}
             menuOpen={menuOpen}

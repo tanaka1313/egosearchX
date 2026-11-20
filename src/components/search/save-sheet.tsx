@@ -2,7 +2,8 @@
 
 import { Play, Star } from "lucide-react";
 import { useState, type ReactNode } from "react";
-import { ApiError, type Engine, type SaveSearchInput } from "@/api";
+import { ApiError, LIMITS, type Engine, type SaveSearchInput } from "@/api";
+import { searchAutoName } from "@/components/common/auto-name";
 import { EnginePicker } from "@/components/common/engine-picker";
 import { useToast } from "@/components/common/toast";
 import { TONE } from "@/components/common/tone";
@@ -48,24 +49,27 @@ function SaveForm({ onClose }: { onClose: () => void }) {
   const { t } = useI18n();
   const s = t.search.saveSheet;
   const toast = useToast();
-  const { word, built } = useSearchScope();
+  const { word, built, usedChips } = useSearchScope();
   const groups = useAppStore((st) => st.groups);
   const saveSearch = useAppStore((st) => st.saveSearch);
 
-  const [name, setName] = useState(
-    word.trim() ? s.defaultName(word.trim()) : s.defaultNameEmpty,
-  );
+  // 名前は空から始め、入力が無ければ検索語と ON のボタン名から作った名前（プレースホルダーに出している）で保存する
+  const autoName =
+    searchAutoName(
+      word,
+      usedChips.map((c) => c.label),
+      LIMITS.autoName,
+    ) || s.defaultNameEmpty;
+  const [name, setName] = useState("");
+  const favoriteName = name.trim() || autoName;
   const [engine, setEngine] = useState<Engine>("x");
   const [target, setTarget] = useState<string>(NONE);
-  // 新しいいつものエゴサの名前は、触るまでお気に入りの名前と同じ（入力は実質1回）
-  const [newGroup, setNewGroup] = useState<string | null>(null);
-  const groupName = newGroup ?? name;
+  // 新しいいつものエゴサの名前は、空ならお気に入りの名前と同じ（入力は実質1回）
+  const [newGroup, setNewGroup] = useState("");
+  const groupName = newGroup.trim() || favoriteName;
   const [error, setError] = useState("");
 
   const save = async () => {
-    if (!name.trim()) return setError(s.nameRequired);
-    if (target === NEW && !groupName.trim())
-      return setError(s.groupNameRequired);
     const blocker = built.blockers[0];
     if (blocker) return setError(t.issues[blocker.code](blocker.params ?? {}));
 
@@ -73,11 +77,11 @@ function SaveForm({ onClose }: { onClose: () => void }) {
       target === NONE
         ? { kind: "none" }
         : target === NEW
-          ? { kind: "newGroup", name: groupName.trim() }
+          ? { kind: "newGroup", name: groupName }
           : { kind: "group", groupId: target };
     try {
       const res = await saveSearch({
-        favorite: { name: name.trim(), query: built.stored, engine },
+        favorite: { name: favoriteName, query: built.stored, engine },
         target: to,
       });
       toast.show(res.group ? s.savedToGroup(res.group.name) : s.saved);
@@ -100,6 +104,7 @@ function SaveForm({ onClose }: { onClose: () => void }) {
           <input
             value={name}
             onChange={(ev) => setName(ev.target.value)}
+            placeholder={autoName}
             className="w-full rounded-lg border bg-field px-3 py-2"
           />
         </label>
@@ -147,10 +152,10 @@ function SaveForm({ onClose }: { onClose: () => void }) {
         </label>
         {target === NEW && (
           <input
-            value={groupName}
+            value={newGroup}
             onChange={(ev) => setNewGroup(ev.target.value)}
             aria-label={s.newGroupName}
-            placeholder={s.newGroupPlaceholder}
+            placeholder={favoriteName}
             className="w-full rounded-lg border px-3 py-2"
           />
         )}

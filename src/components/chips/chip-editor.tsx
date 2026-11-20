@@ -15,6 +15,7 @@ import {
   type CondKind,
   type ParamOp,
 } from "@/api";
+import { truncateName } from "@/components/common/auto-name";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
 import { useApi } from "@/store/api-context";
@@ -201,6 +202,8 @@ function EditorForm({
     [api, preview],
   );
 
+  const autoLabel = truncateName(preview, LIMITS.chipLabel);
+
   const addList = () => {
     const r = api.url.listId(listInput);
     if (!r.ok) return setError(t.issues[r.error.code](r.error.params ?? {}));
@@ -214,7 +217,8 @@ function EditorForm({
   };
 
   const save = async () => {
-    const r = api.query.validateChip(label, conds);
+    // ラベルが空なら、中身の条件の文字列から作った名前（プレースホルダーに出している）を使う
+    const r = api.query.validateChip(label.trim() || autoLabel, conds);
     if (!r.ok) return setError(t.issues[r.error.code](r.error.params ?? {}));
     try {
       await chipsSave({
@@ -240,7 +244,7 @@ function EditorForm({
         <input
           value={label}
           onChange={(ev) => setLabel(ev.target.value)}
-          placeholder={e.labelPlaceholder}
+          placeholder={autoLabel || e.labelPlaceholder}
           className={`${inputClass} w-full py-2`}
         />
       </label>

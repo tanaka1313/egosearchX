@@ -32,14 +32,14 @@ export function FavoriteSaveForm({
   const s = t.search.saveSheet;
   const toast = useToast();
   const save = useAppStore((st) => st.favorites_save);
-  const [name, setName] = useState(defaultName);
+  // 名前は空から始め、入力が無ければ初期値（プレースホルダーに出している名前）で保存する
+  const [name, setName] = useState("");
   const [engine, setEngine] = useState<Engine>(initial);
   const [error, setError] = useState("");
 
   const submit = async () => {
-    if (!name.trim()) return setError(s.nameRequired);
     try {
-      await save({ name: name.trim(), query, engine });
+      await save({ name: name.trim() || defaultName, query, engine });
       toast.show(s.saved);
       onClose();
     } catch (e) {
@@ -60,6 +60,7 @@ export function FavoriteSaveForm({
           <input
             value={name}
             onChange={(ev) => setName(ev.target.value)}
+            placeholder={defaultName}
             className="w-full rounded-lg border bg-field px-3 py-2"
           />
         </label>

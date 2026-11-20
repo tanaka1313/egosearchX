@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { ApiError, DEFAULT_PREFS } from "@/api";
+import { ApiError, DEFAULT_PREFS, LIMITS } from "@/api";
+import { searchAutoName } from "@/components/common/auto-name";
 import { FavoriteSaveForm } from "@/components/common/favorite-save-form";
 import { PageHead } from "@/components/common/page-head";
 import { useToast } from "@/components/common/toast";
@@ -71,10 +72,15 @@ export function ImportPage() {
   const defaultName = ok
     ? (() => {
         const chips = allChips.get(interest) ?? [];
-        const { word } = api.query.parse(ok.query, chips);
-        return word.trim()
-          ? t.search.saveSheet.defaultName(word.trim())
-          : t.search.saveSheet.defaultNameEmpty;
+        const parsed = api.query.parse(ok.query, chips);
+        const on = new Set(parsed.onChipIds);
+        return (
+          searchAutoName(
+            parsed.word,
+            chips.filter((c) => on.has(c.id)).map((c) => c.label),
+            LIMITS.autoName,
+          ) || t.search.saveSheet.defaultNameEmpty
+        );
       })()
     : "";
 

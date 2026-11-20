@@ -134,6 +134,24 @@ describe("D1 保存できない理由（シートの中に出す）", () => {
     expect(await chipsNow(api)).toHaveLength(chips.length);
   });
 
+  it("ラベルが空で条件が長いときは、切り詰めて末尾に「…」を付けた名前をプレースホルダーに出し、その名前で保存する", async () => {
+    const { api, chips } = await setup();
+    await mountPage(api);
+    openAdd();
+    const long = "あ".repeat(LIMITS.chipLabel + 5);
+    fireEvent.change(field("条件の値"), { target: { value: long } });
+    const expected = `${"あ".repeat(LIMITS.chipLabel - 1)}…`;
+    expect(field("ラベル（ボタンの表示名）")).toHaveAttribute(
+      "placeholder",
+      expected,
+    );
+    save();
+    await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+    const after = await chipsNow(api);
+    expect(after).toHaveLength(chips.length + 1);
+    expect(after.at(-1)).toMatchObject({ label: expected, query: long });
+  });
+
   it("ラベルが20文字を超える（20文字ちょうどは保存できる）", async () => {
     const { api, chips } = await setup();
     await mountPage(api);

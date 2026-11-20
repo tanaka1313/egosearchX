@@ -282,6 +282,36 @@ describe("左メニュー", () => {
     ).not.toHaveAttribute("aria-current");
   });
 
+  it("項目は見出し（データ管理・ツール・その他）の下にまとまり、コマンドパレットとバージョン情報も見出しの下にある", async () => {
+    mount(apiOf(new MemoryAdapter()));
+    const { nav } = await openMenu();
+    const group = (name: string) =>
+      within(within(nav).getByRole("region", { name }));
+    expect(
+      group("データ管理")
+        .getAllByRole("link")
+        .map((l) => l.getAttribute("href")),
+    ).toEqual(["/buttons", "/favorites", "/groups", "/history", "/trash"]);
+    expect(
+      group("ツール")
+        .getAllByRole("link")
+        .map((l) => l.getAttribute("href")),
+    ).toEqual(["/import"]);
+    expect(
+      group("ツール").getByRole("button", { name: /コマンドパレット/ }),
+    ).toBeVisible();
+    expect(
+      group("その他")
+        .getAllByRole("link")
+        .map((l) => l.getAttribute("href")),
+    ).toEqual(["/settings", "/about"]);
+    expect(
+      group("その他").getByRole("button", { name: "バージョン情報" }),
+    ).toBeVisible();
+    // ホームは見出しの外
+    expect(within(nav).getByRole("link", { name: /ホーム/ })).toBeVisible();
+  });
+
   it("管理ページの読み上げは「〇〇の管理」", async () => {
     mount(apiOf(new MemoryAdapter()));
     const { nav } = await openMenu();
