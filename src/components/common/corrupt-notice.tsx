@@ -1,4 +1,5 @@
 "use client";
+import { PAGE_X } from "@/components/common/layout";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/dialogs/confirm-dialog";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,7 @@ export function CorruptNotice() {
   return (
     <div
       role="alert"
-      className="mx-auto flex max-w-3xl flex-wrap items-center gap-2 border-b px-4 py-2 text-sm"
+      className={`flex flex-wrap items-center gap-2 border-b py-2 text-sm ${PAGE_X}`}
     >
       <p>{t.corrupt.message}</p>
       <Button variant="outline" size="sm" onClick={() => setConfirming(true)}>

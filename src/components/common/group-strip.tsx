@@ -1,5 +1,6 @@
 "use client";
 
+import { PAGE_X } from "@/components/common/layout";
 import { Check, Play, Plus } from "lucide-react";
 import Link from "next/link";
 import { useShallow } from "zustand/react/shallow";
@@ -32,7 +33,7 @@ export function GroupStrip({
 
   return (
     <div className="border-b">
-      <div className="mx-auto flex h-12 max-w-2xl items-center gap-2 px-3 md:px-4">
+      <div className={`flex h-12 items-center gap-2 ${PAGE_X}`}>
         <span className="shrink-0 text-xs text-muted-foreground">
           {t.strip.label}
         </span>

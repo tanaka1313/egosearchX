@@ -45,11 +45,13 @@ type Data = {
 
 /**
  * ホームの検索の組み立て（画面の状態。保存しない＝再読み込みで消える。docs/api-spec.md 1.1）。
- * ページを移って戻っても残り、S7 の［ホームで編集する］が外から書き込める。条件ボタンの ON は `Chip.on`（保存する）。
+ * 毎回まっさらから始める（ホームを離れると空に戻す）。S7 の［ホームで編集する］が外から書き込める。
  */
 export type HomeState = {
   word: string;
   exact: boolean;
+  /** ON の条件ボタンの ID（保存しない。初期はすべて OFF） */
+  onChipIds: string[];
   detail: Detail;
   period: Period;
   /** この検索だけ ON にしたサジェスト */
@@ -58,7 +60,8 @@ export type HomeState = {
 
 export const EMPTY_HOME: HomeState = {
   word: "",
-  exact: false,
+  exact: true,
+  onChipIds: [],
   detail: EMPTY_DETAIL,
   period: EMPTY_PERIOD,
   suggestionTokens: [],

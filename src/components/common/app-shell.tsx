@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import type { OpenTarget } from "@/api";
+import { EMPTY_HOME } from "@/store/app-store";
 import { useAppStore } from "@/store/store-context";
 import { BlockedContext } from "./blocked-context";
 import { BlockedNotice } from "./blocked-notice";
@@ -104,6 +105,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [menuOpen, closeMenu, openPalette]);
 
   // ランチャーを離れたら、引き継いだ結果を捨てる（あとで同じブックマークを開いたときに古い結果を出さない）
+  // ホームを離れたら、検索の組み立てを空（完全一致 ON・条件ボタンはすべて OFF）に戻す。毎回まっさらから始める。
+  // ホームの unmount では戻さない（dev の Strict Mode で二重に走り、S7 から引き継いだ内容が消える）
+  const homeSet = useAppStore((s) => s.home_set);
+  const wasHome = useRef(false);
+  useEffect(() => {
+    const home = pathname === "/";
+    if (wasHome.current && !home) homeSet(EMPTY_HOME);
+    wasHome.current = home;
+  }, [pathname, homeSet]);
+
   const wasLauncher = useRef(false);
   useEffect(() => {
     if (wasLauncher.current && !launcher) setHandoff(null);

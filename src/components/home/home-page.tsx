@@ -10,6 +10,7 @@ import {
 } from "@/components/search/search-scope";
 import { useI18n } from "@/store/i18n-context";
 import { FavoritesFold } from "./favorites-fold";
+import { PAGE_MAIN } from "@/components/common/layout";
 
 /**
  * S1：ホーム（画面仕様書 4章）。検索語を入れ、条件ボタンを押し、開く。押すだけで使える画面にする
@@ -28,7 +29,7 @@ function HomeBody() {
   const { t } = useI18n();
   const { word, setWord, run } = useSearchScope();
   return (
-    <main className="mx-auto max-w-2xl space-y-4 p-3 md:p-4">
+    <main className={`${PAGE_MAIN} space-y-4`}>
       {/* このサイトを作った理由（1〜2文）。機能の一覧は書かない */}
       <p className="text-sm text-muted-foreground">
         {t.home.reason}

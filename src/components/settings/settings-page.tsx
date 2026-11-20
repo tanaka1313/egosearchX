@@ -10,6 +10,7 @@ import { focusMain } from "@/lib/focus";
 import { useApi } from "@/store/api-context";
 import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
+import { PAGE_MAIN } from "@/components/common/layout";
 
 /**
  * S11：設定（画面仕様書 5.10）。「興味の対象」の選択（試験的）と、［データをすべて初期化］。
@@ -39,7 +40,7 @@ export function SettingsPage() {
   };
 
   return (
-    <main className="mx-auto max-w-2xl space-y-4 p-3 md:p-4">
+    <main className={`${PAGE_MAIN} space-y-4`}>
       <PageHead title={s.title} />
       <section className="space-y-2 rounded-lg border p-3 text-sm">
         <h2 className="font-medium">{s.dataLegend}</h2>

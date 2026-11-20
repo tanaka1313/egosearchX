@@ -213,6 +213,28 @@ describe("S9 ランチャー：実行", () => {
     expect(screen.queryByRole("status")).toBeNull();
   });
 
+  it("開けなかった分があるあいだは［次を開く］だけを出し、［すべて開く］は出さない（［×］で閉じると戻る）", async () => {
+    vi.mocked(window.open).mockImplementation(() => null);
+    const api = await setup();
+    await open(api, await hashOf(api));
+    fireEvent.click(
+      await screen.findByRole("button", { name: "▶ すべて開く" }),
+    );
+    const status = await screen.findByRole("status");
+    expect(
+      within(status).getByRole("button", { name: "次を開く（1/4）" }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "▶ すべて開く" })).toBeNull();
+    // 各行の個別ボタンは常に出す
+    expect(
+      screen.getAllByRole("button", { name: /を X で開く$/ }).length,
+    ).toBeGreaterThan(0);
+    fireEvent.click(within(status).getByRole("button", { name: "閉じる" }));
+    expect(
+      screen.getByRole("button", { name: "▶ すべて開く" }),
+    ).toBeInTheDocument();
+  });
+
   it("1回のタップで1件しか開けない端末（2件目以降が null）では、［次を開く］で残りを1件ずつ開く", async () => {
     // iPhone の Safari の挙動（実機。1件目だけ開き、残りはブロックされる）
     vi.mocked(window.open)

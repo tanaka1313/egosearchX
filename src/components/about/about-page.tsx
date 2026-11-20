@@ -2,12 +2,13 @@
 
 import { PageHead } from "@/components/common/page-head";
 import { useI18n } from "@/store/i18n-context";
+import { PAGE_MAIN } from "@/components/common/layout";
 
 /** S10 このサイトについて（画面仕様書 5.9）。静的な文言だけで、`@/api` は呼ばない */
 export function AboutPage() {
   const a = useI18n().t.aboutPage;
   return (
-    <main className="mx-auto max-w-2xl space-y-5 p-3 md:p-4">
+    <main className={`${PAGE_MAIN} space-y-5`}>
       <PageHead title={a.title} />
       <section aria-label={a.reasonTitle} className="space-y-2">
         <h2 className="font-bold">{a.reasonTitle}</h2>

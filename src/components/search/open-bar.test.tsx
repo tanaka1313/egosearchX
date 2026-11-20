@@ -54,7 +54,7 @@ afterEach(() => {
 
 const withWord = (word = "ぺこら") => (
   <>
-    <Seed home={{ word }} />
+    <Seed home={{ word, exact: false }} />
     <OpenBar />
   </>
 );
@@ -99,6 +99,7 @@ describe("OpenBar：開く", () => {
         <Seed
           home={{
             word: "ぺこら",
+            exact: false,
             period: { kind: "d1", from: "", to: "" },
           }}
         />
@@ -253,7 +254,11 @@ describe("OpenBar：☆ 保存", () => {
       api,
       <>
         <Seed
-          home={{ word: "ぺこら", period: { kind: "d1", from: "", to: "" } }}
+          home={{
+            word: "ぺこら",
+            exact: false,
+            period: { kind: "d1", from: "", to: "" },
+          }}
         />
         <OpenBar />
       </>,

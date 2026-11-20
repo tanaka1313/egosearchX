@@ -111,13 +111,13 @@ describe("実データ", () => {
     });
   });
 
-  it("初期 ON は RTを除く（と、ホロライブのネタバレ除外）、リンクなしは非表示", () => {
+  it("初期 ON は無し（条件ボタンはすべて OFF から始まる）、リンクなしは非表示", () => {
     const on = (id: string) =>
       presetsFor(id)
         .filter((p) => p.on)
         .map((p) => p.label);
-    expect(on("hololive")).toEqual(["RTを除く", "ネタバレ除外"]);
-    expect(on("other")).toEqual(["RTを除く"]);
+    expect(on("hololive")).toEqual([]);
+    expect(on("other")).toEqual([]);
     expect(
       presetsFor("other").find((p) => p.label === "リンクなし")?.visible,
     ).toBe(false);

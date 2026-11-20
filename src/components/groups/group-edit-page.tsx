@@ -33,6 +33,7 @@ import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
 import { AddSources } from "./add-sources";
 import { useItemLabel } from "./item-label";
+import { PAGE_MAIN } from "@/components/common/layout";
 
 /** 一覧（S4）。保存したあと・直接開いてキャンセルしたときの戻り先 */
 const LIST_PATH = "/groups";
@@ -49,10 +50,10 @@ const keyed = (it: GroupItem): KeyedItem => ({
   key: nextKey++,
 });
 
-/** ②の組み立ての初期値（空）。追加するたびに作り直して空に戻す */
+/** ②の組み立ての初期値（完全一致 ON・条件ボタンはすべて OFF）。追加するたびに作り直して戻す */
 const EMPTY_SCOPE: ParsedScope = {
   word: "",
-  exact: false,
+  exact: true,
   onChipIds: [],
   detail: EMPTY_DETAIL,
   period: EMPTY_PERIOD,
@@ -74,11 +75,7 @@ export function GroupEditPage() {
 
 function Loading() {
   const { t } = useI18n();
-  return (
-    <main className="mx-auto max-w-2xl p-3 text-sm md:p-4">
-      {t.groupEdit.loading}
-    </main>
-  );
+  return <main className={`${PAGE_MAIN} text-sm`}>{t.groupEdit.loading}</main>;
 }
 
 function GroupEditRoute() {
@@ -94,7 +91,7 @@ function GroupEditRoute() {
   const group = groups.find((g) => g.id === id);
   if (!group)
     return (
-      <main className="mx-auto max-w-2xl p-3 md:p-4">
+      <main className={PAGE_MAIN}>
         <EmptyState text={t.groupEdit.notFound}>
           <Link href={LIST_PATH} className="text-sm underline">
             {t.groupEdit.backToList}
@@ -192,7 +189,7 @@ function GroupEditor({ group }: { group: Group | null }) {
   );
 
   return (
-    <main className="mx-auto max-w-2xl space-y-4 p-3 md:p-4">
+    <main className={`${PAGE_MAIN} space-y-4`}>
       <PageHead title={group ? ed.titleEdit : ed.titleNew} right={actions} />
 
       <label className="block space-y-1 text-sm">

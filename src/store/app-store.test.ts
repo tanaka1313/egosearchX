@@ -270,7 +270,8 @@ describe("home（ホームの検索の組み立て。保存しない）", () => 
     const { store } = setup();
     expect(store.getState().home).toEqual({
       word: "",
-      exact: false,
+      exact: true,
+      onChipIds: [],
       detail: EMPTY_DETAIL,
       period: EMPTY_PERIOD,
       suggestionTokens: [],
@@ -281,10 +282,10 @@ describe("home（ホームの検索の組み立て。保存しない）", () => 
   it("home_set は指定した項目だけを変え、ほかは残す", async () => {
     const { store } = await ready();
     store.getState().home_set({ word: "ぺこら" });
-    store.getState().home_set({ exact: true });
+    store.getState().home_set({ exact: false });
     expect(store.getState().home).toMatchObject({
       word: "ぺこら",
-      exact: true,
+      exact: false,
       suggestionTokens: [],
     });
   });

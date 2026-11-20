@@ -99,8 +99,8 @@ type CoreInput = {
   detail: Detail;
   period: Period;
   suggestionTokens: string[];
-  /** ON の条件ボタンの ID。null は、保存している `chip.on`（ホーム） */
-  onChipIds: string[] | null;
+  /** ON の条件ボタンの ID（画面ごとの状態。保存している `chip.on` は読まない） */
+  onChipIds: string[];
   /** 開いたときの履歴の出どころ */
   source: RunSource;
 };
@@ -131,10 +131,7 @@ function useScopeCore(input: CoreInput) {
     [allChips, interest],
   );
   const visibleChips = useMemo(() => chips.filter((c) => c.visible), [chips]);
-  const onIds = useMemo(
-    () => onChipIds ?? chips.filter((c) => c.on).map((c) => c.id),
-    [onChipIds, chips],
-  );
+  const onIds = onChipIds;
   const usedChips = useMemo(
     () => visibleChips.filter((c) => onIds.includes(c.id)),
     [visibleChips, onIds],
@@ -222,8 +219,32 @@ function flip(tokens: string[], token: string): string[] {
 }
 
 /**
- * ホームの検索の組み立て：ストアの `home`（保存しない）と、条件ボタンの `on`（保存する）から作る。
- * 条件ボタンの ON は `chips.setOn`（async）。失敗はトーストで知らせ、壊れたデータ（CORRUPT）は書かない。
+ * 値付きの条件の値だけをボタンに保存する（ボタンの定義なので、どの画面で変えても共通になる）。
+ * `chips.setValue` は保存済みの ON も true にするので使わず、値を差し替えて `chips.save`（`on`・`visible` を省略＝既存値を保つ）する。
+ */
+function useSaveChipValue(guard: (p: Promise<unknown>) => void) {
+  const api = useApi();
+  const chipsSave = useAppStore((s) => s.chips_save);
+  return (chip: Chip, condId: string, value: string) => {
+    const query = api.query.condsToQuery(
+      api.query
+        .chipConds(chip)
+        .map((c) => (c.id === condId ? { ...c, value } : c)),
+    );
+    guard(
+      chipsSave({
+        id: chip.id,
+        interestId: chip.interestId,
+        label: chip.label,
+        query,
+      }),
+    );
+  };
+}
+
+/**
+ * ホームの検索の組み立て：ストアの `home`（保存しない。毎回まっさらから始める）から作る。
+ * 条件ボタンの ON も `home.onChipIds`（保存しない）。値付きの条件の値だけはボタンに保存する。
  */
 export function HomeScopeProvider({ children }: { children: ReactNode }) {
   const { t } = useI18n();
@@ -231,16 +252,14 @@ export function HomeScopeProvider({ children }: { children: ReactNode }) {
 
   const home = useAppStore(useShallow((s) => s.home));
   const setHome = useAppStore((s) => s.home_set);
-  const chipsSetOn = useAppStore((s) => s.chips_setOn);
-  const chipsSetValue = useAppStore((s) => s.chips_setValue);
   const chipSeen = useAppStore((s) => s.chip_seen);
 
   const core = useScopeCore({
     ...home,
-    onChipIds: null,
     source: { kind: "home", label: home.word },
   });
   const { chips, ready, guard } = core;
+  const saveChipValue = useSaveChipValue(guard);
 
   const scope: SearchScope = {
     word: home.word,
@@ -265,15 +284,17 @@ export function HomeScopeProvider({ children }: { children: ReactNode }) {
     usedChips: core.usedChips,
     isOn: core.isOn,
     toggle: (id) => {
-      const chip = chips.find((c) => c.id === id);
-      if (!chip || !ready) return;
+      if (!chips.some((c) => c.id === id) || !ready) return;
       chipSeen(id); // 「新」印は、初めて押すと消える
-      guard(chipsSetOn(id, !chip.on));
+      setHome({ onChipIds: flip(home.onChipIds, id) });
     },
     setChipValue: (id, condId, value) => {
-      if (!ready) return;
+      const chip = chips.find((c) => c.id === id);
+      if (!chip || !ready) return;
       chipSeen(id);
-      guard(chipsSetValue(id, condId, value));
+      saveChipValue(chip, condId, value);
+      if (!home.onChipIds.includes(id))
+        setHome({ onChipIds: [...home.onChipIds, id] });
     },
 
     built: core.built,
@@ -303,7 +324,6 @@ export function LocalScopeProvider({
   const toast = useToast();
   const { t } = useI18n();
   const chipSeen = useAppStore((s) => s.chip_seen);
-  const chipsSave = useAppStore((s) => s.chips_save);
 
   const [word, setWord] = useState(initial.word);
   const [exact, setExact] = useState(initial.exact);
@@ -322,6 +342,7 @@ export function LocalScopeProvider({
     source: { kind: "other", label: word },
   });
   const { chips, ready, guard } = core;
+  const saveChipValue = useSaveChipValue(guard);
 
   const scope: SearchScope = {
     word,
@@ -358,21 +379,7 @@ export function LocalScopeProvider({
       const chip = chips.find((c) => c.id === id);
       if (!chip || !ready) return;
       chipSeen(id);
-      // `chips.setValue` は保存済みの ON も true にする（ホームの ON を変えてしまう）ので使わない。
-      // 値だけを差し替えて保存する（`on`・`visible` を省略すると既存の値が保たれる）
-      const query = api.query.condsToQuery(
-        api.query
-          .chipConds(chip)
-          .map((c) => (c.id === condId ? { ...c, value } : c)),
-      );
-      guard(
-        chipsSave({
-          id: chip.id,
-          interestId: chip.interestId,
-          label: chip.label,
-          query,
-        }),
-      );
+      saveChipValue(chip, condId, value);
       setOnChipIds((ids) => (ids.includes(id) ? ids : [...ids, id]));
     },
 

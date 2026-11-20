@@ -25,6 +25,7 @@ import { ENGINE_LABEL, ENGINE_SHORT, type Messages } from "@/messages";
 import { useApi } from "@/store/api-context";
 import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
+import { PAGE_MAIN } from "@/components/common/layout";
 
 /** 実行元の表示（履歴の `source.label` は表示用の文字列で、参照ではない） */
 function sourceText(p: Messages["historyPage"], source: HistoryItem["source"]) {
@@ -87,7 +88,7 @@ export function HistoryPage() {
   };
 
   return (
-    <main className="mx-auto max-w-3xl space-y-3 p-3 md:p-4">
+    <main className={`${PAGE_MAIN} space-y-3`}>
       <PageHead
         title={p.title}
         right={

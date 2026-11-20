@@ -1,5 +1,6 @@
 "use client";
 
+import { PAGE_X } from "@/components/common/layout";
 import { Check, TriangleAlert, X } from "lucide-react";
 import { useState } from "react";
 import type { OpenTarget } from "@/api";
@@ -58,7 +59,7 @@ export function BlockedNotice({
   return (
     <div
       role="status"
-      className={`mx-auto max-w-3xl border-b px-4 py-2 text-sm ${ERROR_CARD}`}
+      className={`border-b py-2 text-sm ${PAGE_X} ${ERROR_CARD}`}
     >
       <div className="flex items-start gap-2">
         <TriangleAlert

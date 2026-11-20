@@ -57,6 +57,18 @@ export function Seed({ home }: { home: Partial<HomeState> }) {
   return null;
 }
 
+/** ラベルで探した条件ボタンの ID（`Seed` の `onChipIds` に渡して、ON の状態を作る。全対象から探す） */
+export async function chipIdsByLabel(
+  api: EgoSearchApi,
+  labels: string[],
+): Promise<string[]> {
+  const { chips } = await api.data.init();
+  return [...chips.values()]
+    .flat()
+    .filter((c) => labels.includes(c.label))
+    .map((c) => c.id);
+}
+
 /**
  * 履歴を1件にする（履歴0件のときだけ出る検索ワード集の表示を、テストで切り分けるため）。
  * 既定の検索文字列は条件ボタン（画像つき）と同じにして、サジェストの候補を増やさない。

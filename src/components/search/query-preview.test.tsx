@@ -50,7 +50,11 @@ describe("QueryPreview（クエリ表示）", () => {
       await allOff(api()),
       <>
         <Seed
-          home={{ word: "ぺこら", period: { kind: "d1", from: "", to: "" } }}
+          home={{
+            word: "ぺこら",
+            exact: false,
+            period: { kind: "d1", from: "", to: "" },
+          }}
         />
         <QueryPreview />
       </>,
@@ -160,7 +164,7 @@ describe("WarningNote（警告欄）", () => {
     await mount(
       await allOff(api()),
       <>
-        <Seed home={{ word: "あ".repeat(501) }} />
+        <Seed home={{ word: "あ".repeat(501), exact: false }} />
         <WarningNote />
       </>,
     );
