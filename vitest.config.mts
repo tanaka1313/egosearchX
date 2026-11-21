@@ -12,6 +12,10 @@ export default defineConfig({
     // ファイルごとに延ばし続けないよう、ここで1か所に決める
     testTimeout: 30_000,
     setupFiles: ["./vitest.setup.ts"],
-    include: ["src/**/*.test.{ts,tsx}", ".claude/hooks/**/*.test.mjs"],
+    include: [
+      "src/**/*.test.{ts,tsx}",
+      "scripts/**/*.test.mjs",
+      ".claude/hooks/**/*.test.mjs",
+    ],
   },
 });

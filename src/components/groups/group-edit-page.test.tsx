@@ -8,7 +8,7 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { EgoSearchApi } from "@/api";
 import { createBackend } from "@/backend";
-import { labeled, mount } from "@/components/search/harness";
+import { labeled, mount, openMore } from "@/components/search/harness";
 import { MemoryAdapter } from "@/lib/storage/kv-adapter";
 import { useAppStore } from "@/store/store-context";
 import { GroupEditPage } from "./group-edit-page";
@@ -497,6 +497,7 @@ describe("S4-E：②条件を指定して新しく作る", () => {
     const { api } = await setup();
     await mountPage(api);
     openMaker();
+    openMore(); // 画像つきは先頭 foldChips 個より後ろ
     fireEvent.click(
       screen.getAllByRole("button", { name: labeled("画像つき") })[0],
     );
@@ -512,6 +513,7 @@ describe("S4-E：②条件を指定して新しく作る", () => {
     await mountPage(api);
     openMaker();
     const homeBefore = homeText();
+    openMore(); // 返信のみは先頭 foldChips 個より後ろ
     fireEvent.click(
       screen.getAllByRole("button", { name: labeled("返信のみ") })[0],
     );
@@ -519,11 +521,11 @@ describe("S4-E：②条件を指定して新しく作る", () => {
       screen.getAllByRole("button", { name: labeled("返信のみ") })[0],
     ).toHaveAttribute("aria-pressed", "true");
 
-    const w = api.master.wordSet("hololive")[0].words[0];
+    const w = api.master.wordSet("hololive")[1].words[0];
     fireEvent.click(screen.getByRole("button", { name: "検索ワード集" }));
     const dialog = await screen.findByRole("dialog", { name: "検索ワード集" });
     fireEvent.click(
-      within(dialog).getByRole("button", { name: labeled(w.label) }),
+      within(dialog).getByRole("button", { name: labeled(w.label.ja) }),
     );
 
     expect((await hololive(api)).map((c) => [c.id, c.on])).toEqual(before);

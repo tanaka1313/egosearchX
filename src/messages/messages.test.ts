@@ -39,6 +39,7 @@ const SAMPLES: Record<IssueCode, { params?: IssueParams; shown?: string[] }> = {
   "chip.empty": {},
   "chip.badNumber": { params: { index: 2 }, shown: ["3"] },
   "chip.badDate": { params: { index: 0 }, shown: ["1"] },
+  "chip.badText": { params: { index: 1 }, shown: ["2"] },
 };
 
 describe("見本の params が全コードを覆っている", () => {

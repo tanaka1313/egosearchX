@@ -4,7 +4,7 @@ import {
   type FilterKey,
   type IssueCode,
   type IssueParams,
-  type ParamOp,
+  type ValueOp,
 } from "@/api";
 import { ENGINE_LABEL } from "./engine";
 
@@ -49,6 +49,8 @@ const issues: Record<IssueCode, (p: IssueParams) => string> = {
     `${Number(p.index) + 1}行目：数値は1以上の整数で入力してください`,
   "chip.badDate": (p) =>
     `${Number(p.index) + 1}行目：日付は YYYY-MM-DD の形で入力してください`,
+  "chip.badText": (p) =>
+    `${Number(p.index) + 1}行目：ユーザー名は英数字と _ の15文字までで入力してください（@ は付けません）`,
 };
 
 export const ja = {
@@ -228,14 +230,26 @@ export const ja = {
       min_replies: "返信数",
       since: "開始日",
       until: "終了日",
-    } satisfies Record<ParamOp, string>,
+      "-since": "除く開始日",
+      from: "投稿者のユーザー名",
+      "-from": "除く投稿者のユーザー名",
+      mention: "メンション先のユーザー名",
+      "-mention": "除くメンション先のユーザー名",
+      list: "リストID",
+    } satisfies Record<ValueOp, string>,
     paramSuffix: {
       min_faves: "件以上",
       min_retweets: "件以上",
       min_replies: "件以上",
       since: "以降",
       until: "以前",
-    } satisfies Record<ParamOp, string>,
+      "-since": "以降を除く",
+      from: "",
+      "-from": "",
+      mention: "",
+      "-mention": "",
+      list: "",
+    } satisfies Record<ValueOp, string>,
     period: {
       label: "期間",
       d1: "昨日から",
@@ -639,6 +653,7 @@ export const ja = {
         raw: "生トークン",
         number: "数値",
         date: "日付",
+        text: "ユーザー名",
       } satisfies Record<CondKind, string>,
       hints: {
         word: "ぺこら",
@@ -650,6 +665,7 @@ export const ja = {
         raw: "foo:bar",
         number: "50",
         date: "2026-11-07",
+        text: "tokino_sora",
       } satisfies Record<CondKind, string>,
       listSection: "リストを登録",
       listInput: "リストの URL または ID",

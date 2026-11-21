@@ -1,3 +1,16 @@
+# #102 Excel → JSON の生成プログラム・サジェスト規則の自動作成・値付きボタン・英語対応表
+
+1. Goal: Excel を正にして JSON を生成し、サジェスト規則を検索ワード集から自動で作り、値付きボタンと英語表示に対応する。
+2. Plan:
+   - [x] Excel の現状を main へ push（8700cc0）、Issue #102、ブランチ `feature/excel-generator-suggest`
+   - [x] 生成プログラム（`scripts/gen-master.mjs`・`lib/master-from-rows.mjs`。テスト 28 件）、英語対応表シート、確認用 Excel
+   - [x] 値付きの条件（`VALUE_OPS`：from・@・list・-since など）、語単位のサジェスト、共通の検索ワード、{ja,en} のラベル
+   - [x] 既存テストの修正（backend・dialog・page・suggest）
+   - [ ] コンポーネントのテスト修正（サブエージェント）、docs、`make check`、main へマージ、Issue クローズ
+3. Verification: `make check`、`npm run gen:master` を2回実行して差分なし、`make dev` で画面確認（ParamChip の文字入力・英語表示・サジェストのワードボタン）。
+4. Review: （マージ時に記入）
+   - **次に壊れやすい点**：英語対応表は完全一致のため、Excel の表示名を直すと英語が引けなくなる。プリセットと共通ワードの重複ボタン。
+
 # #96 項目の検索先・ランチャーの個別ボタンと色・カーソル・設定の並び・サイドバー固定・「新しく作る」のタブ化
 
 1. Goal: いつものエゴサの項目ごとに検索先を選べ、ランチャーで両方の検索先を個別に開け、エラーと注目箇所に色を付け、全体のカーソル・設定の並び・サイドバー固定を直し、「新しく作る」をタブにする。

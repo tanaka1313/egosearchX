@@ -1,5 +1,5 @@
 // 部品のテスト用の組み立て（本物のバックエンドは呼び出し側が作って渡す）。アプリ本体からは import しない。
-import { render, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useEffect, type ReactNode } from "react";
 import { expect } from "vitest";
 import type { EgoSearchApi, OpenTarget } from "@/api";
@@ -79,6 +79,19 @@ export async function recordOneHistory(
 ) {
   const plan = api.url.plan([{ query, engine: "x" }]);
   await api.data.history.record(plan, { kind: "home", label: query });
+}
+
+/** ［もっと開く（+N）］を押して、隠れた条件ボタンとサジェストを出す（先頭 foldChips 個より後ろのボタンを使うテスト用） */
+export function openMore() {
+  fireEvent.click(screen.getByRole("button", { name: /もっと開く/ }));
+}
+
+/** ラベルの条件ボタンを返す。折りたたみで隠れているときは、先に［もっと開く］を押す */
+export function chipButton(label: string) {
+  const name = labeled(label);
+  if (!screen.queryByRole("button", { name }))
+    fireEvent.click(screen.getByRole("button", { name: /もっと開く/ }));
+  return screen.getByRole("button", { name });
 }
 
 /** ボタンの名前は「OFF ラベル」のように状態のアイコンの読み上げが先頭に付くので、ラベルで終わるものに一致させる */

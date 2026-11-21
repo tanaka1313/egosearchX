@@ -13,6 +13,7 @@ import {
   type Group,
   type HistoryItem,
   type InterestId,
+  type Lang,
   type TrashDetail,
   type TrashKind,
 } from "@/api";
@@ -31,12 +32,23 @@ import { META_KEY } from "@/lib/storage/migrate";
 import type { Dao } from "@/lib/storage/types";
 import { guarded, migrationError } from "./errors";
 
-type Deps = { kv: KeyValueAdapter; clock: Clock; newId: () => string };
+type Deps = {
+  kv: KeyValueAdapter;
+  clock: Clock;
+  newId: () => string;
+  /** 初回にプリセットを足すときの言語（まだ prefs が無いので、ブラウザの言語を渡す） */
+  initialLang: () => Lang;
+};
 
 const notFound = () => new ApiError("NOT_FOUND");
 const invalid = (field: string) => new ApiError("INVALID", { field });
 
-export function createDataApi({ kv, clock, newId }: Deps): DataApi {
+export function createDataApi({
+  kv,
+  clock,
+  newId,
+  initialLang,
+}: Deps): DataApi {
   let opened: Promise<Dao> | null = null;
 
   /** 初回の判定は、`openDao` が meta を書く前に行う（「条件ボタンが0件」では判定しない） */
@@ -49,7 +61,9 @@ export function createDataApi({ kv, clock, newId }: Deps): DataApi {
       } catch (e) {
         throw migrationError(e);
       }
-      if (first) for (const id of interests().keys()) await addPresets(dao, id);
+      if (first)
+        for (const id of interests().keys())
+          await addPresets(dao, id, initialLang());
       return dao;
     })().catch((e: unknown) => {
       opened = null; // 失敗は覚えない（直したあと、再読み込みなしで読み直せる）
@@ -76,8 +90,15 @@ export function createDataApi({ kv, clock, newId }: Deps): DataApi {
     deletedAt: null,
   });
 
-  /** プリセットのうち、正規化した検索文字列が一致する（削除済みを除く）ボタンが無いものを、上限まで足す */
-  async function addPresets(dao: Dao, interestId: InterestId): Promise<Chip[]> {
+  /**
+   * プリセットのうち、正規化した検索文字列が一致する（削除済みを除く）ボタンが無いものを、上限まで足す。
+   * ラベルは、足すときの言語のものを保存する（あとで言語を切り替えても、保存したボタンは変わらない）。
+   */
+  async function addPresets(
+    dao: Dao,
+    interestId: InterestId,
+    lang: Lang,
+  ): Promise<Chip[]> {
     if (!interests().has(interestId)) throw notFound();
     const have = await dao.chips.listByInterest(interestId);
     const keys = new Set(have.map((c) => normalize(c.query)));
@@ -89,7 +110,7 @@ export function createDataApi({ kv, clock, newId }: Deps): DataApi {
       if (keys.has(key)) continue;
       keys.add(key);
       const chip = {
-        ...newChip(interestId, p.label, p.query, true),
+        ...newChip(interestId, p.label[lang], p.query, true),
         on: p.on,
         visible: p.visible,
       };
@@ -210,7 +231,11 @@ export function createDataApi({ kv, clock, newId }: Deps): DataApi {
         const conds = chipConds(chip);
         const cond = conds.find((c) => c.id === condId);
         if (!cond) throw notFound();
-        if (cond.kind !== "number" && cond.kind !== "date")
+        if (
+          cond.kind !== "number" &&
+          cond.kind !== "date" &&
+          cond.kind !== "text"
+        )
           throw invalid("condId");
         if (!condToken({ ...cond, value })) throw invalid("value");
         const query = condsToQuery(
@@ -225,7 +250,8 @@ export function createDataApi({ kv, clock, newId }: Deps): DataApi {
         await activeChip(dao, id);
         await dao.chips.softDelete(id, clock.now());
       },
-      addPresets: async (interestId) => addPresets(await open(), interestId),
+      addPresets: async (interestId, lang) =>
+        addPresets(await open(), interestId, lang),
       adoptSuggestion: async (interestId, token) => {
         const dao = await open();
         const chip = newChip(interestId, labelFromQuery(token), token, false);

@@ -42,6 +42,8 @@ export const en: Messages = {
       `Row ${Number(p.index) + 1}: enter a whole number of 1 or more`,
     "chip.badDate": (p) =>
       `Row ${Number(p.index) + 1}: enter a date as YYYY-MM-DD`,
+    "chip.badText": (p) =>
+      `Row ${Number(p.index) + 1}: enter a username of up to 15 letters, digits or _ (without @)`,
   },
   footer: {
     unofficial: "An unofficial fan-made tool",
@@ -218,6 +220,12 @@ export const en: Messages = {
       min_replies: "Replies",
       since: "Start date",
       until: "End date",
+      "-since": "Excluded start date",
+      from: "Author's username",
+      "-from": "Excluded author's username",
+      mention: "Mentioned username",
+      "-mention": "Excluded mentioned username",
+      list: "List ID",
     },
     paramSuffix: {
       min_faves: "or more",
@@ -225,6 +233,12 @@ export const en: Messages = {
       min_replies: "or more",
       since: "onward",
       until: "or earlier",
+      "-since": "onward excluded",
+      from: "",
+      "-from": "",
+      mention: "",
+      "-mention": "",
+      list: "",
     },
     period: {
       label: "Period",
@@ -619,6 +633,7 @@ export const en: Messages = {
         raw: "Raw token",
         number: "Number",
         date: "Date",
+        text: "Username",
       },
       hints: {
         word: "Pekora",
@@ -630,6 +645,7 @@ export const en: Messages = {
         raw: "foo:bar",
         number: "50",
         date: "2026-11-07",
+        text: "tokino_sora",
       },
       listSection: "Add a list",
       listInput: "List URL or ID",

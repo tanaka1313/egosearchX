@@ -1,81 +1,268 @@
 [
+  { "defaultList": true },
   {
     "interest": "common",
-    "label": "RTを除く",
-    "query": "-filter:retweets",
-    "on": false,
-    "visible": true
-  },
-  {
-    "defaultList": true
-  },
-  {
-    "interest": "hololive",
-    "label": "ネタバレ除外",
-    "query": "-ネタバレ語A -ネタバレ語B",
+    "label": { "ja": "メンション @", "en": "Mention @" },
+    "query": "@",
     "on": false,
     "visible": true
   },
   {
     "interest": "common",
-    "label": "ファボ",
-    "query": "min_faves:50",
+    "label": { "ja": "since:", "en": "since:" },
+    "query": "since:",
     "on": false,
     "visible": true
   },
   {
     "interest": "common",
-    "label": "日付",
-    "query": "since:2026-11-07",
+    "label": { "ja": "from:", "en": "from:" },
+    "query": "from:",
     "on": false,
     "visible": true
   },
   {
     "interest": "common",
-    "label": "画像つき",
+    "label": { "ja": "list:", "en": "list:" },
+    "query": "list:",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "メンション除外 -@", "en": "Exclude mention -@" },
+    "query": "-@",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "since除外:", "en": "Exclude since:" },
+    "query": "-since:",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "from除外:", "en": "Exclude from:" },
+    "query": "-from:",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "返信のみ", "en": "Replies only" },
+    "query": "filter:replies",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "リポストのみ", "en": "Reposts only" },
+    "query": "filter:retweets",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "引用つき", "en": "With quotes" },
+    "query": "filter:quote",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "画像つき", "en": "With images" },
     "query": "filter:images",
     "on": false,
     "visible": true
   },
   {
     "interest": "common",
-    "label": "返信のみ",
-    "query": "filter:replies",
-    "on": false,
-    "visible": true
-  },
-  {
-    "interest": "hololive",
-    "label": "配信タグ",
-    "query": "#配信タグA",
-    "on": false,
-    "visible": true
-  },
-  {
-    "interest": "hololive",
-    "label": "ファンアート",
-    "query": "#ファンアートタグA",
-    "on": false,
-    "visible": true
-  },
-  {
-    "interest": "hololive",
-    "label": "切り抜き",
-    "query": "#切り抜きタグA",
+    "label": { "ja": "動画つき", "en": "With videos" },
+    "query": "filter:videos",
     "on": false,
     "visible": true
   },
   {
     "interest": "common",
-    "label": "日本語のみ",
+    "label": { "ja": "リンク(URL)つき", "en": "With links (URL)" },
+    "query": "filter:links",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "認証済みのみ", "en": "Verified only" },
+    "query": "filter:verified",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "返信を除く", "en": "Exclude replies" },
+    "query": "-filter:replies",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "リポストを除く", "en": "Exclude reposts" },
+    "query": "-filter:retweets",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "引用を除く", "en": "Exclude quotes" },
+    "query": "-filter:quote",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "画像を除く", "en": "Exclude images" },
+    "query": "-filter:images",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "動画を除く", "en": "Exclude videos" },
+    "query": "-filter:videos",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "リンク(URL)なし", "en": "Without links (URL)" },
+    "query": "-filter:links",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "認証済みを除く", "en": "Exclude verified" },
+    "query": "-filter:verified",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "日本語のみ", "en": "Japanese only" },
     "query": "lang:ja",
     "on": false,
     "visible": true
   },
   {
     "interest": "common",
-    "label": "リンクなし",
-    "query": "-filter:links",
+    "label": { "ja": "英語のみ", "en": "English only" },
+    "query": "lang:en",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "インドネシア語のみ", "en": "Indonesian only" },
+    "query": "lang:id",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "ファボ", "en": "Likes" },
+    "query": "min_faves:50",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "リポスト", "en": "Reposts" },
+    "query": "min_retweets:10",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "リプ", "en": "Replies" },
+    "query": "min_replies:5",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "日付", "en": "Date" },
+    "query": "since:2026-11-07",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "common",
+    "label": { "ja": "日付", "en": "Date" },
+    "query": "until:2026-11-14",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "hololive",
+    "label": { "ja": "3Dライブ", "en": "3D live" },
+    "query": "(3Dライブ OR \"3D LIVE\")",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "hololive",
+    "label": { "ja": "生誕祭", "en": "Birthday celebration" },
+    "query": "(生誕祭 OR 生誕LIVE)",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "hololive",
+    "label": { "ja": "新衣装", "en": "New outfit" },
+    "query": "新衣装",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "hololive",
+    "label": { "ja": "グッズ", "en": "Merch" },
+    "query": "グッズ",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "hololive",
+    "label": { "ja": "#ホロライブ", "en": "#ホロライブ" },
+    "query": "(#ホロライブ OR #hololive)",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "hololive",
+    "label": { "ja": "#ホロライブ切り抜き", "en": "#ホロライブ切り抜き" },
+    "query": "#ホロライブ切り抜き",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "nijisanji",
+    "label": { "ja": "#にじさんじ", "en": "#にじさんじ" },
+    "query": "#にじさんじ",
+    "on": false,
+    "visible": true
+  },
+  {
+    "interest": "nijisanji",
+    "label": { "ja": "#NIJISANJI", "en": "#NIJISANJI" },
+    "query": "#NIJISANJI",
+    "on": false,
+    "visible": false
+  },
+  {
+    "interest": "nijisanji",
+    "label": { "ja": "#にじさんじCREATORS", "en": "#にじさんじCREATORS" },
+    "query": "#にじさんじCREATORS",
     "on": false,
     "visible": false
   }

@@ -101,7 +101,7 @@ describe("S2 条件ボタン：一覧", () => {
   it("［×］で削除済みへ移り、トーストの［元に戻す］で元の位置に戻る", async () => {
     const { api, chips } = await setup();
     await mountPage(api);
-    const target = chips[2];
+    const target = chips.find((c) => c.query === "filter:replies")!;
     fireEvent.click(
       within(rowOf(target.label)).getByRole("button", {
         name: `${target.label}を削除`,

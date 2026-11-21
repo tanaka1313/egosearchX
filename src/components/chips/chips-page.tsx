@@ -202,7 +202,7 @@ function ChipsBody() {
 
   const addPresetsAndTell = () =>
     guard(
-      addPresets(interest).then((added) =>
+      addPresets(interest, lang).then((added) =>
         toast.show(
           added.length ? c.presetsAdded(added.length) : c.presetsAllAdded,
         ),

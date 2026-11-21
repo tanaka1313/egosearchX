@@ -134,6 +134,12 @@ describe("DetailPanel（詳細条件）", () => {
 
   it("ON の条件ボタンの項目別の無効化：外した項目はその検索でだけ使われない", async () => {
     const api = await setup();
+    // 複数の条件を持つボタン（プリセットには無いので、ここで作る）
+    await api.data.chips.save({
+      interestId: "hololive",
+      label: "ネタバレ除外",
+      query: "-ネタバレ語A -ネタバレ語B",
+    });
     await mount(
       api,
       <>

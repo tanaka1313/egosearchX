@@ -18,8 +18,11 @@ import { useSearchScope } from "./search-scope";
  * 「ボタンを編集 →」は並びの最後の行の右端に置く。
  */
 export function ChipRow() {
-  const { visibleChips, starters, suggestions } = useSearchScope();
-  const { t } = useI18n();
+  const { visibleChips, starters, suggestions, wordSet } = useSearchScope();
+  const { t, lang } = useI18n();
+  // サジェストが検索ワード集のワードなら、そのボタン（表示名）で出す。それ以外（履歴の語）は検索文字列のまま
+  const wordOf = (query: string) =>
+    wordSet.flatMap((g) => g.words).find((w) => w.query === query);
   const newChipIds = useAppStore((s) => s.newChipIds);
   const [expanded, setExpanded] = useState(false);
 
@@ -80,9 +83,18 @@ export function ChipRow() {
             </p>
           ) : (
             <div className="flex flex-wrap gap-2">
-              {suggestions.map((token) => (
-                <SuggestChip key={token} token={token} />
-              ))}
+              {suggestions.map((token) => {
+                const word = wordOf(token);
+                return word ? (
+                  <WordChip
+                    key={token}
+                    label={word.label[lang]}
+                    query={token}
+                  />
+                ) : (
+                  <SuggestChip key={token} token={token} />
+                );
+              })}
             </div>
           )}
         </section>

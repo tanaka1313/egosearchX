@@ -17,7 +17,7 @@ import {
 } from "vitest";
 import type { EgoSearchApi } from "@/api";
 import { createBackend } from "@/backend";
-import { mount } from "@/components/search/harness";
+import { mount, openMore } from "@/components/search/harness";
 import { MemoryAdapter } from "@/lib/storage/kv-adapter";
 import { HomePage } from "./home-page";
 
@@ -174,6 +174,7 @@ describe("ホーム：検索語と Enter", () => {
     fireEvent.change(word(), { target: { value: "ぺこら" } });
     fireEvent.click(screen.getByRole("checkbox", { name: "完全一致" }));
     fireEvent.click(screen.getAllByRole("button", { name: "昨日から" })[0]);
+    openMore(); // 画像つきは先頭 foldChips 個より後ろ
     fireEvent.click(screen.getByRole("button", { name: /画像つき/ }));
     // ホーム自体が外れただけ（AppShell が「/」を離れたと見ない）では、状態は残る
     fireEvent.click(screen.getByRole("button", { name: "切替" }));
@@ -196,10 +197,12 @@ describe("ホーム：条件ボタンの ON と警告欄", () => {
     const kv = new MemoryAdapter();
     const api = await setup(true, kv);
     await mountHome(api);
+    openMore();
     fireEvent.click(screen.getByRole("button", { name: /画像つき/ }));
     await waitFor(() => expect(preview()).toHaveTextContent("filter:images"));
     cleanup();
     await mountHome(await setup(false, kv));
+    openMore();
     expect(screen.getByRole("button", { name: /画像つき/ })).toHaveAttribute(
       "aria-pressed",
       "false",
@@ -210,6 +213,7 @@ describe("ホーム：条件ボタンの ON と警告欄", () => {
   it("Yahoo!リアルタイム検索で使えない条件の警告は、「条件」の枠の一番下に出る（枠の外・クエリの横には出ない）", async () => {
     await mountHome(await setup());
     fireEvent.change(word(), { target: { value: "ぺこら" } });
+    openMore();
     fireEvent.click(screen.getByRole("button", { name: /画像つき/ }));
     const frame = await screen.findByRole("region", { name: "条件" });
     const note = await within(frame).findByRole("note");
@@ -223,6 +227,7 @@ describe("ホーム：条件ボタンの ON と警告欄", () => {
 
   it("条件ボタンを押す前後で、押したボタンの外形（クラス）と並びの位置が変わらない", async () => {
     await mountHome(await setup());
+    openMore(); // 返信のみは先頭 foldChips 個より後ろ
     const group = screen.getByRole("group", { name: "条件ボタン" });
     const names = () =>
       within(group)

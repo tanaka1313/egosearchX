@@ -1,7 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PARAM_OP_TYPES, type Chip, type Cond, type ParamOp } from "@/api";
+import {
+  VALUE_OPS,
+  isPeriodOp,
+  isValidValue,
+  type Chip,
+  type Cond,
+  type ValueOp,
+} from "@/api";
 import { StateIcon } from "@/components/common/state-icon";
 import { useApi } from "@/store/api-context";
 import { useI18n } from "@/store/i18n-context";
@@ -18,16 +25,16 @@ function NewBadge() {
   );
 }
 
-const isParam = (c: Cond): c is Cond & { op: ParamOp } =>
-  (c.kind === "number" || c.kind === "date") && c.op !== undefined;
+const isParam = (c: Cond): c is Cond & { op: ValueOp } =>
+  (c.kind === "number" || c.kind === "date" || c.kind === "text") &&
+  c.op !== undefined;
 
-/** 値として保存してよいか（数値は1以上の整数、日付は実在する YYYY-MM-DD）。入力の途中の値は保存しない */
-function validValue(op: ParamOp, v: string): boolean {
-  if (PARAM_OP_TYPES[op] === "number") return /^[1-9]\d*$/.test(v);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
-  const d = new Date(`${v}T00:00:00Z`);
-  return !Number.isNaN(d.getTime()) && d.toISOString().startsWith(v);
-}
+/** 期間が指定されたとき、その期間に置き換わる条件（開始日・終了日） */
+const isPeriodCond = (c: Cond) => c.op !== undefined && isPeriodOp(c.op);
+
+/** 値として保存してよいか（数値は1以上の整数、日付は実在する YYYY-MM-DD、ユーザー名は X の形）。入力の途中の値は保存しない */
+const validValue = (op: ValueOp, v: string) =>
+  isValidValue(VALUE_OPS[op].type, v);
 
 /**
  * 条件ボタン（画面仕様書 3.2）。押すと ON/OFF が切り替わるだけ（編集などは S2）。
@@ -42,7 +49,18 @@ export function ChipButton({
   isNew?: boolean;
 }) {
   const api = useApi();
-  const conds = useMemo(() => api.query.chipConds(chip), [api, chip]);
+  // 既定リスト（［ホロメンから］など）は値を変えないボタンなので、入力欄を出さない
+  const defaultListId = useMemo(
+    () => api.master.interests().get(chip.interestId)?.list?.listId,
+    [api, chip.interestId],
+  );
+  const conds = useMemo(
+    () =>
+      api.query
+        .chipConds(chip)
+        .filter((c) => !(c.op === "list" && c.value === defaultListId)),
+    [api, chip, defaultListId],
+  );
   if (conds.some(isParam))
     return <ParamChip chip={chip} conds={conds} isNew={isNew} />;
   return <PlainChip chip={chip} isNew={isNew} />;
@@ -90,7 +108,7 @@ function ParamChip({
   const on = isOn(chip.id);
   // 期間が使われるかはバックエンドの判定に合わせる（［日付］を押しただけで日付が空なら、期間は出力されず、日付ボタンも使われる）
   const periodActive = api.query.periodTokens(period).length > 0;
-  const blocked = periodActive && conds.some((c) => c.kind === "date");
+  const blocked = periodActive && conds.some(isPeriodCond);
   const reasonId = `chip-${chip.id}-reason`;
 
   return (
@@ -111,13 +129,13 @@ function ParamChip({
         {chip.label}
       </button>
       {conds.filter(isParam).map((c) => {
-        const type = PARAM_OP_TYPES[c.op];
-        const disabled = blocked && c.kind === "date";
+        const type = VALUE_OPS[c.op].type;
+        const disabled = blocked && isPeriodCond(c);
         const shown = drafts[c.id] ?? c.value;
         return (
           <span key={c.id} className="inline-flex items-center gap-0.5">
             <input
-              type={type === "number" ? "number" : "date"}
+              type={type}
               inputMode={type === "number" ? "numeric" : undefined}
               min={type === "number" ? 1 : undefined}
               value={shown}
@@ -135,16 +153,18 @@ function ParamChip({
                   return rest;
                 })
               }
-              className={`h-5 rounded border px-0.5 text-center font-mono text-xs text-foreground tabular-nums focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed ${type === "number" ? "w-[5ch]" : "w-[6.75rem]"}`}
+              className={`h-5 rounded border px-0.5 text-center font-mono text-xs text-foreground tabular-nums focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:cursor-not-allowed ${type === "number" ? "w-[5ch]" : type === "text" ? "w-[9ch]" : "w-[6.75rem]"}`}
             />
             {/* 接尾語は押すと ON/OFF（マウス用。キーボードは切替ボタンで操作する） */}
-            <span
-              aria-hidden
-              onClick={() => toggle(chip.id)}
-              className="cursor-pointer select-none"
-            >
-              {t.search.paramSuffix[c.op]}
-            </span>
+            {t.search.paramSuffix[c.op] && (
+              <span
+                aria-hidden
+                onClick={() => toggle(chip.id)}
+                className="cursor-pointer select-none"
+              >
+                {t.search.paramSuffix[c.op]}
+              </span>
+            )}
           </span>
         );
       })}

@@ -10,6 +10,7 @@
 import {
   FILTER_KEYS,
   LIMITS,
+  isPeriodOp,
   type BuiltQuery,
   type Chip,
   type Detail,
@@ -87,7 +88,7 @@ export function buildQuery(
     if (!state.onChipIds.includes(chip.id) || !chip.visible) continue;
     let skippedDate = false;
     for (const c of chipConds(chip)) {
-      if (periodActive && c.kind === "date") {
+      if (periodActive && c.op && isPeriodOp(c.op)) {
         skippedDate = true;
         continue;
       }

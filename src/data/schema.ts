@@ -4,20 +4,30 @@
  * 画面が読むのは `@/api` 経由（束ねは #85）。ここはバックエンドの内部。
  */
 import { z } from "zod";
-import { ChipSchema, InterestIdSchema, WordGroupSchema } from "@/api";
+import {
+  ChipSchema,
+  InterestIdSchema,
+  WordGroupSchema,
+  type LocalizedText,
+} from "@/api";
 import { normalize } from "@/lib/query/model";
 
 /** プリセットの対象に使う予約語。「すべての対象に共通」の意味なので、興味の対象の ID には使えない */
 export const COMMON = "common";
 
 const text = z.string().min(1);
+/** 条件ボタンのラベル。言語ごとに、どちらも上限を超えない */
+const chipLabelText = z.object({
+  ja: ChipSchema.shape.label,
+  en: ChipSchema.shape.label,
+});
 
 const InterestSchema = z.object({
   label: z.object({ ja: text, en: text }),
   /** 既定リスト。無ければ null（その他） */
   list: z
     .object({
-      label: ChipSchema.shape.label,
+      label: chipLabelText,
       listId: z.string().regex(/^\d+$/),
     })
     .nullable(),
@@ -35,7 +45,7 @@ export const InterestsSchema = z.record(
 const PresetRowSchema = z.object({
   /** `common`（すべての対象）か、興味の対象の ID */
   interest: text,
-  label: ChipSchema.shape.label,
+  label: chipLabelText,
   query: text,
   on: z.boolean(),
   visible: z.boolean(),
@@ -50,7 +60,7 @@ export const PresetsSchema = z.array(
 export type PresetRow = z.infer<typeof PresetRowSchema>;
 
 export type Preset = {
-  label: string;
+  label: LocalizedText;
   query: string;
   on: boolean;
   visible: boolean;
@@ -83,12 +93,26 @@ export function expandPresets(
   });
 }
 
-/** サジェストの規則。検索文字列に `when` のどれかが含まれていれば `suggest` を出す（`SuggestRule`・`lib/query/model.ts`） */
-export const SuggestRulesSchema = z.array(
-  z.object({ when: z.array(text).min(1), suggest: z.array(text).min(1) }),
+/**
+ * サジェストの規則（興味の対象の ID をキーにした Record）。検索文字列の語に `when` のどれかが一致すれば、`suggest`
+ * （その対象の検索ワード集の検索文字列）を出す（`SuggestRule`・`lib/query/model.ts`）。
+ * 検索ワード集から `npm run gen:master` が作る。`group` は確認用（グループ名・日本語）で、実行時には使わない。
+ */
+export const SuggestRulesSchema = z.record(
+  InterestIdSchema,
+  z.array(
+    z.object({
+      group: text,
+      when: z.array(text).min(1),
+      suggest: z.array(text).min(1),
+    }),
+  ),
 );
 
-/** 検索ワード集。興味の対象の ID をキーにした Record。グループ内のワードは1件以上 */
+/**
+ * 検索ワード集。キーは興味の対象の ID か `common`（すべての対象に出す共通のグループ）。グループ内のワードは1件以上。
+ * 同じ検索文字列が別のグループにあってもよい（ファンネーム・グループ名などは複数のメンバーで同じ）。
+ */
 export const WordSetSchema = z.record(
   InterestIdSchema,
   z.array(WordGroupSchema),
@@ -133,22 +157,12 @@ export const MasterSchema = z
       }
     }
 
-    // 検索ワード集：対象が実在する（無い対象は可）、対象内で正規化した query が重複しない
-    for (const [id, groups] of Object.entries(m.wordSet)) {
-      if (!ids.includes(id))
+    // 検索ワード集・サジェスト：対象が実在する（無い対象は可。検索ワード集は共通も可）
+    for (const id of Object.keys(m.wordSet))
+      if (id !== COMMON && !ids.includes(id))
         issue(["wordSet", id], `存在しない興味の対象: ${id}`);
-      const seen = new Set<string>();
-      for (const g of groups) {
-        for (const w of g.words) {
-          const n = normalize(w.query);
-          if (seen.has(n))
-            issue(
-              ["wordSet", id],
-              `${id} の検索ワードの query が重複している: ${w.query}`,
-            );
-          seen.add(n);
-        }
-      }
-    }
+    for (const id of Object.keys(m.suggestRules))
+      if (!ids.includes(id))
+        issue(["suggestRules", id], `存在しない興味の対象: ${id}`);
   });
 export type Master = z.infer<typeof MasterSchema>;

@@ -8,7 +8,7 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { EgoSearchApi } from "@/api";
 import { createBackend } from "@/backend";
-import { labeled, mount } from "@/components/search/harness";
+import { chipButton, labeled, mount } from "@/components/search/harness";
 import { MemoryAdapter } from "@/lib/storage/kv-adapter";
 import { useAppStore } from "@/store/store-context";
 import { FavoriteEditPage } from "./favorite-edit-page";
@@ -59,8 +59,7 @@ const mountPage = (api: EgoSearchApi) =>
 const hololive = async (api: EgoSearchApi) =>
   (await api.data.init()).chips.get("hololive")!;
 const word = () => screen.getByLabelText("検索する語") as HTMLInputElement;
-const chip = (label: string) =>
-  screen.getByRole("button", { name: labeled(label) });
+const chip = chipButton;
 const preview = () =>
   screen.getAllByLabelText(
     "組み立てた検索クエリ（長いときは横にスクロール）",
@@ -90,7 +89,7 @@ describe("S3-E：開いたときの展開", () => {
     await mountPage(api);
     expect(word().value).toBe("ぺこら");
     expect(chip("画像つき")).toHaveAttribute("aria-pressed", "true");
-    expect(chip("RTを除く")).toHaveAttribute("aria-pressed", "true");
+    expect(chip("リポストを除く")).toHaveAttribute("aria-pressed", "true");
     expect(chip("返信のみ")).toHaveAttribute("aria-pressed", "false");
     // 当てはまらない条件は欠けずに残る
     expect(preview()).toHaveTextContent("foo:bar");
@@ -106,7 +105,8 @@ describe("S3-E：開いたときの展開", () => {
     expect(
       screen.getByRole("radio", { name: "Yahoo!リアルタイム検索" }),
     ).toBeChecked();
-    expect(screen.getByText(QUERY)).toBeInTheDocument();
+    // 編集前の文字列は、見出しの下とプレビューの両方に出る
+    expect(screen.getAllByText(QUERY).length).toBeGreaterThan(0);
   });
 
   it("同じ検索文字列（正規化して一致）のいつものエゴサがあれば、名前と件数を案内する。無ければ無いと出す", async () => {
@@ -234,7 +234,7 @@ describe("S3-E：保存", () => {
     await mountPage(api);
     fireEvent.change(word(), { target: { value: "" } });
     fireEvent.click(chip("画像つき"));
-    fireEvent.click(chip("RTを除く"));
+    fireEvent.click(chip("リポストを除く"));
     // 当てはまらなかった条件（foo:bar）が詳細条件に残っているので、それも外す
     fireEvent.change(screen.getByLabelText("テキストで追加する条件"), {
       target: { value: "" },
@@ -327,6 +327,7 @@ describe("S3-E：この画面の操作がホーム・保存済みの ON に漏�
   it("値付きの条件ボタンの値を変えても、値はボタンに保存されるが、保存済みの ON は変えない", async () => {
     const { api } = await setup();
     await mountPage(api);
+    chip("返信のみ"); // 折りたたみで隠れたボタン（ファボ）を出すため、［もっと開く］を押す
     const faves = screen.getByRole("group", { name: "ファボ" });
     fireEvent.change(within(faves).getByLabelText("ファボのファボ数"), {
       target: { value: "120" },
@@ -344,11 +345,11 @@ describe("S3-E：この画面の操作がホーム・保存済みの ON に漏�
     const { api } = await setup();
     await mountPage(api);
     const homeBefore = homeText();
-    const w = api.master.wordSet("hololive")[0].words[0];
+    const w = api.master.wordSet("hololive")[1].words[0];
     fireEvent.click(screen.getByRole("button", { name: "検索ワード集" }));
     const dialog = await screen.findByRole("dialog", { name: "検索ワード集" });
     fireEvent.click(
-      within(dialog).getByRole("button", { name: labeled(w.label) }),
+      within(dialog).getByRole("button", { name: labeled(w.label.ja) }),
     );
     expect(
       within(dialog).getByLabelText(

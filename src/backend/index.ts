@@ -2,7 +2,13 @@
  * バックエンドの束ね（docs/api-spec.md 1.2）。契約 `EgoSearchApi` を実装し、lib/* と data/ をつなぐ。
  * 画面が import してよいのは `@/api` だけで、ここを import するのは組み立ての1か所（`app/providers.tsx`）だけ。
  */
-import { LIMITS, type AppClock, type Clock, type EgoSearchApi } from "@/api";
+import {
+  LIMITS,
+  type AppClock,
+  type Clock,
+  type EgoSearchApi,
+  type Lang,
+} from "@/api";
 import { interests, wordSet } from "@/data";
 import { decodeLauncher, encodeLauncher } from "@/lib/launch/codec";
 import { localDate } from "@/lib/query/dates";
@@ -14,6 +20,7 @@ import {
 import { planRun } from "@/lib/url/build";
 import { parseListId } from "@/lib/url/list-id";
 import { parseUrl } from "@/lib/url/parse";
+import { detectLang } from "@/messages";
 import { createDataApi } from "./data";
 import { createQueryApi } from "./query";
 
@@ -28,12 +35,15 @@ export type BackendOptions = {
   clock: Clock;
   /** ID の作り方（新規は UUID）。テストで差し替える */
   newId?: () => string;
+  /** 初回にプリセットを足すときの言語。省略すると日本語（ブラウザ用はブラウザの言語） */
+  initialLang?: () => Lang;
 };
 
 export function createBackend({
   kv,
   clock,
   newId = () => crypto.randomUUID(),
+  initialLang = () => "ja",
 }: BackendOptions): EgoSearchApi {
   return {
     master: { interests: () => interests(), wordSet: (id) => wordSet(id) },
@@ -44,7 +54,7 @@ export function createBackend({
       listId: parseListId,
     },
     launcher: { encode: encodeLauncher, decode: decodeLauncher },
-    data: createDataApi({ kv, clock, newId }),
+    data: createDataApi({ kv, clock, newId, initialLang }),
     clock: {
       ...clock,
       isToday: (at) => at !== null && localDate(new Date(at)) === clock.today(),
@@ -62,5 +72,14 @@ export function createBrowserBackend(): EgoSearchApi {
     typeof window === "undefined"
       ? new MemoryAdapter()
       : new LocalStorageAdapter(window.localStorage);
-  return createBackend({ kv, clock: systemClock });
+  return createBackend({
+    kv,
+    clock: systemClock,
+    initialLang: () =>
+      detectLang(
+        typeof navigator === "undefined"
+          ? undefined
+          : (navigator.languages?.[0] ?? navigator.language),
+      ),
+  });
 }

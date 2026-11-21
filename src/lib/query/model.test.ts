@@ -3,6 +3,7 @@ import { EMPTY_DETAIL, type GroupItem } from "@/api";
 import {
   applyFavEdit,
   chipConds,
+  condToken,
   condsToQuery,
   expandRelative,
   favNameFor,
@@ -148,12 +149,57 @@ describe("条件ボタンの本体（文字列）⇄ 条件の行", () => {
       "exact",
       "word",
       "exclude",
-      "list",
+      "number",
       "number",
       "date",
       "raw",
     ]);
     expect(condsToQuery(chipConds(c))).toBe(q);
+  });
+  it("リストの ID は値付き（op: list の数値）として扱い、to: は従来どおりアカウント", () => {
+    const [list, to] = chipConds(chip("k", "list:123456 to:abc"));
+    expect(list).toMatchObject({ kind: "number", op: "list", value: "123456" });
+    expect(to).toMatchObject({ kind: "account", value: "to:abc" });
+  });
+  it.each([
+    ["from:tokino_sora", "from", "tokino_sora"],
+    ["-from:tokino_sora", "-from", "tokino_sora"],
+    ["@tokino_sora", "mention", "tokino_sora"],
+    ["-@tokino_sora", "-mention", "tokino_sora"],
+    ["-since:2026-11-07", "-since", "2026-11-07"],
+  ])("%s は値付き（%s）で、値は %s", (token, op, value) => {
+    const [c] = chipConds(chip("k", token));
+    expect(c).toMatchObject({ op, value });
+    expect(condsToQuery([c])).toBe(token);
+  });
+  it("値が空の値付き条件（プリセットの初期値）は、検索には入れず、保存の文字列には演算子を残す", () => {
+    for (const stored of [
+      "from:",
+      "-from:",
+      "@",
+      "-@",
+      "since:",
+      "-since:",
+      "list:",
+    ]) {
+      const [c] = chipConds(chip("k", stored));
+      expect(c.op).toBeDefined();
+      expect(c.value).toBe("");
+      expect(condToken(c)).toBe("");
+      expect(condsToQuery([c])).toBe(stored);
+    }
+  });
+  it("ユーザー名の形でない値（15字超・記号・@付き）は検索に入れない", () => {
+    const [c] = chipConds(chip("k", "from:"));
+    for (const value of ["a".repeat(16), "a-b", "@abc", "a b"])
+      expect(condToken({ ...c, value })).toBe("");
+    expect(condToken({ ...c, value: "a".repeat(15) })).toBe(
+      `from:${"a".repeat(15)}`,
+    );
+  });
+  it("-@ は @ より先に判定する（-@abc が mention にならない）", () => {
+    expect(chipConds(chip("k", "-@abc"))[0].op).toBe("-mention");
+    expect(chipConds(chip("k", "@abc"))[0].op).toBe("mention");
   });
   it("「以前」の日付は、文字列と同じ日を値に持つ", () => {
     const [c] = chipConds(chip("k", "until:2026-11-11"));
@@ -341,6 +387,46 @@ describe("suggestFromRules（検索に含まれる語から、関連する条件
   });
   it("どれにも当たらなければ空", () => {
     expect(suggestFromRules("メンバーC", rules)).toEqual([]);
+  });
+});
+
+describe("suggestFromRules（語単位の一致）", () => {
+  const rules = [
+    { when: ["Su", "水宮枢"], suggest: ["#枢"] },
+    { when: ["Suisei", "星街すいせい"], suggest: ["#すいせい"] },
+    { when: ["Tokino Sora", "そらちゃん"], suggest: ["#そら"] },
+    { when: ["青"], suggest: ["#青"] },
+  ];
+  it("短い語は、別の語の一部には当たらない（Su は Suisei・Subaru に当たらない）", () => {
+    expect(suggestFromRules("Suisei", rules)).toEqual(["#すいせい"]);
+    expect(suggestFromRules("Subaru", rules)).toEqual([]);
+    expect(suggestFromRules("Su", rules)).toEqual(["#枢"]);
+  });
+  it("1文字の語（青）は、単独の語のときだけ当たる", () => {
+    expect(suggestFromRules("青", rules)).toEqual(["#青"]);
+    expect(suggestFromRules("青空", rules)).toEqual([]);
+  });
+  it("引用符の中・括弧の OR の中の語にも当たる", () => {
+    expect(suggestFromRules('"星街すいせい" a', rules)).toEqual(["#すいせい"]);
+    expect(suggestFromRules("(Su OR 配信) a", rules)).toEqual(["#枢"]);
+    expect(suggestFromRules('("そらちゃん" OR Sora)', rules)).toEqual([
+      "#そら",
+    ]);
+  });
+  it("空白を含む語（Tokino Sora）は、引用符の有無にかかわらず連続した語として当たる", () => {
+    expect(suggestFromRules("Tokino Sora", rules)).toEqual(["#そら"]);
+    expect(suggestFromRules('"Tokino Sora"', rules)).toEqual(["#そら"]);
+    expect(suggestFromRules("Sora Tokino", rules)).toEqual([]);
+    expect(suggestFromRules("Tokino", rules)).toEqual([]);
+  });
+  it("除外した語・演算子の値には当たらない", () => {
+    expect(suggestFromRules("-Suisei", rules)).toEqual([]);
+    expect(suggestFromRules("from:Suisei", rules)).toEqual([]);
+    expect(suggestFromRules("@Suisei", rules)).toEqual([]);
+  });
+  it("英字の大文字・小文字と全角・半角の違いは区別しない", () => {
+    expect(suggestFromRules("suisei", rules)).toEqual(["#すいせい"]);
+    expect(suggestFromRules("ＳＵＩＳＥＩ", rules)).toEqual(["#すいせい"]);
   });
 });
 
