@@ -14,7 +14,6 @@ describe("WordSchema", () => {
     const w = {
       label: { ja: "ぺこら", en: "Pekora" },
       query: "兎田ぺこら",
-      starter: true,
     };
     expect(WordSchema.parse(w)).toEqual(w);
   });
@@ -23,14 +22,13 @@ describe("WordSchema", () => {
       WordSchema.safeParse({
         label: { ja: "ぺこら", en: "Pekora" },
         query: "",
-        starter: true,
       }).success,
     ).toBe(false);
   });
-  it("starter が無ければ拒否する", () => {
+  it("表示名の英語が空なら拒否する", () => {
     expect(
       WordSchema.safeParse({
-        label: { ja: "ぺこら", en: "Pekora" },
+        label: { ja: "ぺこら", en: "" },
         query: "兎田ぺこら",
       }).success,
     ).toBe(false);
@@ -41,25 +39,43 @@ describe("WordGroupSchema", () => {
   const word = {
     label: { ja: "a", en: "a" },
     query: "a",
-    starter: false,
   };
   it("ja・en の両方があれば受理する", () => {
     expect(
       WordGroupSchema.safeParse({
         name: { ja: "配信", en: "Streams" },
+        gens: ["0期生"],
+        words: [word],
+      }).success,
+    ).toBe(true);
+  });
+  it("期（gens）が無ければ拒否する。共通のグループは空配列", () => {
+    expect(
+      WordGroupSchema.safeParse({
+        name: { ja: "共通", en: "Common" },
+        words: [word],
+      }).success,
+    ).toBe(false);
+    expect(
+      WordGroupSchema.safeParse({
+        name: { ja: "共通", en: "Common" },
+        gens: [],
         words: [word],
       }).success,
     ).toBe(true);
   });
   it("ワードの表示名が文字列だけなら拒否する（日英の両方が要る）", () => {
-    expect(
-      WordSchema.safeParse({ label: "a", query: "a", starter: false }).success,
-    ).toBe(false);
+    expect(WordSchema.safeParse({ label: "a", query: "a" }).success).toBe(
+      false,
+    );
   });
   it("en が無ければ拒否する", () => {
     expect(
-      WordGroupSchema.safeParse({ name: { ja: "配信" }, words: [word] })
-        .success,
+      WordGroupSchema.safeParse({
+        name: { ja: "配信" },
+        gens: [],
+        words: [word],
+      }).success,
     ).toBe(false);
   });
 });

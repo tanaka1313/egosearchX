@@ -1,8 +1,7 @@
-// サジェスト検索条件と、履歴0件のときの検索ワード集のホーム表示（docs/requirements.md F6・11.4）。
-import type { HistoryItem, Chip, Word } from "@/api";
+// サジェスト検索条件（docs/requirements.md F6・11.4）。
+import type { HistoryItem, Chip } from "@/api";
 import {
   splitPeriod,
-  starterWords,
   suggestFromRules,
   tokenize,
   type SuggestRule,
@@ -33,16 +32,4 @@ export function suggest(
   for (const h of input.history)
     splitPeriod(tokenize(h.query)).rest.forEach(add);
   return out.slice(0, limit);
-}
-
-/** 履歴が0件のときだけ、starter の検索文字列（グループ順・ワード順。条件ボタンにあるものを除く）。それ以外は `[]` */
-export function starters(
-  input: { chips: Pick<Chip, "query">[]; history: unknown[] },
-  words: Pick<Word, "query" | "starter">[],
-  limit: number,
-): string[] {
-  if (input.history.length > 0) return [];
-  const have = new Set(input.chips.map((c) => c.query));
-  for (const t of chipTokens(input.chips)) have.add(t);
-  return starterWords(words, have, limit);
 }

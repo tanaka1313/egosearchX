@@ -30,6 +30,8 @@ const clock = {
 async function setup(allOff = true, kv = new MemoryAdapter()) {
   const api = createBackend({ kv, clock });
   const data = await api.data.init();
+  // 初回の案内（D5）は済ませた状態で開く（案内の挙動は my-streamers-dialog.test.tsx）
+  await api.data.prefs.set({ setup: "done" });
   if (allOff)
     for (const list of data.chips.values())
       for (const c of list) await api.data.chips.setOn(c.id, false);

@@ -30,6 +30,7 @@ import type {
   RunSource,
   SearchState,
   WordGroup,
+  Generation,
 } from "./types";
 
 export interface MasterApi {
@@ -37,6 +38,10 @@ export interface MasterApi {
   interests(): Map<InterestId, Interest>;
   /** 検索ワード集の全件。対象が無い・空のときは `[]` */
   wordSet(interest: InterestId): WordGroup[];
+  /** 期の一覧（行順＝表示順・色の順）。`WordGroup.gens` はこの名前（日本語）を指す */
+  generations(): Generation[];
+  /** マイ配信者（★）に選べるグループ＝`wordSet` のうち共通を除いたもの（同じ並び）。無い対象は `[]` */
+  streamers(interest: InterestId): WordGroup[];
 }
 
 export interface QueryApi {
@@ -59,12 +64,6 @@ export interface QueryApi {
     query: string,
     favorites: Pick<Favorite, "name" | "query">[],
   ): string | null;
-  /** 履歴が0件のときだけ、今の対象の starter の検索文字列を返す（それ以外は `[]`） */
-  starters(input: {
-    interest: InterestId;
-    chips: Chip[];
-    history: HistoryItem[];
-  }): string[];
   /** 規則 → 履歴のトークンの順。最大 `LIMITS.suggest` */
   suggest(input: {
     interest: InterestId;
@@ -131,8 +130,19 @@ export type TrashDetail =
   | { kind: "group"; group: Group };
 
 export interface DataApi {
-  /** 初回はプリセットを入れる。CORRUPT のときは何も書かない */
+  /** 初回はプリセットを入れ、`prefs.setup` を `pending` にする（D5 を出す）。CORRUPT のときは何も書かない */
   init(): Promise<AppData>;
+  /**
+   * 初回の案内（D5）の完了。選んだ配信者（検索ワード集のグループ名〔日本語〕。最大 `LIMITS.myStreamers`）を
+   * `prefs.stars` に保存し、その配信者のグループの語を、表示名（今の言語）の条件ボタンにして先頭に並べる
+   * （プリセットは続き。同じ検索文字列のボタンがあれば足さない。上限は `LIMITS.chips`）。`setup` は `done` にする。
+   * 配信者を選ばなくてもよい（スキップ＝空配列）。
+   */
+  finishSetup(
+    interestId: InterestId,
+    names: string[],
+    lang: Lang,
+  ): Promise<{ prefs: Prefs; chips: Chip[] }>;
   /**
    * 保存データをすべて破棄し、プリセットから作り直す。CORRUPT のとき、ユーザーが確認ダイアログ（D3）で
    * 確かめた後だけ呼ぶ（画面仕様書 2.7。「上書きしない」の唯一の例外）

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { HistoryItem, Word } from "@/api";
-import { starters, suggest } from "./suggest";
+import type { HistoryItem } from "@/api";
+import { suggest } from "./suggest";
 
 const hist = (query: string): HistoryItem => ({
   id: query,
@@ -78,31 +78,5 @@ describe("suggest", () => {
     expect(suggest({ text: "", chips: [], history: [] }, rules, 20)).toEqual(
       [],
     );
-  });
-});
-
-describe("starters", () => {
-  const words: Word[] = [
-    { label: { ja: "a", en: "a" }, query: "#a", starter: true },
-    { label: { ja: "b", en: "b" }, query: "#b", starter: false },
-    { label: { ja: "c", en: "c" }, query: "#c", starter: true },
-    { label: { ja: "d", en: "d" }, query: "#d", starter: true },
-  ];
-  it("履歴が0件のとき、starter だけを元の順で返す", () => {
-    expect(starters({ chips: [], history: [] }, words, 60)).toEqual([
-      "#a",
-      "#c",
-      "#d",
-    ]);
-  });
-  it("履歴が1件でもあれば空", () => {
-    expect(starters({ chips: [], history: [hist("x")] }, words, 60)).toEqual(
-      [],
-    );
-  });
-  it("条件ボタンにあるものを除き、上限で切る", () => {
-    expect(starters({ chips: [chip("#a")], history: [] }, words, 1)).toEqual([
-      "#c",
-    ]);
   });
 });

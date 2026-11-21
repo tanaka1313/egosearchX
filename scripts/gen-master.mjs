@@ -26,6 +26,7 @@ const SHEET = {
   presets: "プリセット",
   groups: "ワード集グループ",
   words: "検索ワード集",
+  gens: "期",
   dict: "英語対応表",
   obsolete: "サジェスト規則",
 };
@@ -58,8 +59,9 @@ export function rowsOf(wb) {
   return {
     interests: sheetRows(need(wb, SHEET.interests), 5),
     presets: sheetRows(need(wb, SHEET.presets), 6),
-    groups: sheetRows(need(wb, SHEET.groups), 4),
-    words: sheetRows(need(wb, SHEET.words), 6),
+    groups: sheetRows(need(wb, SHEET.groups), 5),
+    words: sheetRows(need(wb, SHEET.words), 5),
+    gens: sheetRows(need(wb, SHEET.gens), 2),
     dict: dict ? sheetRows(dict, 2) : [],
   };
 }
@@ -157,8 +159,9 @@ async function main() {
   await writeJson("presets.json", files.presets);
   await writeJson("word-set.json", files.wordSet);
   await writeJson("suggest-rules.json", files.suggestRules);
+  await writeJson("generations.json", files.generations);
   console.log(
-    "JSON を作りました: interests / presets / word-set / suggest-rules",
+    "JSON を作りました: interests / presets / word-set / suggest-rules / generations",
   );
   printReport(report);
 }

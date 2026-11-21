@@ -10,15 +10,15 @@ import { ChipButton, SuggestChip, WordChip } from "./chip-button";
 import { useSearchScope } from "./search-scope";
 
 /**
- * 条件ボタンの並び（画面仕様書 3.3）。「表示」にしたボタンの続きに、履歴0件のときだけ検索ワード集（starter）を
- * 区別なくつなげ、その先頭 `LIMITS.foldChips` 個を並べる。残りは［もっと開く（+N）］で隠す
- * （隠したボタンは描画しないのでフォーカスも当たらない）。N は開くと出てくるもの全部（隠れたボタン＋隠れた検索ワード集＋サジェスト）。
+ * 条件ボタンの並び（画面仕様書 3.3）。「表示」にしたボタンの先頭 `LIMITS.foldChips` 個を並べ、
+ * 残りは［もっと開く（+N）］で隠す（隠したボタンは描画しないのでフォーカスも当たらない）。
+ * N は開くと出てくるもの全部（隠れたボタン＋サジェスト）。
  * ボタンが少なくても、サジェストがあれば［もっと開く］を出す（サジェストに届く道を無くさない）。
  * 開いた後は［閉じる］を置かず、サジェストの欄を下に出す。［検索ワード集］（D4）は常に置き、
  * 「ボタンを編集 →」は並びの最後の行の右端に置く。
  */
 export function ChipRow() {
-  const { visibleChips, starters, suggestions, wordSet } = useSearchScope();
+  const { visibleChips, suggestions, wordSet } = useSearchScope();
   const { t, lang } = useI18n();
   // サジェストが検索ワード集のワードなら、そのボタン（表示名）で出す。それ以外（履歴の語）は検索文字列のまま
   const wordOf = (query: string) =>
@@ -26,14 +26,12 @@ export function ChipRow() {
   const newChipIds = useAppStore((s) => s.newChipIds);
   const [expanded, setExpanded] = useState(false);
 
-  const items = [
-    ...visibleChips.map((chip) => ({ key: chip.id, chip, word: null })),
-    ...starters.map((word) => ({ key: `w:${word}`, chip: null, word })),
-  ];
-  const shown = expanded ? items : items.slice(0, LIMITS.foldChips);
+  const shown = expanded
+    ? visibleChips
+    : visibleChips.slice(0, LIMITS.foldChips);
   const hidden = expanded
     ? 0
-    : items.length - shown.length + suggestions.length;
+    : visibleChips.length - shown.length + suggestions.length;
 
   return (
     <div className="space-y-2">
@@ -42,17 +40,13 @@ export function ChipRow() {
         aria-label={t.search.chips}
         className="relative flex flex-wrap items-center gap-2 pt-2"
       >
-        {shown.map((x) =>
-          x.chip ? (
-            <ChipButton
-              key={x.key}
-              chip={x.chip}
-              isNew={newChipIds.includes(x.chip.id)}
-            />
-          ) : (
-            <WordChip key={x.key} label={x.word} query={x.word} />
-          ),
-        )}
+        {shown.map((chip) => (
+          <ChipButton
+            key={chip.id}
+            chip={chip}
+            isNew={newChipIds.includes(chip.id)}
+          />
+        ))}
         {hidden > 0 && (
           <button
             type="button"

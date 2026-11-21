@@ -30,17 +30,14 @@ const dict = [
 const rows = (over = {}) => ({
   interests,
   presets: [["共通", "返信のみ", "filter:replies", "FALSE", "TRUE", ok]],
-  groups: [["a", "メンバー", "Member", ok]],
+  groups: [["a", "メンバー", "Member", ok, "1期生"]],
   words: [
-    [
-      "a",
-      "メンバー",
-      "エゴサワード(メンバー)",
-      '("めんば" OR "Mem")',
-      "TRUE",
-      ok,
-    ],
-    ["a", "メンバー", "めんばー(ファンネーム)", "めんばー", "TRUE", ok],
+    ["a", "メンバー", "エゴサワード(メンバー)", '("めんば" OR "Mem")', ok],
+    ["a", "メンバー", "めんばー(ファンネーム)", "めんばー", ok],
+  ],
+  gens: [
+    ["1期生", "Gen 1"],
+    ["GAMERS", ""],
   ],
   dict,
   ...over,
@@ -80,11 +77,18 @@ describe("Excel の読み取り（実際のファイル）", () => {
     expect(all.some((w) => w.query === "-")).toBe(false);
   });
 
-  it("「ホームに出す」は、真偽値のセルと TRUE／FALSE の文字列のどちらも読む", async () => {
-    const { files } = buildMaster(rowsOf(await readWorkbook()));
-    const hololive = files.wordSet.hololive.flatMap((g) => g.words);
-    expect(hololive.every((w) => typeof w.starter === "boolean")).toBe(true);
-    expect(hololive.some((w) => w.starter)).toBe(true);
+  it("実データの配信者は、すべて「期」を1つ以上持ち、期の一覧に英語名がある（空欄は報告される）", async () => {
+    const { files, report } = buildMaster(rowsOf(await readWorkbook()));
+    const members = files.wordSet.hololive;
+    expect(members.every((g) => g.gens.length >= 1)).toBe(true);
+    const fubuki = members.find((g) => g.name.ja === "白上フブキ");
+    expect(fubuki.gens).toEqual(["1期生", "GAMERS"]);
+    expect(files.wordSet.common[0].gens).toEqual([]);
+    expect(files.generations[0]).toEqual({
+      name: { ja: "0期生", en: "Gen 0" },
+    });
+    expect(files.generations.every((g) => g.name.en !== "")).toBe(true);
+    expect(report.missing.length).toBeGreaterThanOrEqual(0);
   });
 });
 
@@ -193,17 +197,17 @@ describe("buildMaster", () => {
   it("共通の語は、共通のグループ（共通／Common）にまとめる", () => {
     const { files } = buildMaster(
       rows({
-        words: [["共通", "共通", "返信のみ", "filter:replies", 0, ok]],
+        words: [["共通", "共通", "返信のみ", "filter:replies", ok]],
       }),
     );
     expect(files.wordSet.common).toEqual([
       {
         name: { ja: "共通", en: "Common" },
+        gens: [],
         words: [
           {
             label: { ja: "返信のみ", en: "Replies only" },
             query: "filter:replies",
-            starter: false,
           },
         ],
       },
@@ -214,9 +218,9 @@ describe("buildMaster", () => {
     const { files, report } = buildMaster(
       rows({
         words: [
-          ["a", "メンバー", "-(ファンネーム)", "-", "TRUE", ok],
-          ["共通", "共通", "メンション @[XXX]", "@[XXX]", 0, ok],
-          ["a", "メンバー", "タグ", "#t", "TRUE", ok],
+          ["a", "メンバー", "-(ファンネーム)", "-", ok],
+          ["共通", "共通", "メンション @[XXX]", "@[XXX]", ok],
+          ["a", "メンバー", "タグ", "#t", ok],
         ],
       }),
     );
@@ -229,12 +233,12 @@ describe("buildMaster", () => {
     const { files } = buildMaster(
       rows({
         groups: [
-          ["a", "メンバー", "Member", ok],
-          ["a", "別の人", "Other", ok],
+          ["a", "メンバー", "Member", ok, ""],
+          ["a", "別の人", "Other", ok, ""],
         ],
         words: [
-          ["a", "メンバー", "0期生(グループ)", "0期生", "TRUE", ok],
-          ["a", "別の人", "0期生(グループ)", "0期生", "TRUE", ok],
+          ["a", "メンバー", "0期生(グループ)", "0期生", ok],
+          ["a", "別の人", "0期生(グループ)", "0期生", ok],
         ],
       }),
     );
@@ -259,12 +263,12 @@ describe("buildMaster", () => {
 
   it("呼び名の一覧が無いグループには規則を作らない。OR の前後の空白が無い一覧も判定でき、要確認に出す", () => {
     const none = buildMaster(
-      rows({ words: [["a", "メンバー", "タグ", "#t", "TRUE", ok]] }),
+      rows({ words: [["a", "メンバー", "タグ", "#t", ok]] }),
     );
     expect(none.files.suggestRules).toEqual({});
     const tight = buildMaster(
       rows({
-        words: [["a", "メンバー", "名前", '("あ"OR "い")', "TRUE", ok]],
+        words: [["a", "メンバー", "名前", '("あ"OR "い")', ok]],
       }),
     );
     expect(tight.files.suggestRules.a[0].when).toEqual(["あ", "い"]);
@@ -273,15 +277,61 @@ describe("buildMaster", () => {
 
   it("区切りの「 / 」を含む検索文字列は、直さず入れて要確認に出す", () => {
     const { files, report } = buildMaster(
-      rows({ words: [["a", "メンバー", "期", "1期生 / GAMERS", "TRUE", ok]] }),
+      rows({ words: [["a", "メンバー", "期", "1期生 / GAMERS", ok]] }),
     );
     expect(files.wordSet.a[0].words[0].query).toBe("1期生 / GAMERS");
     expect(report.review.some((s) => s.includes("/"))).toBe(true);
   });
 
+  it("期：複数は「 / 」で分けて保存し、期の一覧は行順。英語が空なら対応表から引く", () => {
+    const { files } = buildMaster(
+      rows({ groups: [["a", "メンバー", "Member", ok, "1期生 / GAMERS"]] }),
+    );
+    expect(files.wordSet.a[0].gens).toEqual(["1期生", "GAMERS"]);
+    expect(files.generations).toEqual([
+      { name: { ja: "1期生", en: "Gen 1" } },
+      { name: { ja: "GAMERS", en: "GAMERS" } },
+    ]);
+  });
+
+  it("期の英語が空で対応表にも無い日本語は、日本語のまま出して報告する", () => {
+    const { files, report } = buildMaster(
+      rows({
+        gens: [
+          ["1期生", ""],
+          ["推し期", ""],
+        ],
+      }),
+    );
+    expect(files.generations[1].name).toEqual({ ja: "推し期", en: "推し期" });
+    expect(report.missing).toContain("推し期");
+  });
+
+  it("「期」シートに無い期を選んでいたら止める。共通のグループに期は付けられない", () => {
+    expect(() =>
+      buildMaster(rows({ groups: [["a", "メンバー", "Member", ok, "9期生"]] })),
+    ).toThrow(/9期生/);
+    expect(() =>
+      buildMaster(rows({ groups: [["共通", "共通", "Common", ok, "1期生"]] })),
+    ).toThrow(/共通/);
+  });
+
+  it("期が重複していたら止める", () => {
+    expect(() =>
+      buildMaster(
+        rows({
+          gens: [
+            ["1期生", ""],
+            ["1期生", ""],
+          ],
+        }),
+      ),
+    ).toThrow(/重複/);
+  });
+
   it("「ワード集グループ」に無いグループを選んでいたら止める", () => {
     expect(() =>
-      buildMaster(rows({ words: [["a", "ghost", "x", "x", "TRUE", ok]] })),
+      buildMaster(rows({ words: [["a", "ghost", "x", "x", ok]] })),
     ).toThrow(/ghost/);
   });
 

@@ -152,6 +152,14 @@ export const ja = {
     recordFailed: "履歴に記録できませんでした",
     resetFailed: "データを初期化できませんでした",
   },
+  setup: {
+    title: "マイ配信者を選ぶ",
+    lead: (max: number) =>
+      `気になる配信者を選ぶと、その人の検索ワード（エゴサワード・タグなど）を条件ボタンに入れます。最大${max}人まで、あとから検索ワード集で変えられます。選ばなくてもかまいません。`,
+    count: (n: number, max: number) => `${n}/${max}人を選択中`,
+    skip: "スキップ",
+    done: (n: number) => `決定（${n}人）`,
+  },
   version: {
     open: "バージョン情報",
     title: "バージョン情報",
@@ -223,6 +231,15 @@ export const ja = {
       filterPlaceholder: "名前やタグで絞り込み",
       none: "該当なし",
       close: "閉じる",
+      tabs: "検索ワード集のタブ",
+      tabOther: "その他",
+      myStreamer: "マイ配信者",
+      starCount: (n: number, max: number) =>
+        `マイ配信者 ${n}/${max}（★を付けた配信者がタブになります）`,
+      starAdd: (name: string) => `${name}をマイ配信者に追加`,
+      starRemove: (name: string) => `${name}をマイ配信者から外す`,
+      starLimit: (max: number) =>
+        `マイ配信者は${max}人までです。外すと追加できます`,
     },
     paramLabel: {
       min_faves: "ファボ数",

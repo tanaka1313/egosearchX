@@ -17,7 +17,7 @@ import {
   type TrashDetail,
   type TrashKind,
 } from "@/api";
-import { interests, presetsFor } from "@/data";
+import { interests, presetsFor, streamerGroups } from "@/data";
 import { labelFromQuery } from "@/lib/query/chip";
 import {
   applyFavEdit,
@@ -61,9 +61,12 @@ export function createDataApi({
       } catch (e) {
         throw migrationError(e);
       }
-      if (first)
+      if (first) {
         for (const id of interests().keys())
           await addPresets(dao, id, initialLang());
+        // 初回の案内（D5）を出す。プリセットは先に入れておく（案内を閉じただけでも使える）
+        await dao.prefs.set({ setup: "pending" });
+      }
       return dao;
     })().catch((e: unknown) => {
       opened = null; // 失敗は覚えない（直したあと、再読み込みなしで読み直せる）
@@ -118,6 +121,49 @@ export function createDataApi({
       added.push((await dao.chips.get(chip.id))!);
       count++;
     }
+    return added;
+  }
+
+  /**
+   * マイ配信者の語を、先頭に並べる条件ボタンにする。ラベルは語の表示名（今の言語。上限を超えたら切り詰める）、
+   * 検索文字列が一致するボタン（削除済みを除く）があれば足さない。上限は `LIMITS.chips`。
+   * 足したあと、足したボタン → 元のボタンの順に並べ直す。
+   */
+  async function addStreamerChips(
+    dao: Dao,
+    interestId: InterestId,
+    names: string[],
+    lang: Lang,
+  ): Promise<Chip[]> {
+    const have = await dao.chips.listByInterest(interestId);
+    const keys = new Set(have.map((c) => normalize(c.query)));
+    const groups = streamerGroups(interestId);
+    const added: Chip[] = [];
+    let count = have.length;
+    for (const name of names) {
+      const group = groups.find((g) => g.name.ja === name);
+      if (!group) throw invalid("stars");
+      for (const w of group.words) {
+        const key = normalize(w.query);
+        if (count >= LIMITS.chips) break;
+        if (keys.has(key)) continue;
+        keys.add(key);
+        const chip = newChip(
+          interestId,
+          labelFromQuery(w.label[lang]),
+          w.query,
+          false,
+        );
+        await dao.chips.save(chip);
+        added.push((await dao.chips.get(chip.id))!);
+        count++;
+      }
+    }
+    if (added.length > 0)
+      await dao.chips.reorder(interestId, [
+        ...added.map((c) => c.id),
+        ...have.map((c) => c.id),
+      ]);
     return added;
   }
 
@@ -388,11 +434,39 @@ export function createDataApi({
       purgeKind: async (kind) => (await open()).trash.purgeKind(kind),
       purgeAll: async () => (await open()).trash.purgeAll(),
     },
+    finishSetup: async (interestId, names, lang) => {
+      const dao = await open();
+      if (!interests().has(interestId)) throw notFound();
+      const stars = [...new Set(names)];
+      if (stars.length > LIMITS.myStreamers) throw invalid("stars");
+      await addStreamerChips(dao, interestId, stars, lang);
+      const cur = await dao.prefs.get();
+      await dao.prefs.set({
+        setup: "done",
+        stars: { ...cur.stars, [interestId]: stars },
+      });
+      return {
+        prefs: await dao.prefs.get(),
+        chips: await dao.chips.listByInterest(interestId),
+      };
+    },
     prefs: {
       set: async (patch) => {
         const dao = await open();
         if (patch.interest !== undefined && !interests().has(patch.interest))
           throw invalid("interest");
+        if (patch.stars !== undefined) {
+          for (const [id, names] of Object.entries(patch.stars)) {
+            const known = new Set(streamerGroups(id).map((g) => g.name.ja));
+            if (
+              !interests().has(id) ||
+              names.length > LIMITS.myStreamers ||
+              new Set(names).size !== names.length ||
+              names.some((n) => !known.has(n))
+            )
+              throw invalid("stars");
+          }
+        }
         await dao.prefs.set(patch);
         return dao.prefs.get();
       },

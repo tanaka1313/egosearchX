@@ -5,8 +5,9 @@
  * 入力の行は、シートの列順のセルの値（ヘッダー行を除く）。列の並びは docs/requirements.md 13章。
  * - interests: [ID, 表示名（日本語）, 表示名（英語）, 既定リストの名前, 既定リストのID]
  * - presets:   [対象, ラベル, 検索文字列, 初期ON, 初期表示, 確認済み]
- * - groups:    [対象, グループ名（日本語）, グループ名（英語）, 確認済み]
- * - words:     [対象, グループ（日本語名）, 表示名, 検索文字列, ホームに出す, 確認済み]
+ * - groups:    [対象, グループ名（日本語）, グループ名（英語）, 確認済み, 期（複数は「 / 」区切り。空でもよい）]
+ * - words:     [対象, グループ（日本語名）, 表示名, 検索文字列, 確認済み]
+ * - gens:      [期（日本語）, 期（英語。空なら対応表）]（シート「期」。行順が表示順）
  * - dict:      [日本語, 英語]（シート「英語対応表」）
  *
  * 推測で値を作らない：読めない・食い違う値は、直さずに止める（`GenError`）か、報告（report）に出す。
@@ -150,7 +151,7 @@ function assertLabelLength(where, ja, en) {
 const hasPlaceholder = (q) => /\[X+\]/i.test(q);
 
 /**
- * @param {{ interests: unknown[][], presets: unknown[][], groups: unknown[][], words: unknown[][], dict: unknown[][] }} rows
+ * @param {{ interests: unknown[][], presets: unknown[][], groups: unknown[][], words: unknown[][], gens: unknown[][], dict: unknown[][] }} rows
  */
 export function buildMaster(rows) {
   const report = { skipped: [], review: [], missing: [], stats: {} };
@@ -190,6 +191,17 @@ export function buildMaster(rows) {
       throw new GenError(`${where}: 存在しない対象です: ${s}`);
     return s;
   };
+
+  // --- 期（シート「期」の行順が、ダイアログでの並び順・色の順） ---
+  const generations = [];
+  rows.gens.forEach((r, i) => {
+    const ja = cellText(r[0]);
+    if (!ja) return;
+    const where = `期 ${i + 2}行目`;
+    if (generations.some((g) => g.name.ja === ja))
+      throw new GenError(`${where}: 期「${ja}」が重複しています`);
+    generations.push({ name: { ja, en: cellText(r[1]) || tr(ja) } });
+  });
 
   // --- プリセット（1本の並び。既定リストの目印を先頭に置く） ---
   const presets = [{ defaultList: true }];
@@ -237,7 +249,18 @@ export function buildMaster(rows) {
       throw new GenError(
         `${where}: 同じ対象にグループ名「${ja}」が重複しています`,
       );
-    groupDefs.set(key, { interest, name: { ja, en }, words: [] });
+    const gens = cellText(r[4])
+      .split(/\s+\/\s+/)
+      .map((x) => x.trim())
+      .filter(Boolean);
+    for (const g of gens)
+      if (!generations.some((x) => x.name.ja === g))
+        throw new GenError(
+          `${where}: 期「${g}」がシート「期」にありません（${ja}）`,
+        );
+    if (interest === COMMON_ID && gens.length > 0)
+      throw new GenError(`${where}: 共通のグループに期は付けられません`);
+    groupDefs.set(key, { interest, name: { ja, en }, gens, words: [] });
   });
   /** 共通のグループ（グループ名は日本語の「共通」。英語は対応表から） */
   const commonGroup = () => {
@@ -247,6 +270,7 @@ export function buildMaster(rows) {
       groupDefs.set(key, {
         interest: COMMON_ID,
         name: { ja: COMMON_JA, en },
+        gens: [],
         words: [],
       });
     }
@@ -260,7 +284,7 @@ export function buildMaster(rows) {
     const where = `検索ワード集 ${i + 2}行目`;
     const label = cellText(r[2]);
     const query = cellText(r[3]);
-    if (!isConfirmed(r[5]))
+    if (!isConfirmed(r[4]))
       return report.skipped.push(`${where}: 確認済みでない（${label}）`);
     if (!label || !query)
       throw new GenError(`${where}: 表示名と検索文字列を書いてください`);
@@ -289,7 +313,6 @@ export function buildMaster(rows) {
     group.words.push({
       label: { ja: label, en: tr(label) },
       query,
-      starter: cellBool(r[4], false),
     });
   });
   report.skipped.push(...skippedDash, ...skippedPlaceholder);
@@ -309,7 +332,11 @@ export function buildMaster(rows) {
       );
       continue;
     }
-    (wordSet[g.interest] ??= []).push({ name: g.name, words: g.words });
+    (wordSet[g.interest] ??= []).push({
+      name: g.name,
+      gens: g.gens,
+      words: g.words,
+    });
     if (g.interest === COMMON_ID) continue;
     // 呼び名の一覧（"A" OR "B"…だけの検索文字列）のワードがあるグループだけ、規則を作る
     const when = [];
@@ -331,5 +358,8 @@ export function buildMaster(rows) {
     suggestRules: Object.values(suggestRules).reduce((n, a) => n + a.length, 0),
     missingEnglish: report.missing.length,
   };
-  return { files: { interests, presets, wordSet, suggestRules }, report };
+  return {
+    files: { interests, presets, wordSet, suggestRules, generations },
+    report,
+  };
 }

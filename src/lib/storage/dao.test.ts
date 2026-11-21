@@ -192,9 +192,22 @@ describe("DAO（KeyValue の上のリポジトリ）", () => {
       interest: "hololive",
       lang: null,
       favOpen: false,
+      stars: {},
+      setup: "done",
     });
     await dao.prefs.set({ interest: "other" });
     expect((await dao.prefs.get()).interest).toBe("other");
+  });
+
+  it("マイ配信者（stars）と初回の案内（setup）は、ほかの設定を保存しても残る。古い保存データ（項目なし）は既定値で読む", async () => {
+    await dao.prefs.set({
+      stars: { hololive: ["ときのそら"] },
+      setup: "pending",
+    });
+    await dao.prefs.set({ favOpen: true });
+    const p = await dao.prefs.get();
+    expect(p.stars).toEqual({ hololive: ["ときのそら"] });
+    expect(p.setup).toBe("pending");
   });
 
   it("言語を選んでいなければ、ほかの設定を保存しても null のまま（ブラウザの言語に従う）", async () => {

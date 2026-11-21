@@ -9,6 +9,7 @@ import { useI18n } from "@/store/i18n-context";
 import { useAppStore } from "@/store/store-context";
 import { MENU_ITEMS } from "./menu-items";
 import { useRunner } from "./use-runner";
+import { DIALOG_OVERLAY } from "@/components/common/dialog-styles";
 
 type Entry = { key: string; label: string; run: () => void };
 
@@ -81,7 +82,7 @@ export function CommandPalette({
   return (
     <Dialog.Root open={open} onOpenChange={(next) => !next && close()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/40" />
+        <Dialog.Overlay className={DIALOG_OVERLAY} />
         <Dialog.Content
           aria-describedby={undefined}
           onCloseAutoFocus={(ev) => {

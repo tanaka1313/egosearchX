@@ -1,3 +1,21 @@
+# #99 マイ配信者・検索ワード集のタブ化と見やすさ（検索ワード集の表示不具合を含む）
+
+1. Goal: 検索ワード集のボタンを表示名で出し、ダイアログを背景と見分けやすく・グループを色で分かりやすくし、#99（マイ配信者・初回の案内・タブ・starter 廃止）を実装する。
+2. Plan:
+   - [x] ブランチ `feature/my-streamers-word-set`
+   - [x] Excel（シート「期」、「期」列、「ホームに出す」列の削除）→ 生成プログラム（テスト先行）→ `generations.json`・`word-set.json`
+   - [x] 型・スキーマ・`LIMITS.myStreamers`・Prefs（`stars`・`setup`）・`data.finishSetup`・`master.streamers`／`generations`（`starters` 廃止）
+   - [x] D4（タブ・★・並び・期ごとの色のカード）、D5（初回の案内）、幕・面・枠を `dialog-styles.ts` の1か所に
+   - [x] docs（requirements・screen-spec・api-spec・implementation-plan）、CLAUDE.md、design-lessons
+   - [x] 新 Issue：ユニット名の優先表示（#99 から分離）
+   - [ ] main へマージして push、#99 をクローズ
+3. Verification: `make check` 相当（tsc・vitest 999件・eslint・next build）。Playwright（1280／360px）で D5・ホームのボタンの表示名・D4 のタブとカードを確認。
+4. Review:
+   - 結果：ホームの履歴0件の並びが検索文字列だったのは、`starter` の語を `label=query` で描いていたため。`starter` ごと廃止し、初回に表示名の条件ボタンにした。
+   - 判断：「期」は Excel の既存の `…(グループ)` 語の値から移した（推測で足していない）。英語が無い期（6期生（holoX）など）は日本語のまま出て、`gen:master` の報告に出る。
+   - **未確認**：実機の iPhone。ブラウザの絵文字（🐻💿）はこの環境のフォントに無く、表示は未確認。
+   - **次に壊れやすい点**：10人の配信者を選ぶと条件ボタンが上限60に近づき、プリセットの追加が足りなくなる。配信者の期が複数のとき色は先頭の期だけ。
+
 # #102 Excel → JSON の生成プログラム・サジェスト規則の自動作成・値付きボタン・英語対応表
 
 1. Goal: Excel を正にして JSON を生成し、サジェスト規則を検索ワード集から自動で作り、値付きボタンと英語表示に対応する。

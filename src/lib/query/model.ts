@@ -21,7 +21,6 @@ import {
   type Period,
   type ValueOp,
   type ValueType,
-  type Word,
 } from "@/api";
 
 /**
@@ -401,21 +400,6 @@ export function suggestFromRules(q: string, rules: SuggestRule[]): string[] {
     if (!r.when.some((w) => hasWord(runs, w))) continue;
     for (const s of r.suggest)
       if (!have.has(s) && !out.includes(s)) out.push(s);
-  }
-  return out;
-}
-
-/** 履歴なしのときホームに出す検索ワード集：starter だけ、すでにあるものを除き、上限まで（元の順） */
-export function starterWords(
-  items: Pick<Word, "query" | "starter">[],
-  have: Set<string>,
-  limit: number,
-): string[] {
-  const out: string[] = [];
-  for (const it of items) {
-    if (out.length >= limit) break;
-    if (!it.starter || have.has(it.query) || out.includes(it.query)) continue;
-    out.push(it.query);
   }
   return out;
 }

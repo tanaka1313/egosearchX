@@ -9,7 +9,7 @@ import {
   type EgoSearchApi,
   type Lang,
 } from "@/api";
-import { interests, wordSet } from "@/data";
+import { generations, interests, streamerGroups, wordSet } from "@/data";
 import { decodeLauncher, encodeLauncher } from "@/lib/launch/codec";
 import { localDate } from "@/lib/query/dates";
 import {
@@ -46,7 +46,12 @@ export function createBackend({
   initialLang = () => "ja",
 }: BackendOptions): EgoSearchApi {
   return {
-    master: { interests: () => interests(), wordSet: (id) => wordSet(id) },
+    master: {
+      interests: () => interests(),
+      wordSet: (id) => wordSet(id),
+      generations: () => generations(),
+      streamers: (id) => streamerGroups(id),
+    },
     query: createQueryApi(clock),
     url: {
       plan: (items) => planRun(items, clock.today()),

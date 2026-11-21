@@ -2,125 +2,104 @@
   "common": [
     {
       "name": { "ja": "共通", "en": "Common" },
+      "gens": [],
       "words": [
         {
           "label": { "ja": "返信のみ", "en": "Replies only" },
-          "query": "filter:replies",
-          "starter": false
+          "query": "filter:replies"
         },
         {
           "label": { "ja": "リポストのみ", "en": "Reposts only" },
-          "query": "filter:retweets",
-          "starter": false
+          "query": "filter:retweets"
         },
         {
           "label": { "ja": "引用つき", "en": "With quotes" },
-          "query": "filter:quote",
-          "starter": false
+          "query": "filter:quote"
         },
         {
           "label": { "ja": "画像つき", "en": "With images" },
-          "query": "filter:images",
-          "starter": false
+          "query": "filter:images"
         },
         {
           "label": { "ja": "動画つき", "en": "With videos" },
-          "query": "filter:videos",
-          "starter": false
+          "query": "filter:videos"
         },
         {
           "label": { "ja": "リンク(URL)つき", "en": "With links (URL)" },
-          "query": "filter:links",
-          "starter": false
+          "query": "filter:links"
         },
         {
           "label": { "ja": "認証済みのみ", "en": "Verified only" },
-          "query": "filter:verified",
-          "starter": false
+          "query": "filter:verified"
         },
         {
           "label": { "ja": "返信を除く", "en": "Exclude replies" },
-          "query": "-filter:replies",
-          "starter": false
+          "query": "-filter:replies"
         },
         {
           "label": { "ja": "リポストを除く", "en": "Exclude reposts" },
-          "query": "-filter:retweets",
-          "starter": false
+          "query": "-filter:retweets"
         },
         {
           "label": { "ja": "引用を除く", "en": "Exclude quotes" },
-          "query": "-filter:quote",
-          "starter": false
+          "query": "-filter:quote"
         },
         {
           "label": { "ja": "画像を除く", "en": "Exclude images" },
-          "query": "-filter:images",
-          "starter": false
+          "query": "-filter:images"
         },
         {
           "label": { "ja": "動画を除く", "en": "Exclude videos" },
-          "query": "-filter:videos",
-          "starter": false
+          "query": "-filter:videos"
         },
         {
           "label": { "ja": "リンク(URL)なし", "en": "Without links (URL)" },
-          "query": "-filter:links",
-          "starter": false
+          "query": "-filter:links"
         },
         {
           "label": { "ja": "認証済みを除く", "en": "Exclude verified" },
-          "query": "-filter:verified",
-          "starter": false
+          "query": "-filter:verified"
         },
         {
           "label": { "ja": "日本語のみ", "en": "Japanese only" },
-          "query": "lang:ja",
-          "starter": false
+          "query": "lang:ja"
         },
         {
           "label": { "ja": "英語のみ", "en": "English only" },
-          "query": "lang:en",
-          "starter": false
+          "query": "lang:en"
         },
         {
           "label": { "ja": "インドネシア語のみ", "en": "Indonesian only" },
-          "query": "lang:id",
-          "starter": false
+          "query": "lang:id"
         },
         {
           "label": { "ja": "ファボ [50]件以上", "en": "Likes [50] or more" },
-          "query": "min_faves:50",
-          "starter": false
+          "query": "min_faves:50"
         },
         {
           "label": {
             "ja": "リポスト [10]件以上",
             "en": "Reposts [10] or more"
           },
-          "query": "min_retweets:10",
-          "starter": false
+          "query": "min_retweets:10"
         },
         {
           "label": { "ja": "リプ [5]件以上", "en": "Replies [5] or more" },
-          "query": "min_replies:5",
-          "starter": false
+          "query": "min_replies:5"
         },
         {
           "label": {
             "ja": "日付 [2026-11-07] 以降",
             "en": "Date [2026-11-07] onward"
           },
-          "query": "since:2026-11-07",
-          "starter": false
+          "query": "since:2026-11-07"
         },
         {
           "label": {
             "ja": "日付 [2026-11-14] 以前",
             "en": "Date [2026-11-14] or earlier"
           },
-          "query": "until:2026-11-14",
-          "starter": false
+          "query": "until:2026-11-14"
         }
       ]
     }
@@ -128,3152 +107,2802 @@
   "hololive": [
     {
       "name": { "ja": "ときのそら", "en": "Tokino Sora" },
+      "gens": ["0期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(ときのそら)",
             "en": "Ego-search words (Tokino Sora)"
           },
-          "query": "(\"ときのそら\" OR \"そらちゃん\" OR \"そらさん\" OR \"そら先輩\")",
-          "starter": true
+          "query": "(\"ときのそら\" OR \"そらちゃん\" OR \"そらさん\" OR \"そら先輩\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(ときのそら)",
             "en": "Ego-search (English) (Tokino Sora)"
           },
-          "query": "(\"Tokino Sora\" OR \"Sora-chan\")",
-          "starter": true
+          "query": "(\"Tokino Sora\" OR \"Sora-chan\")"
         },
         {
           "label": { "ja": "🐻💿(推しマ)", "en": "🐻💿 (Oshi mark)" },
-          "query": "🐻💿",
-          "starter": true
+          "query": "🐻💿"
         },
         {
           "label": {
             "ja": "そらとも(ファンネーム)",
             "en": "そらとも (Fan name)"
           },
-          "query": "そらとも",
-          "starter": true
+          "query": "そらとも"
         },
         {
           "label": {
             "ja": "#ときのそら生放送(配信タグ)",
             "en": "#ときのそら生放送(配信タグ)"
           },
-          "query": "#ときのそら生放送",
-          "starter": true
+          "query": "#ときのそら生放送"
         },
         {
           "label": {
             "ja": "#そらArt(ファンアートタグ)",
             "en": "#そらArt(ファンアートタグ)"
           },
-          "query": "#そらArt",
-          "starter": true
+          "query": "#そらArt"
         },
         {
           "label": { "ja": "0期生(グループ)", "en": "Gen 0 (Group)" },
-          "query": "0期生",
-          "starter": true
+          "query": "0期生"
         }
       ]
     },
     {
       "name": { "ja": "星街すいせい", "en": "Hoshimachi Suisei" },
+      "gens": ["0期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(星街すいせい)",
             "en": "Ego-search words (Hoshimachi Suisei)"
           },
-          "query": "(\"星街すいせい\" OR \"星街\" OR \"すいせい\" OR \"すいちゃん\")",
-          "starter": true
+          "query": "(\"星街すいせい\" OR \"星街\" OR \"すいせい\" OR \"すいちゃん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(星街すいせい)",
             "en": "Ego-search (English) (Hoshimachi Suisei)"
           },
-          "query": "(\"Hoshimachi Suisei\" OR \"Hoshimachi\" OR \"Suisei\" OR \"Suisei-chan\" OR \"Sui-chan\")",
-          "starter": true
+          "query": "(\"Hoshimachi Suisei\" OR \"Hoshimachi\" OR \"Suisei\" OR \"Suisei-chan\" OR \"Sui-chan\")"
         },
         {
           "label": { "ja": "☄️(推しマ)", "en": "☄️ (Oshi mark)" },
-          "query": "☄️",
-          "starter": true
+          "query": "☄️"
         },
         {
           "label": { "ja": "星詠み(ファンネーム)", "en": "星詠み (Fan name)" },
-          "query": "星詠み",
-          "starter": true
+          "query": "星詠み"
         },
         {
           "label": {
             "ja": "#ほしまちすたじお(配信タグ)",
             "en": "#ほしまちすたじお(配信タグ)"
           },
-          "query": "#ほしまちすたじお",
-          "starter": true
+          "query": "#ほしまちすたじお"
         },
         {
           "label": {
             "ja": "#ほしまちぎゃらりー(ファンアートタグ)",
             "en": "#ほしまちぎゃらりー(ファンアートタグ)"
           },
-          "query": "#ほしまちぎゃらりー",
-          "starter": true
+          "query": "#ほしまちぎゃらりー"
         },
         {
           "label": { "ja": "0期生(グループ)", "en": "Gen 0 (Group)" },
-          "query": "0期生",
-          "starter": true
+          "query": "0期生"
         }
       ]
     },
     {
       "name": { "ja": "さくらみこ", "en": "Sakura Miko" },
+      "gens": ["0期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(さくらみこ)",
             "en": "Ego-search words (Sakura Miko)"
           },
-          "query": "(\"さくらみこ\" OR \"みこち\")",
-          "starter": true
+          "query": "(\"さくらみこ\" OR \"みこち\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(さくらみこ)",
             "en": "Ego-search (English) (Sakura Miko)"
           },
-          "query": "(\"Sakura Miko\" OR \"Miko-chi\" OR \"Mikochi\")",
-          "starter": true
+          "query": "(\"Sakura Miko\" OR \"Miko-chi\" OR \"Mikochi\")"
         },
         {
           "label": { "ja": "🌸(推しマ)", "en": "🌸 (Oshi mark)" },
-          "query": "🌸",
-          "starter": true
+          "query": "🌸"
         },
         {
           "label": { "ja": "35P(ファンネーム)", "en": "35P (Fan name)" },
-          "query": "35P",
-          "starter": true
+          "query": "35P"
         },
         {
           "label": { "ja": "#みこなま(配信タグ)", "en": "#みこなま(配信タグ)" },
-          "query": "#みこなま",
-          "starter": true
+          "query": "#みこなま"
         },
         {
           "label": {
             "ja": "#miko_Art(ファンアートタグ)",
             "en": "#miko_Art(ファンアートタグ)"
           },
-          "query": "#miko_Art",
-          "starter": true
+          "query": "#miko_Art"
         },
         {
           "label": { "ja": "0期生(グループ)", "en": "Gen 0 (Group)" },
-          "query": "0期生",
-          "starter": true
+          "query": "0期生"
         }
       ]
     },
     {
       "name": { "ja": "AZKi", "en": "AZKi" },
+      "gens": ["0期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(AZKi)",
             "en": "Ego-search words (AZKi)"
           },
-          "query": "(\"AZKi\" OR \"アズキ\" OR \"あずき\" OR \"あずきち\" OR \"あずちゃん\")",
-          "starter": true
+          "query": "(\"AZKi\" OR \"アズキ\" OR \"あずき\" OR \"あずきち\" OR \"あずちゃん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(AZKi)",
             "en": "Ego-search (English) (AZKi)"
           },
-          "query": "(\"AZKi\" OR \"Azuki\")",
-          "starter": true
+          "query": "(\"AZKi\" OR \"Azuki\")"
         },
         {
           "label": { "ja": "⚒️(推しマ)", "en": "⚒️ (Oshi mark)" },
-          "query": "⚒️",
-          "starter": true
+          "query": "⚒️"
         },
         {
           "label": { "ja": "開拓者(ファンネーム)", "en": "開拓者 (Fan name)" },
-          "query": "開拓者",
-          "starter": true
+          "query": "開拓者"
         },
         {
           "label": {
             "ja": "#AZKi生放送(配信タグ)",
             "en": "#AZKi生放送(配信タグ)"
           },
-          "query": "#AZKi生放送",
-          "starter": true
+          "query": "#AZKi生放送"
         },
         {
           "label": {
             "ja": "#AZKiART(ファンアートタグ)",
             "en": "#AZKiART(ファンアートタグ)"
           },
-          "query": "#AZKiART",
-          "starter": true
+          "query": "#AZKiART"
         },
         {
           "label": { "ja": "0期生(グループ)", "en": "Gen 0 (Group)" },
-          "query": "0期生",
-          "starter": true
+          "query": "0期生"
         }
       ]
     },
     {
       "name": { "ja": "ロボ子さん", "en": "Roboco-san" },
+      "gens": ["0期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(ロボ子さん)",
             "en": "Ego-search words (Roboco-san)"
           },
-          "query": "(\"ロボ子さん\" OR \"ロボ子\" OR \"ろぼこ\")",
-          "starter": true
+          "query": "(\"ロボ子さん\" OR \"ロボ子\" OR \"ろぼこ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(ロボ子さん)",
             "en": "Ego-search (English) (Roboco-san)"
           },
-          "query": "(\"Roboco\" OR \"Robocosan\")",
-          "starter": true
+          "query": "(\"Roboco\" OR \"Robocosan\")"
         },
         {
           "label": { "ja": "🤖(推しマ)", "en": "🤖 (Oshi mark)" },
-          "query": "🤖",
-          "starter": true
+          "query": "🤖"
         },
         {
           "label": {
             "ja": "ろぼさー(ファンネーム)",
             "en": "ろぼさー (Fan name)"
           },
-          "query": "ろぼさー",
-          "starter": true
+          "query": "ろぼさー"
         },
         {
           "label": {
             "ja": "#ロボ子生放送(配信タグ)",
             "en": "#ロボ子生放送(配信タグ)"
           },
-          "query": "#ロボ子生放送",
-          "starter": true
+          "query": "#ロボ子生放送"
         },
         {
           "label": {
             "ja": "#ロボ子Art(ファンアートタグ)",
             "en": "#ロボ子Art(ファンアートタグ)"
           },
-          "query": "#ロボ子Art",
-          "starter": true
+          "query": "#ロボ子Art"
         },
         {
           "label": { "ja": "0期生(グループ)", "en": "Gen 0 (Group)" },
-          "query": "0期生",
-          "starter": true
+          "query": "0期生"
         }
       ]
     },
     {
       "name": { "ja": "白上フブキ", "en": "Shirakami Fubuki" },
+      "gens": ["1期生", "GAMERS"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(白上フブキ)",
             "en": "Ego-search words (Shirakami Fubuki)"
           },
-          "query": "(\"白上フブキ\" OR \"白上\" OR \"フブキ\" OR \"フブちゃん\" OR \"フブキング\")",
-          "starter": true
+          "query": "(\"白上フブキ\" OR \"白上\" OR \"フブキ\" OR \"フブちゃん\" OR \"フブキング\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(白上フブキ)",
             "en": "Ego-search (English) (Shirakami Fubuki)"
           },
-          "query": "(\"Shirakami Fubuki\" OR \"Shirakami\" OR \"Fubuki\" OR \"Fubu-chan\" OR \"Fubu-san\")",
-          "starter": true
+          "query": "(\"Shirakami Fubuki\" OR \"Shirakami\" OR \"Fubuki\" OR \"Fubu-chan\" OR \"Fubu-san\")"
         },
         {
           "label": { "ja": "🌽(推しマ)", "en": "🌽 (Oshi mark)" },
-          "query": "🌽",
-          "starter": true
+          "query": "🌽"
         },
         {
           "label": {
             "ja": "すこん部(ファンネーム)",
             "en": "すこん部 (Fan name)"
           },
-          "query": "すこん部",
-          "starter": true
+          "query": "すこん部"
         },
         {
           "label": {
             "ja": "#フブキ生放送(配信タグ)",
             "en": "#フブキ生放送(配信タグ)"
           },
-          "query": "#フブキ生放送",
-          "starter": true
+          "query": "#フブキ生放送"
         },
         {
           "label": {
             "ja": "#絵フブキ(ファンアートタグ)",
             "en": "#絵フブキ(ファンアートタグ)"
           },
-          "query": "#絵フブキ",
-          "starter": true
+          "query": "#絵フブキ"
         },
         {
           "label": {
             "ja": "1期生 / GAMERS(グループ)",
             "en": "Gen 1 / GAMERS (Group)"
           },
-          "query": "1期生 / GAMERS",
-          "starter": true
+          "query": "1期生 / GAMERS"
         }
       ]
     },
     {
       "name": { "ja": "夏色まつり", "en": "Natsuiro Matsuri" },
+      "gens": ["1期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(夏色まつり)",
             "en": "Ego-search words (Natsuiro Matsuri)"
           },
-          "query": "(\"夏色まつり\" OR \"夏色\"OR \"まつりちゃん\" OR \"まちゅ\")",
-          "starter": true
+          "query": "(\"夏色まつり\" OR \"夏色\"OR \"まつりちゃん\" OR \"まちゅ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(夏色まつり)",
             "en": "Ego-search (English) (Natsuiro Matsuri)"
           },
-          "query": "(\"Natsuiro Matsuri\" OR \"Natsuiro\" OR \"Matsuri\")",
-          "starter": true
+          "query": "(\"Natsuiro Matsuri\" OR \"Natsuiro\" OR \"Matsuri\")"
         },
         {
           "label": { "ja": "🏮(推しマ)", "en": "🏮 (Oshi mark)" },
-          "query": "🏮",
-          "starter": true
+          "query": "🏮"
         },
         {
           "label": {
             "ja": "まつりす(ファンネーム)",
             "en": "まつりす (Fan name)"
           },
-          "query": "まつりす",
-          "starter": true
+          "query": "まつりす"
         },
         {
           "label": {
             "ja": "#夏色まつり生放送(配信タグ)",
             "en": "#夏色まつり生放送(配信タグ)"
           },
-          "query": "#夏色まつり生放送",
-          "starter": true
+          "query": "#夏色まつり生放送"
         },
         {
           "label": {
             "ja": "#祭絵(ファンアートタグ)",
             "en": "#祭絵(ファンアートタグ)"
           },
-          "query": "#祭絵",
-          "starter": true
+          "query": "#祭絵"
         },
         {
           "label": { "ja": "1期生(グループ)", "en": "Gen 1 (Group)" },
-          "query": "1期生",
-          "starter": true
+          "query": "1期生"
         }
       ]
     },
     {
       "name": { "ja": "赤井はあと", "en": "Akai Haato" },
+      "gens": ["1期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(赤井はあと)",
             "en": "Ego-search words (Akai Haato)"
           },
-          "query": "(\"赤井はあと\" OR \"赤井\" OR \"はあと\" OR \"はあちゃま\" OR \"ちゃま\")",
-          "starter": true
+          "query": "(\"赤井はあと\" OR \"赤井\" OR \"はあと\" OR \"はあちゃま\" OR \"ちゃま\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(赤井はあと)",
             "en": "Ego-search (English) (Akai Haato)"
           },
-          "query": "(\"Akai Haato\" OR \"Akai\" OR \"Haato\" OR \"Haachama\")",
-          "starter": true
+          "query": "(\"Akai Haato\" OR \"Akai\" OR \"Haato\" OR \"Haachama\")"
         },
         {
           "label": { "ja": "❤️‍🔥(推しマ)", "en": "❤️‍🔥 (Oshi mark)" },
-          "query": "❤️‍🔥",
-          "starter": true
+          "query": "❤️‍🔥"
         },
         {
           "label": {
             "ja": "はあとん(ファンネーム)",
             "en": "はあとん (Fan name)"
           },
-          "query": "はあとん",
-          "starter": true
+          "query": "はあとん"
         },
         {
           "label": {
             "ja": "#はあちゃま生放送(配信タグ)",
             "en": "#はあちゃま生放送(配信タグ)"
           },
-          "query": "#はあちゃま生放送",
-          "starter": true
+          "query": "#はあちゃま生放送"
         },
         {
           "label": {
             "ja": "#はあとArt(ファンアートタグ)",
             "en": "#はあとArt(ファンアートタグ)"
           },
-          "query": "#はあとArt",
-          "starter": true
+          "query": "#はあとArt"
         },
         {
           "label": { "ja": "1期生(グループ)", "en": "Gen 1 (Group)" },
-          "query": "1期生",
-          "starter": true
+          "query": "1期生"
         }
       ]
     },
     {
       "name": { "ja": "アキ・ローゼンタール", "en": "Aki Rosenthal" },
+      "gens": ["1期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(アキ・ローゼンタール)",
             "en": "Ego-search words (Aki Rosenthal)"
           },
-          "query": "(\"アキ・ローゼンタール\" OR \"アキ\" OR \"ローゼンタール\" OR \"アキロゼ\" OR \"アキちゃん\")",
-          "starter": true
+          "query": "(\"アキ・ローゼンタール\" OR \"アキ\" OR \"ローゼンタール\" OR \"アキロゼ\" OR \"アキちゃん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(アキ・ローゼンタール)",
             "en": "Ego-search (English) (Aki Rosenthal)"
           },
-          "query": "(\"Aki Rosenthal\" OR \"Aki-chan\" OR \"Rosenthal\" OR \"AkiRose\")",
-          "starter": true
+          "query": "(\"Aki Rosenthal\" OR \"Aki-chan\" OR \"Rosenthal\" OR \"AkiRose\")"
         },
         {
           "label": { "ja": "🍎(推しマ)", "en": "🍎 (Oshi mark)" },
-          "query": "🍎",
-          "starter": true
+          "query": "🍎"
         },
         {
           "label": { "ja": "ロゼ隊(ファンネーム)", "en": "ロゼ隊 (Fan name)" },
-          "query": "ロゼ隊",
-          "starter": true
+          "query": "ロゼ隊"
         },
         {
           "label": {
             "ja": "#アキロゼ生放送(配信タグ)",
             "en": "#アキロゼ生放送(配信タグ)"
           },
-          "query": "#アキロゼ生放送",
-          "starter": true
+          "query": "#アキロゼ生放送"
         },
         {
           "label": {
             "ja": "#アロ絵(ファンアートタグ)",
             "en": "#アロ絵(ファンアートタグ)"
           },
-          "query": "#アロ絵",
-          "starter": true
+          "query": "#アロ絵"
         },
         {
           "label": { "ja": "1期生(グループ)", "en": "Gen 1 (Group)" },
-          "query": "1期生",
-          "starter": true
+          "query": "1期生"
         }
       ]
     },
     {
       "name": { "ja": "湊あくあ", "en": "Minato Aqua" },
+      "gens": ["2期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(湊あくあ)",
             "en": "Ego-search words (Minato Aqua)"
           },
-          "query": "(\"湊あくあ\" OR \"湊\" OR \"あくあ\" OR \"あくたん\" OR \"あくあちゃん\")",
-          "starter": true
+          "query": "(\"湊あくあ\" OR \"湊\" OR \"あくあ\" OR \"あくたん\" OR \"あくあちゃん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(湊あくあ)",
             "en": "Ego-search (English) (Minato Aqua)"
           },
-          "query": "(\"Minato Aqua\" OR \"Minato\" OR \"Aqua\" OR \"Aqutan\")",
-          "starter": true
+          "query": "(\"Minato Aqua\" OR \"Minato\" OR \"Aqua\" OR \"Aqutan\")"
         },
         {
           "label": { "ja": "⚓️(推しマ)", "en": "⚓️ (Oshi mark)" },
-          "query": "⚓️",
-          "starter": true
+          "query": "⚓️"
         },
         {
           "label": {
             "ja": "あくあクルー(ファンネーム)",
             "en": "あくあクルー (Fan name)"
           },
-          "query": "あくあクルー",
-          "starter": true
+          "query": "あくあクルー"
         },
         {
           "label": {
             "ja": "#湊あくあ生放送(配信タグ)",
             "en": "#湊あくあ生放送(配信タグ)"
           },
-          "query": "#湊あくあ生放送",
-          "starter": true
+          "query": "#湊あくあ生放送"
         },
         {
           "label": {
             "ja": "#あくあーと(ファンアートタグ)",
             "en": "#あくあーと(ファンアートタグ)"
           },
-          "query": "#あくあーと",
-          "starter": true
+          "query": "#あくあーと"
         },
         {
           "label": { "ja": "2期生(グループ)", "en": "Gen 2 (Group)" },
-          "query": "2期生",
-          "starter": true
+          "query": "2期生"
         }
       ]
     },
     {
       "name": { "ja": "大空スバル", "en": "Oozora Subaru" },
+      "gens": ["2期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(大空スバル)",
             "en": "Ego-search words (Oozora Subaru)"
           },
-          "query": "(\"大空スバル\" OR \"大空\" OR \"スバル\" OR \"すばう\")",
-          "starter": true
+          "query": "(\"大空スバル\" OR \"大空\" OR \"スバル\" OR \"すばう\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(大空スバル)",
             "en": "Ego-search (English) (Oozora Subaru)"
           },
-          "query": "(\"Oozora Subaru\" OR \"Oozora\" OR \"Subaru\" OR \"Suba-chan\")",
-          "starter": true
+          "query": "(\"Oozora Subaru\" OR \"Oozora\" OR \"Subaru\" OR \"Suba-chan\")"
         },
         {
           "label": { "ja": "🚑(推しマ)", "en": "🚑 (Oshi mark)" },
-          "query": "🚑",
-          "starter": true
+          "query": "🚑"
         },
         {
           "label": { "ja": "スバ友(ファンネーム)", "en": "スバ友 (Fan name)" },
-          "query": "スバ友",
-          "starter": true
+          "query": "スバ友"
         },
         {
           "label": {
             "ja": "#スバル生放送(配信タグ)",
             "en": "#スバル生放送(配信タグ)"
           },
-          "query": "#スバル生放送",
-          "starter": true
+          "query": "#スバル生放送"
         },
         {
           "label": {
             "ja": "#プロテインザスバル(ファンアートタグ)",
             "en": "#プロテインザスバル(ファンアートタグ)"
           },
-          "query": "#プロテインザスバル",
-          "starter": true
+          "query": "#プロテインザスバル"
         },
         {
           "label": { "ja": "2期生(グループ)", "en": "Gen 2 (Group)" },
-          "query": "2期生",
-          "starter": true
+          "query": "2期生"
         }
       ]
     },
     {
       "name": { "ja": "百鬼あやめ", "en": "Nakiri Ayame" },
+      "gens": ["2期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(百鬼あやめ)",
             "en": "Ego-search words (Nakiri Ayame)"
           },
-          "query": "(\"百鬼あやめ\" OR \"百鬼\" OR \"あやめ\" OR \"お嬢\" OR \"余さん\")",
-          "starter": true
+          "query": "(\"百鬼あやめ\" OR \"百鬼\" OR \"あやめ\" OR \"お嬢\" OR \"余さん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(百鬼あやめ)",
             "en": "Ego-search (English) (Nakiri Ayame)"
           },
-          "query": "(\"Nakiri Ayame\" OR \"Nakiri\" OR \"Ayame\" OR \"Ojou\")",
-          "starter": true
+          "query": "(\"Nakiri Ayame\" OR \"Nakiri\" OR \"Ayame\" OR \"Ojou\")"
         },
         {
           "label": { "ja": "😈(推しマ)", "en": "😈 (Oshi mark)" },
-          "query": "😈",
-          "starter": true
+          "query": "😈"
         },
         {
           "label": { "ja": "百鬼組(ファンネーム)", "en": "百鬼組 (Fan name)" },
-          "query": "百鬼組",
-          "starter": true
+          "query": "百鬼組"
         },
         {
           "label": {
             "ja": "#百鬼あやめ生放送(配信タグ)",
             "en": "#百鬼あやめ生放送(配信タグ)"
           },
-          "query": "#百鬼あやめ生放送",
-          "starter": true
+          "query": "#百鬼あやめ生放送"
         },
         {
           "label": {
             "ja": "#百鬼絵巻(ファンアートタグ)",
             "en": "#百鬼絵巻(ファンアートタグ)"
           },
-          "query": "#百鬼絵巻",
-          "starter": true
+          "query": "#百鬼絵巻"
         },
         {
           "label": { "ja": "2期生(グループ)", "en": "Gen 2 (Group)" },
-          "query": "2期生",
-          "starter": true
+          "query": "2期生"
         }
       ]
     },
     {
       "name": { "ja": "紫咲シオン", "en": "Murasaki Shion" },
+      "gens": ["2期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(紫咲シオン)",
             "en": "Ego-search words (Murasaki Shion)"
           },
-          "query": "(\"紫咲シオン\" OR \"紫咲\" OR \"シオン\")",
-          "starter": true
+          "query": "(\"紫咲シオン\" OR \"紫咲\" OR \"シオン\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(紫咲シオン)",
             "en": "Ego-search (English) (Murasaki Shion)"
           },
-          "query": "(\"Murasaki Shion\" OR \"Murasaki\" OR \"Shion\")",
-          "starter": true
+          "query": "(\"Murasaki Shion\" OR \"Murasaki\" OR \"Shion\")"
         },
         {
           "label": { "ja": "🌙(推しマ)", "en": "🌙 (Oshi mark)" },
-          "query": "🌙",
-          "starter": true
+          "query": "🌙"
         },
         {
           "label": { "ja": "塩っ子(ファンネーム)", "en": "塩っ子 (Fan name)" },
-          "query": "塩っ子",
-          "starter": true
+          "query": "塩っ子"
         },
         {
           "label": {
             "ja": "#紫咲シオン生放送(配信タグ)",
             "en": "#紫咲シオン生放送(配信タグ)"
           },
-          "query": "#紫咲シオン生放送",
-          "starter": true
+          "query": "#紫咲シオン生放送"
         },
         {
           "label": {
             "ja": "#シオンの書物(ファンアートタグ)",
             "en": "#シオンの書物(ファンアートタグ)"
           },
-          "query": "#シオンの書物",
-          "starter": true
+          "query": "#シオンの書物"
         },
         {
           "label": { "ja": "2期生(グループ)", "en": "Gen 2 (Group)" },
-          "query": "2期生",
-          "starter": true
+          "query": "2期生"
         }
       ]
     },
     {
       "name": { "ja": "癒月ちょこ", "en": "Yuzuki Choco" },
+      "gens": ["2期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(癒月ちょこ)",
             "en": "Ego-search words (Yuzuki Choco)"
           },
-          "query": "(\"癒月ちょこ\" OR \"癒月\" OR \"ちょこ\" OR \"ちょこ先\" OR \"ちょこ先生\")",
-          "starter": true
+          "query": "(\"癒月ちょこ\" OR \"癒月\" OR \"ちょこ\" OR \"ちょこ先\" OR \"ちょこ先生\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(癒月ちょこ)",
             "en": "Ego-search (English) (Yuzuki Choco)"
           },
-          "query": "(\"Yuzuki Choco\" OR \"Yuzuki\" OR \"Choco\" OR \"Choco-sensei\")",
-          "starter": true
+          "query": "(\"Yuzuki Choco\" OR \"Yuzuki\" OR \"Choco\" OR \"Choco-sensei\")"
         },
         {
           "label": { "ja": "💋(推しマ)", "en": "💋 (Oshi mark)" },
-          "query": "💋",
-          "starter": true
+          "query": "💋"
         },
         {
           "label": {
             "ja": "ちょこめいと(ファンネーム)",
             "en": "ちょこめいと (Fan name)"
           },
-          "query": "ちょこめいと",
-          "starter": true
+          "query": "ちょこめいと"
         },
         {
           "label": {
             "ja": "#癒月ちょこ生放送(配信タグ)",
             "en": "#癒月ちょこ生放送(配信タグ)"
           },
-          "query": "#癒月ちょこ生放送",
-          "starter": true
+          "query": "#癒月ちょこ生放送"
         },
         {
           "label": {
             "ja": "#しょこらーと(ファンアートタグ)",
             "en": "#しょこらーと(ファンアートタグ)"
           },
-          "query": "#しょこらーと",
-          "starter": true
+          "query": "#しょこらーと"
         },
         {
           "label": { "ja": "2期生(グループ)", "en": "Gen 2 (Group)" },
-          "query": "2期生",
-          "starter": true
+          "query": "2期生"
         }
       ]
     },
     {
       "name": { "ja": "戌神ころね", "en": "Inugami Korone" },
+      "gens": ["GAMERS"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(戌神ころね)",
             "en": "Ego-search words (Inugami Korone)"
           },
-          "query": "(\"戌神ころね\" OR \"戌神\" OR \"ころね\" OR \"ころさん\" OR \"ころねちゃん\")",
-          "starter": true
+          "query": "(\"戌神ころね\" OR \"戌神\" OR \"ころね\" OR \"ころさん\" OR \"ころねちゃん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(戌神ころね)",
             "en": "Ego-search (English) (Inugami Korone)"
           },
-          "query": "(\"Inugami Korone\" OR \"Inugami\" OR \"Korone\" OR \"Korone-san\")",
-          "starter": true
+          "query": "(\"Inugami Korone\" OR \"Inugami\" OR \"Korone\" OR \"Korone-san\")"
         },
         {
           "label": { "ja": "🥐(推しマ)", "en": "🥐 (Oshi mark)" },
-          "query": "🥐",
-          "starter": true
+          "query": "🥐"
         },
         {
           "label": {
             "ja": "ころねすきー(ファンネーム)",
             "en": "ころねすきー (Fan name)"
           },
-          "query": "ころねすきー",
-          "starter": true
+          "query": "ころねすきー"
         },
         {
           "label": {
             "ja": "#生神ころね(配信タグ)",
             "en": "#生神ころね(配信タグ)"
           },
-          "query": "#生神ころね",
-          "starter": true
+          "query": "#生神ころね"
         },
         {
           "label": {
             "ja": "#できたてころね(ファンアートタグ)",
             "en": "#できたてころね(ファンアートタグ)"
           },
-          "query": "#できたてころね",
-          "starter": true
+          "query": "#できたてころね"
         },
         {
           "label": { "ja": "GAMERS(グループ)", "en": "GAMERS (Group)" },
-          "query": "GAMERS",
-          "starter": true
+          "query": "GAMERS"
         }
       ]
     },
     {
       "name": { "ja": "猫又おかゆ", "en": "Nekomata Okayu" },
+      "gens": ["GAMERS"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(猫又おかゆ)",
             "en": "Ego-search words (Nekomata Okayu)"
           },
-          "query": "(\"猫又おかゆ\" OR \"猫又\" OR \"おかゆ\" OR \"おかゆん\" OR \"おかゆちゃん\")",
-          "starter": true
+          "query": "(\"猫又おかゆ\" OR \"猫又\" OR \"おかゆ\" OR \"おかゆん\" OR \"おかゆちゃん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(猫又おかゆ)",
             "en": "Ego-search (English) (Nekomata Okayu)"
           },
-          "query": "(\"Nekomata Okayu\" OR \"Nekomata\" OR \"Okayu\" OR \"Okayun\")",
-          "starter": true
+          "query": "(\"Nekomata Okayu\" OR \"Nekomata\" OR \"Okayu\" OR \"Okayun\")"
         },
         {
           "label": { "ja": "🍙(推しマ)", "en": "🍙 (Oshi mark)" },
-          "query": "🍙",
-          "starter": true
+          "query": "🍙"
         },
         {
           "label": {
             "ja": "おにぎりゃー(ファンネーム)",
             "en": "おにぎりゃー (Fan name)"
           },
-          "query": "おにぎりゃー",
-          "starter": true
+          "query": "おにぎりゃー"
         },
         {
           "label": { "ja": "#生おかゆ(配信タグ)", "en": "#生おかゆ(配信タグ)" },
-          "query": "#生おかゆ",
-          "starter": true
+          "query": "#生おかゆ"
         },
         {
           "label": {
             "ja": "#絵かゆ(ファンアートタグ)",
             "en": "#絵かゆ(ファンアートタグ)"
           },
-          "query": "#絵かゆ",
-          "starter": true
+          "query": "#絵かゆ"
         },
         {
           "label": { "ja": "GAMERS(グループ)", "en": "GAMERS (Group)" },
-          "query": "GAMERS",
-          "starter": true
+          "query": "GAMERS"
         }
       ]
     },
     {
       "name": { "ja": "大神ミオ", "en": "Ookami Mio" },
+      "gens": ["GAMERS"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(大神ミオ)",
             "en": "Ego-search words (Ookami Mio)"
           },
-          "query": "(\"大神ミオ\" OR \"大神\" OR \"ミオ\" OR \"みおーん\" OR \"ミオしゃ\" OR \"ミオママ\")",
-          "starter": true
+          "query": "(\"大神ミオ\" OR \"大神\" OR \"ミオ\" OR \"みおーん\" OR \"ミオしゃ\" OR \"ミオママ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(大神ミオ)",
             "en": "Ego-search (English) (Ookami Mio)"
           },
-          "query": "(\"Ookami Mio\" OR \"Ookami\" OR \"Mio\" OR \"Mio-sha\")",
-          "starter": true
+          "query": "(\"Ookami Mio\" OR \"Ookami\" OR \"Mio\" OR \"Mio-sha\")"
         },
         {
           "label": { "ja": "🌲(推しマ)", "en": "🌲 (Oshi mark)" },
-          "query": "🌲",
-          "starter": true
+          "query": "🌲"
         },
         {
           "label": {
             "ja": "ミオファ(ファンネーム)",
             "en": "ミオファ (Fan name)"
           },
-          "query": "ミオファ",
-          "starter": true
+          "query": "ミオファ"
         },
         {
           "label": {
             "ja": "#ミオかわいい(配信タグ)",
             "en": "#ミオかわいい(配信タグ)"
           },
-          "query": "#ミオかわいい",
-          "starter": true
+          "query": "#ミオかわいい"
         },
         {
           "label": {
             "ja": "#みおーん絵(ファンアートタグ)",
             "en": "#みおーん絵(ファンアートタグ)"
           },
-          "query": "#みおーん絵",
-          "starter": true
+          "query": "#みおーん絵"
         },
         {
           "label": { "ja": "GAMERS(グループ)", "en": "GAMERS (Group)" },
-          "query": "GAMERS",
-          "starter": true
+          "query": "GAMERS"
         }
       ]
     },
     {
       "name": { "ja": "宝鐘マリン", "en": "Houshou Marine" },
+      "gens": ["3期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(宝鐘マリン)",
             "en": "Ego-search words (Houshou Marine)"
           },
-          "query": "(\"宝鐘マリン\" OR \"宝鐘\" OR \"マリン\" OR \"船長\" OR \"まりりん\")",
-          "starter": true
+          "query": "(\"宝鐘マリン\" OR \"宝鐘\" OR \"マリン\" OR \"船長\" OR \"まりりん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(宝鐘マリン)",
             "en": "Ego-search (English) (Houshou Marine)"
           },
-          "query": "(\"Houshou Marine\" OR \"Houshou\" OR \"Marine\" OR \"Senchou\")",
-          "starter": true
+          "query": "(\"Houshou Marine\" OR \"Houshou\" OR \"Marine\" OR \"Senchou\")"
         },
         {
           "label": { "ja": "🏴‍☠️(推しマ)", "en": "🏴‍☠️ (Oshi mark)" },
-          "query": "🏴‍☠️",
-          "starter": true
+          "query": "🏴‍☠️"
         },
         {
           "label": {
             "ja": "宝鐘の一味(ファンネーム)",
             "en": "宝鐘の一味 (Fan name)"
           },
-          "query": "宝鐘の一味",
-          "starter": true
+          "query": "宝鐘の一味"
         },
         {
           "label": {
             "ja": "#宝鐘マリン生放送(配信タグ)",
             "en": "#宝鐘マリン生放送(配信タグ)"
           },
-          "query": "#宝鐘マリン生放送",
-          "starter": true
+          "query": "#宝鐘マリン生放送"
         },
         {
           "label": {
             "ja": "#マリンのお宝(ファンアートタグ)",
             "en": "#マリンのお宝(ファンアートタグ)"
           },
-          "query": "#マリンのお宝",
-          "starter": true
+          "query": "#マリンのお宝"
         },
         {
           "label": { "ja": "3期生(グループ)", "en": "Gen 3 (Group)" },
-          "query": "3期生",
-          "starter": true
+          "query": "3期生"
         }
       ]
     },
     {
       "name": { "ja": "兎田ぺこら", "en": "Usada Pekora" },
+      "gens": ["3期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(兎田ぺこら)",
             "en": "Ego-search words (Usada Pekora)"
           },
-          "query": "(\"兎田ぺこら\" OR \"兎田\" OR \"ぺこら\" OR \"ぺこちゃん\" OR \"ぺこーら\")",
-          "starter": true
+          "query": "(\"兎田ぺこら\" OR \"兎田\" OR \"ぺこら\" OR \"ぺこちゃん\" OR \"ぺこーら\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(兎田ぺこら)",
             "en": "Ego-search (English) (Usada Pekora)"
           },
-          "query": "(\"Usada Pekora\" OR \"Usada\" OR \"Pekora\" OR \"Peko\")",
-          "starter": true
+          "query": "(\"Usada Pekora\" OR \"Usada\" OR \"Pekora\" OR \"Peko\")"
         },
         {
           "label": { "ja": "👯‍♀️(推しマ)", "en": "👯‍♀️ (Oshi mark)" },
-          "query": "👯‍♀️",
-          "starter": true
+          "query": "👯‍♀️"
         },
         {
           "label": {
             "ja": "野うさぎ同盟(ファンネーム)",
             "en": "野うさぎ同盟 (Fan name)"
           },
-          "query": "野うさぎ同盟",
-          "starter": true
+          "query": "野うさぎ同盟"
         },
         {
           "label": {
             "ja": "#ぺこらいぶ(配信タグ)",
             "en": "#ぺこらいぶ(配信タグ)"
           },
-          "query": "#ぺこらいぶ",
-          "starter": true
+          "query": "#ぺこらいぶ"
         },
         {
           "label": {
             "ja": "#ぺこらーと(ファンアートタグ)",
             "en": "#ぺこらーと(ファンアートタグ)"
           },
-          "query": "#ぺこらーと",
-          "starter": true
+          "query": "#ぺこらーと"
         },
         {
           "label": { "ja": "3期生(グループ)", "en": "Gen 3 (Group)" },
-          "query": "3期生",
-          "starter": true
+          "query": "3期生"
         }
       ]
     },
     {
       "name": { "ja": "白銀ノエル", "en": "Shirogane Noel" },
+      "gens": ["3期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(白銀ノエル)",
             "en": "Ego-search words (Shirogane Noel)"
           },
-          "query": "(\"白銀ノエル\" OR \"白銀\" OR \"ノエル\" OR \"団長\" OR \"ノエル団長\")",
-          "starter": true
+          "query": "(\"白銀ノエル\" OR \"白銀\" OR \"ノエル\" OR \"団長\" OR \"ノエル団長\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(白銀ノエル)",
             "en": "Ego-search (English) (Shirogane Noel)"
           },
-          "query": "(\"Shirogane Noel\" OR \"Shirogane\" OR \"Noel\" OR \"Danchou\")",
-          "starter": true
+          "query": "(\"Shirogane Noel\" OR \"Shirogane\" OR \"Noel\" OR \"Danchou\")"
         },
         {
           "label": { "ja": "⚔️(推しマ)", "en": "⚔️ (Oshi mark)" },
-          "query": "⚔️",
-          "starter": true
+          "query": "⚔️"
         },
         {
           "label": {
             "ja": "白銀聖騎士団(ファンネーム)",
             "en": "白銀聖騎士団 (Fan name)"
           },
-          "query": "白銀聖騎士団",
-          "starter": true
+          "query": "白銀聖騎士団"
         },
         {
           "label": {
             "ja": "#ノエル生放送(配信タグ)",
             "en": "#ノエル生放送(配信タグ)"
           },
-          "query": "#ノエル生放送",
-          "starter": true
+          "query": "#ノエル生放送"
         },
         {
           "label": {
             "ja": "#ノエラート(ファンアートタグ)",
             "en": "#ノエラート(ファンアートタグ)"
           },
-          "query": "#ノエラート",
-          "starter": true
+          "query": "#ノエラート"
         },
         {
           "label": { "ja": "3期生(グループ)", "en": "Gen 3 (Group)" },
-          "query": "3期生",
-          "starter": true
+          "query": "3期生"
         }
       ]
     },
     {
       "name": { "ja": "不知火フレア", "en": "Shiranui Flare" },
+      "gens": ["3期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(不知火フレア)",
             "en": "Ego-search words (Shiranui Flare)"
           },
-          "query": "(\"不知火フレア\" OR \"不知火\" OR \"フレア\" OR \"ふーたん\" OR \"フレアちゃん\")",
-          "starter": true
+          "query": "(\"不知火フレア\" OR \"不知火\" OR \"フレア\" OR \"ふーたん\" OR \"フレアちゃん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(不知火フレア)",
             "en": "Ego-search (English) (Shiranui Flare)"
           },
-          "query": "(\"Shiranui Flare\" OR \"Shiranui\" OR \"Flare\" OR \"Fuutan\")",
-          "starter": true
+          "query": "(\"Shiranui Flare\" OR \"Shiranui\" OR \"Flare\" OR \"Fuutan\")"
         },
         {
           "label": { "ja": "🔥(推しマ)", "en": "🔥 (Oshi mark)" },
-          "query": "🔥",
-          "starter": true
+          "query": "🔥"
         },
         {
           "label": {
             "ja": "エルフレンド(ファンネーム)",
             "en": "エルフレンド (Fan name)"
           },
-          "query": "エルフレンド",
-          "starter": true
+          "query": "エルフレンド"
         },
         {
           "label": {
             "ja": "#フレア生放送(配信タグ)",
             "en": "#フレア生放送(配信タグ)"
           },
-          "query": "#フレア生放送",
-          "starter": true
+          "query": "#フレア生放送"
         },
         {
           "label": {
             "ja": "#しらぬえ(ファンアートタグ)",
             "en": "#しらぬえ(ファンアートタグ)"
           },
-          "query": "#しらぬえ",
-          "starter": true
+          "query": "#しらぬえ"
         },
         {
           "label": { "ja": "3期生(グループ)", "en": "Gen 3 (Group)" },
-          "query": "3期生",
-          "starter": true
+          "query": "3期生"
         }
       ]
     },
     {
       "name": { "ja": "角巻わため", "en": "Tsunomaki Watame" },
+      "gens": ["4期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(角巻わため)",
             "en": "Ego-search words (Tsunomaki Watame)"
           },
-          "query": "(\"角巻わため\" OR \"角巻\" OR \"わため\" OR \"わためぇ\")",
-          "starter": true
+          "query": "(\"角巻わため\" OR \"角巻\" OR \"わため\" OR \"わためぇ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(角巻わため)",
             "en": "Ego-search (English) (Tsunomaki Watame)"
           },
-          "query": "(\"Tsunomaki Watame\" OR \"Tsunomaki\" OR \"Watame\")",
-          "starter": true
+          "query": "(\"Tsunomaki Watame\" OR \"Tsunomaki\" OR \"Watame\")"
         },
         {
           "label": { "ja": "🐏(推しマ)", "en": "🐏 (Oshi mark)" },
-          "query": "🐏",
-          "starter": true
+          "query": "🐏"
         },
         {
           "label": {
             "ja": "わためいと(ファンネーム)",
             "en": "わためいと (Fan name)"
           },
-          "query": "わためいと",
-          "starter": true
+          "query": "わためいと"
         },
         {
           "label": {
             "ja": "#わため生放送(配信タグ)",
             "en": "#わため生放送(配信タグ)"
           },
-          "query": "#わため生放送",
-          "starter": true
+          "query": "#わため生放送"
         },
         {
           "label": {
             "ja": "#つのまきあーと(ファンアートタグ)",
             "en": "#つのまきあーと(ファンアートタグ)"
           },
-          "query": "#つのまきあーと",
-          "starter": true
+          "query": "#つのまきあーと"
         },
         {
           "label": { "ja": "4期生(グループ)", "en": "Gen 4 (Group)" },
-          "query": "4期生",
-          "starter": true
+          "query": "4期生"
         }
       ]
     },
     {
       "name": { "ja": "天音かなた", "en": "Amane Kanata" },
+      "gens": ["4期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(天音かなた)",
             "en": "Ego-search words (Amane Kanata)"
           },
-          "query": "(\"天音かなた\" OR \"天音\" OR \"かなた\" OR \"かなたん\" OR \"かなたちゃん\")",
-          "starter": true
+          "query": "(\"天音かなた\" OR \"天音\" OR \"かなた\" OR \"かなたん\" OR \"かなたちゃん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(天音かなた)",
             "en": "Ego-search (English) (Amane Kanata)"
           },
-          "query": "(\"Amane Kanata\" OR \"Amane\" OR \"Kanata\" OR \"Kanatan\")",
-          "starter": true
+          "query": "(\"Amane Kanata\" OR \"Amane\" OR \"Kanata\" OR \"Kanatan\")"
         },
         {
           "label": { "ja": "💫(推しマ)", "en": "💫 (Oshi mark)" },
-          "query": "💫",
-          "starter": true
+          "query": "💫"
         },
         {
           "label": { "ja": "へい民(ファンネーム)", "en": "へい民 (Fan name)" },
-          "query": "へい民",
-          "starter": true
+          "query": "へい民"
         },
         {
           "label": {
             "ja": "#かなたーと(配信タグ)",
             "en": "#かなたーと(配信タグ)"
           },
-          "query": "#かなたーと",
-          "starter": true
+          "query": "#かなたーと"
         },
         {
           "label": {
             "ja": "#かなたーと(ファンアートタグ)",
             "en": "#かなたーと(ファンアートタグ)"
           },
-          "query": "#かなたーと",
-          "starter": true
+          "query": "#かなたーと"
         },
         {
           "label": { "ja": "4期生(グループ)", "en": "Gen 4 (Group)" },
-          "query": "4期生",
-          "starter": true
+          "query": "4期生"
         }
       ]
     },
     {
       "name": { "ja": "常闇トワ", "en": "Tokoyami Towa" },
+      "gens": ["4期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(常闇トワ)",
             "en": "Ego-search words (Tokoyami Towa)"
           },
-          "query": "(\"常闇トワ\" OR \"常闇\" OR \"トワ\" OR \"トワ様\" OR \"トワちゃん\")",
-          "starter": true
+          "query": "(\"常闇トワ\" OR \"常闇\" OR \"トワ\" OR \"トワ様\" OR \"トワちゃん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(常闇トワ)",
             "en": "Ego-search (English) (Tokoyami Towa)"
           },
-          "query": "(\"Tokoyami Towa\" OR \"Tokoyami\" OR \"Towa\" OR \"Towa-sama\")",
-          "starter": true
+          "query": "(\"Tokoyami Towa\" OR \"Tokoyami\" OR \"Towa\" OR \"Towa-sama\")"
         },
         {
           "label": { "ja": "👾(推しマ)", "en": "👾 (Oshi mark)" },
-          "query": "👾",
-          "starter": true
+          "query": "👾"
         },
         {
           "label": {
             "ja": "常闇眷属(ファンネーム)",
             "en": "常闇眷属 (Fan name)"
           },
-          "query": "常闇眷属",
-          "starter": true
+          "query": "常闇眷属"
         },
         {
           "label": { "ja": "#トワ生(配信タグ)", "en": "#トワ生(配信タグ)" },
-          "query": "#トワ生",
-          "starter": true
+          "query": "#トワ生"
         },
         {
           "label": {
             "ja": "#TOWART(ファンアートタグ)",
             "en": "#TOWART(ファンアートタグ)"
           },
-          "query": "#TOWART",
-          "starter": true
+          "query": "#TOWART"
         },
         {
           "label": { "ja": "4期生(グループ)", "en": "Gen 4 (Group)" },
-          "query": "4期生",
-          "starter": true
+          "query": "4期生"
         }
       ]
     },
     {
       "name": { "ja": "桐生ココ", "en": "Kiryu Coco" },
+      "gens": ["4期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(桐生ココ)",
             "en": "Ego-search words (Kiryu Coco)"
           },
-          "query": "(\"桐生ココ\" OR \"桐生\" OR \"ココ\" OR \"会長\" OR \"ココ会長\")",
-          "starter": true
+          "query": "(\"桐生ココ\" OR \"桐生\" OR \"ココ\" OR \"会長\" OR \"ココ会長\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(桐生ココ)",
             "en": "Ego-search (English) (Kiryu Coco)"
           },
-          "query": "(\"Kiryu Coco\" OR \"Kiryu\" OR \"Coco\" OR \"Kaichou\")",
-          "starter": true
+          "query": "(\"Kiryu Coco\" OR \"Kiryu\" OR \"Coco\" OR \"Kaichou\")"
         },
         {
           "label": { "ja": "🐉(推しマ)", "en": "🐉 (Oshi mark)" },
-          "query": "🐉",
-          "starter": true
+          "query": "🐉"
         },
         {
           "label": {
             "ja": "たつのこ(ファンネーム)",
             "en": "たつのこ (Fan name)"
           },
-          "query": "たつのこ",
-          "starter": true
+          "query": "たつのこ"
         },
         {
           "label": { "ja": "#ココここ(配信タグ)", "en": "#ココここ(配信タグ)" },
-          "query": "#ココここ",
-          "starter": true
+          "query": "#ココここ"
         },
         {
           "label": {
             "ja": "#みかじ絵 / #cocoArt(ファンアートタグ)",
             "en": "#みかじ絵 / #cocoArt(ファンアートタグ)"
           },
-          "query": "#みかじ絵 / #cocoArt",
-          "starter": true
+          "query": "#みかじ絵 / #cocoArt"
         },
         {
           "label": { "ja": "4期生(グループ)", "en": "Gen 4 (Group)" },
-          "query": "4期生",
-          "starter": true
+          "query": "4期生"
         }
       ]
     },
     {
       "name": { "ja": "姫森ルーナ", "en": "Himemori Luna" },
+      "gens": ["4期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(姫森ルーナ)",
             "en": "Ego-search words (Himemori Luna)"
           },
-          "query": "(\"姫森ルーナ\" OR \"姫森\" OR \"ルーナ\" OR \"ひめさま\" OR \"んなたん\")",
-          "starter": true
+          "query": "(\"姫森ルーナ\" OR \"姫森\" OR \"ルーナ\" OR \"ひめさま\" OR \"んなたん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(姫森ルーナ)",
             "en": "Ego-search (English) (Himemori Luna)"
           },
-          "query": "(\"Himemori Luna\" OR \"Himemori\" OR \"Luna\" OR \"Himesama\")",
-          "starter": true
+          "query": "(\"Himemori Luna\" OR \"Himemori\" OR \"Luna\" OR \"Himesama\")"
         },
         {
           "label": { "ja": "🍬(推しマ)", "en": "🍬 (Oshi mark)" },
-          "query": "🍬",
-          "starter": true
+          "query": "🍬"
         },
         {
           "label": {
             "ja": "ルーナイト(ファンネーム)",
             "en": "ルーナイト (Fan name)"
           },
-          "query": "ルーナイト",
-          "starter": true
+          "query": "ルーナイト"
         },
         {
           "label": {
             "ja": "#ルーナ生放送(配信タグ)",
             "en": "#ルーナ生放送(配信タグ)"
           },
-          "query": "#ルーナ生放送",
-          "starter": true
+          "query": "#ルーナ生放送"
         },
         {
           "label": {
             "ja": "#ルーナート(ファンアートタグ)",
             "en": "#ルーナート(ファンアートタグ)"
           },
-          "query": "#ルーナート",
-          "starter": true
+          "query": "#ルーナート"
         },
         {
           "label": { "ja": "4期生(グループ)", "en": "Gen 4 (Group)" },
-          "query": "4期生",
-          "starter": true
+          "query": "4期生"
         }
       ]
     },
     {
       "name": { "ja": "獅白ぼたん", "en": "Shishiro Botan" },
+      "gens": ["5期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(獅白ぼたん)",
             "en": "Ego-search words (Shishiro Botan)"
           },
-          "query": "(\"獅白ぼたん\" OR \"獅白\" OR \"ぼたん\" OR \"ししろん\" OR \"ぼたんちゃん\")",
-          "starter": true
+          "query": "(\"獅白ぼたん\" OR \"獅白\" OR \"ぼたん\" OR \"ししろん\" OR \"ぼたんちゃん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(獅白ぼたん)",
             "en": "Ego-search (English) (Shishiro Botan)"
           },
-          "query": "(\"Shishiro Botan\" OR \"Shishiro\" OR \"Botan\" OR \"Shishiron\")",
-          "starter": true
+          "query": "(\"Shishiro Botan\" OR \"Shishiro\" OR \"Botan\" OR \"Shishiron\")"
         },
         {
           "label": { "ja": "♌️(推しマ)", "en": "♌️ (Oshi mark)" },
-          "query": "♌️",
-          "starter": true
+          "query": "♌️"
         },
         {
           "label": { "ja": "SSRB(ファンネーム)", "en": "SSRB (Fan name)" },
-          "query": "SSRB",
-          "starter": true
+          "query": "SSRB"
         },
         {
           "label": {
             "ja": "#ぼたん生放送(配信タグ)",
             "en": "#ぼたん生放送(配信タグ)"
           },
-          "query": "#ぼたん生放送",
-          "starter": true
+          "query": "#ぼたん生放送"
         },
         {
           "label": {
             "ja": "#ししらーと(ファンアートタグ)",
             "en": "#ししらーと(ファンアートタグ)"
           },
-          "query": "#ししらーと",
-          "starter": true
+          "query": "#ししらーと"
         },
         {
           "label": { "ja": "5期生(グループ)", "en": "Gen 5 (Group)" },
-          "query": "5期生",
-          "starter": true
+          "query": "5期生"
         }
       ]
     },
     {
       "name": { "ja": "雪花ラミィ", "en": "Yukihana Lamy" },
+      "gens": ["5期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(雪花ラミィ)",
             "en": "Ego-search words (Yukihana Lamy)"
           },
-          "query": "(\"雪花ラミィ\" OR \"雪花\" OR \"ラミィ\" OR \"ラミィちゃん\")",
-          "starter": true
+          "query": "(\"雪花ラミィ\" OR \"雪花\" OR \"ラミィ\" OR \"ラミィちゃん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(雪花ラミィ)",
             "en": "Ego-search (English) (Yukihana Lamy)"
           },
-          "query": "(\"Yukihana Lamy\" OR \"Yukihana\" OR \"Lamy\")",
-          "starter": true
+          "query": "(\"Yukihana Lamy\" OR \"Yukihana\" OR \"Lamy\")"
         },
         {
           "label": { "ja": "☃️(推しマ)", "en": "☃️ (Oshi mark)" },
-          "query": "☃️",
-          "starter": true
+          "query": "☃️"
         },
         {
           "label": { "ja": "雪民(ファンネーム)", "en": "雪民 (Fan name)" },
-          "query": "雪民",
-          "starter": true
+          "query": "雪民"
         },
         {
           "label": {
             "ja": "#ラミィ生放送(配信タグ)",
             "en": "#ラミィ生放送(配信タグ)"
           },
-          "query": "#ラミィ生放送",
-          "starter": true
+          "query": "#ラミィ生放送"
         },
         {
           "label": {
             "ja": "#らみあーと(ファンアートタグ)",
             "en": "#らみあーと(ファンアートタグ)"
           },
-          "query": "#らみあーと",
-          "starter": true
+          "query": "#らみあーと"
         },
         {
           "label": { "ja": "5期生(グループ)", "en": "Gen 5 (Group)" },
-          "query": "5期生",
-          "starter": true
+          "query": "5期生"
         }
       ]
     },
     {
       "name": { "ja": "尾丸ポルカ", "en": "Omaru Polka" },
+      "gens": ["5期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(尾丸ポルカ)",
             "en": "Ego-search words (Omaru Polka)"
           },
-          "query": "(\"尾丸ポルカ\" OR \"尾丸\" OR \"ポルカ\" OR \"ポルポル\" OR \"座長\")",
-          "starter": true
+          "query": "(\"尾丸ポルカ\" OR \"尾丸\" OR \"ポルカ\" OR \"ポルポル\" OR \"座長\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(尾丸ポルカ)",
             "en": "Ego-search (English) (Omaru Polka)"
           },
-          "query": "(\"Omaru Polka\" OR \"Omaru\" OR \"Polka\" OR \"Polpol\")",
-          "starter": true
+          "query": "(\"Omaru Polka\" OR \"Omaru\" OR \"Polka\" OR \"Polpol\")"
         },
         {
           "label": { "ja": "🎪(推しマ)", "en": "🎪 (Oshi mark)" },
-          "query": "🎪",
-          "starter": true
+          "query": "🎪"
         },
         {
           "label": {
             "ja": "おまる座(ファンネーム)",
             "en": "おまる座 (Fan name)"
           },
-          "query": "おまる座",
-          "starter": true
+          "query": "おまる座"
         },
         {
           "label": {
             "ja": "#ポルカ生放送(配信タグ)",
             "en": "#ポルカ生放送(配信タグ)"
           },
-          "query": "#ポルカ生放送",
-          "starter": true
+          "query": "#ポルカ生放送"
         },
         {
           "label": {
             "ja": "#絵まる(ファンアートタグ)",
             "en": "#絵まる(ファンアートタグ)"
           },
-          "query": "#絵まる",
-          "starter": true
+          "query": "#絵まる"
         },
         {
           "label": { "ja": "5期生(グループ)", "en": "Gen 5 (Group)" },
-          "query": "5期生",
-          "starter": true
+          "query": "5期生"
         }
       ]
     },
     {
       "name": { "ja": "桃鈴ねね", "en": "Momosuzu Nene" },
+      "gens": ["5期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(桃鈴ねね)",
             "en": "Ego-search words (Momosuzu Nene)"
           },
-          "query": "(\"桃鈴ねね\" OR \"桃鈴\" OR \"ねね\" OR \"ねねち\" OR \"ねねちゃん\")",
-          "starter": true
+          "query": "(\"桃鈴ねね\" OR \"桃鈴\" OR \"ねね\" OR \"ねねち\" OR \"ねねちゃん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(桃鈴ねね)",
             "en": "Ego-search (English) (Momosuzu Nene)"
           },
-          "query": "(\"Momosuzu Nene\" OR \"Momosuzu\" OR \"Nene\" OR \"Nenechi\")",
-          "starter": true
+          "query": "(\"Momosuzu Nene\" OR \"Momosuzu\" OR \"Nene\" OR \"Nenechi\")"
         },
         {
           "label": { "ja": "🍑🥟(推しマ)", "en": "🍑🥟 (Oshi mark)" },
-          "query": "🍑🥟",
-          "starter": true
+          "query": "🍑🥟"
         },
         {
           "label": { "ja": "ねっ子(ファンネーム)", "en": "ねっ子 (Fan name)" },
-          "query": "ねっ子",
-          "starter": true
+          "query": "ねっ子"
         },
         {
           "label": {
             "ja": "#ねね生放送(配信タグ)",
             "en": "#ねね生放送(配信タグ)"
           },
-          "query": "#ねね生放送",
-          "starter": true
+          "query": "#ねね生放送"
         },
         {
           "label": {
             "ja": "#ねねアルバム(ファンアートタグ)",
             "en": "#ねねアルバム(ファンアートタグ)"
           },
-          "query": "#ねねアルバム",
-          "starter": true
+          "query": "#ねねアルバム"
         },
         {
           "label": { "ja": "5期生(グループ)", "en": "Gen 5 (Group)" },
-          "query": "5期生",
-          "starter": true
+          "query": "5期生"
         }
       ]
     },
     {
       "name": { "ja": "ラプラス・ダークネス", "en": "La+ Darknesss" },
+      "gens": ["6期生（holoX）"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(ラプラス・ダークネス)",
             "en": "Ego-search words (La+ Darknesss)"
           },
-          "query": "(\"ラプラス・ダークネス\" OR \"ラプラス\" OR \"ダークネス\" OR \"ラプ様\" OR \"ラプちゃん\" OR \"総帥\")",
-          "starter": true
+          "query": "(\"ラプラス・ダークネス\" OR \"ラプラス\" OR \"ダークネス\" OR \"ラプ様\" OR \"ラプちゃん\" OR \"総帥\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(ラプラス・ダークネス)",
             "en": "Ego-search (English) (La+ Darknesss)"
           },
-          "query": "(\"La+ Darknesss\" OR \"Laplace\" OR \"Darknesss\" OR \"Laplus\" OR \"La+\")",
-          "starter": true
+          "query": "(\"La+ Darknesss\" OR \"Laplace\" OR \"Darknesss\" OR \"Laplus\" OR \"La+\")"
         },
         {
           "label": { "ja": "🛸💜(推しマ)", "en": "🛸💜 (Oshi mark)" },
-          "query": "🛸💜",
-          "starter": true
+          "query": "🛸💜"
         },
         {
           "label": {
             "ja": "ぷらすめいと(ファンネーム)",
             "en": "ぷらすめいと (Fan name)"
           },
-          "query": "ぷらすめいと",
-          "starter": true
+          "query": "ぷらすめいと"
         },
         {
           "label": {
             "ja": "#ラプラス生放送(配信タグ)",
             "en": "#ラプラス生放送(配信タグ)"
           },
-          "query": "#ラプラス生放送",
-          "starter": true
+          "query": "#ラプラス生放送"
         },
         {
           "label": {
             "ja": "#Laplus_Artdesu(ファンアートタグ)",
             "en": "#Laplus_Artdesu(ファンアートタグ)"
           },
-          "query": "#Laplus_Artdesu",
-          "starter": true
+          "query": "#Laplus_Artdesu"
         },
         {
           "label": {
             "ja": "6期生（holoX）(グループ)",
             "en": "6期生（holoX） (Group)"
           },
-          "query": "6期生（holoX）",
-          "starter": true
+          "query": "6期生（holoX）"
         }
       ]
     },
     {
       "name": { "ja": "博衣こより", "en": "Hakui Koyori" },
+      "gens": ["6期生（holoX）"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(博衣こより)",
             "en": "Ego-search words (Hakui Koyori)"
           },
-          "query": "(\"博衣こより\" OR \"博衣\" OR \"こより\" OR \"こよ\" OR \"こよちゃん\")",
-          "starter": true
+          "query": "(\"博衣こより\" OR \"博衣\" OR \"こより\" OR \"こよ\" OR \"こよちゃん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(博衣こより)",
             "en": "Ego-search (English) (Hakui Koyori)"
           },
-          "query": "(\"Hakui Koyori\" OR \"Hakui\" OR \"Koyori\" OR \"Koyo\")",
-          "starter": true
+          "query": "(\"Hakui Koyori\" OR \"Hakui\" OR \"Koyori\" OR \"Koyo\")"
         },
         {
           "label": { "ja": "🧪(推しマ)", "en": "🧪 (Oshi mark)" },
-          "query": "🧪",
-          "starter": true
+          "query": "🧪"
         },
         {
           "label": {
             "ja": "こよりの助手くん(ファンネーム)",
             "en": "こよりの助手くん (Fan name)"
           },
-          "query": "こよりの助手くん",
-          "starter": true
+          "query": "こよりの助手くん"
         },
         {
           "label": {
             "ja": "#こより生放送(配信タグ)",
             "en": "#こより生放送(配信タグ)"
           },
-          "query": "#こより生放送",
-          "starter": true
+          "query": "#こより生放送"
         },
         {
           "label": {
             "ja": "#こよりすけっち(ファンアートタグ)",
             "en": "#こよりすけっち(ファンアートタグ)"
           },
-          "query": "#こよりすけっち",
-          "starter": true
+          "query": "#こよりすけっち"
         },
         {
           "label": {
             "ja": "6期生（holoX）(グループ)",
             "en": "6期生（holoX） (Group)"
           },
-          "query": "6期生（holoX）",
-          "starter": true
+          "query": "6期生（holoX）"
         }
       ]
     },
     {
       "name": { "ja": "沙花叉クロヱ", "en": "Sakamata Chloe" },
+      "gens": ["6期生（アフィリエイト）"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(沙花叉クロヱ)",
             "en": "Ego-search words (Sakamata Chloe)"
           },
-          "query": "(\"沙花叉クロヱ\" OR \"沙花叉\" OR \"クロヱ\")",
-          "starter": true
+          "query": "(\"沙花叉クロヱ\" OR \"沙花叉\" OR \"クロヱ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(沙花叉クロヱ)",
             "en": "Ego-search (English) (Sakamata Chloe)"
           },
-          "query": "(\"Sakamata Chloe\" OR \"Sakamata\" OR \"Chloe\")",
-          "starter": true
+          "query": "(\"Sakamata Chloe\" OR \"Sakamata\" OR \"Chloe\")"
         },
         {
           "label": { "ja": "🎣(推しマ)", "en": "🎣 (Oshi mark)" },
-          "query": "🎣",
-          "starter": true
+          "query": "🎣"
         },
         {
           "label": { "ja": "飼育員(ファンネーム)", "en": "飼育員 (Fan name)" },
-          "query": "飼育員",
-          "starter": true
+          "query": "飼育員"
         },
         {
           "label": {
             "ja": "#クロヱ生放送(配信タグ)",
             "en": "#クロヱ生放送(配信タグ)"
           },
-          "query": "#クロヱ生放送",
-          "starter": true
+          "query": "#クロヱ生放送"
         },
         {
           "label": {
             "ja": "#さかまた飼育日記(ファンアートタグ)",
             "en": "#さかまた飼育日記(ファンアートタグ)"
           },
-          "query": "#さかまた飼育日記",
-          "starter": true
+          "query": "#さかまた飼育日記"
         },
         {
           "label": {
             "ja": "6期生（アフィリエイト）(グループ)",
             "en": "6期生（アフィリエイト） (Group)"
           },
-          "query": "6期生（アフィリエイト）",
-          "starter": true
+          "query": "6期生（アフィリエイト）"
         }
       ]
     },
     {
       "name": { "ja": "風真いろは", "en": "Kazama Iroha" },
+      "gens": ["6期生（holoX）"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(風真いろは)",
             "en": "Ego-search words (Kazama Iroha)"
           },
-          "query": "(\"風真いろは\" OR \"風真\" OR \"いろは\" OR \"ござる\" OR \"いろはちゃん\")",
-          "starter": true
+          "query": "(\"風真いろは\" OR \"風真\" OR \"いろは\" OR \"ござる\" OR \"いろはちゃん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(風真いろは)",
             "en": "Ego-search (English) (Kazama Iroha)"
           },
-          "query": "(\"Kazama Iroha\" OR \"Kazama\" OR \"Iroha\" OR \"Gozaru\")",
-          "starter": true
+          "query": "(\"Kazama Iroha\" OR \"Kazama\" OR \"Iroha\" OR \"Gozaru\")"
         },
         {
           "label": { "ja": "🍃(推しマ)", "en": "🍃 (Oshi mark)" },
-          "query": "🍃",
-          "starter": true
+          "query": "🍃"
         },
         {
           "label": {
             "ja": "かざま隊(ファンネーム)",
             "en": "かざま隊 (Fan name)"
           },
-          "query": "かざま隊",
-          "starter": true
+          "query": "かざま隊"
         },
         {
           "label": {
             "ja": "#いろは生放送(配信タグ)",
             "en": "#いろは生放送(配信タグ)"
           },
-          "query": "#いろは生放送",
-          "starter": true
+          "query": "#いろは生放送"
         },
         {
           "label": {
             "ja": "#いろはにも絵を(ファンアートタグ)",
             "en": "#いろはにも絵を(ファンアートタグ)"
           },
-          "query": "#いろはにも絵を",
-          "starter": true
+          "query": "#いろはにも絵を"
         },
         {
           "label": {
             "ja": "6期生（holoX）(グループ)",
             "en": "6期生（holoX） (Group)"
           },
-          "query": "6期生（holoX）",
-          "starter": true
+          "query": "6期生（holoX）"
         }
       ]
     },
     {
       "name": { "ja": "鷹嶺ルイ", "en": "Takane Lui" },
+      "gens": ["6期生（holoX）"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(鷹嶺ルイ)",
             "en": "Ego-search words (Takane Lui)"
           },
-          "query": "(\"鷹嶺ルイ\" OR \"鷹嶺\" OR \"ルイ\" OR \"ルイ姉\" OR \"ルイちゃん\" OR \"ルイルイ\")",
-          "starter": true
+          "query": "(\"鷹嶺ルイ\" OR \"鷹嶺\" OR \"ルイ\" OR \"ルイ姉\" OR \"ルイちゃん\" OR \"ルイルイ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(鷹嶺ルイ)",
             "en": "Ego-search (English) (Takane Lui)"
           },
-          "query": "(\"Takane Lui\" OR \"Takane\" OR \"Lui\" OR \"Lui-nee\")",
-          "starter": true
+          "query": "(\"Takane Lui\" OR \"Takane\" OR \"Lui\" OR \"Lui-nee\")"
         },
         {
           "label": { "ja": "🥀(推しマ)", "en": "🥀 (Oshi mark)" },
-          "query": "🥀",
-          "starter": true
+          "query": "🥀"
         },
         {
           "label": { "ja": "ルイ友(ファンネーム)", "en": "ルイ友 (Fan name)" },
-          "query": "ルイ友",
-          "starter": true
+          "query": "ルイ友"
         },
         {
           "label": {
             "ja": "#ルイ生放送(配信タグ)",
             "en": "#ルイ生放送(配信タグ)"
           },
-          "query": "#ルイ生放送",
-          "starter": true
+          "query": "#ルイ生放送"
         },
         {
           "label": {
             "ja": "#Luillust(ファンアートタグ)",
             "en": "#Luillust(ファンアートタグ)"
           },
-          "query": "#Luillust",
-          "starter": true
+          "query": "#Luillust"
         },
         {
           "label": {
             "ja": "6期生（holoX）(グループ)",
             "en": "6期生（holoX） (Group)"
           },
-          "query": "6期生（holoX）",
-          "starter": true
+          "query": "6期生（holoX）"
         }
       ]
     },
     {
       "name": { "ja": "儒烏風亭らでん", "en": "Juufuutei Raden" },
+      "gens": ["ReGLOSS"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(儒烏風亭らでん)",
             "en": "Ego-search words (Juufuutei Raden)"
           },
-          "query": "(\"儒烏風亭らでん\" OR \"儒烏風亭\" OR \"らでん\")",
-          "starter": true
+          "query": "(\"儒烏風亭らでん\" OR \"儒烏風亭\" OR \"らでん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(儒烏風亭らでん)",
             "en": "Ego-search (English) (Juufuutei Raden)"
           },
-          "query": "(\"Juufuutei Raden\" OR \"Juufuutei\" OR \"Raden\")",
-          "starter": true
+          "query": "(\"Juufuutei Raden\" OR \"Juufuutei\" OR \"Raden\")"
         },
         {
           "label": { "ja": "🐚(推しマ)", "en": "🐚 (Oshi mark)" },
-          "query": "🐚",
-          "starter": true
+          "query": "🐚"
         },
         {
           "label": {
             "ja": "#らでん生放送(配信タグ)",
             "en": "#らでん生放送(配信タグ)"
           },
-          "query": "#らでん生放送",
-          "starter": true
+          "query": "#らでん生放送"
         },
         {
           "label": {
             "ja": "#らでん似絵(ファンアートタグ)",
             "en": "#らでん似絵(ファンアートタグ)"
           },
-          "query": "#らでん似絵",
-          "starter": true
+          "query": "#らでん似絵"
         },
         {
           "label": { "ja": "ReGLOSS(グループ)", "en": "ReGLOSS (Group)" },
-          "query": "ReGLOSS",
-          "starter": true
+          "query": "ReGLOSS"
         }
       ]
     },
     {
       "name": { "ja": "轟はじめ", "en": "Todoroki Hajime" },
+      "gens": ["ReGLOSS"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(轟はじめ)",
             "en": "Ego-search words (Todoroki Hajime)"
           },
-          "query": "(\"轟はじめ\" OR \"轟\" OR \"はじめ\")",
-          "starter": true
+          "query": "(\"轟はじめ\" OR \"轟\" OR \"はじめ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(轟はじめ)",
             "en": "Ego-search (English) (Todoroki Hajime)"
           },
-          "query": "(\"Todoroki Hajime\" OR \"Todoroki\" OR \"Hajime\")",
-          "starter": true
+          "query": "(\"Todoroki Hajime\" OR \"Todoroki\" OR \"Hajime\")"
         },
         {
           "label": { "ja": "🐧⚡(推しマ)", "en": "🐧⚡ (Oshi mark)" },
-          "query": "🐧⚡",
-          "starter": true
+          "query": "🐧⚡"
         },
         {
           "label": {
             "ja": "#はじめ生放送(配信タグ)",
             "en": "#はじめ生放送(配信タグ)"
           },
-          "query": "#はじめ生放送",
-          "starter": true
+          "query": "#はじめ生放送"
         },
         {
           "label": {
             "ja": "#はじめ武勇伝(ファンアートタグ)",
             "en": "#はじめ武勇伝(ファンアートタグ)"
           },
-          "query": "#はじめ武勇伝",
-          "starter": true
+          "query": "#はじめ武勇伝"
         },
         {
           "label": { "ja": "ReGLOSS(グループ)", "en": "ReGLOSS (Group)" },
-          "query": "ReGLOSS",
-          "starter": true
+          "query": "ReGLOSS"
         }
       ]
     },
     {
       "name": { "ja": "音乃瀬奏", "en": "Otonose Kanade" },
+      "gens": ["ReGLOSS"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(音乃瀬奏)",
             "en": "Ego-search words (Otonose Kanade)"
           },
-          "query": "(\"音乃瀬奏\" OR \"音乃瀬\" OR \"奏\" OR \"かなで\")",
-          "starter": true
+          "query": "(\"音乃瀬奏\" OR \"音乃瀬\" OR \"奏\" OR \"かなで\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(音乃瀬奏)",
             "en": "Ego-search (English) (Otonose Kanade)"
           },
-          "query": "(\"Otonose Kanade\" OR \"Otonose\" OR \"Kanade\")",
-          "starter": true
+          "query": "(\"Otonose Kanade\" OR \"Otonose\" OR \"Kanade\")"
         },
         {
           "label": { "ja": "🎹✨(推しマ)", "en": "🎹✨ (Oshi mark)" },
-          "query": "🎹✨",
-          "starter": true
+          "query": "🎹✨"
         },
         {
           "label": { "ja": "#奏生放送(配信タグ)", "en": "#奏生放送(配信タグ)" },
-          "query": "#奏生放送",
-          "starter": true
+          "query": "#奏生放送"
         },
         {
           "label": {
             "ja": "#Artnose(ファンアートタグ)",
             "en": "#Artnose(ファンアートタグ)"
           },
-          "query": "#Artnose",
-          "starter": true
+          "query": "#Artnose"
         },
         {
           "label": { "ja": "ReGLOSS(グループ)", "en": "ReGLOSS (Group)" },
-          "query": "ReGLOSS",
-          "starter": true
+          "query": "ReGLOSS"
         }
       ]
     },
     {
       "name": { "ja": "一条莉々華", "en": "Ichijou Ririka" },
+      "gens": ["ReGLOSS"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(一条莉々華)",
             "en": "Ego-search words (Ichijou Ririka)"
           },
-          "query": "(\"一条莉々華\" OR \"一条\" OR \"莉々華\" OR \"りりか\")",
-          "starter": true
+          "query": "(\"一条莉々華\" OR \"一条\" OR \"莉々華\" OR \"りりか\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(一条莉々華)",
             "en": "Ego-search (English) (Ichijou Ririka)"
           },
-          "query": "(\"Ichijou Ririka\" OR \"Ichijou\" OR \"Ririka\")",
-          "starter": true
+          "query": "(\"Ichijou Ririka\" OR \"Ichijou\" OR \"Ririka\")"
         },
         {
           "label": { "ja": "🌃(推しマ)", "en": "🌃 (Oshi mark)" },
-          "query": "🌃",
-          "starter": true
+          "query": "🌃"
         },
         {
           "label": {
             "ja": "#莉々華生放送(配信タグ)",
             "en": "#莉々華生放送(配信タグ)"
           },
-          "query": "#莉々華生放送",
-          "starter": true
+          "query": "#莉々華生放送"
         },
         {
           "label": {
             "ja": "#ririkart(ファンアートタグ)",
             "en": "#ririkart(ファンアートタグ)"
           },
-          "query": "#ririkart",
-          "starter": true
+          "query": "#ririkart"
         },
         {
           "label": { "ja": "ReGLOSS(グループ)", "en": "ReGLOSS (Group)" },
-          "query": "ReGLOSS",
-          "starter": true
+          "query": "ReGLOSS"
         }
       ]
     },
     {
       "name": { "ja": "火威青", "en": "Hiodoshi Ao" },
+      "gens": ["ReGLOSS"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(火威青)",
             "en": "Ego-search words (Hiodoshi Ao)"
           },
-          "query": "(\"火威青\" OR \"火威\" OR \"青\" OR \"あお\")",
-          "starter": true
+          "query": "(\"火威青\" OR \"火威\" OR \"青\" OR \"あお\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(火威青)",
             "en": "Ego-search (English) (Hiodoshi Ao)"
           },
-          "query": "(\"Hiodoshi Ao\" OR \"Hiodoshi\" OR \"Ao\")",
-          "starter": true
+          "query": "(\"Hiodoshi Ao\" OR \"Hiodoshi\" OR \"Ao\")"
         },
         {
           "label": { "ja": "🖋️(推しマ)", "en": "🖋️ (Oshi mark)" },
-          "query": "🖋️",
-          "starter": true
+          "query": "🖋️"
         },
         {
           "label": { "ja": "#青生放送(配信タグ)", "en": "#青生放送(配信タグ)" },
-          "query": "#青生放送",
-          "starter": true
+          "query": "#青生放送"
         },
         {
           "label": {
             "ja": "#青ペン(ファンアートタグ)",
             "en": "#青ペン(ファンアートタグ)"
           },
-          "query": "#青ペン",
-          "starter": true
+          "query": "#青ペン"
         },
         {
           "label": { "ja": "ReGLOSS(グループ)", "en": "ReGLOSS (Group)" },
-          "query": "ReGLOSS",
-          "starter": true
+          "query": "ReGLOSS"
         }
       ]
     },
     {
       "name": { "ja": "綺々羅々ヴィヴィ", "en": "Kikirara Vivi" },
+      "gens": ["FLOW GLOW"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(綺々羅々ヴィヴィ)",
             "en": "Ego-search words (Kikirara Vivi)"
           },
-          "query": "(\"綺々羅々ヴィヴィ\" OR \"綺々羅々\" OR \"ヴィヴィ\")",
-          "starter": true
+          "query": "(\"綺々羅々ヴィヴィ\" OR \"綺々羅々\" OR \"ヴィヴィ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(綺々羅々ヴィヴィ)",
             "en": "Ego-search (English) (Kikirara Vivi)"
           },
-          "query": "(\"Kikirara Vivi\" OR \"Kikirara\" OR \"Vivi\")",
-          "starter": true
+          "query": "(\"Kikirara Vivi\" OR \"Kikirara\" OR \"Vivi\")"
         },
         {
           "label": { "ja": "💅✨(推しマ)", "en": "💅✨ (Oshi mark)" },
-          "query": "💅✨",
-          "starter": true
+          "query": "💅✨"
         },
         {
           "label": {
             "ja": "#ヴィヴィ生放送(配信タグ)",
             "en": "#ヴィヴィ生放送(配信タグ)"
           },
-          "query": "#ヴィヴィ生放送",
-          "starter": true
+          "query": "#ヴィヴィ生放送"
         },
         {
           "label": {
             "ja": "#ヴィヴィメイク(ファンアートタグ)",
             "en": "#ヴィヴィメイク(ファンアートタグ)"
           },
-          "query": "#ヴィヴィメイク",
-          "starter": true
+          "query": "#ヴィヴィメイク"
         },
         {
           "label": { "ja": "FLOW GLOW(グループ)", "en": "FLOW GLOW (Group)" },
-          "query": "FLOW GLOW",
-          "starter": true
+          "query": "FLOW GLOW"
         }
       ]
     },
     {
       "name": { "ja": "水宮枢", "en": "Mizumiya Su" },
+      "gens": ["FLOW GLOW"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(水宮枢)",
             "en": "Ego-search words (Mizumiya Su)"
           },
-          "query": "(\"水宮枢\" OR \"水宮\" OR \"枢\" OR \"すう\" OR \"すうちゃん\")",
-          "starter": true
+          "query": "(\"水宮枢\" OR \"水宮\" OR \"枢\" OR \"すう\" OR \"すうちゃん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(水宮枢)",
             "en": "Ego-search (English) (Mizumiya Su)"
           },
-          "query": "(\"Mizumiya Su\" OR \"Mizumiya\" OR \"Su\" OR \"Suu-chan\")",
-          "starter": true
+          "query": "(\"Mizumiya Su\" OR \"Mizumiya\" OR \"Su\" OR \"Suu-chan\")"
         },
         {
           "label": { "ja": "💬🔁💙(推しマ)", "en": "💬🔁💙 (Oshi mark)" },
-          "query": "💬🔁💙",
-          "starter": true
+          "query": "💬🔁💙"
         },
         {
           "label": { "ja": "#枢生放送(配信タグ)", "en": "#枢生放送(配信タグ)" },
-          "query": "#枢生放送",
-          "starter": true
+          "query": "#枢生放送"
         },
         {
           "label": {
             "ja": "#すくすく枢(ファンアートタグ)",
             "en": "#すくすく枢(ファンアートタグ)"
           },
-          "query": "#すくすく枢",
-          "starter": true
+          "query": "#すくすく枢"
         },
         {
           "label": { "ja": "FLOW GLOW(グループ)", "en": "FLOW GLOW (Group)" },
-          "query": "FLOW GLOW",
-          "starter": true
+          "query": "FLOW GLOW"
         }
       ]
     },
     {
       "name": { "ja": "虎金妃笑虎", "en": "Koganei Niko" },
+      "gens": ["FLOW GLOW"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(虎金妃笑虎)",
             "en": "Ego-search words (Koganei Niko)"
           },
-          "query": "(\"虎金妃笑虎\" OR \"虎金妃\" OR \"笑虎\" OR \"にこ\")",
-          "starter": true
+          "query": "(\"虎金妃笑虎\" OR \"虎金妃\" OR \"笑虎\" OR \"にこ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(虎金妃笑虎)",
             "en": "Ego-search (English) (Koganei Niko)"
           },
-          "query": "(\"Koganei Niko\" OR \"Koganei\" OR \"Niko\")",
-          "starter": true
+          "query": "(\"Koganei Niko\" OR \"Koganei\" OR \"Niko\")"
         },
         {
           "label": { "ja": "☺️🐅(推しマ)", "en": "☺️🐅 (Oshi mark)" },
-          "query": "☺️🐅",
-          "starter": true
+          "query": "☺️🐅"
         },
         {
           "label": {
             "ja": "#笑虎生放送(配信タグ)",
             "en": "#笑虎生放送(配信タグ)"
           },
-          "query": "#笑虎生放送",
-          "starter": true
+          "query": "#笑虎生放送"
         },
         {
           "label": {
             "ja": "#ニコたん描いたん(ファンアートタグ)",
             "en": "#ニコたん描いたん(ファンアートタグ)"
           },
-          "query": "#ニコたん描いたん",
-          "starter": true
+          "query": "#ニコたん描いたん"
         },
         {
           "label": { "ja": "FLOW GLOW(グループ)", "en": "FLOW GLOW (Group)" },
-          "query": "FLOW GLOW",
-          "starter": true
+          "query": "FLOW GLOW"
         }
       ]
     },
     {
       "name": { "ja": "輪堂千速", "en": "Rindo Chihaya" },
+      "gens": ["FLOW GLOW"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(輪堂千速)",
             "en": "Ego-search words (Rindo Chihaya)"
           },
-          "query": "(\"輪堂千速\" OR \"輪堂\" OR \"千速\" OR \"ちはや\")",
-          "starter": true
+          "query": "(\"輪堂千速\" OR \"輪堂\" OR \"千速\" OR \"ちはや\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(輪堂千速)",
             "en": "Ego-search (English) (Rindo Chihaya)"
           },
-          "query": "(\"Rindo Chihaya\" OR \"Rindo\" OR \"Chihaya\")",
-          "starter": true
+          "query": "(\"Rindo Chihaya\" OR \"Rindo\" OR \"Chihaya\")"
         },
         {
           "label": { "ja": "🎧🔧(推しマ)", "en": "🎧🔧 (Oshi mark)" },
-          "query": "🎧🔧",
-          "starter": true
+          "query": "🎧🔧"
         },
         {
           "label": {
             "ja": "#千速生放送(配信タグ)",
             "en": "#千速生放送(配信タグ)"
           },
-          "query": "#千速生放送",
-          "starter": true
+          "query": "#千速生放送"
         },
         {
           "label": {
             "ja": "#もはやちはや(ファンアートタグ)",
             "en": "#もはやちはや(ファンアートタグ)"
           },
-          "query": "#もはやちはや",
-          "starter": true
+          "query": "#もはやちはや"
         },
         {
           "label": { "ja": "FLOW GLOW(グループ)", "en": "FLOW GLOW (Group)" },
-          "query": "FLOW GLOW",
-          "starter": true
+          "query": "FLOW GLOW"
         }
       ]
     },
     {
       "name": { "ja": "響咲リオナ", "en": "Isaki Riona" },
+      "gens": ["FLOW GLOW"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(響咲リオナ)",
             "en": "Ego-search words (Isaki Riona)"
           },
-          "query": "(\"響咲リオナ\" OR \"響咲\" OR \"リオナ\" OR \"リオーナ\" OR \"りおーな\")",
-          "starter": true
+          "query": "(\"響咲リオナ\" OR \"響咲\" OR \"リオナ\" OR \"リオーナ\" OR \"りおーな\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(響咲リオナ)",
             "en": "Ego-search (English) (Isaki Riona)"
           },
-          "query": "(\"Isaki Riona\" OR \"Isaki\" OR \"Riona\")",
-          "starter": true
+          "query": "(\"Isaki Riona\" OR \"Isaki\" OR \"Riona\")"
         },
         {
           "label": { "ja": "🎤👑(推しマ)", "en": "🎤👑 (Oshi mark)" },
-          "query": "🎤👑",
-          "starter": true
+          "query": "🎤👑"
         },
         {
           "label": {
             "ja": "#リオナ生放送(配信タグ)",
             "en": "#リオナ生放送(配信タグ)"
           },
-          "query": "#リオナ生放送",
-          "starter": true
+          "query": "#リオナ生放送"
         },
         {
           "label": {
             "ja": "#リオナート(ファンアートタグ)",
             "en": "#リオナート(ファンアートタグ)"
           },
-          "query": "#リオナート",
-          "starter": true
+          "query": "#リオナート"
         },
         {
           "label": { "ja": "FLOW GLOW(グループ)", "en": "FLOW GLOW (Group)" },
-          "query": "FLOW GLOW",
-          "starter": true
+          "query": "FLOW GLOW"
         }
       ]
     },
     {
       "name": { "ja": "熱千めら", "en": "Achichi Mela" },
+      "gens": ["アソビ★まわり隊！"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(熱千めら)",
             "en": "Ego-search words (Achichi Mela)"
           },
-          "query": "(\"熱千めら\" OR \"熱千\" OR \"めら\")",
-          "starter": true
+          "query": "(\"熱千めら\" OR \"熱千\" OR \"めら\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(熱千めら)",
             "en": "Ego-search (English) (Achichi Mela)"
           },
-          "query": "(\"Achichi Mera\" OR \"Achichi\" OR \"Mera\")",
-          "starter": true
+          "query": "(\"Achichi Mera\" OR \"Achichi\" OR \"Mera\")"
         },
         {
           "label": { "ja": "🧯(推しマ)", "en": "🧯 (Oshi mark)" },
-          "query": "🧯",
-          "starter": true
+          "query": "🧯"
         },
         {
           "label": { "ja": "めら組(ファンネーム)", "en": "めら組 (Fan name)" },
-          "query": "めら組",
-          "starter": true
+          "query": "めら組"
         },
         {
           "label": {
             "ja": "#めら組出動中(配信タグ)",
             "en": "#めら組出動中(配信タグ)"
           },
-          "query": "#めら組出動中",
-          "starter": true
+          "query": "#めら組出動中"
         },
         {
           "label": {
             "ja": "#めら組絵図(ファンアートタグ)",
             "en": "#めら組絵図(ファンアートタグ)"
           },
-          "query": "#めら組絵図",
-          "starter": true
+          "query": "#めら組絵図"
         },
         {
           "label": {
             "ja": "アソビ★まわり隊！(グループ)",
             "en": "アソビ★まわり隊！ (Group)"
           },
-          "query": "アソビ★まわり隊！",
-          "starter": true
+          "query": "アソビ★まわり隊！"
         }
       ]
     },
     {
       "name": { "ja": "鈴鳴つづり", "en": "Suzuna Tsuzuri" },
+      "gens": ["アソビ★まわり隊！"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(鈴鳴つづり)",
             "en": "Ego-search words (Suzuna Tsuzuri)"
           },
-          "query": "(\"鈴鳴つづり\" OR \"鈴鳴\" OR \"つづり\")",
-          "starter": true
+          "query": "(\"鈴鳴つづり\" OR \"鈴鳴\" OR \"つづり\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(鈴鳴つづり)",
             "en": "Ego-search (English) (Suzuna Tsuzuri)"
           },
-          "query": "(\"Suzuna Tsuzuri\" OR \"Suzuna\" OR \"Tsuzuri\")",
-          "starter": true
+          "query": "(\"Suzuna Tsuzuri\" OR \"Suzuna\" OR \"Tsuzuri\")"
         },
         {
           "label": { "ja": "🐐💌(推しマ)", "en": "🐐💌 (Oshi mark)" },
-          "query": "🐐💌",
-          "starter": true
+          "query": "🐐💌"
         },
         {
           "label": { "ja": "配達員(ファンネーム)", "en": "配達員 (Fan name)" },
-          "query": "配達員",
-          "starter": true
+          "query": "配達員"
         },
         {
           "label": {
             "ja": "#つづり生放送(配信タグ)",
             "en": "#つづり生放送(配信タグ)"
           },
-          "query": "#つづり生放送",
-          "starter": true
+          "query": "#つづり生放送"
         },
         {
           "label": {
             "ja": "#つづり絵お届け(ファンアートタグ)",
             "en": "#つづり絵お届け(ファンアートタグ)"
           },
-          "query": "#つづり絵お届け",
-          "starter": true
+          "query": "#つづり絵お届け"
         },
         {
           "label": {
             "ja": "アソビ★まわり隊！(グループ)",
             "en": "アソビ★まわり隊！ (Group)"
           },
-          "query": "アソビ★まわり隊！",
-          "starter": true
+          "query": "アソビ★まわり隊！"
         }
       ]
     },
     {
       "name": { "ja": "百灯キョーコ", "en": "Hyakuto Kyoko" },
+      "gens": ["アソビ★まわり隊！"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(百灯キョーコ)",
             "en": "Ego-search words (Hyakuto Kyoko)"
           },
-          "query": "(\"百灯キョーコ\" OR \"百灯\" OR \"キョーコ\")",
-          "starter": true
+          "query": "(\"百灯キョーコ\" OR \"百灯\" OR \"キョーコ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(百灯キョーコ)",
             "en": "Ego-search (English) (Hyakuto Kyoko)"
           },
-          "query": "(\"Hyakuto Kyoko\" OR \"Hyakuto\" OR \"Kyoko\")",
-          "starter": true
+          "query": "(\"Hyakuto Kyoko\" OR \"Hyakuto\" OR \"Kyoko\")"
         },
         {
           "label": { "ja": "👮📢(推しマ)", "en": "👮📢 (Oshi mark)" },
-          "query": "👮📢",
-          "starter": true
+          "query": "👮📢"
         },
         {
           "label": { "ja": "めら組(ファンネーム)", "en": "めら組 (Fan name)" },
-          "query": "めら組",
-          "starter": true
+          "query": "めら組"
         },
         {
           "label": {
             "ja": "#キョーコ生放送(配信タグ)",
             "en": "#キョーコ生放送(配信タグ)"
           },
-          "query": "#キョーコ生放送",
-          "starter": true
+          "query": "#キョーコ生放送"
         },
         {
           "label": {
             "ja": "#キョーコの押収品(ファンアートタグ)",
             "en": "#キョーコの押収品(ファンアートタグ)"
           },
-          "query": "#キョーコの押収品",
-          "starter": true
+          "query": "#キョーコの押収品"
         },
         {
           "label": {
             "ja": "アソビ★まわり隊！(グループ)",
             "en": "アソビ★まわり隊！ (Group)"
           },
-          "query": "アソビ★まわり隊！",
-          "starter": true
+          "query": "アソビ★まわり隊！"
         }
       ]
     },
     {
       "name": { "ja": "宙科そぴあ", "en": "Sorashina Sopia" },
+      "gens": ["アソビ★まわり隊！"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(宙科そぴあ)",
             "en": "Ego-search words (Sorashina Sopia)"
           },
-          "query": "(\"宙科そぴあ\" OR \"宙科\" OR \"そぴあ\")",
-          "starter": true
+          "query": "(\"宙科そぴあ\" OR \"宙科\" OR \"そぴあ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(宙科そぴあ)",
             "en": "Ego-search (English) (Sorashina Sopia)"
           },
-          "query": "(\"Sorashina Sopia\" OR \"Sorashina\" OR \"Sopia\")",
-          "starter": true
+          "query": "(\"Sorashina Sopia\" OR \"Sorashina\" OR \"Sopia\")"
         },
         {
           "label": { "ja": "📡(推しマ)", "en": "📡 (Oshi mark)" },
-          "query": "📡",
-          "starter": true
+          "query": "📡"
         },
         {
           "label": {
             "ja": "SopiCrew(ファンネーム)",
             "en": "SopiCrew (Fan name)"
           },
-          "query": "SopiCrew",
-          "starter": true
+          "query": "SopiCrew"
         },
         {
           "label": { "ja": "#SopiLive(配信タグ)", "en": "#SopiLive(配信タグ)" },
-          "query": "#SopiLive",
-          "starter": true
+          "query": "#SopiLive"
         },
         {
           "label": {
             "ja": "#SopiArt(ファンアートタグ)",
             "en": "#SopiArt(ファンアートタグ)"
           },
-          "query": "#SopiArt",
-          "starter": true
+          "query": "#SopiArt"
         },
         {
           "label": {
             "ja": "アソビ★まわり隊！(グループ)",
             "en": "アソビ★まわり隊！ (Group)"
           },
-          "query": "アソビ★まわり隊！",
-          "starter": true
+          "query": "アソビ★まわり隊！"
         }
       ]
     },
     {
       "name": { "ja": "がうる・ぐら", "en": "Gawr Gura" },
+      "gens": ["Myth"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Gawr Gura)",
             "en": "Ego-search words (Gawr Gura)"
           },
-          "query": "(\"がうる・ぐら\" OR \"がうる\" OR \"ぐら\" OR \"サメちゃん\")",
-          "starter": true
+          "query": "(\"がうる・ぐら\" OR \"がうる\" OR \"ぐら\" OR \"サメちゃん\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Gawr Gura)",
             "en": "Ego-search (English) (Gawr Gura)"
           },
-          "query": "(\"Gawr Gura\" OR \"Gawr\" OR \"Gura\" OR \"Same-chan\" OR \"Gooba\")",
-          "starter": true
+          "query": "(\"Gawr Gura\" OR \"Gawr\" OR \"Gura\" OR \"Same-chan\" OR \"Gooba\")"
         },
         {
           "label": { "ja": "🔱(推しマ)", "en": "🔱 (Oshi mark)" },
-          "query": "🔱",
-          "starter": true
+          "query": "🔱"
         },
         {
           "label": {
             "ja": "chumbuds(ファンネーム)",
             "en": "chumbuds (Fan name)"
           },
-          "query": "chumbuds",
-          "starter": true
+          "query": "chumbuds"
         },
         {
           "label": { "ja": "#gawrt(配信タグ)", "en": "#gawrt(配信タグ)" },
-          "query": "#gawrt",
-          "starter": true
+          "query": "#gawrt"
         },
         {
           "label": {
             "ja": "#gawrt(ファンアートタグ)",
             "en": "#gawrt(ファンアートタグ)"
           },
-          "query": "#gawrt",
-          "starter": true
+          "query": "#gawrt"
         },
         {
           "label": { "ja": "Myth(グループ)", "en": "Myth (Group)" },
-          "query": "Myth",
-          "starter": true
+          "query": "Myth"
         }
       ]
     },
     {
       "name": { "ja": "森カリオペ", "en": "Mori Calliope" },
+      "gens": ["Myth"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Mori Calliope)",
             "en": "Ego-search words (Mori Calliope)"
           },
-          "query": "(\"モリ・カリオペ\" OR \"モリ\" OR \"カリオペ\")",
-          "starter": true
+          "query": "(\"モリ・カリオペ\" OR \"モリ\" OR \"カリオペ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Mori Calliope)",
             "en": "Ego-search (English) (Mori Calliope)"
           },
-          "query": "(\"Mori Calliope\" OR \"Mori\" OR \"Calliope\" OR \"Calli\")",
-          "starter": true
+          "query": "(\"Mori Calliope\" OR \"Mori\" OR \"Calliope\" OR \"Calli\")"
         },
         {
           "label": { "ja": "💀(推しマ)", "en": "💀 (Oshi mark)" },
-          "query": "💀",
-          "starter": true
+          "query": "💀"
         },
         {
           "label": {
             "ja": "Dead Beats(ファンネーム)",
             "en": "Dead Beats (Fan name)"
           },
-          "query": "Dead Beats",
-          "starter": true
+          "query": "Dead Beats"
         },
         {
           "label": {
             "ja": "#Calliolive(配信タグ)",
             "en": "#Calliolive(配信タグ)"
           },
-          "query": "#Calliolive",
-          "starter": true
+          "query": "#Calliolive"
         },
         {
           "label": {
             "ja": "#callillust(ファンアートタグ)",
             "en": "#callillust(ファンアートタグ)"
           },
-          "query": "#callillust",
-          "starter": true
+          "query": "#callillust"
         },
         {
           "label": { "ja": "Myth(グループ)", "en": "Myth (Group)" },
-          "query": "Myth",
-          "starter": true
+          "query": "Myth"
         }
       ]
     },
     {
       "name": { "ja": "ワトソン・アメリア", "en": "Watson Amelia" },
+      "gens": ["Myth（活動終了）"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Watson Amelia)",
             "en": "Ego-search words (Watson Amelia)"
           },
-          "query": "(\"ワトソン・アメリア\" OR \"ワトソン\" OR \"アメリア\")",
-          "starter": true
+          "query": "(\"ワトソン・アメリア\" OR \"ワトソン\" OR \"アメリア\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Watson Amelia)",
             "en": "Ego-search (English) (Watson Amelia)"
           },
-          "query": "(\"Watson Amelia\" OR \"Watson\" OR \"Amelia\" OR \"Ame\")",
-          "starter": true
+          "query": "(\"Watson Amelia\" OR \"Watson\" OR \"Amelia\" OR \"Ame\")"
         },
         {
           "label": { "ja": "🔎(推しマ)", "en": "🔎 (Oshi mark)" },
-          "query": "🔎",
-          "starter": true
+          "query": "🔎"
         },
         {
           "label": {
             "ja": "teamates(ファンネーム)",
             "en": "teamates (Fan name)"
           },
-          "query": "teamates",
-          "starter": true
+          "query": "teamates"
         },
         {
           "label": { "ja": "#amesame(配信タグ)", "en": "#amesame(配信タグ)" },
-          "query": "#amesame",
-          "starter": true
+          "query": "#amesame"
         },
         {
           "label": {
             "ja": "#teamates(ファンアートタグ)",
             "en": "#teamates(ファンアートタグ)"
           },
-          "query": "#teamates",
-          "starter": true
+          "query": "#teamates"
         },
         {
           "label": {
             "ja": "Myth（活動終了）(グループ)",
             "en": "Myth（活動終了） (Group)"
           },
-          "query": "Myth（活動終了）",
-          "starter": true
+          "query": "Myth（活動終了）"
         }
       ]
     },
     {
       "name": { "ja": "一伊那尓栖", "en": "Ninomae Ina'nis" },
+      "gens": ["Myth"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Ninomae Ina'nis)",
             "en": "Ego-search words (Ninomae Ina'nis)"
           },
-          "query": "(\"ニノマエ・イナニス\" OR \"ニノマエ\" OR \"イナニス\" OR \"イナ\")",
-          "starter": true
+          "query": "(\"ニノマエ・イナニス\" OR \"ニノマエ\" OR \"イナニス\" OR \"イナ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Ninomae Ina'nis)",
             "en": "Ego-search (English) (Ninomae Ina'nis)"
           },
-          "query": "(\"Ninomae Ina'nis\" OR \"Ninomae\" OR \"Ina'nis\" OR \"Ina\")",
-          "starter": true
+          "query": "(\"Ninomae Ina'nis\" OR \"Ninomae\" OR \"Ina'nis\" OR \"Ina\")"
         },
         {
           "label": { "ja": "🐙(推しマ)", "en": "🐙 (Oshi mark)" },
-          "query": "🐙",
-          "starter": true
+          "query": "🐙"
         },
         {
           "label": {
             "ja": "tentacult(ファンネーム)",
             "en": "tentacult (Fan name)"
           },
-          "query": "tentacult",
-          "starter": true
+          "query": "tentacult"
         },
         {
           "label": { "ja": "#inART(配信タグ)", "en": "#inART(配信タグ)" },
-          "query": "#inART",
-          "starter": true
+          "query": "#inART"
         },
         {
           "label": {
             "ja": "#inART(ファンアートタグ)",
             "en": "#inART(ファンアートタグ)"
           },
-          "query": "#inART",
-          "starter": true
+          "query": "#inART"
         },
         {
           "label": { "ja": "Myth(グループ)", "en": "Myth (Group)" },
-          "query": "Myth",
-          "starter": true
+          "query": "Myth"
         }
       ]
     },
     {
       "name": { "ja": "小鳥遊キアラ", "en": "Takanashi Kiara" },
+      "gens": ["Myth"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Takanashi Kiara)",
             "en": "Ego-search words (Takanashi Kiara)"
           },
-          "query": "(\"タカナシ・キアラ\" OR \"タカナシ\" OR \"キアラ\")",
-          "starter": true
+          "query": "(\"タカナシ・キアラ\" OR \"タカナシ\" OR \"キアラ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Takanashi Kiara)",
             "en": "Ego-search (English) (Takanashi Kiara)"
           },
-          "query": "(\"Takanashi Kiara\" OR \"Takanashi\" OR \"Kiara\" OR \"Wawa\")",
-          "starter": true
+          "query": "(\"Takanashi Kiara\" OR \"Takanashi\" OR \"Kiara\" OR \"Wawa\")"
         },
         {
           "label": { "ja": "🐔(推しマ)", "en": "🐔 (Oshi mark)" },
-          "query": "🐔",
-          "starter": true
+          "query": "🐔"
         },
         {
           "label": { "ja": "kfp(ファンネーム)", "en": "kfp (Fan name)" },
-          "query": "kfp",
-          "starter": true
+          "query": "kfp"
         },
         {
           "label": { "ja": "#kfp(配信タグ)", "en": "#kfp(配信タグ)" },
-          "query": "#kfp",
-          "starter": true
+          "query": "#kfp"
         },
         {
           "label": {
             "ja": "#KFPicasso(ファンアートタグ)",
             "en": "#KFPicasso(ファンアートタグ)"
           },
-          "query": "#KFPicasso",
-          "starter": true
+          "query": "#KFPicasso"
         },
         {
           "label": { "ja": "Myth(グループ)", "en": "Myth (Group)" },
-          "query": "Myth",
-          "starter": true
+          "query": "Myth"
         }
       ]
     },
     {
       "name": { "ja": "ハコス・ベールズ", "en": "Hakos Baelz" },
+      "gens": ["Promise"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Hakos Baelz)",
             "en": "Ego-search words (Hakos Baelz)"
           },
-          "query": "(\"ハコス・ベールズ\" OR \"ハコス\" OR \"ベールズ\")",
-          "starter": true
+          "query": "(\"ハコス・ベールズ\" OR \"ハコス\" OR \"ベールズ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Hakos Baelz)",
             "en": "Ego-search (English) (Hakos Baelz)"
           },
-          "query": "(\"Hakos Baelz\" OR \"Hakos\" OR \"Baelz\" OR \"Bae\")",
-          "starter": true
+          "query": "(\"Hakos Baelz\" OR \"Hakos\" OR \"Baelz\" OR \"Bae\")"
         },
         {
           "label": { "ja": "🎲(推しマ)", "en": "🎲 (Oshi mark)" },
-          "query": "🎲",
-          "starter": true
+          "query": "🎲"
         },
         {
           "label": { "ja": "Brats(ファンネーム)", "en": "Brats (Fan name)" },
-          "query": "Brats",
-          "starter": true
+          "query": "Brats"
         },
         {
           "label": { "ja": "#BAE(配信タグ)", "en": "#BAE(配信タグ)" },
-          "query": "#BAE",
-          "starter": true
+          "query": "#BAE"
         },
         {
           "label": {
             "ja": "#BAErts(ファンアートタグ)",
             "en": "#BAErts(ファンアートタグ)"
           },
-          "query": "#BAErts",
-          "starter": true
+          "query": "#BAErts"
         },
         {
           "label": { "ja": "Promise(グループ)", "en": "Promise (Group)" },
-          "query": "Promise",
-          "starter": true
+          "query": "Promise"
         }
       ]
     },
     {
       "name": { "ja": "オーロ・クロニー", "en": "Ouro Kronii" },
+      "gens": ["Promise"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Ouro Kronii)",
             "en": "Ego-search words (Ouro Kronii)"
           },
-          "query": "(\"オーロ・クロニー\" OR \"オーロ\" OR \"クロニー\")",
-          "starter": true
+          "query": "(\"オーロ・クロニー\" OR \"オーロ\" OR \"クロニー\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Ouro Kronii)",
             "en": "Ego-search (English) (Ouro Kronii)"
           },
-          "query": "(\"Ouro Kronii\" OR \"Ouro\" OR \"Kronii\")",
-          "starter": true
+          "query": "(\"Ouro Kronii\" OR \"Ouro\" OR \"Kronii\")"
         },
         {
           "label": { "ja": "⏳(推しマ)", "en": "⏳ (Oshi mark)" },
-          "query": "⏳",
-          "starter": true
+          "query": "⏳"
         },
         {
           "label": {
             "ja": "Kronies(ファンネーム)",
             "en": "Kronies (Fan name)"
           },
-          "query": "Kronies",
-          "starter": true
+          "query": "Kronies"
         },
         {
           "label": { "ja": "#kronies(配信タグ)", "en": "#kronies(配信タグ)" },
-          "query": "#kronies",
-          "starter": true
+          "query": "#kronies"
         },
         {
           "label": {
             "ja": "#kroniiART(ファンアートタグ)",
             "en": "#kroniiART(ファンアートタグ)"
           },
-          "query": "#kroniiART",
-          "starter": true
+          "query": "#kroniiART"
         },
         {
           "label": { "ja": "Promise(グループ)", "en": "Promise (Group)" },
-          "query": "Promise",
-          "starter": true
+          "query": "Promise"
         }
       ]
     },
     {
       "name": { "ja": "アイリス", "en": "IRyS" },
+      "gens": ["Promise"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(IRyS)",
             "en": "Ego-search words (IRyS)"
           },
-          "query": "(\"アイリス\" OR \"アイリス\")",
-          "starter": true
+          "query": "(\"アイリス\" OR \"アイリス\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(IRyS)",
             "en": "Ego-search (English) (IRyS)"
           },
-          "query": "(\"IRyS\" OR \"Irys\")",
-          "starter": true
+          "query": "(\"IRyS\" OR \"Irys\")"
         },
         {
           "label": { "ja": "💎(推しマ)", "en": "💎 (Oshi mark)" },
-          "query": "💎",
-          "starter": true
+          "query": "💎"
         },
         {
           "label": {
             "ja": "IRyStocrats(ファンネーム)",
             "en": "IRyStocrats (Fan name)"
           },
-          "query": "IRyStocrats",
-          "starter": true
+          "query": "IRyStocrats"
         },
         {
           "label": {
             "ja": "#IRyStocrats(配信タグ)",
             "en": "#IRyStocrats(配信タグ)"
           },
-          "query": "#IRyStocrats",
-          "starter": true
+          "query": "#IRyStocrats"
         },
         {
           "label": {
             "ja": "#IRySart(ファンアートタグ)",
             "en": "#IRySart(ファンアートタグ)"
           },
-          "query": "#IRySart",
-          "starter": true
+          "query": "#IRySart"
         },
         {
           "label": { "ja": "Promise(グループ)", "en": "Promise (Group)" },
-          "query": "Promise",
-          "starter": true
+          "query": "Promise"
         }
       ]
     },
     {
       "name": { "ja": "七詩ムメイ", "en": "Nanashi Mumei" },
+      "gens": ["Promise"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Nanashi Mumei)",
             "en": "Ego-search words (Nanashi Mumei)"
           },
-          "query": "(\"ナナシ・ムメイ\" OR \"ナナシ\" OR \"ムメイ\")",
-          "starter": true
+          "query": "(\"ナナシ・ムメイ\" OR \"ナナシ\" OR \"ムメイ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Nanashi Mumei)",
             "en": "Ego-search (English) (Nanashi Mumei)"
           },
-          "query": "(\"Nanashi Mumei\" OR \"Nanashi\" OR \"Mumei\")",
-          "starter": true
+          "query": "(\"Nanashi Mumei\" OR \"Nanashi\" OR \"Mumei\")"
         },
         {
           "label": { "ja": "🪶(推しマ)", "en": "🪶 (Oshi mark)" },
-          "query": "🪶",
-          "starter": true
+          "query": "🪶"
         },
         {
           "label": {
             "ja": "Hoomans(ファンネーム)",
             "en": "Hoomans (Fan name)"
           },
-          "query": "Hoomans",
-          "starter": true
+          "query": "Hoomans"
         },
         {
           "label": { "ja": "#hoomans(配信タグ)", "en": "#hoomans(配信タグ)" },
-          "query": "#hoomans",
-          "starter": true
+          "query": "#hoomans"
         },
         {
           "label": {
             "ja": "#mumeiART(ファンアートタグ)",
             "en": "#mumeiART(ファンアートタグ)"
           },
-          "query": "#mumeiART",
-          "starter": true
+          "query": "#mumeiART"
         },
         {
           "label": { "ja": "Promise(グループ)", "en": "Promise (Group)" },
-          "query": "Promise",
-          "starter": true
+          "query": "Promise"
         }
       ]
     },
     {
       "name": { "ja": "セレス・ファウナ", "en": "Ceres Fauna" },
+      "gens": ["Promise"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Ceres Fauna)",
             "en": "Ego-search words (Ceres Fauna)"
           },
-          "query": "(\"セレス・ファウナ\" OR \"セレス\" OR \"ファウナ\")",
-          "starter": true
+          "query": "(\"セレス・ファウナ\" OR \"セレス\" OR \"ファウナ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Ceres Fauna)",
             "en": "Ego-search (English) (Ceres Fauna)"
           },
-          "query": "(\"Ceres Fauna\" OR \"Ceres\" OR \"Fauna\")",
-          "starter": true
+          "query": "(\"Ceres Fauna\" OR \"Ceres\" OR \"Fauna\")"
         },
         {
           "label": { "ja": "🌿(推しマ)", "en": "🌿 (Oshi mark)" },
-          "query": "🌿",
-          "starter": true
+          "query": "🌿"
         },
         {
           "label": {
             "ja": "Saplings(ファンネーム)",
             "en": "Saplings (Fan name)"
           },
-          "query": "Saplings",
-          "starter": true
+          "query": "Saplings"
         },
         {
           "label": { "ja": "#saplings(配信タグ)", "en": "#saplings(配信タグ)" },
-          "query": "#saplings",
-          "starter": true
+          "query": "#saplings"
         },
         {
           "label": {
             "ja": "#faunaART(ファンアートタグ)",
             "en": "#faunaART(ファンアートタグ)"
           },
-          "query": "#faunaART",
-          "starter": true
+          "query": "#faunaART"
         },
         {
           "label": { "ja": "Promise(グループ)", "en": "Promise (Group)" },
-          "query": "Promise",
-          "starter": true
+          "query": "Promise"
         }
       ]
     },
     {
       "name": { "ja": "九十九佐命", "en": "Tsukumo Sana" },
+      "gens": ["Promise"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Tsukumo Sana)",
             "en": "Ego-search words (Tsukumo Sana)"
           },
-          "query": "(\"ツクモ・サナ\" OR \"ツクモ\" OR \"サナ\")",
-          "starter": true
+          "query": "(\"ツクモ・サナ\" OR \"ツクモ\" OR \"サナ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Tsukumo Sana)",
             "en": "Ego-search (English) (Tsukumo Sana)"
           },
-          "query": "(\"Tsukumo Sana\" OR \"Tsukumo\" OR \"Sana\")",
-          "starter": true
+          "query": "(\"Tsukumo Sana\" OR \"Tsukumo\" OR \"Sana\")"
         },
         {
           "label": { "ja": "🪐(推しマ)", "en": "🪐 (Oshi mark)" },
-          "query": "🪐",
-          "starter": true
+          "query": "🪐"
         },
         {
           "label": {
             "ja": "Sanallite(ファンネーム)",
             "en": "Sanallite (Fan name)"
           },
-          "query": "Sanallite",
-          "starter": true
+          "query": "Sanallite"
         },
         {
           "label": {
             "ja": "#sanallite(配信タグ)",
             "en": "#sanallite(配信タグ)"
           },
-          "query": "#sanallite",
-          "starter": true
+          "query": "#sanallite"
         },
         {
           "label": {
             "ja": "#sanaART(ファンアートタグ)",
             "en": "#sanaART(ファンアートタグ)"
           },
-          "query": "#sanaART",
-          "starter": true
+          "query": "#sanaART"
         },
         {
           "label": { "ja": "Promise(グループ)", "en": "Promise (Group)" },
-          "query": "Promise",
-          "starter": true
+          "query": "Promise"
         }
       ]
     },
@@ -3282,56 +2911,50 @@
         "ja": "フワワ・アビスガード / モココ・アビスガード",
         "en": "FUWAMOCO"
       },
+      "gens": ["Advent"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(FUWAMOCO)",
             "en": "Ego-search words (FUWAMOCO)"
           },
-          "query": "(\"フワモコ\" OR \"フワワ\" OR \"モココ\")",
-          "starter": true
+          "query": "(\"フワモコ\" OR \"フワワ\" OR \"モココ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(FUWAMOCO)",
             "en": "Ego-search (English) (FUWAMOCO)"
           },
-          "query": "(\"FUWAMOCO\" OR \"Fuwawa\" OR \"Mococo\" OR \"Fuwa\" OR \"Moco\")",
-          "starter": true
+          "query": "(\"FUWAMOCO\" OR \"Fuwawa\" OR \"Mococo\" OR \"Fuwa\" OR \"Moco\")"
         },
         {
           "label": {
             "ja": "🐾 / 🐾🩵 / 🐾🩷(推しマ)",
             "en": "🐾 / 🐾🩵 / 🐾🩷 (Oshi mark)"
           },
-          "query": "🐾 / 🐾🩵 / 🐾🩷",
-          "starter": true
+          "query": "🐾 / 🐾🩵 / 🐾🩷"
         },
         {
           "label": {
             "ja": "Ruffians(ファンネーム)",
             "en": "Ruffians (Fan name)"
           },
-          "query": "Ruffians",
-          "starter": true
+          "query": "Ruffians"
         },
         {
           "label": { "ja": "#FUWAMOCO(配信タグ)", "en": "#FUWAMOCO(配信タグ)" },
-          "query": "#FUWAMOCO",
-          "starter": true
+          "query": "#FUWAMOCO"
         },
         {
           "label": {
             "ja": "#FWMCpix(ファンアートタグ)",
             "en": "#FWMCpix(ファンアートタグ)"
           },
-          "query": "#FWMCpix",
-          "starter": true
+          "query": "#FWMCpix"
         },
         {
           "label": { "ja": "Advent(グループ)", "en": "Advent (Group)" },
-          "query": "Advent",
-          "starter": true
+          "query": "Advent"
         }
       ]
     },
@@ -3340,207 +2963,184 @@
         "ja": "ネリッサ・レイヴンクロフト",
         "en": "Nerissa Ravencroft"
       },
+      "gens": ["Advent"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Nerissa Ravencroft)",
             "en": "Ego-search words (Nerissa Ravencroft)"
           },
-          "query": "(\"ネリッサ・レイヴンクロフト\" OR \"ネリッサ\" OR \"レイヴンクロフト\")",
-          "starter": true
+          "query": "(\"ネリッサ・レイヴンクロフト\" OR \"ネリッサ\" OR \"レイヴンクロフト\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Nerissa Ravencroft)",
             "en": "Ego-search (English) (Nerissa Ravencroft)"
           },
-          "query": "(\"Nerissa Ravencroft\" OR \"Nerissa\" OR \"Ravencroft\" OR \"Rissa\")",
-          "starter": true
+          "query": "(\"Nerissa Ravencroft\" OR \"Nerissa\" OR \"Ravencroft\" OR \"Rissa\")"
         },
         {
           "label": { "ja": "🎼(推しマ)", "en": "🎼 (Oshi mark)" },
-          "query": "🎼",
-          "starter": true
+          "query": "🎼"
         },
         {
           "label": {
             "ja": "Jailbirds(ファンネーム)",
             "en": "Jailbirds (Fan name)"
           },
-          "query": "Jailbirds",
-          "starter": true
+          "query": "Jailbirds"
         },
         {
           "label": {
             "ja": "#RissaLIVE(配信タグ)",
             "en": "#RissaLIVE(配信タグ)"
           },
-          "query": "#RissaLIVE",
-          "starter": true
+          "query": "#RissaLIVE"
         },
         {
           "label": {
             "ja": "#RavenCrafts(ファンアートタグ)",
             "en": "#RavenCrafts(ファンアートタグ)"
           },
-          "query": "#RavenCrafts",
-          "starter": true
+          "query": "#RavenCrafts"
         },
         {
           "label": { "ja": "Advent(グループ)", "en": "Advent (Group)" },
-          "query": "Advent",
-          "starter": true
+          "query": "Advent"
         }
       ]
     },
     {
       "name": { "ja": "古石ビジュー", "en": "Koseki Bijou" },
+      "gens": ["Advent"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Koseki Bijou)",
             "en": "Ego-search words (Koseki Bijou)"
           },
-          "query": "(\"コセキ・ビジュー\" OR \"コセキ\" OR \"ビジュー\")",
-          "starter": true
+          "query": "(\"コセキ・ビジュー\" OR \"コセキ\" OR \"ビジュー\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Koseki Bijou)",
             "en": "Ego-search (English) (Koseki Bijou)"
           },
-          "query": "(\"Koseki Bijou\" OR \"Koseki\" OR \"Bijou\" OR \"Biboo\")",
-          "starter": true
+          "query": "(\"Koseki Bijou\" OR \"Koseki\" OR \"Bijou\" OR \"Biboo\")"
         },
         {
           "label": { "ja": "🗿(推しマ)", "en": "🗿 (Oshi mark)" },
-          "query": "🗿",
-          "starter": true
+          "query": "🗿"
         },
         {
           "label": {
             "ja": "Pebbles(ファンネーム)",
             "en": "Pebbles (Fan name)"
           },
-          "query": "Pebbles",
-          "starter": true
+          "query": "Pebbles"
         },
         {
           "label": { "ja": "#LIVEseki(配信タグ)", "en": "#LIVEseki(配信タグ)" },
-          "query": "#LIVEseki",
-          "starter": true
+          "query": "#LIVEseki"
         },
         {
           "label": {
             "ja": "#bijouwled(ファンアートタグ)",
             "en": "#bijouwled(ファンアートタグ)"
           },
-          "query": "#bijouwled",
-          "starter": true
+          "query": "#bijouwled"
         },
         {
           "label": { "ja": "Advent(グループ)", "en": "Advent (Group)" },
-          "query": "Advent",
-          "starter": true
+          "query": "Advent"
         }
       ]
     },
     {
       "name": { "ja": "シオリ・ノヴェラ", "en": "Shiori Novella" },
+      "gens": ["Advent"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Shiori Novella)",
             "en": "Ego-search words (Shiori Novella)"
           },
-          "query": "(\"シオリ・ノヴェラ\" OR \"シオリ\" OR \"ノヴェラ\")",
-          "starter": true
+          "query": "(\"シオリ・ノヴェラ\" OR \"シオリ\" OR \"ノヴェラ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Shiori Novella)",
             "en": "Ego-search (English) (Shiori Novella)"
           },
-          "query": "(\"Shiori Novella\" OR \"Shiori\" OR \"Novella\" OR \"Shiorin\")",
-          "starter": true
+          "query": "(\"Shiori Novella\" OR \"Shiori\" OR \"Novella\" OR \"Shiorin\")"
         },
         {
           "label": { "ja": "👁️‍🗨️(推しマ)", "en": "👁️‍🗨️ (Oshi mark)" },
-          "query": "👁️‍🗨️",
-          "starter": true
+          "query": "👁️‍🗨️"
         },
         {
           "label": {
             "ja": "Novelites(ファンネーム)",
             "en": "Novelites (Fan name)"
           },
-          "query": "Novelites",
-          "starter": true
+          "query": "Novelites"
         },
         {
           "label": { "ja": "#shiorin(配信タグ)", "en": "#shiorin(配信タグ)" },
-          "query": "#shiorin",
-          "starter": true
+          "query": "#shiorin"
         },
         {
           "label": {
             "ja": "#shioriART(ファンアートタグ)",
             "en": "#shioriART(ファンアートタグ)"
           },
-          "query": "#shioriART",
-          "starter": true
+          "query": "#shioriART"
         },
         {
           "label": { "ja": "Advent(グループ)", "en": "Advent (Group)" },
-          "query": "Advent",
-          "starter": true
+          "query": "Advent"
         }
       ]
     },
     {
       "name": { "ja": "ラオーラ・パンテーラ", "en": "Raora Panthera" },
+      "gens": ["Justice"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Raora Panthera)",
             "en": "Ego-search words (Raora Panthera)"
           },
-          "query": "(\"ラオラ・パンテーラ\" OR \"ラオラ\" OR \"パンテーラ\")",
-          "starter": true
+          "query": "(\"ラオラ・パンテーラ\" OR \"ラオラ\" OR \"パンテーラ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Raora Panthera)",
             "en": "Ego-search (English) (Raora Panthera)"
           },
-          "query": "(\"Raora Panthera\" OR \"Raora\" OR \"Panthera\")",
-          "starter": true
+          "query": "(\"Raora Panthera\" OR \"Raora\" OR \"Panthera\")"
         },
         {
           "label": { "ja": "🐱(推しマ)", "en": "🐱 (Oshi mark)" },
-          "query": "🐱",
-          "starter": true
+          "query": "🐱"
         },
         {
           "label": {
             "ja": "#RaoraLive(配信タグ)",
             "en": "#RaoraLive(配信タグ)"
           },
-          "query": "#RaoraLive",
-          "starter": true
+          "query": "#RaoraLive"
         },
         {
           "label": {
             "ja": "#RaoraArt(ファンアートタグ)",
             "en": "#RaoraArt(ファンアートタグ)"
           },
-          "query": "#RaoraArt",
-          "starter": true
+          "query": "#RaoraArt"
         },
         {
           "label": { "ja": "Justice(グループ)", "en": "Justice (Group)" },
-          "query": "Justice",
-          "starter": true
+          "query": "Justice"
         }
       ]
     },
@@ -3549,240 +3149,213 @@
         "ja": "エリザベス・ローズ・ブラッドフレイム",
         "en": "Elizabeth Rose Bloodflame"
       },
+      "gens": ["Justice"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Elizabeth Rose Bloodflame)",
             "en": "Ego-search words (Elizabeth Rose Bloodflame)"
           },
-          "query": "(\"エリザベス・ローズ・ブラッドフレイム\" OR \"エリザベス\" OR \"ローズ\" OR \"ブラッドフレイム\")",
-          "starter": true
+          "query": "(\"エリザベス・ローズ・ブラッドフレイム\" OR \"エリザベス\" OR \"ローズ\" OR \"ブラッドフレイム\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Elizabeth Rose Bloodflame)",
             "en": "Ego-search (English) (Elizabeth Rose Bloodflame)"
           },
-          "query": "(\"Elizabeth Rose Bloodflame\" OR \"Elizabeth\" OR \"Rose\" OR \"Bloodflame\" OR \"Liz\")",
-          "starter": true
+          "query": "(\"Elizabeth Rose Bloodflame\" OR \"Elizabeth\" OR \"Rose\" OR \"Bloodflame\" OR \"Liz\")"
         },
         {
           "label": { "ja": "💄(推しマ)", "en": "💄 (Oshi mark)" },
-          "query": "💄",
-          "starter": true
+          "query": "💄"
         },
         {
           "label": { "ja": "#LizLive(配信タグ)", "en": "#LizLive(配信タグ)" },
-          "query": "#LizLive",
-          "starter": true
+          "query": "#LizLive"
         },
         {
           "label": {
             "ja": "#BloodflameArt(ファンアートタグ)",
             "en": "#BloodflameArt(ファンアートタグ)"
           },
-          "query": "#BloodflameArt",
-          "starter": true
+          "query": "#BloodflameArt"
         },
         {
           "label": { "ja": "Justice(グループ)", "en": "Justice (Group)" },
-          "query": "Justice",
-          "starter": true
+          "query": "Justice"
         }
       ]
     },
     {
       "name": { "ja": "ジジ・ムリン", "en": "Gigi Murin" },
+      "gens": ["Justice"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Gigi Murin)",
             "en": "Ego-search words (Gigi Murin)"
           },
-          "query": "(\"ジジ・ムリン\" OR \"ジジ\" OR \"ムリン\")",
-          "starter": true
+          "query": "(\"ジジ・ムリン\" OR \"ジジ\" OR \"ムリン\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Gigi Murin)",
             "en": "Ego-search (English) (Gigi Murin)"
           },
-          "query": "(\"Gigi Murin\" OR \"Gigi\" OR \"Murin\" OR \"GG\")",
-          "starter": true
+          "query": "(\"Gigi Murin\" OR \"Gigi\" OR \"Murin\" OR \"GG\")"
         },
         {
           "label": { "ja": "👧(推しマ)", "en": "👧 (Oshi mark)" },
-          "query": "👧",
-          "starter": true
+          "query": "👧"
         },
         {
           "label": { "ja": "#GigiLive(配信タグ)", "en": "#GigiLive(配信タグ)" },
-          "query": "#GigiLive",
-          "starter": true
+          "query": "#GigiLive"
         },
         {
           "label": {
             "ja": "#GigiArt(ファンアートタグ)",
             "en": "#GigiArt(ファンアートタグ)"
           },
-          "query": "#GigiArt",
-          "starter": true
+          "query": "#GigiArt"
         },
         {
           "label": { "ja": "Justice(グループ)", "en": "Justice (Group)" },
-          "query": "Justice",
-          "starter": true
+          "query": "Justice"
         }
       ]
     },
     {
       "name": { "ja": "セシリア・イマーグリーン", "en": "Cecilia Immergreen" },
+      "gens": ["Justice"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Cecilia Immergreen)",
             "en": "Ego-search words (Cecilia Immergreen)"
           },
-          "query": "(\"セシリア・イマーグリーン\" OR \"セシリア\" OR \"イマーグリーン\")",
-          "starter": true
+          "query": "(\"セシリア・イマーグリーン\" OR \"セシリア\" OR \"イマーグリーン\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Cecilia Immergreen)",
             "en": "Ego-search (English) (Cecilia Immergreen)"
           },
-          "query": "(\"Cecilia Immergreen\" OR \"Cecilia\" OR \"Immergreen\" OR \"Ceci\")",
-          "starter": true
+          "query": "(\"Cecilia Immergreen\" OR \"Cecilia\" OR \"Immergreen\" OR \"Ceci\")"
         },
         {
           "label": { "ja": "🍵(推しマ)", "en": "🍵 (Oshi mark)" },
-          "query": "🍵",
-          "starter": true
+          "query": "🍵"
         },
         {
           "label": { "ja": "#CeciLive(配信タグ)", "en": "#CeciLive(配信タグ)" },
-          "query": "#CeciLive",
-          "starter": true
+          "query": "#CeciLive"
         },
         {
           "label": {
             "ja": "#ImmergreenArt(ファンアートタグ)",
             "en": "#ImmergreenArt(ファンアートタグ)"
           },
-          "query": "#ImmergreenArt",
-          "starter": true
+          "query": "#ImmergreenArt"
         },
         {
           "label": { "ja": "Justice(グループ)", "en": "Justice (Group)" },
-          "query": "Justice",
-          "starter": true
+          "query": "Justice"
         }
       ]
     },
     {
       "name": { "ja": "ムーナ・ホシノヴァ", "en": "Moona Hoshinova" },
+      "gens": ["ID 1期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Moona Hoshinova)",
             "en": "Ego-search words (Moona Hoshinova)"
           },
-          "query": "(\"ムーナ・ホシノヴァ\" OR \"ムーナ\" OR \"ホシノヴァ\")",
-          "starter": true
+          "query": "(\"ムーナ・ホシノヴァ\" OR \"ムーナ\" OR \"ホシノヴァ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Moona Hoshinova)",
             "en": "Ego-search (English) (Moona Hoshinova)"
           },
-          "query": "(\"Moona Hoshinova\" OR \"Moona\" OR \"Hoshinova\")",
-          "starter": true
+          "query": "(\"Moona Hoshinova\" OR \"Moona\" OR \"Hoshinova\")"
         },
         {
           "label": { "ja": "🔮(推しマ)", "en": "🔮 (Oshi mark)" },
-          "query": "🔮",
-          "starter": true
+          "query": "🔮"
         },
         {
           "label": {
             "ja": "Moonafic(ファンネーム)",
             "en": "Moonafic (Fan name)"
           },
-          "query": "Moonafic",
-          "starter": true
+          "query": "Moonafic"
         },
         {
           "label": {
             "ja": "#MoonA_Live(配信タグ)",
             "en": "#MoonA_Live(配信タグ)"
           },
-          "query": "#MoonA_Live",
-          "starter": true
+          "query": "#MoonA_Live"
         },
         {
           "label": {
             "ja": "#HoshinovArt(ファンアートタグ)",
             "en": "#HoshinovArt(ファンアートタグ)"
           },
-          "query": "#HoshinovArt",
-          "starter": true
+          "query": "#HoshinovArt"
         },
         {
           "label": { "ja": "ID 1期生(グループ)", "en": "ID Gen 1 (Group)" },
-          "query": "ID 1期生",
-          "starter": true
+          "query": "ID 1期生"
         }
       ]
     },
     {
       "name": { "ja": "アユンダ・リス", "en": "Ayunda Risu" },
+      "gens": ["ID 1期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Ayunda Risu)",
             "en": "Ego-search words (Ayunda Risu)"
           },
-          "query": "(\"アユンダ・リス\" OR \"アユンダ\" OR \"リス\")",
-          "starter": true
+          "query": "(\"アユンダ・リス\" OR \"アユンダ\" OR \"リス\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Ayunda Risu)",
             "en": "Ego-search (English) (Ayunda Risu)"
           },
-          "query": "(\"Ayunda Risu\" OR \"Ayunda\" OR \"Risu\")",
-          "starter": true
+          "query": "(\"Ayunda Risu\" OR \"Ayunda\" OR \"Risu\")"
         },
         {
           "label": { "ja": "🐿️(推しマ)", "en": "🐿️ (Oshi mark)" },
-          "query": "🐿️",
-          "starter": true
+          "query": "🐿️"
         },
         {
           "label": {
             "ja": "Risuners(ファンネーム)",
             "en": "Risuners (Fan name)"
           },
-          "query": "Risuners",
-          "starter": true
+          "query": "Risuners"
         },
         {
           "label": { "ja": "#Risuners(配信タグ)", "en": "#Risuners(配信タグ)" },
-          "query": "#Risuners",
-          "starter": true
+          "query": "#Risuners"
         },
         {
           "label": {
             "ja": "#iRISUtration(ファンアートタグ)",
             "en": "#iRISUtration(ファンアートタグ)"
           },
-          "query": "#iRISUtration",
-          "starter": true
+          "query": "#iRISUtration"
         },
         {
           "label": { "ja": "ID 1期生(グループ)", "en": "ID Gen 1 (Group)" },
-          "query": "ID 1期生",
-          "starter": true
+          "query": "ID 1期生"
         }
       ]
     },
@@ -3791,380 +3364,338 @@
         "ja": "アイラニ・イオフィフティーン",
         "en": "Airani Iofifteen"
       },
+      "gens": ["ID 1期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Airani Iofifteen)",
             "en": "Ego-search words (Airani Iofifteen)"
           },
-          "query": "(\"アイラニ・イオフィフティーン\" OR \"アイラニ\" OR \"イオフィフティーン\" OR \"イオフィ\")",
-          "starter": true
+          "query": "(\"アイラニ・イオフィフティーン\" OR \"アイラニ\" OR \"イオフィフティーン\" OR \"イオフィ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Airani Iofifteen)",
             "en": "Ego-search (English) (Airani Iofifteen)"
           },
-          "query": "(\"Airani Iofifteen\" OR \"Airani\" OR \"Iofifteen\" OR \"Iofi\" OR \"IOFI\")",
-          "starter": true
+          "query": "(\"Airani Iofifteen\" OR \"Airani\" OR \"Iofifteen\" OR \"Iofi\" OR \"IOFI\")"
         },
         {
           "label": { "ja": "🎨(推しマ)", "en": "🎨 (Oshi mark)" },
-          "query": "🎨",
-          "starter": true
+          "query": "🎨"
         },
         {
           "label": {
             "ja": "IOFORIA(ファンネーム)",
             "en": "IOFORIA (Fan name)"
           },
-          "query": "IOFORIA",
-          "starter": true
+          "query": "IOFORIA"
         },
         {
           "label": { "ja": "#IOFORIA(配信タグ)", "en": "#IOFORIA(配信タグ)" },
-          "query": "#IOFORIA",
-          "starter": true
+          "query": "#IOFORIA"
         },
         {
           "label": {
             "ja": "#ioarts(ファンアートタグ)",
             "en": "#ioarts(ファンアートタグ)"
           },
-          "query": "#ioarts",
-          "starter": true
+          "query": "#ioarts"
         },
         {
           "label": { "ja": "ID 1期生(グループ)", "en": "ID Gen 1 (Group)" },
-          "query": "ID 1期生",
-          "starter": true
+          "query": "ID 1期生"
         }
       ]
     },
     {
       "name": { "ja": "クレイジー・オリー", "en": "Kureiji Ollie" },
+      "gens": ["ID 2期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Kureiji Ollie)",
             "en": "Ego-search words (Kureiji Ollie)"
           },
-          "query": "(\"クレイジー・オリー\" OR \"クレイジー\" OR \"オリー\")",
-          "starter": true
+          "query": "(\"クレイジー・オリー\" OR \"クレイジー\" OR \"オリー\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Kureiji Ollie)",
             "en": "Ego-search (English) (Kureiji Ollie)"
           },
-          "query": "(\"Kureiji Ollie\" OR \"Kureiji\" OR \"Ollie\")",
-          "starter": true
+          "query": "(\"Kureiji Ollie\" OR \"Kureiji\" OR \"Ollie\")"
         },
         {
           "label": { "ja": "🧟♀️(推しマ)", "en": "🧟♀️ (Oshi mark)" },
-          "query": "🧟♀️",
-          "starter": true
+          "query": "🧟♀️"
         },
         {
           "label": {
             "ja": "ZOMRADE(ファンネーム)",
             "en": "ZOMRADE (Fan name)"
           },
-          "query": "ZOMRADE",
-          "starter": true
+          "query": "ZOMRADE"
         },
         {
           "label": {
             "ja": "#ZOMRA hom(配信タグ)",
             "en": "#ZOMRA hom(配信タグ)"
           },
-          "query": "#ZOMRA hom",
-          "starter": true
+          "query": "#ZOMRA hom"
         },
         {
           "label": {
             "ja": "#graveyART(ファンアートタグ)",
             "en": "#graveyART(ファンアートタグ)"
           },
-          "query": "#graveyART",
-          "starter": true
+          "query": "#graveyART"
         },
         {
           "label": { "ja": "ID 2期生(グループ)", "en": "ID Gen 2 (Group)" },
-          "query": "ID 2期生",
-          "starter": true
+          "query": "ID 2期生"
         }
       ]
     },
     {
       "name": { "ja": "パヴォリア・レイネ", "en": "Pavolia Reine" },
+      "gens": ["ID 2期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Pavolia Reine)",
             "en": "Ego-search words (Pavolia Reine)"
           },
-          "query": "(\"パヴォリア・レイネ\" OR \"パヴォリア\" OR \"レイネ\")",
-          "starter": true
+          "query": "(\"パヴォリア・レイネ\" OR \"パヴォリア\" OR \"レイネ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Pavolia Reine)",
             "en": "Ego-search (English) (Pavolia Reine)"
           },
-          "query": "(\"Pavolia Reine\" OR \"Pavolia\" OR \"Reine\")",
-          "starter": true
+          "query": "(\"Pavolia Reine\" OR \"Pavolia\" OR \"Reine\")"
         },
         {
           "label": { "ja": "🦚(推しマ)", "en": "🦚 (Oshi mark)" },
-          "query": "🦚",
-          "starter": true
+          "query": "🦚"
         },
         {
           "label": {
             "ja": "MERAKyats(ファンネーム)",
             "en": "MERAKyats (Fan name)"
           },
-          "query": "MERAKyats",
-          "starter": true
+          "query": "MERAKyats"
         },
         {
           "label": {
             "ja": "#Reinessance(配信タグ)",
             "en": "#Reinessance(配信タグ)"
           },
-          "query": "#Reinessance",
-          "starter": true
+          "query": "#Reinessance"
         },
         {
           "label": {
             "ja": "#Reinessance(ファンアートタグ)",
             "en": "#Reinessance(ファンアートタグ)"
           },
-          "query": "#Reinessance",
-          "starter": true
+          "query": "#Reinessance"
         },
         {
           "label": { "ja": "ID 2期生(グループ)", "en": "ID Gen 2 (Group)" },
-          "query": "ID 2期生",
-          "starter": true
+          "query": "ID 2期生"
         }
       ]
     },
     {
       "name": { "ja": "アーニャ・メルフィッサ", "en": "Anya Melfissa" },
+      "gens": ["ID 2期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Anya Melfissa)",
             "en": "Ego-search words (Anya Melfissa)"
           },
-          "query": "(\"アーニャ・メルフィッサ\" OR \"アーニャ\" OR \"メルフィッサ\")",
-          "starter": true
+          "query": "(\"アーニャ・メルフィッサ\" OR \"アーニャ\" OR \"メルフィッサ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Anya Melfissa)",
             "en": "Ego-search (English) (Anya Melfissa)"
           },
-          "query": "(\"Anya Melfissa\" OR \"Anya\" OR \"Melfissa\")",
-          "starter": true
+          "query": "(\"Anya Melfissa\" OR \"Anya\" OR \"Melfissa\")"
         },
         {
           "label": { "ja": "🍂(推しマ)", "en": "🍂 (Oshi mark)" },
-          "query": "🍂",
-          "starter": true
+          "query": "🍂"
         },
         {
           "label": {
             "ja": "MelFriends(ファンネーム)",
             "en": "MelFriends (Fan name)"
           },
-          "query": "MelFriends",
-          "starter": true
+          "query": "MelFriends"
         },
         {
           "label": {
             "ja": "#MelFriends(配信タグ)",
             "en": "#MelFriends(配信タグ)"
           },
-          "query": "#MelFriends",
-          "starter": true
+          "query": "#MelFriends"
         },
         {
           "label": {
             "ja": "#anyatelier(ファンアートタグ)",
             "en": "#anyatelier(ファンアートタグ)"
           },
-          "query": "#anyatelier",
-          "starter": true
+          "query": "#anyatelier"
         },
         {
           "label": { "ja": "ID 2期生(グループ)", "en": "ID Gen 2 (Group)" },
-          "query": "ID 2期生",
-          "starter": true
+          "query": "ID 2期生"
         }
       ]
     },
     {
       "name": { "ja": "こぼ・かなえる", "en": "Kobo Kanaeru" },
+      "gens": ["ID 3期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Kobo Kanaeru)",
             "en": "Ego-search words (Kobo Kanaeru)"
           },
-          "query": "(\"こぼ・かなえる\" OR \"こぼ\" OR \"かなえる\")",
-          "starter": true
+          "query": "(\"こぼ・かなえる\" OR \"こぼ\" OR \"かなえる\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Kobo Kanaeru)",
             "en": "Ego-search (English) (Kobo Kanaeru)"
           },
-          "query": "(\"Kobo Kanaeru\" OR \"Kobo\" OR \"Kanaeru\")",
-          "starter": true
+          "query": "(\"Kobo Kanaeru\" OR \"Kobo\" OR \"Kanaeru\")"
         },
         {
           "label": { "ja": "☔(推しマ)", "en": "☔ (Oshi mark)" },
-          "query": "☔",
-          "starter": true
+          "query": "☔"
         },
         {
           "label": {
             "ja": "Kobokers(ファンネーム)",
             "en": "Kobokers (Fan name)"
           },
-          "query": "Kobokers",
-          "starter": true
+          "query": "Kobokers"
         },
         {
           "label": { "ja": "#Kobokers(配信タグ)", "en": "#Kobokers(配信タグ)" },
-          "query": "#Kobokers",
-          "starter": true
+          "query": "#Kobokers"
         },
         {
           "label": {
             "ja": "#AeruSeni(ファンアートタグ)",
             "en": "#AeruSeni(ファンアートタグ)"
           },
-          "query": "#AeruSeni",
-          "starter": true
+          "query": "#AeruSeni"
         },
         {
           "label": { "ja": "ID 3期生(グループ)", "en": "ID Gen 3 (Group)" },
-          "query": "ID 3期生",
-          "starter": true
+          "query": "ID 3期生"
         }
       ]
     },
     {
       "name": { "ja": "ベスティア・ゼータ", "en": "Vestia Zeta" },
+      "gens": ["ID 3期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Vestia Zeta)",
             "en": "Ego-search words (Vestia Zeta)"
           },
-          "query": "(\"ベスティア・ゼータ\" OR \"ベスティア\" OR \"ゼータ\")",
-          "starter": true
+          "query": "(\"ベスティア・ゼータ\" OR \"ベスティア\" OR \"ゼータ\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Vestia Zeta)",
             "en": "Ego-search (English) (Vestia Zeta)"
           },
-          "query": "(\"Vestia Zeta\" OR \"Vestia\" OR \"Zeta\")",
-          "starter": true
+          "query": "(\"Vestia Zeta\" OR \"Vestia\" OR \"Zeta\")"
         },
         {
           "label": { "ja": "📜(推しマ)", "en": "📜 (Oshi mark)" },
-          "query": "📜",
-          "starter": true
+          "query": "📜"
         },
         {
           "label": {
             "ja": "Zecretary(ファンネーム)",
             "en": "Zecretary (Fan name)"
           },
-          "query": "Zecretary",
-          "starter": true
+          "query": "Zecretary"
         },
         {
           "label": {
             "ja": "#Zecretary(配信タグ)",
             "en": "#Zecretary(配信タグ)"
           },
-          "query": "#Zecretary",
-          "starter": true
+          "query": "#Zecretary"
         },
         {
           "label": {
             "ja": "#Zetacrylic(ファンアートタグ)",
             "en": "#Zetacrylic(ファンアートタグ)"
           },
-          "query": "#Zetacrylic",
-          "starter": true
+          "query": "#Zetacrylic"
         },
         {
           "label": { "ja": "ID 3期生(グループ)", "en": "ID Gen 3 (Group)" },
-          "query": "ID 3期生",
-          "starter": true
+          "query": "ID 3期生"
         }
       ]
     },
     {
       "name": { "ja": "カエラ・コヴァルスキア", "en": "Kaela Kovalskia" },
+      "gens": ["ID 3期生"],
       "words": [
         {
           "label": {
             "ja": "エゴサワード(Kaela Kovalskia)",
             "en": "Ego-search words (Kaela Kovalskia)"
           },
-          "query": "(\"カエラ・コヴァルスキア\" OR \"カエラ\" OR \"コヴァルスキア\")",
-          "starter": true
+          "query": "(\"カエラ・コヴァルスキア\" OR \"カエラ\" OR \"コヴァルスキア\")"
         },
         {
           "label": {
             "ja": "エゴサ英語(Kaela Kovalskia)",
             "en": "Ego-search (English) (Kaela Kovalskia)"
           },
-          "query": "(\"Kaela Kovalskia\" OR \"Kaela\" OR \"Kovalskia\")",
-          "starter": true
+          "query": "(\"Kaela Kovalskia\" OR \"Kaela\" OR \"Kovalskia\")"
         },
         {
           "label": { "ja": "🔨(推しマ)", "en": "🔨 (Oshi mark)" },
-          "query": "🔨",
-          "starter": true
+          "query": "🔨"
         },
         {
           "label": {
             "ja": "KaelaKrew(ファンネーム)",
             "en": "KaelaKrew (Fan name)"
           },
-          "query": "KaelaKrew",
-          "starter": true
+          "query": "KaelaKrew"
         },
         {
           "label": {
             "ja": "#KaelaKrew(配信タグ)",
             "en": "#KaelaKrew(配信タグ)"
           },
-          "query": "#KaelaKrew",
-          "starter": true
+          "query": "#KaelaKrew"
         },
         {
           "label": {
             "ja": "#inKaela(ファンアートタグ)",
             "en": "#inKaela(ファンアートタグ)"
           },
-          "query": "#inKaela",
-          "starter": true
+          "query": "#inKaela"
         },
         {
           "label": { "ja": "ID 3期生(グループ)", "en": "ID Gen 3 (Group)" },
-          "query": "ID 3期生",
-          "starter": true
+          "query": "ID 3期生"
         }
       ]
     }

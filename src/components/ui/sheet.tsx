@@ -3,6 +3,7 @@
 import { X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import type { ReactNode } from "react";
+import { DIALOG_OVERLAY } from "@/components/common/dialog-styles";
 
 /**
  * シート（画面仕様書 3.12）。スマホでは下から、768px 以上では右側から出す。
@@ -30,7 +31,7 @@ export function Sheet({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/40" />
+        <Dialog.Overlay className={DIALOG_OVERLAY} />
         <Dialog.Content
           aria-describedby={undefined}
           className="fixed inset-x-0 bottom-0 z-[60] max-h-[90vh] w-full space-y-3 overflow-auto rounded-t-2xl border bg-background p-4 shadow-xl outline-none md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:w-[28rem] md:rounded-none"

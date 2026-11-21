@@ -130,13 +130,20 @@ export type Interest = {
 export const WordSchema = z.object({
   label: LocalizedTextSchema,
   query: z.string().min(1),
-  starter: z.boolean(),
 });
 export type Word = z.infer<typeof WordSchema>;
 
-/** チャンネル単位。配列の順が表示順 */
+/** 期（ユニット名なども入る。行順が表示順・色の順）。名前の日本語が ID になる */
+export const GenerationSchema = z.object({ name: LocalizedTextSchema });
+export type Generation = z.infer<typeof GenerationSchema>;
+
+/**
+ * チャンネル単位（配信者1人＝1グループ。共通のグループは `gens` が空）。配列の順が表示順。
+ * `gens`：属する期の日本語名（`Generation.name.ja`）。複数のときは先頭が色を決める。
+ */
 export const WordGroupSchema = z.object({
   name: LocalizedTextSchema,
+  gens: z.array(z.string().min(1)),
   words: z.array(WordSchema).min(1),
 });
 export type WordGroup = z.infer<typeof WordGroupSchema>;

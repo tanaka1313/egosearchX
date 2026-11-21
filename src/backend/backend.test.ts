@@ -9,7 +9,7 @@ import {
   type EgoSearchApi,
   type RunPlan,
 } from "@/api";
-import { interests, presetsFor } from "@/data";
+import { interests, presetsFor, streamerGroups } from "@/data";
 import { MemoryAdapter } from "@/lib/storage/kv-adapter";
 import { META_KEY } from "@/lib/storage/migrate";
 import { createBackend } from "./index";
@@ -96,6 +96,104 @@ describe("data.init（初回のプリセット）", () => {
     expect(c.id).toMatch(/^id-/);
     expect(c.createdAt).toBe(NOW);
     expect(c.deletedAt).toBeNull();
+  });
+});
+
+describe("初回の案内（マイ配信者）", () => {
+  it("初回は setup が pending になり、既存のデータ（prefs が無い）は done のまま", async () => {
+    const first = await make().api.data.init();
+    expect(first.prefs?.setup).toBe("pending");
+    expect(first.prefs?.stars).toEqual({});
+    const { kv, api } = make();
+    await api.data.init();
+    await api.data.finishSetup("hololive", [], "ja");
+    const again = await make(kv).api.data.init();
+    expect(again.prefs?.setup).toBe("done");
+  });
+
+  it("finishSetup は、選んだ配信者の語を表示名のボタンにして、プリセットより前に並べる", async () => {
+    const { api } = make();
+    await api.data.init();
+    const { prefs, chips } = await api.data.finishSetup(
+      "hololive",
+      ["ときのそら"],
+      "ja",
+    );
+    expect(prefs.setup).toBe("done");
+    expect(prefs.stars).toEqual({ hololive: ["ときのそら"] });
+    const labels = chips.map((c) => c.label);
+    // 検索文字列（("ときのそら" OR …)）ではなく、表示名（ラベル）が入る
+    expect(labels.slice(0, 3)).toEqual([
+      "エゴサワード(ときのそら)",
+      "エゴサ英語(ときのそら)",
+      "🐻💿(推しマ)",
+    ]);
+    expect(chips[0].query).toBe(
+      '("ときのそら" OR "そらちゃん" OR "そらさん" OR "そら先輩")',
+    );
+    expect(chips[0].isPreset).toBe(false);
+    expect(chips.some((c) => c.isPreset)).toBe(true);
+    expect(chips.findIndex((c) => c.isPreset)).toBeGreaterThanOrEqual(7);
+    expect(chips.every((c) => c.label.length <= LIMITS.chipLabel)).toBe(true);
+  });
+
+  it("finishSetup は、今の言語のラベルで保存し、同じ検索文字列は足さず、選ばない（スキップ）ときは何も足さない", async () => {
+    const en = make();
+    await en.api.data.init();
+    const r = await en.api.data.finishSetup("hololive", ["ときのそら"], "en");
+    expect(r.chips[0].label).toBe(
+      "Ego-search words (Tokino Sora)".slice(0, 19) + "…",
+    );
+    const again = await en.api.data.finishSetup(
+      "hololive",
+      ["ときのそら"],
+      "en",
+    );
+    expect(again.chips).toHaveLength(r.chips.length);
+
+    const none = make();
+    const before = await none.api.data.init();
+    const skipped = await none.api.data.finishSetup("hololive", [], "ja");
+    expect(skipped.chips).toHaveLength(before.chips.get("hololive")!.length);
+    expect(skipped.prefs.setup).toBe("done");
+    expect(skipped.prefs.stars).toEqual({ hololive: [] });
+  });
+
+  it("finishSetup は、上限（LIMITS.myStreamers）を超える数・知らない配信者・知らない対象を断る", async () => {
+    const { api } = make();
+    await api.data.init();
+    const names = streamerGroups("hololive").map((g) => g.name.ja);
+    expect(
+      await code(
+        api.data.finishSetup(
+          "hololive",
+          names.slice(0, LIMITS.myStreamers + 1),
+          "ja",
+        ),
+      ),
+    ).toBe("INVALID");
+    expect(await code(api.data.finishSetup("hololive", ["ghost"], "ja"))).toBe(
+      "INVALID",
+    );
+    expect(await code(api.data.finishSetup("nope", [], "ja"))).toBe(
+      "NOT_FOUND",
+    );
+    // 断ったときは setup を済みにしない
+    expect((await api.data.init()).prefs?.setup).toBe("pending");
+  });
+
+  it("prefs.set の stars は、重複・上限超え・知らない配信者を断り、正しい値は保存する", async () => {
+    const { api } = make();
+    await api.data.init();
+    const bad = (names: string[]) =>
+      code(api.data.prefs.set({ stars: { hololive: names } }));
+    expect(await bad(["ときのそら", "ときのそら"])).toBe("INVALID");
+    expect(await bad(["ghost"])).toBe("INVALID");
+    expect(await bad(["共通"])).toBe("INVALID");
+    const saved = await api.data.prefs.set({
+      stars: { hololive: ["星街すいせい", "ときのそら"] },
+    });
+    expect(saved.stars.hololive).toEqual(["星街すいせい", "ときのそら"]);
   });
 });
 
@@ -655,7 +753,7 @@ describe("clock と計算", () => {
     ).toEqual(payload);
     expect(await code(api.launcher.decode("broken"))).toBe("LAUNCHER_BROKEN");
   });
-  it("starters は履歴が0件のときだけ値を返し、suggest は履歴の検索語を候補にする", () => {
+  it("suggest は履歴の検索語を候補にする", () => {
     const { api } = make();
     const hist = [
       {
@@ -666,9 +764,6 @@ describe("clock と計算", () => {
         source: { kind: "home" as const, label: "" },
       },
     ];
-    expect(
-      api.query.starters({ interest: "hololive", chips: [], history: hist }),
-    ).toEqual([]);
     expect(
       api.query.suggest({
         interest: "hololive",

@@ -141,7 +141,8 @@ type RunSource = HistoryItem["source"] & { groupId?: string };  // groupId：い
 type ParsedUrl = { engine: "x" | "yahoo"; query: string; tokens: { text: string; raw: boolean }[] };
 type LauncherPayload = { name: string; items: PlanItem[] };   // zod スキーマも契約が持つ
 type Interest = { id: InterestId; label: { ja: string; en: string }; list: { label: string; listId: string } | null };
-type Word = { label: LocalizedText; query: string; starter: boolean };           // 検索ワード集の1件。query が本体（別グループに同じ query があってよい）。label は日英の表示名
+type Word = { label: LocalizedText; query: string };           // 検索ワード集の1件。query が本体（別グループに同じ query があってよい）。label は日英の表示名
+type Generation = { name: LocalizedText };                       // 期（行順＝表示順・色の順。名前の日本語が ID）
 type WordGroup = { name: LocalizedText; words: Word[] };                         // チャンネル単位。配列の順が表示順
 type LocalizedText = { ja: string; en: string };                                 // 言語ごとの表示名（英語は Excel の「英語対応表」から。要件定義書 13章）
 type Lang = 'ja' | 'en';
@@ -169,8 +170,10 @@ interface EgoSearchApi {
 | メソッド | 戻り値 | 説明 |
 |---|---|---|
 | `interests()` | `Map<InterestId, Interest>` | ヘッダーの切替。JSON に1件足すだけで増える（要件定義書 11.2） |
+| `generations()` | `Generation[]` | 期の一覧（行順＝表示順・色の順） |
+| `streamers(interest)` | `WordGroup[]` | マイ配信者に選べるグループ（`wordSet` から共通を除いたもの）。無い対象は `[]` |
 | `wordSet(interest: InterestId)` | `WordGroup[]` | 検索ワード集（D4）の全件。**共通のグループが先、続いて対象のグループ**。グループ名・ワードの表示名は ja／en の両方を返し、どちらを出すかは画面が言語で選ぶ。対象のグループが無いときは共通のグループだけ（**決定**。#89・#102） |
-- 検索ワード集の全件は `master.wordSet` で読み、**履歴0件のときにホームに出す分の選び方**は `query.starters`（規則はバックエンドが持つ）。
+- 検索ワード集の全件は `master.wordSet`、マイ配信者に選べるグループは `master.streamers`、期の一覧は `master.generations` で読む。`WordGroup.gens` は期の名前（日本語）の配列（共通のグループは空）。マイ配信者は `prefs.stars`（興味の対象 → グループ名〔日本語〕）、初回の案内は `prefs.setup`（`pending`／`done`）と `data.finishSetup` で扱う。
 - 条件ボタンのプリセットとサジェストの規則は、**バックエンドの内部**に置く（画面は `data.chips.addPresets` と `query.suggest` を通して使う）。
 
 ### 4.2 `query`（同期・純粋。**予定** #71・#12〜#17。規則は要件定義書 F2・F3・F6・11.3・11.4）
@@ -185,7 +188,6 @@ interface EgoSearchApi {
 | `chipConds(chip)`／`condsToQuery(conds)` | `Cond[]`／`string` | 条件ボタンの本体 ⇄ 条件の行（D1） |
 | `validateChip(label: string, conds: Cond[])` | `Result<{ label: string; query: string }>` | D1 の保存前の検証。値が空の行は無視する（`index` は元の行の位置）。ラベルが空なら**検索文字列から作る**（20文字〔`LIMITS.chipLabel`〕を超えたら先頭19文字＋「…」。**決定** 2026-11-19。演算子名を補うと裏側が日本語の名前を作ってしまう）。上限は見ない |
 | `favName(query, favorites)` | `string \| null` | いつものエゴサの項目の表示名（`favNameFor`） |
-| `starters(input: { interest: InterestId; chips: Chip[]; history: HistoryItem[] })` | `string[]` | 履歴が**0件のときだけ**、今の対象の `starter` の `Word.query` を、グループ順・ワード順に、条件ボタンにあるものを除いて最大 `LIMITS.wordSetStarter` 件返す。履歴が1件でもあれば `[]`（**決定**。#89） |
 | `suggest(input: { interest: InterestId; text: string; chips: Chip[]; history: HistoryItem[] })` | `string[]` | 規則（今の対象のもの。**語単位の一致**。検索ワード集から自動で作る）→ 履歴のトークンの順。規則の候補は検索ワード集の検索文字列で、画面が `master.wordSet` から表示名を引いて `WordChip` で出す。条件ボタンにあるもの・検索に入っているものを除き、最大 `LIMITS.suggest`。履歴からは、**期間（`since:`／`until:`）だけを除き、検索語も条件も候補にする**（**決定**。#80） |
 - `applyFavEdit`（お気に入りの編集 → いつものエゴサ）は契約に出さない。`data.favorites.update` の中で使う。
 
@@ -215,7 +217,8 @@ type AppData = {
   favorites: Favorite[]; groups: Group[]; history: HistoryItem[];
 };
 interface DataApi {
-  init(): Promise<AppData>;           // 初回はプリセットを入れる。CORRUPT のときは上書きしない
+  init(): Promise<AppData>;           // 初回はプリセットを入れ、prefs.setup を pending にする。CORRUPT のときは上書きしない
+  finishSetup(interestId: InterestId, names: string[], lang: Lang): Promise<{ prefs: Prefs; chips: Chip[] }>; // 初回の案内（D5）の完了。names＝選んだ配信者（グループ名〔日本語〕。最大 LIMITS.myStreamers。空＝スキップ）。その語を表示名（lang）の条件ボタンにして先頭へ並べ、stars に保存し、setup を done にする。知らない配信者・上限超えは INVALID
   reset(): Promise<AppData>;          // 保存データをすべて破棄してプリセットから作り直す。CORRUPT のとき、ユーザーが D3 で確かめた後だけ呼ぶ（画面仕様書 2.7）
   chips: {
     save(input: ChipInput): Promise<Chip>;                      // 追加・更新。LIMIT
@@ -296,12 +299,12 @@ type TrashDetail =
 | メニュー（言語） | — | `data.prefs.set({ lang })` | 辞書の切替、メニューの開閉 |
 | 帯（全ページ） | `url.plan` | `data.history.record`（source: group、`groupId`） | `window.open`、「今日は実行済み」を `api.clock.isToday(Group.lastRunAt)` で求める（4.5）。保存データが壊れているときの共通の表示と［データを初期化する］（`data.reset`。画面仕様書 2.7） |
 | フッター | — | `data.history.record`（再実行） | 最後の1件を `history` から表示 |
-| **S1 ホーム** | `query.build`、`query.suggest`、`query.starters`、`master.wordSet`（D4）、`query.expand`、`url.plan` | `data.chips.setOn`／`setValue`、`data.saveSearch`（☆ 保存）、`data.history.record`（source: home）、`data.favorites`（［▶ 実行］は `url.plan`＋`record`）、`data.prefs.set({ favOpen })` | 入力中の検索語・詳細条件・期間の状態、`window.open`、クリップボード、保存シート |
+| **S1 ホーム** | `query.build`、`query.suggest`、`master.wordSet`・`master.streamers`・`master.generations`（D4・D5）、`data.prefs.set({ stars })`、`data.finishSetup`（D5）、`query.expand`、`url.plan` | `data.chips.setOn`／`setValue`、`data.saveSearch`（☆ 保存）、`data.history.record`（source: home）、`data.favorites`（［▶ 実行］は `url.plan`＋`record`）、`data.prefs.set({ favOpen })` | 入力中の検索語・詳細条件・期間の状態、`window.open`、クリップボード、保存シート |
 | **S2 条件ボタン・D1** | `query.chipConds`／`condsToQuery`／`validateChip`、`url.listId`、`query.suggest` | `data.chips.save`／`setVisible`／`reorder`／`remove`／`addPresets`／`adoptSuggestion` | 並べ替えの操作、コピー（クリップボード） |
 | **S3 お気に入り** | `url.plan` | `data.favorites.reorder`／`remove`、`record`（source: favorite） | 名前の絞り込み、`window.open`、行の「前回」（`Favorite.lastRunAt`）の表示 |
-| **S3-E お気に入りの編集** | `query.parse`、`query.starters`、`master.wordSet`（D4）、`query.build`、`query.normalize`（関連するいつものエゴサの表示）、`url.plan` | `data.favorites.update`／`save`（［複製］） | ページ内の検索の組み立ての状態、トーストの［元に戻す］（`undo`） |
+| **S3-E お気に入りの編集** | `query.parse`、`master.wordSet`・`master.streamers`・`master.generations`（D4）、`query.build`、`query.normalize`（関連するいつものエゴサの表示）、`url.plan` | `data.favorites.update`／`save`（［複製］） | ページ内の検索の組み立ての状態、トーストの［元に戻す］（`undo`） |
 | **S4 いつものエゴサ** | `url.plan`、`query.favName` | `data.groups.remove`、`launcher.encode`（D2）、`record`（source: group、`groupId`） | 一括の `window.open` とブロック時の表示、URL のコピー |
-| **S4-E 追加・編集** | `query.build`、`query.starters`、`master.wordSet`（D4）、`query.favName`、`query.normalize`、`query.parse`（履歴の重複のまとめと名前）、`url.plan` | `data.groups.save`、`data.favorites.save`（「条件を指定して新しく作る」と履歴からの追加。履歴からは、`query.favName` が無いときだけ作る） | ページ内の項目の並び（保存まで持つ）、検索の組み立ての状態 |
+| **S4-E 追加・編集** | `query.build`、`master.wordSet`・`master.streamers`・`master.generations`（D4）、`query.favName`、`query.normalize`、`query.parse`（履歴の重複のまとめと名前）、`url.plan` | `data.groups.save`、`data.favorites.save`（「条件を指定して新しく作る」と履歴からの追加。履歴からは、`query.favName` が無いときだけ作る） | ページ内の項目の並び（保存まで持つ）、検索の組み立ての状態 |
 | **S5 履歴** | `url.plan` | `data.history.clear`（D3）、`data.favorites.save`（検索先は履歴の `engine` を引き継ぐ）、`record` | 一覧の表示、`window.open` |
 | **S6 削除済み** | **作成済み**（#79） | `src/components/trash/trash-page.tsx`。種類のタブ（すべて／条件ボタン／お気に入り／いつものエゴサ。矢印キーで移動）と、`store.trash`（`trash_load` で読む。読み込み前は何も出さない）の一覧。行は種類のバッジ（条件ボタンは `TrashEntry.interestId` から「条件ボタン（<対象名>）」。対象名は `master.interests()` の `label[lang]`）・名前・削除日時。［中身を見る］で `data.trash.detail`（お気に入りは `query.expand` の文字列、いつものエゴサの項目の名前は `useItemLabel`）。［復元］は確認なし（`trash_restore`）で、戻す先の対象の有効な条件ボタンがストアの `chips` で `LIMITS.chips` 件なら押せず、行の下に辞書の文言を出す（`LIMIT` で失敗したときも同じ。DAO の `e.message` は出さない）。完全削除（1件・種類ごと・すべて）は `ConfirmDialog`（D3）1つを対象で切り替えて必ず挟む。行が消えるので、実行後と復元後のフォーカスは選んでいるタブへ、キャンセルでは押した要素へ戻す（`ConfirmDialog.onCloseAutoFocus`）。`TrashEntry.interestId` は条件ボタンの行だけ |
 | **S6 削除済み・D3** | — | `data.trash.list`／`detail`／`restore`／`purge`／`purgeKind`／`purgeAll` | 種類のタブ、確認ダイアログ |
@@ -355,4 +358,4 @@ type TrashDetail =
 |---|---|
 | いつものエゴサの `lastRunAt` | **済**（#86）。`GroupSchema` に足し、`SCHEMA_VERSION` を2、`migrate.ts` に1→2の移行 |
 | 保存データが壊れたときの初期化 | `data.reset()`、DAO・KV の全消去、全ページ共通の表示と D3（画面仕様書 2.7） |
-| `LIMITS.wordSetStarter` | 履歴0件のときホームに出す検索ワード集の数（暫定60）。**済**（#88）。検索ワード集の型（`Word`・`WordGroup`）も #88 で作成 |
+| `LIMITS.myStreamers` | マイ配信者に選べる数（興味の対象ごと。10）。**済**（#99）。`wordSetStarter` は廃止 |
