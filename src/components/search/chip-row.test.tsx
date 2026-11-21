@@ -63,7 +63,7 @@ describe("ChipRow（条件ボタンの並び）", () => {
     const all = await chipsOf(a);
     const visible = all.filter((c) => c.visible);
     expect(visible.length).toBeGreaterThan(LIMITS.foldChips); // 前提：折りたたまれる数がある
-    await recordOneHistory(a); // 履歴があれば検索ワード集は並びに出ない
+    await recordOneHistory(a); // 履歴があればサジェストが使える
     await mount(a, <ChipRow />);
 
     const group = screen.getByRole("group", { name: "条件ボタン" });
@@ -211,7 +211,7 @@ describe("サジェスト", () => {
   it("サジェストを押すと、この検索にだけ ON になり、クエリに入る。ボタンの ON は変わらない", async () => {
     const a = api();
     const onBefore = (await chipsOf(a)).filter((c) => c.on).map((c) => c.label);
-    // 履歴0件だと、このワードは starter として並びに出てしまうので、サジェストに出すため履歴を1件にする
+    // サジェストに出すため履歴を1件にする
     await recordOneHistory(a);
     await mount(
       a,
@@ -265,7 +265,7 @@ describe("サジェスト", () => {
 
   it("「Suisei」では、規則のない水宮枢のグループの語は出ず、星街すいせいのグループの語が出る", async () => {
     const a = api();
-    await recordOneHistory(a); // 履歴0件だと検索ワード集（starter）が並びに出るので、サジェストだけを見る
+    await recordOneHistory(a); // サジェストだけを見る
     await mount(
       a,
       <>
@@ -285,69 +285,24 @@ describe("サジェスト", () => {
   });
 });
 
-describe("履歴0件のときの検索ワード集（starter）", () => {
-  const starterOf = async (a: EgoSearchApi) => {
-    const data = await a.data.init();
-    return a.query.starters({
-      interest: "hololive",
-      chips: data.chips.get("hololive") ?? [],
-      history: data.history,
-    });
-  };
-
-  it("条件ボタンの続きに starter が並び、先頭 foldChips 個を超える分は［もっと開く］に入る", async () => {
+describe("履歴0件のとき", () => {
+  it("並びは条件ボタンだけ：検索ワード集の語（starter だった語）を足さず、［もっと開く］の数にも入らない", async () => {
     const a = api();
     const visible = (await chipsOf(a)).filter((c) => c.visible);
-    const starters = await starterOf(a);
-    expect(starters.length).toBeGreaterThan(0);
     await mount(a, <ChipRow />);
     const group = screen.getByRole("group", { name: "条件ボタン" });
-    const pressed = (pressedState: boolean) =>
-      within(group).queryAllByRole("button", { pressed: pressedState });
-    expect(pressed(false).length + pressed(true).length).toBe(LIMITS.foldChips);
-    // N は、隠れた条件ボタン＋starter（サジェストは starter と重ならないものだけ）
-    const hidden = visible.length + starters.length - LIMITS.foldChips;
+    expect(group.querySelectorAll("button[aria-pressed]").length).toBe(
+      LIMITS.foldChips,
+    );
+    // N は、隠れた条件ボタンだけ（履歴が無いのでサジェストも無い）
     expect(
       screen.getByRole("button", {
-        name: new RegExp(`もっと開く（\\+${hidden}`),
+        name: `もっと開く（+${visible.length - LIMITS.foldChips}）`,
       }),
     ).toBeVisible();
-  });
-
-  it("開くと starter が並ぶ。ラベルは検索文字列で、押すと同じ位置で ON、もう一度で OFF に戻る", async () => {
-    const a = api();
-    const [first] = await starterOf(a);
-    const onBefore = (await chipsOf(a)).filter((c) => c.on).map((c) => c.label);
-    await mount(
-      a,
-      <>
-        <ChipRow />
-        <QueryPreview />
-      </>,
-    );
     fireEvent.click(screen.getByRole("button", { name: /もっと開く/ }));
-    const word = () => screen.getByRole("button", { name: labeled(first) });
-    expect(word()).toHaveAttribute("aria-pressed", "false");
-    const before = word().getBoundingClientRect();
-    fireEvent.click(word());
-    expect(word()).toHaveAttribute("aria-pressed", "true");
-    expect(queryText()).toHaveTextContent(first);
-    expect(word().getBoundingClientRect()).toEqual(before);
-    // 条件ボタン（保存するもの）には何も書かない
-    expect((await chipsOf(a)).filter((c) => c.on).map((c) => c.label)).toEqual(
-      onBefore,
-    );
-    fireEvent.click(word());
-    expect(word()).toHaveAttribute("aria-pressed", "false");
-  });
-
-  it("履歴が1件でもあれば、starter は並びにも［もっと開く］の中にも出ない", async () => {
-    const a = api();
-    const [first] = await starterOf(a);
-    await recordOneHistory(a);
-    await mount(a, <ChipRow />);
-    fireEvent.click(screen.getByRole("button", { name: /もっと開く/ }));
-    expect(screen.queryByRole("button", { name: labeled(first) })).toBeNull();
+    const word = a.master.wordSet("hololive")[1].words[0]; // 配信者のグループの語
+    expect(screen.queryByTitle(word.query)).toBeNull();
   });
 });
 

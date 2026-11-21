@@ -64,8 +64,6 @@ export type SearchScope = {
   built: BuiltQuery;
   /** サジェストの候補（この検索に入っているもの・条件ボタンにあるものを除く） */
   suggestions: string[];
-  /** 履歴が0件のときだけ、条件ボタンの続きに出す検索ワード集の検索文字列（条件ボタンにあるものを除く） */
-  starters: string[];
   /** 今の興味の対象の検索ワード集（D4 のグループ。ON は `suggestionTokens`＝画面ごとの状態） */
   wordSet: WordGroup[];
   /** ストアの読み込みが済み、操作できる（読み込み中・壊れているときは false） */
@@ -164,16 +162,7 @@ function useScopeCore(input: CoreInput) {
       }),
     [api, interest, state, chips, history],
   );
-  // 履歴0件のときだけ出る検索ワード集。サジェストの候補と同じ文字列は、ボタンが2つ並ばないようサジェスト側から除く
-  const starters = useMemo(
-    () => api.query.starters({ interest, chips, history }),
-    [api, interest, chips, history],
-  );
   const wordSet = useMemo(() => api.master.wordSet(interest), [api, interest]);
-  const suggestionsWithoutStarters = useMemo(
-    () => suggestions.filter((s) => !starters.includes(s)),
-    [suggestions, starters],
-  );
 
   /** 失敗は、壊れたデータなら黙り（書かないのが正しい）、それ以外はトーストで知らせる */
   const guard = useCallback(
@@ -204,8 +193,7 @@ function useScopeCore(input: CoreInput) {
     usedChips,
     isOn: (id: string) => onIds.includes(id),
     built,
-    suggestions: suggestionsWithoutStarters,
-    starters,
+    suggestions,
     wordSet,
     guard,
     run,
@@ -300,7 +288,6 @@ export function HomeScopeProvider({ children }: { children: ReactNode }) {
 
     built: core.built,
     suggestions: core.suggestions,
-    starters: core.starters,
     wordSet: core.wordSet,
     ready,
     run: core.run,
@@ -386,7 +373,6 @@ export function LocalScopeProvider({
 
     built: core.built,
     suggestions: core.suggestions,
-    starters: core.starters,
     wordSet: core.wordSet,
     ready,
     run: core.run,

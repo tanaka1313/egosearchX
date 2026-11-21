@@ -6,6 +6,7 @@
 import { z } from "zod";
 import {
   ChipSchema,
+  GenerationSchema,
   InterestIdSchema,
   WordGroupSchema,
   type LocalizedText,
@@ -118,12 +119,16 @@ export const WordSetSchema = z.record(
   z.array(WordGroupSchema),
 );
 
+/** 期の一覧。行順が、検索ワード集の期の並び順・色の順。名前（日本語）は重複しない */
+export const GenerationsSchema = z.array(GenerationSchema);
+
 export const MasterSchema = z
   .object({
     interests: InterestsSchema,
     presets: PresetsSchema,
     suggestRules: SuggestRulesSchema,
     wordSet: WordSetSchema,
+    generations: GenerationsSchema,
   })
   .superRefine((m, ctx) => {
     const ids = Object.keys(m.interests);
@@ -164,5 +169,20 @@ export const MasterSchema = z
     for (const id of Object.keys(m.suggestRules))
       if (!ids.includes(id))
         issue(["suggestRules", id], `存在しない興味の対象: ${id}`);
+
+    // 期：名前が重複しない。グループの期は一覧にある名前だけ。共通のグループには付けない
+    const genNames = m.generations.map((g) => g.name.ja);
+    genNames.forEach((n, i) => {
+      if (genNames.indexOf(n) !== i)
+        issue(["generations", i], `期の名前が重複している: ${n}`);
+    });
+    for (const [id, groups] of Object.entries(m.wordSet))
+      groups.forEach((g, i) => {
+        if (id === COMMON && g.gens.length > 0)
+          issue(["wordSet", id, i, "gens"], "共通のグループに期は付けられない");
+        for (const n of g.gens)
+          if (!genNames.includes(n))
+            issue(["wordSet", id, i, "gens"], `存在しない期: ${n}`);
+      });
   });
 export type Master = z.infer<typeof MasterSchema>;

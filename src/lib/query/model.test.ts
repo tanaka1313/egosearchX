@@ -11,7 +11,6 @@ import {
   parseToScope,
   periodToTokens,
   splitPeriod,
-  starterWords,
   suggestFromRules,
   tokenize,
 } from "./model";
@@ -427,37 +426,5 @@ describe("suggestFromRules（語単位の一致）", () => {
   it("英字の大文字・小文字と全角・半角の違いは区別しない", () => {
     expect(suggestFromRules("suisei", rules)).toEqual(["#すいせい"]);
     expect(suggestFromRules("ＳＵＩＳＥＩ", rules)).toEqual(["#すいせい"]);
-  });
-});
-
-describe("starterWords（履歴なしのときホームに出す検索ワード集）", () => {
-  const w = (query: string, starter: boolean) => ({
-    query,
-    starter,
-  });
-  it("starter の印が付いたものだけを、元の順で返す", () => {
-    expect(
-      starterWords(
-        [w("#a", true), w("#b", false), w("#c", true)],
-        new Set(),
-        10,
-      ),
-    ).toEqual(["#a", "#c"]);
-  });
-  it("すでにあるもの（条件ボタン・今の検索）は除く", () => {
-    expect(
-      starterWords([w("#a", true), w("#b", true)], new Set(["#a"]), 10),
-    ).toEqual(["#b"]);
-  });
-  it("同じ検索文字列は1件にまとめる", () => {
-    expect(starterWords([w("#a", true), w("#a", true)], new Set(), 10)).toEqual(
-      ["#a"],
-    );
-  });
-  it("上限を超えたら切る（境界：上限ちょうど・0）", () => {
-    const items = [w("#a", true), w("#b", true), w("#c", true)];
-    expect(starterWords(items, new Set(), 3)).toHaveLength(3);
-    expect(starterWords(items, new Set(), 2)).toEqual(["#a", "#b"]);
-    expect(starterWords(items, new Set(), 0)).toEqual([]);
   });
 });

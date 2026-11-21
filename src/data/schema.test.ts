@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { LIMITS } from "@/api";
 import { suggestFromRules } from "@/lib/query/model";
 import {
+  generations,
   interests,
   parseMaster,
   presetsFor,
   suggestRules,
   wordSet,
 } from "./index";
+import generationsJson from "./generations.json";
 import interestsJson from "./interests.json";
 import presetsJson from "./presets.json";
 import suggestRulesJson from "./suggest-rules.json";
@@ -48,15 +49,18 @@ const base = () => ({
     a: [
       {
         name: loc("グループ", "Group"),
-        words: [{ label: loc("w"), query: "w", starter: true }],
+        gens: [] as string[],
+        words: [{ label: loc("w"), query: "w" }],
       },
     ],
   } as Record<string, unknown>,
+  generations: [{ name: loc("1期生", "Gen 1") }] as unknown[],
 });
 
 const group = (...queries: string[]) => ({
   name: loc("g"),
-  words: queries.map((q) => ({ label: loc(q), query: q, starter: false })),
+  gens: [] as string[],
+  words: queries.map((q) => ({ label: loc(q), query: q })),
 });
 
 describe("実データ", () => {
@@ -67,6 +71,7 @@ describe("実データ", () => {
         presets: presetsJson,
         suggestRules: suggestRulesJson,
         wordSet: wordSetJson,
+        generations: generationsJson,
       }),
     ).not.toThrow();
   });
@@ -148,12 +153,15 @@ describe("実データ", () => {
     expect(wordSet("nijisanji")[0].name.ja).toBe("共通");
   });
 
-  it("ホームに出す印（starter）は、上限を超えた分もそのまま持つ（切るのは画面側）", () => {
-    const starters = wordSet("hololive")
-      .flatMap((g) => g.words)
-      .filter((w) => w.starter);
-    expect(starters.length).toBeGreaterThan(0);
-    expect(LIMITS.wordSetStarter).toBeGreaterThan(0);
+  it("実データの配信者グループは、期の一覧にある期を1つ以上持つ。共通は持たない", () => {
+    const names = generations().map((g) => g.name.ja);
+    const members = wordSet("hololive").filter((g) => g.name.ja !== "共通");
+    expect(members.length).toBeGreaterThan(0);
+    for (const g of members) {
+      expect(g.gens.length).toBeGreaterThan(0);
+      for (const n of g.gens) expect(names).toContain(n);
+    }
+    expect(wordSet("hololive")[0].gens).toEqual([]);
   });
 
   it("サジェスト規則の出す条件は、すべてその対象の検索ワード集にある検索文字列", () => {
@@ -211,25 +219,22 @@ describe("parseMaster の正常系", () => {
     expect(suggestRules("b", m)).toEqual([]);
   });
 
-  it("starter が1件も無い、または60件を超えても通る（件数は検証しない）", () => {
-    const none = base();
-    none.wordSet = { a: [group("w")] };
-    expect(() => parseMaster(none)).not.toThrow();
+  it("期：名前の重複・一覧に無い期・共通への期の指定は、検証で止める", () => {
+    const dup = base();
+    dup.generations = [{ name: loc("1期生") }, { name: loc("1期生") }];
+    expect(() => parseMaster(dup)).toThrow(/重複/);
 
-    const many = base();
-    many.wordSet = {
-      a: [
-        {
-          name: loc("g"),
-          words: Array.from({ length: LIMITS.wordSetStarter + 5 }, (_, i) => ({
-            label: loc(`w${i}`),
-            query: `w${i}`,
-            starter: true,
-          })),
-        },
-      ],
-    };
-    expect(() => parseMaster(many)).not.toThrow();
+    const ghost = base();
+    ghost.wordSet = { a: [{ ...group("w"), gens: ["9期生"] }] };
+    expect(() => parseMaster(ghost)).toThrow(/9期生/);
+
+    const common = base();
+    common.wordSet = { common: [{ ...group("w"), gens: ["1期生"] }] };
+    expect(() => parseMaster(common)).toThrow(/共通/);
+
+    const ok = base();
+    ok.wordSet = { a: [{ ...group("w"), gens: ["1期生"] }] };
+    expect(() => parseMaster(ok)).not.toThrow();
   });
 
   it("共通の検索ワードは、どの対象にも先頭に出る", () => {
@@ -276,7 +281,7 @@ describe("parseMaster の異常系", () => {
       a: [
         {
           name: loc("g"),
-          words: [{ label: { ja: "w", en: "" }, query: "w", starter: false }],
+          words: [{ label: { ja: "w", en: "" }, query: "w" }],
         },
       ],
     };
@@ -295,7 +300,7 @@ describe("parseMaster の異常系", () => {
       a: [
         {
           name: loc("g"),
-          words: [{ label: loc("w"), query: "", starter: false }],
+          words: [{ label: loc("w"), query: "" }],
         },
       ],
     };

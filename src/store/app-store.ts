@@ -113,6 +113,12 @@ export type AppState = Data & {
   trash_purgeAll(): Promise<void>;
 
   prefs_set(patch: Partial<Prefs>): Promise<Prefs>;
+  /** 初回の案内（D5）の完了。選んだ配信者の語をボタンにして、setup を done にする（空配列＝スキップ） */
+  setup_finish(
+    interestId: InterestId,
+    names: string[],
+    lang: Lang,
+  ): Promise<void>;
   /** `favorites_update` が返した `undo` を実行し、状態を読み直す */
   undo(undo: () => Promise<void>): Promise<void>;
 };
@@ -313,6 +319,12 @@ export function createAppStore(api: EgoSearchApi): AppStore {
           const prefs = await data.prefs.set(patch);
           set({ prefs });
           return prefs;
+        }),
+      setup_finish: (interestId, names, lang) =>
+        run(async () => {
+          const r = await data.finishSetup(interestId, names, lang);
+          set({ prefs: r.prefs });
+          putChips(r.chips);
         }),
       undo: (undo) => mutate(undo),
     };

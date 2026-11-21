@@ -95,6 +95,10 @@ export const PrefsSchema = z.object({
   lang: z.enum(["ja", "en"]).nullable(),
   /** ホームのお気に入りの開閉 */
   favOpen: z.boolean(),
+  /** マイ配信者（★）。興味の対象 → 検索ワード集のグループ名（日本語）。選んだ順 */
+  stars: z.record(InterestIdSchema, z.array(z.string())),
+  /** 初回の案内（マイ配信者の選択）。pending のあいだだけ D5 を出す。既存のデータは done 扱い */
+  setup: z.enum(["pending", "done"]),
 });
 export type Prefs = z.infer<typeof PrefsSchema>;
 
@@ -102,6 +106,8 @@ export const DEFAULT_PREFS: Prefs = {
   interest: "hololive",
   lang: null,
   favOpen: false,
+  stars: {},
+  setup: "done",
 };
 
 /** 削除済みに出す種類 */

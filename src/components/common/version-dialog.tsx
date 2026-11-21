@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { BUILD_INFO, formatBuildTime, type BuildInfo } from "@/lib/build-info";
 import { useI18n } from "@/store/i18n-context";
+import { DIALOG_OVERLAY } from "@/components/common/dialog-styles";
 
 export function VersionDialog({
   info = BUILD_INFO,
@@ -24,7 +25,7 @@ export function VersionDialog({
         )}
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/40" />
+        <Dialog.Overlay className={DIALOG_OVERLAY} />
         <Dialog.Content className="fixed top-1/2 left-1/2 z-[60] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-lg border bg-background p-4 shadow-xl">
           <Dialog.Title className="font-bold">{t.version.title}</Dialog.Title>
           <Dialog.Description className="mt-1 text-sm text-muted-foreground">

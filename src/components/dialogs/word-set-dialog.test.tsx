@@ -6,7 +6,7 @@ import {
   within,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { type EgoSearchApi } from "@/api";
+import { LIMITS, type EgoSearchApi } from "@/api";
 import { createBackend } from "@/backend";
 import { labeled, mount } from "@/components/search/harness";
 import { QueryPreview } from "@/components/search/query-preview";
@@ -65,9 +65,13 @@ describe("WordSetDialog（D4）", () => {
       ).toHaveFocus(),
     );
     const section = within(dialog()).getByRole("region", { name: g.name.ja });
+    // 見出しには、グループ名に続けて期の名前（文字）も出る
     expect(
-      within(section).getByRole("heading", { name: g.name.ja }),
+      within(section).getByRole("heading", {
+        name: new RegExp(`^${g.name.ja}`),
+      }),
     ).toBeVisible();
+    expect(within(section).getByRole("heading")).toHaveTextContent(g.gens[0]);
     const w = g.words[0];
     const button = within(section).getByRole("button", {
       name: labeled(w.label.ja),
@@ -158,7 +162,129 @@ describe("WordSetDialog（D4）", () => {
     await mount(a, <WordSetDialog />);
     fireEvent.click(screen.getByRole("button", { name: /word/i }));
     const dlg = screen.getByRole("dialog");
-    expect(within(dlg).getByRole("heading", { name: g.name.en })).toBeVisible();
+    expect(
+      within(dlg).getByRole("heading", { name: new RegExp(`^${g.name.en}`) }),
+    ).toBeVisible();
     expect(within(dlg).queryByText(g.name.ja)).toBeNull();
+  });
+});
+
+describe("WordSetDialog：マイ配信者のタブとグループの色", () => {
+  const streamers = (a: EgoSearchApi) => a.master.streamers("hololive");
+  const names = (a: EgoSearchApi) => streamers(a).map((g) => g.name.ja);
+  const tabs = () =>
+    within(dialog())
+      .getAllByRole("tab")
+      .map((t) => t.textContent);
+  const cards = () =>
+    within(screen.getByRole("tabpanel"))
+      .getAllByRole("region")
+      .map((r) => r.getAttribute("aria-label"));
+  const withStars = async (a: EgoSearchApi, stars: string[]) => {
+    await a.data.prefs.set({ stars: { hololive: stars } });
+  };
+
+  it("★が無いときは［その他］だけで、全グループを 共通 → 配信者（JSON の順）に並べる", async () => {
+    const a = api();
+    await open(a);
+    expect(tabs()).toEqual(["その他"]);
+    expect(
+      within(dialog()).getByRole("tab", { name: "その他" }),
+    ).toHaveAttribute("aria-selected", "true");
+    expect(cards()).toEqual(["共通", ...names(a)]);
+  });
+
+  it("★の配信者ごとにタブができ、先頭の★のタブから開く（そのタブはその配信者のグループだけ）", async () => {
+    const a = api();
+    await withStars(a, ["星街すいせい", "ときのそら"]);
+    await open(a);
+    expect(tabs()).toEqual(["星街すいせい", "ときのそら", "その他"]);
+    expect(
+      within(dialog()).getByRole("tab", { name: "星街すいせい" }),
+    ).toHaveAttribute("aria-selected", "true");
+    expect(cards()).toEqual(["星街すいせい"]);
+    fireEvent.click(within(dialog()).getByRole("tab", { name: "ときのそら" }));
+    expect(cards()).toEqual(["ときのそら"]);
+  });
+
+  it("［その他］は 共通 → ★（選んだ順）→ ★と同じ期 → 残り の順に並ぶ", async () => {
+    const a = api();
+    // 星街すいせい（0期生）を★にすると、同じ0期生のグループが ★ の次に来る
+    await withStars(a, ["星街すいせい"]);
+    await open(a);
+    fireEvent.click(within(dialog()).getByRole("tab", { name: "その他" }));
+    const rest = names(a).filter((n) => n !== "星街すいせい");
+    const sameGen = streamers(a)
+      .filter((g) => g.gens.includes("0期生") && g.name.ja !== "星街すいせい")
+      .map((g) => g.name.ja);
+    const others = rest.filter((n) => !sameGen.includes(n));
+    expect(sameGen.length).toBeGreaterThan(0);
+    expect(cards()).toEqual(["共通", "星街すいせい", ...sameGen, ...others]);
+  });
+
+  it("［その他］で☆を押すと★になりタブが増えるが、並びは動かない。もう一度押すと外れる", async () => {
+    const a = api();
+    await open(a);
+    const before = cards();
+    const add = () =>
+      within(dialog()).getByRole("button", {
+        name: "ロボ子さんをマイ配信者に追加",
+      });
+    fireEvent.click(add());
+    await waitFor(() => expect(tabs()).toEqual(["ロボ子さん", "その他"]));
+    expect(cards()).toEqual(before);
+    expect(
+      within(dialog()).getByRole("button", {
+        name: "ロボ子さんをマイ配信者から外す",
+      }),
+    ).toHaveAttribute("aria-pressed", "true");
+    expect((await a.data.init()).prefs?.stars).toEqual({
+      hololive: ["ロボ子さん"],
+    });
+    fireEvent.click(
+      within(dialog()).getByRole("button", {
+        name: "ロボ子さんをマイ配信者から外す",
+      }),
+    );
+    await waitFor(() => expect(tabs()).toEqual(["その他"]));
+  });
+
+  it("上限（LIMITS.myStreamers）に達すると、未選択の☆は押せない。外すと押せる", async () => {
+    const a = api();
+    const all = names(a);
+    await withStars(a, all.slice(0, LIMITS.myStreamers));
+    await open(a);
+    fireEvent.click(within(dialog()).getByRole("tab", { name: "その他" }));
+    const eleventh = within(dialog()).getByRole("button", {
+      name: `${all[LIMITS.myStreamers]}をマイ配信者に追加`,
+    });
+    expect(eleventh).toBeDisabled();
+    fireEvent.click(
+      within(dialog()).getByRole("button", {
+        name: `${all[0]}をマイ配信者から外す`,
+      }),
+    );
+    await waitFor(() => expect(eleventh).toBeEnabled());
+  });
+
+  it("グループは期ごとの色の枠（共通は灰）で囲み、見出しに期の名前も文字で出す", async () => {
+    const a = api();
+    await open(a);
+    const sora = within(dialog()).getByRole("region", { name: "ときのそら" });
+    const common = within(dialog()).getByRole("region", { name: "共通" });
+    const gen1 = within(dialog()).getByRole("region", { name: "夏色まつり" });
+    expect(sora.className).toContain("border-l-sky-400");
+    expect(gen1.className).toContain("border-l-emerald-400");
+    expect(common.className).toContain("border-l-slate-400");
+    expect(sora).toHaveTextContent("0期生");
+    expect(gen1).toHaveTextContent("1期生");
+  });
+
+  it("背景と見分けられるよう、幕は濃く、本体は面と枠で区別する", async () => {
+    await open(api());
+    expect(dialog().className).toMatch(/\bbg-card\b/);
+    expect(dialog().className).toContain("border-2");
+    const overlay = document.querySelector("[data-state=open].fixed.inset-0");
+    expect(overlay?.className).toContain("bg-black/75");
   });
 });

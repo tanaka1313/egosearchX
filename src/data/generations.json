@@ -1,0 +1,24 @@
+[
+  { "name": { "ja": "0期生", "en": "Gen 0" } },
+  { "name": { "ja": "1期生", "en": "Gen 1" } },
+  { "name": { "ja": "2期生", "en": "Gen 2" } },
+  { "name": { "ja": "GAMERS", "en": "GAMERS" } },
+  { "name": { "ja": "3期生", "en": "Gen 3" } },
+  { "name": { "ja": "4期生", "en": "Gen 4" } },
+  { "name": { "ja": "5期生", "en": "Gen 5" } },
+  { "name": { "ja": "6期生（holoX）", "en": "6期生（holoX）" } },
+  {
+    "name": { "ja": "6期生（アフィリエイト）", "en": "6期生（アフィリエイト）" }
+  },
+  { "name": { "ja": "ReGLOSS", "en": "ReGLOSS" } },
+  { "name": { "ja": "FLOW GLOW", "en": "FLOW GLOW" } },
+  { "name": { "ja": "アソビ★まわり隊！", "en": "アソビ★まわり隊！" } },
+  { "name": { "ja": "Myth", "en": "Myth" } },
+  { "name": { "ja": "Myth（活動終了）", "en": "Myth（活動終了）" } },
+  { "name": { "ja": "Promise", "en": "Promise" } },
+  { "name": { "ja": "Advent", "en": "Advent" } },
+  { "name": { "ja": "Justice", "en": "Justice" } },
+  { "name": { "ja": "ID 1期生", "en": "ID Gen 1" } },
+  { "name": { "ja": "ID 2期生", "en": "ID Gen 2" } },
+  { "name": { "ja": "ID 3期生", "en": "ID Gen 3" } }
+]

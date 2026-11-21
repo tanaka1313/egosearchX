@@ -140,6 +140,14 @@ export const en: Messages = {
     recordFailed: "Could not save to history",
     resetFailed: "Could not reset the data",
   },
+  setup: {
+    title: "Choose My streamers",
+    lead: (max: number) =>
+      `Pick streamers you care about and their search words (ego-search words, tags, etc.) are added as condition buttons. Up to ${max}; you can change this later in Word sets. You can also skip.`,
+    count: (n: number, max: number) => `${n}/${max} selected`,
+    skip: "Skip",
+    done: (n: number) => `Done (${n})`,
+  },
   version: {
     open: "Version info",
     title: "Version info",
@@ -213,6 +221,15 @@ export const en: Messages = {
       filterPlaceholder: "Filter by name or tag",
       none: "No matches",
       close: "Close",
+      tabs: "Word set tabs",
+      tabOther: "Others",
+      myStreamer: "My streamer",
+      starCount: (n: number, max: number) =>
+        `My streamers ${n}/${max} (starred streamers become tabs)`,
+      starAdd: (name: string) => `Add ${name} to My streamers`,
+      starRemove: (name: string) => `Remove ${name} from My streamers`,
+      starLimit: (max: number) =>
+        `You can have up to ${max} streamers. Remove one to add another`,
     },
     paramLabel: {
       min_faves: "Likes",

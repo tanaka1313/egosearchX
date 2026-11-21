@@ -4,6 +4,7 @@ import { useRef, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { focusMain, isFocusable } from "@/lib/focus";
 import { useI18n } from "@/store/i18n-context";
+import { DIALOG_OVERLAY_TOP } from "@/components/common/dialog-styles";
 
 /**
  * 元に戻せない操作の確認（D3。画面仕様書 3.12）。
@@ -34,7 +35,7 @@ export function ConfirmDialog({
   return (
     <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 z-[65] bg-black/50" />
+        <AlertDialog.Overlay className={DIALOG_OVERLAY_TOP} />
         <AlertDialog.Content
           // 初期フォーカス（［キャンセル］）へ移る前に呼ばれるので、まだ押した要素にフォーカスがある
           onOpenAutoFocus={() => {

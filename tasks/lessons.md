@@ -142,3 +142,14 @@
 - Mistake: 「共通」がふりがな付きで「共通キョウツウ」になりうる。真偽値も 0/1 と "TRUE" が混在していた。
 - Rule: Excel の値は、読み取り関数（`cellText`・`cellBool`）を通す。入力の揺れは、実データで確かめてから決める。
 - Check: 実ファイルの特定セル（`検索ワード集!A2 === "共通"`）をテストで確かめる。
+
+## ボタンのラベルに検索文字列を渡していた（検索ワード集）
+- Mistake: 履歴0件のホームに並べる検索ワード集のボタンを、`label` に検索文字列（`query`）を渡して描いた。ユーザーが見たのは `("ときのそら" OR …)` で、期待は表示名「エゴサワード(ときのそら)」だった。
+- Rule: ボタンの表示は必ず表示名（`label`）から作り、検索文字列は `title`・保存・クエリにだけ使う。同じデータを2か所で描くときは、同じ部品（`WordChip`）に表示名を渡す。
+- Check: 画面を実際に開いて、ボタンに検索コマンドの記号（`OR`・`"`・`filter:`）が出ていないか見る。部品を呼ぶ側で `label={x.query}` のような代入が無いか grep する。
+
+## 作業環境が Linux で、node_modules が Windows 用だった
+- Mistake: なし（早めに気づいた）。`vitest` が rolldown のネイティブバインディングで起動しなかった。
+- Rule: この共有ツリーの `node_modules` は壊さず、scratchpad に `npm ci` した Linux 用を置き、`rsync`（node_modules・.git を除く）で作業ツリーを写して検証する。`.ts` を読む生成プログラムは Node 22 では `jiti` で動かす。
+- Check: 検証コマンドが「Cannot find native binding」で落ちたら、すぐ別の node_modules に切り替える。
+

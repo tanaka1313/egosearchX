@@ -2,6 +2,7 @@
 
 import { Search } from "lucide-react";
 import Link from "next/link";
+import { MyStreamersDialog } from "@/components/dialogs/my-streamers-dialog";
 import { ConditionFrame } from "@/components/search/condition-frame";
 import { OpenBar } from "@/components/search/open-bar";
 import {
@@ -21,6 +22,7 @@ export function HomePage() {
   return (
     <HomeScopeProvider>
       <HomeBody />
+      <MyStreamersDialog />
     </HomeScopeProvider>
   );
 }
