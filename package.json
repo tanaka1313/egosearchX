@@ -13,6 +13,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
+    "gen:master": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/gen-master.mjs && vitest run src/data",
+    "gen:suggest-review": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/gen-suggest-review.mjs",
     "prepare": "husky"
   },
   "dependencies": {
@@ -43,6 +45,7 @@
     "eslint": "^10",
     "eslint-config-next": "16.4.6",
     "eslint-config-prettier": "^10.1.8",
+    "exceljs": "^4.4.0",
     "husky": "^9.1.7",
     "jsdom": "^31.0.1",
     "lint-staged": "^17.6.1",

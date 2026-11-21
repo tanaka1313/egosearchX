@@ -24,6 +24,7 @@ import {
   type GroupInput,
   type HistoryItem,
   type InterestId,
+  type Lang,
   type Period,
   type Prefs,
   type RunPlan,
@@ -89,7 +90,7 @@ export type AppState = Data & {
   chips_setValue(id: string, condId: string, value: string): Promise<Chip>;
   chips_reorder(interestId: InterestId, ids: string[]): Promise<void>;
   chips_remove(id: string): Promise<void>;
-  chips_addPresets(interestId: InterestId): Promise<Chip[]>;
+  chips_addPresets(interestId: InterestId, lang: Lang): Promise<Chip[]>;
   chips_adoptSuggestion(interestId: InterestId, token: string): Promise<Chip>;
 
   favorites_save(input: FavoriteInput): Promise<Favorite>;
@@ -249,9 +250,9 @@ export function createAppStore(api: EgoSearchApi): AppStore {
       chips_reorder: (interestId, ids) =>
         mutate(() => data.chips.reorder(interestId, ids)),
       chips_remove: (id) => mutate(() => data.chips.remove(id)),
-      chips_addPresets: (interestId) =>
+      chips_addPresets: (interestId, lang) =>
         run(async () => {
-          const added = await data.chips.addPresets(interestId);
+          const added = await data.chips.addPresets(interestId, lang);
           putChips(added);
           return added;
         }),

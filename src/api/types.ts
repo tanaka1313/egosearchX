@@ -6,7 +6,7 @@ import {
   type HistoryItem,
   type InterestId,
 } from "./entities";
-import type { FilterKey, ParamOp } from "./constants";
+import type { FilterKey, ValueOp } from "./constants";
 import type { Issue } from "./issues";
 
 export type Period = {
@@ -51,8 +51,9 @@ export type CondKind =
   | "filter"
   | "raw"
   | "number"
-  | "date";
-export type Cond = { id: string; kind: CondKind; value: string; op?: ParamOp };
+  | "date"
+  | "text";
+export type Cond = { id: string; kind: CondKind; value: string; op?: ValueOp };
 
 /** 検索の組み立ての状態（ホームもページ内の組み立ても同じ形） */
 export type SearchState = {
@@ -109,15 +110,25 @@ export type ParsedUrl = {
   tokens: { text: string; raw: boolean }[];
 };
 
+/** 表示言語 */
+export type Lang = "ja" | "en";
+
+/** 言語ごとの表示名（マスタの名前・ラベル）。日本語と英語の対応は Excel の「英語対応表」で管理する */
+export const LocalizedTextSchema = z.object({
+  ja: z.string().min(1),
+  en: z.string().min(1),
+});
+export type LocalizedText = z.infer<typeof LocalizedTextSchema>;
+
 export type Interest = {
   id: InterestId;
-  label: { ja: string; en: string };
-  list: { label: string; listId: string } | null;
+  label: LocalizedText;
+  list: { label: LocalizedText; listId: string } | null;
 };
 
-/** 検索ワード集の1件。query が本体（興味の対象の中での重複の検証は、マスタ全体のスキーマが行う） */
+/** 検索ワード集の1件。query が本体。label は言語ごとの表示名（検索文字列は言語で変わらない） */
 export const WordSchema = z.object({
-  label: z.string().min(1),
+  label: LocalizedTextSchema,
   query: z.string().min(1),
   starter: z.boolean(),
 });
@@ -125,7 +136,7 @@ export type Word = z.infer<typeof WordSchema>;
 
 /** チャンネル単位。配列の順が表示順 */
 export const WordGroupSchema = z.object({
-  name: z.object({ ja: z.string().min(1), en: z.string().min(1) }),
+  name: LocalizedTextSchema,
   words: z.array(WordSchema).min(1),
 });
 export type WordGroup = z.infer<typeof WordGroupSchema>;

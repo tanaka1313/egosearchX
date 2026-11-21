@@ -20,6 +20,7 @@ import type {
   BuiltQuery,
   Cond,
   Interest,
+  Lang,
   LauncherPayload,
   ParsedScope,
   ParsedUrl,
@@ -66,6 +67,7 @@ export interface QueryApi {
   }): string[];
   /** 規則 → 履歴のトークンの順。最大 `LIMITS.suggest` */
   suggest(input: {
+    interest: InterestId;
     text: string;
     chips: Chip[];
     history: HistoryItem[];
@@ -145,7 +147,7 @@ export interface DataApi {
     reorder(interestId: InterestId, ids: string[]): Promise<void>;
     remove(id: string): Promise<void>;
     /** 正規化した検索文字列が一致するボタンが無いものだけ（削除済みを除く）。上限まで。足したものを返す */
-    addPresets(interestId: InterestId): Promise<Chip[]>;
+    addPresets(interestId: InterestId, lang: Lang): Promise<Chip[]>;
     adoptSuggestion(interestId: InterestId, token: string): Promise<Chip>;
   };
   favorites: {

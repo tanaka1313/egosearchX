@@ -35,6 +35,7 @@ export function createQueryApi(clock: Clock): QueryApi {
         wordSet(interest).flatMap((g) => g.words),
         LIMITS.wordSetStarter,
       ),
-    suggest: (input) => suggest(input, suggestRules(), LIMITS.suggest),
+    suggest: (input) =>
+      suggest(input, suggestRules(input.interest), LIMITS.suggest),
   };
 }

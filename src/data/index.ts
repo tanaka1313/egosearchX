@@ -9,6 +9,7 @@ import presetsJson from "./presets.json";
 import suggestRulesJson from "./suggest-rules.json";
 import wordSetJson from "./word-set.json";
 import {
+  COMMON,
   expandPresets,
   MasterSchema,
   type Master,
@@ -41,11 +42,15 @@ export function presetsFor(id: InterestId, master: Master = MASTER): Preset[] {
   return expandPresets(master.presets, master.interests, id);
 }
 
-export function suggestRules(master: Master = MASTER): SuggestRule[] {
-  return master.suggestRules;
+/** 対象のサジェストの規則。規則が無ければ空配列 */
+export function suggestRules(
+  id: InterestId,
+  master: Master = MASTER,
+): SuggestRule[] {
+  return master.suggestRules[id] ?? [];
 }
 
-/** 検索ワード集。対象が無い、または集が無ければ空配列 */
+/** 検索ワード集。共通のグループが先、続いて対象のグループ。どちらも無ければ空配列 */
 export function wordSet(id: InterestId, master: Master = MASTER): WordGroup[] {
-  return master.wordSet[id] ?? [];
+  return [...(master.wordSet[COMMON] ?? []), ...(master.wordSet[id] ?? [])];
 }

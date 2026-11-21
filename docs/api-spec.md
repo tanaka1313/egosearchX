@@ -110,7 +110,7 @@ type Detail = {                        // 詳細条件。EMPTY_DETAIL は契約�
   raw: string;                         // 「テキストで追加」
 };
 type CondKind = "word" | "exact" | "exclude" | "list" | "account" | "filter" | "raw" | "number" | "date";
-type Cond = { id: string; kind: CondKind; value: string; op?: ParamOp };
+type Cond = { id: string; kind: CondKind; value: string; op?: ValueOp };
 
 /** 検索の組み立ての状態（ホームもページ内の組み立ても同じ形。画面仕様書 3.1） */
 type SearchState = {
@@ -141,11 +141,13 @@ type RunSource = HistoryItem["source"] & { groupId?: string };  // groupId：い
 type ParsedUrl = { engine: "x" | "yahoo"; query: string; tokens: { text: string; raw: boolean }[] };
 type LauncherPayload = { name: string; items: PlanItem[] };   // zod スキーマも契約が持つ
 type Interest = { id: InterestId; label: { ja: string; en: string }; list: { label: string; listId: string } | null };
-type Word = { label: string; query: string; starter: boolean };                  // 検索ワード集の1件。query が本体（興味の対象の中で重複しない）
-type WordGroup = { name: { ja: string; en: string }; words: Word[] };           // チャンネル単位。配列の順が表示順
+type Word = { label: LocalizedText; query: string; starter: boolean };           // 検索ワード集の1件。query が本体（別グループに同じ query があってよい）。label は日英の表示名
+type WordGroup = { name: LocalizedText; words: Word[] };                         // チャンネル単位。配列の順が表示順
+type LocalizedText = { ja: string; en: string };                                 // 言語ごとの表示名（英語は Excel の「英語対応表」から。要件定義書 13章）
+type Lang = 'ja' | 'en';
 ```
-- 検索ワード集（`Word`・`WordGroup`）は、マスタ JSON（`src/data/word-set.json`。興味の対象 ID をキーにした Record）から読む。保存はしない。ワードの ON は、サジェストと同じく `SearchState.suggestionTokens`（その検索だけ）に入る。
-- `ParamOp`・`FilterKey` は、**契約が持つ定数**（`PARAM_OP_TYPES: Record<ParamOp, "number" | "date">`、`FILTER_KEYS`）から導く。ラベル・接尾語などの文言は辞書が持つ。`operators.ts`（エンジン別の対応と `status`）は、この定数を import して、キーを1か所に揃える（**決定**）。
+- 検索ワード集（`Word`・`WordGroup`）は、マスタ JSON（`src/data/word-set.json`。興味の対象 ID か `common`（共通のグループ）をキーにした Record。Excel から `npm run gen:master` が作る）から読む。保存はしない。ワードの ON は、サジェストと同じく `SearchState.suggestionTokens`（その検索だけ）に入る。
+- `ValueOp`・`ParamOp`・`FilterKey` は、**契約が持つ定数**（`VALUE_OPS`＝条件ボタン・検索ワードで値を入れられる演算子と、検索文字列での書き方・値の種類〔`number`／`date`／`text`〕。`PARAM_OP_TYPES`＝検索の木が持つ数値・日付の演算子。`FILTER_KEYS`）から導く。`isValidValue`・`isPeriodOp` も契約が持つ。ラベル・接尾語などの文言は辞書が持つ。`operators.ts`（エンジン別の対応と `status`）は、この定数を import して、キーを1か所に揃える（**決定**）。
 - `onChipIds` は、モックの `onIds` を改名したもの。
 - `OpenTarget.query` は、開く時点の保存形（記号を日付に展開済み。X の構文）。履歴にはこれを残す（要件定義書 11.4「開く」。**決定**）。`url` だけが、検索先ごとの変換を受ける。
 - `Group` に `lastRunAt`（null 可）を持つ（**決定**。「今日は実行済み」の判定に使う）。スキーマの版2で追加し、`migrate.ts` の1→2が、既存のいつものエゴサを null にして、5つの表を版2のキーへ運ぶ（groups 以外は文字列のまま。壊れた groups は何も書かず `CORRUPT`。版1のキーは消さない）。**作成済み**（#86）。
@@ -167,7 +169,7 @@ interface EgoSearchApi {
 | メソッド | 戻り値 | 説明 |
 |---|---|---|
 | `interests()` | `Map<InterestId, Interest>` | ヘッダーの切替。JSON に1件足すだけで増える（要件定義書 11.2） |
-| `wordSet(interest: InterestId)` | `WordGroup[]` | 検索ワード集（D4）の全件。グループ名は ja／en の両方を返し、どちらを出すかは画面が言語で選ぶ。対象が無い・空のときは `[]`（**決定**。#89） |
+| `wordSet(interest: InterestId)` | `WordGroup[]` | 検索ワード集（D4）の全件。**共通のグループが先、続いて対象のグループ**。グループ名・ワードの表示名は ja／en の両方を返し、どちらを出すかは画面が言語で選ぶ。対象のグループが無いときは共通のグループだけ（**決定**。#89・#102） |
 - 検索ワード集の全件は `master.wordSet` で読み、**履歴0件のときにホームに出す分の選び方**は `query.starters`（規則はバックエンドが持つ）。
 - 条件ボタンのプリセットとサジェストの規則は、**バックエンドの内部**に置く（画面は `data.chips.addPresets` と `query.suggest` を通して使う）。
 
@@ -184,7 +186,7 @@ interface EgoSearchApi {
 | `validateChip(label: string, conds: Cond[])` | `Result<{ label: string; query: string }>` | D1 の保存前の検証。値が空の行は無視する（`index` は元の行の位置）。ラベルが空なら**検索文字列から作る**（20文字〔`LIMITS.chipLabel`〕を超えたら先頭19文字＋「…」。**決定** 2026-11-19。演算子名を補うと裏側が日本語の名前を作ってしまう）。上限は見ない |
 | `favName(query, favorites)` | `string \| null` | いつものエゴサの項目の表示名（`favNameFor`） |
 | `starters(input: { interest: InterestId; chips: Chip[]; history: HistoryItem[] })` | `string[]` | 履歴が**0件のときだけ**、今の対象の `starter` の `Word.query` を、グループ順・ワード順に、条件ボタンにあるものを除いて最大 `LIMITS.wordSetStarter` 件返す。履歴が1件でもあれば `[]`（**決定**。#89） |
-| `suggest(input: { text: string; chips: Chip[]; history: HistoryItem[] })` | `string[]` | 規則 → 履歴のトークンの順。条件ボタンにあるもの・検索に入っているものを除き、最大 `LIMITS.suggest`。履歴からは、**期間（`since:`／`until:`）だけを除き、検索語も条件も候補にする**（**決定**。#80） |
+| `suggest(input: { interest: InterestId; text: string; chips: Chip[]; history: HistoryItem[] })` | `string[]` | 規則（今の対象のもの。**語単位の一致**。検索ワード集から自動で作る）→ 履歴のトークンの順。規則の候補は検索ワード集の検索文字列で、画面が `master.wordSet` から表示名を引いて `WordChip` で出す。条件ボタンにあるもの・検索に入っているものを除き、最大 `LIMITS.suggest`。履歴からは、**期間（`since:`／`until:`）だけを除き、検索語も条件も候補にする**（**決定**。#80） |
 - `applyFavEdit`（お気に入りの編集 → いつものエゴサ）は契約に出さない。`data.favorites.update` の中で使う。
 
 ### 4.3 `url`（同期・純粋。`plan` は**作成済み**＝#18、`lib/url/build.ts` の `planRun(items, today)`。`parse`・`listId` は**作成済み**＝#19、`lib/url/parse.ts` の `parseUrl(input)`、`list-id.ts` の `parseListId(input)`）
@@ -222,7 +224,7 @@ interface DataApi {
     setValue(id: string, condId: string, value: string): Promise<Chip>;   // 値付きの条件。query を書き換え、on にする
     reorder(interestId: InterestId, ids: string[]): Promise<void>;
     remove(id: string): Promise<void>;                          // 削除済みへ
-    addPresets(interestId: InterestId): Promise<Chip[]>;        // 検索文字列（正規化）が一致するボタンが無いものだけ（削除済みを除く）。上限まで。足したものを返す
+    addPresets(interestId: InterestId, lang: Lang): Promise<Chip[]>; // 検索文字列（正規化）が一致するボタンが無いものだけ（削除済みを除く）。上限まで。足したものを返す。ラベルは lang のものを保存する（初回の自動追加はブラウザの言語＝`createBackend` の `initialLang`）
     adoptSuggestion(interestId: InterestId, token: string): Promise<Chip>;   // LIMIT
   };
   favorites: {

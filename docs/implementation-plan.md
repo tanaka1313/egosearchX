@@ -18,6 +18,7 @@
 
 ## 2. ディレクトリ構成
 ```
+scripts/                Excel → マスタ JSON の生成（Issue #102）。`gen-master.mjs`（`npm run gen:master`。`--sync-dict` で英語対応表に足りない日本語を足す）、`gen-suggest-review.mjs`（`npm run gen:suggest-review`。サジェスト規則の確認用 Excel）、`lib/master-from-rows.mjs`（純粋な変換。テストは `gen-master.test.mjs`）、`lib/dict-seed.mjs`（英語対応表の初期の行）
 src/
   app/
     providers.tsx         組み立て（createBackend を呼ぶ唯一の場所。docs/api-spec.md 1.2）
@@ -84,9 +85,9 @@ src/
   store/                  zustand のストアと useApi()（契約だけを使う。`api-context.tsx`・`app-store.ts`・`store-context.tsx` は作成済み。ホームの検索の組み立て `home` はここにあり、保存しない）
   data/
     interests.json        興味の対象（ID・表示名・既定リスト）。ID をキーにした Map で扱う
-    presets.json          条件ボタンのプリセット。共通＋各対象の1本の並び（`interest` が `common` か対象 ID）。既定リストは目印の行の位置に入る（中身は Issue #70）
-    suggest-rules.json    サジェストの規則（中身は Issue #70）
-    word-set.json         検索ワード集（興味の対象ごと。チャンネル単位のグループ、グループ名は ja／en。約200件。中身は Issue #70、画面は Issue #89）
+    presets.json          条件ボタンのプリセット。共通＋各対象の1本の並び（`interest` が `common` か対象 ID）。既定リストは目印の行の位置に入る。ラベルは ja／en（中身は Issue #70・#102）
+    suggest-rules.json    サジェストの規則（対象 ID をキーにした Record。検索ワード集から自動で作る。Issue #102）
+    word-set.json         検索ワード集（興味の対象 ID か `common` ごと。チャンネル単位のグループ、グループ名・表示名は ja／en。Issue #70・#89・#102）
     schema.ts             マスタ JSON の zod スキーマと、ファイルをまたぐ検証（`MasterSchema`）
     index.ts              読み込み時に検証して返す（`interests`・`presetsFor`・`suggestRules`・`wordSet`）。`prebuild` で `src/data` のテストが走る
 ```

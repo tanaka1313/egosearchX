@@ -10,19 +10,19 @@ import {
   EMPTY_DETAIL,
   EMPTY_PERIOD,
   FILTER_KEYS,
-  PARAM_OP_TYPES,
+  VALUE_OPS,
+  isValidValue,
   type Chip,
   type Cond,
   type Detail,
   type Engine,
   type GroupItem,
-  type ParamOp,
   type ParsedScope,
   type Period,
+  type ValueOp,
+  type ValueType,
   type Word,
 } from "@/api";
-
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
  * 相対期間の記号。保存する検索文字列にはこの記号のまま入れ、開く時点の日付で `since:YYYY-MM-DD` に展開する。
@@ -34,8 +34,13 @@ export const REL_PERIODS = [
   { kind: "d7", token: "since:1week_ago", days: 7 },
 ] as const;
 
-/** サジェストの規則：検索文字列に when のどれかが含まれていれば suggest を出す */
-export type SuggestRule = { when: string[]; suggest: string[] };
+/** サジェストの規則：検索文字列の語に when のどれかが一致すれば（語単位）suggest を出す */
+export type SuggestRule = {
+  when: string[];
+  suggest: string[];
+  /** 確認用のグループ名（日本語）。照合には使わない */
+  group?: string;
+};
 
 export function addDay(date: string, n: number): string {
   const d = new Date(`${date}T00:00:00Z`);
@@ -114,26 +119,30 @@ export function splitPeriod(tokens: string[]): {
   return { period, rest };
 }
 
-const PARAM_RE = new RegExp(
-  `^(${Object.keys(PARAM_OP_TYPES).join("|")}):(.*)$`,
-);
+/** 値付きの演算子。接頭辞が長いものから照合する（`-@` を `@` より先に） */
+const VALUE_OP_LIST = (
+  Object.entries(VALUE_OPS) as [ValueOp, { prefix: string; type: ValueType }][]
+).sort((a, b) => b[1].prefix.length - a[1].prefix.length);
+
+/** トークンが値付きの演算子なら、演算子と値（空もありうる）を返す */
+function matchValueOp(
+  token: string,
+): { op: ValueOp; type: ValueType; value: string } | null {
+  for (const [op, d] of VALUE_OP_LIST)
+    if (token.startsWith(d.prefix))
+      return { op, type: d.type, value: token.slice(d.prefix.length) };
+  return null;
+}
 
 /** 1トークンを条件の行にする（種類の判定） */
 export function tokenToCond(token: string, id: string): Cond {
-  const p = token.match(PARAM_RE);
-  if (p) {
-    const op = p[1] as ParamOp;
-    const type = PARAM_OP_TYPES[op];
-    return { id, kind: type, op, value: p[2] };
-  }
+  const p = matchValueOp(token);
+  if (p) return { id, kind: p.type, op: p.op, value: p.value };
   if (/^"[^"]*"$/.test(token))
     return { id, kind: "exact", value: token.slice(1, -1) };
   if (/^-?(filter|lang):/.test(token))
     return { id, kind: "filter", value: token };
-  const list = token.match(/^list:(\d+)$/);
-  if (list) return { id, kind: "list", value: list[1] };
-  if (/^-?(from|to):|^-?@/.test(token))
-    return { id, kind: "account", value: token };
+  if (/^-?to:/.test(token)) return { id, kind: "account", value: token };
   if (token.includes(":") || token.startsWith("("))
     return { id, kind: "raw", value: token };
   if (/^-[^-]/.test(token))
@@ -150,10 +159,12 @@ export function condToken(c: Cond): string {
   if (!v) return "";
   switch (c.kind) {
     case "number":
-      return c.op && /^[1-9]\d*$/.test(v) ? `${c.op}:${v}` : "";
     case "date":
-      if (!c.op || !DATE_RE.test(v)) return "";
-      return `${c.op}:${v}`;
+    case "text":
+      // 値付きの演算子。値が正しい形でなければ検索に入れない
+      return c.op && isValidValue(VALUE_OPS[c.op].type, v)
+        ? `${VALUE_OPS[c.op].prefix}${v}`
+        : "";
     case "exact":
       return `"${v}"`;
     case "exclude":
@@ -167,8 +178,8 @@ export function condToken(c: Cond): string {
 
 /** 条件の行を、保存する文字列のトークンにする。値付きの条件は、値が不正でも演算子を残す（ボタンが値付きのまま） */
 function condToStored(c: Cond): string {
-  if ((c.kind === "number" || c.kind === "date") && c.op) {
-    return condToken(c) || `${c.op}:${c.value.trim()}`;
+  if (c.op && (c.kind === "number" || c.kind === "date" || c.kind === "text")) {
+    return condToken(c) || `${VALUE_OPS[c.op].prefix}${c.value.trim()}`;
   }
   return condToken(c);
 }
@@ -334,12 +345,60 @@ export function favNameFor(
   return favs.find((f) => normalize(f.query) === key)?.name ?? null;
 }
 
-/** 規則によるサジェスト：検索文字列に when のどれかが含まれていれば suggest を出す（すでに入っている条件は除く） */
+/** 照合用の語の並び。全角・半角と英字の大文字・小文字の違いを吸収し、空白で語に分ける */
+const wordsOf = (s: string): string[] =>
+  s.normalize("NFKC").toLowerCase().split(/\s+/).filter(Boolean);
+
+/**
+ * 検索文字列を、語の並び（連続した語のまとまり）に分ける。
+ * 引用符の中・括弧の中（OR で区切る）の語も対象。除外（`-`）・演算子（`:` を含む、`@`）・`OR` は語として数えず、まとまりを切る。
+ */
+function wordRuns(q: string): string[][] {
+  const runs: string[][] = [];
+  let cur: string[] = [];
+  const flush = () => {
+    if (cur.length) runs.push(cur);
+    cur = [];
+  };
+  for (const t of tokenize(q)) {
+    if (
+      t === "OR" ||
+      t.startsWith("-") ||
+      t.startsWith("@") ||
+      (t.includes(":") && !t.startsWith('"'))
+    ) {
+      flush();
+    } else if (t.startsWith("(") && t.endsWith(")")) {
+      flush();
+      runs.push(...wordRuns(t.slice(1, -1)));
+    } else if (/^"[^"]*"$/.test(t)) {
+      flush();
+      runs.push(wordsOf(t.slice(1, -1)));
+    } else cur.push(...wordsOf(t));
+  }
+  flush();
+  return runs;
+}
+
+/** runs のどれかに、語 `w`（空白を含むときは連続した語の並び）が含まれるか */
+function hasWord(runs: string[][], w: string): boolean {
+  const target = wordsOf(w);
+  if (target.length === 0) return false;
+  return runs.some((run) =>
+    run.some((_, i) => target.every((x, j) => run[i + j] === x)),
+  );
+}
+
+/**
+ * 規則によるサジェスト：検索文字列の語に when のどれかが一致すれば suggest を出す（語単位の一致。
+ * 「Su」が「Suisei」に当たらないように、部分一致にはしない）。すでに入っている条件は除く。
+ */
 export function suggestFromRules(q: string, rules: SuggestRule[]): string[] {
   const have = new Set(tokenize(q));
+  const runs = wordRuns(q);
   const out: string[] = [];
   for (const r of rules) {
-    if (!r.when.some((w) => q.includes(w))) continue;
+    if (!r.when.some((w) => hasWord(runs, w))) continue;
     for (const s of r.suggest)
       if (!have.has(s) && !out.includes(s)) out.push(s);
   }

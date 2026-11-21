@@ -1,10 +1,11 @@
+import type { Lang } from "@/api";
 import { en } from "./en";
 import { ja, type Messages } from "./ja";
 
 export { ENGINE_LABEL, ENGINE_SHORT } from "./engine";
 export type { Messages } from "./ja";
 
-export type Lang = "ja" | "en";
+export type { Lang };
 
 /** 言語ごとの辞書。`en` が `Messages` を満たさなければ型エラーになり、ビルドが止まる */
 export const dictionaries: Record<Lang, Messages> = { ja, en };

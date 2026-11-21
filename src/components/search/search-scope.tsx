@@ -157,11 +157,12 @@ function useScopeCore(input: CoreInput) {
   const suggestions = useMemo(
     () =>
       api.query.suggest({
+        interest,
         text: api.query.build({ ...state, suggestionTokens: [] }, chips).stored,
         chips,
         history,
       }),
-    [api, state, chips, history],
+    [api, interest, state, chips, history],
   );
   // 履歴0件のときだけ出る検索ワード集。サジェストの候補と同じ文字列は、ボタンが2つ並ばないようサジェスト側から除く
   const starters = useMemo(

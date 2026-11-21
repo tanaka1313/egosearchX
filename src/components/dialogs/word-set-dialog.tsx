@@ -26,7 +26,9 @@ export function WordSetDialog() {
   const groups = wordSet
     .map((g) => ({
       name: g.name[lang],
-      words: g.words.filter((w) => w.label.includes(q) || w.query.includes(q)),
+      words: g.words.filter(
+        (w) => w.label[lang].includes(q) || w.query.includes(q),
+      ),
     }))
     .filter((g) => g.words.length > 0);
 
@@ -90,7 +92,11 @@ export function WordSetDialog() {
                 <h3 className="text-xs text-muted-foreground">{g.name}</h3>
                 <div className="flex flex-wrap gap-2">
                   {g.words.map((w) => (
-                    <WordChip key={w.query} label={w.label} query={w.query} />
+                    <WordChip
+                      key={w.query}
+                      label={w.label[lang]}
+                      query={w.query}
+                    />
                   ))}
                 </div>
               </section>

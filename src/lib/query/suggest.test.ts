@@ -83,10 +83,10 @@ describe("suggest", () => {
 
 describe("starters", () => {
   const words: Word[] = [
-    { label: "a", query: "#a", starter: true },
-    { label: "b", query: "#b", starter: false },
-    { label: "c", query: "#c", starter: true },
-    { label: "d", query: "#d", starter: true },
+    { label: { ja: "a", en: "a" }, query: "#a", starter: true },
+    { label: { ja: "b", en: "b" }, query: "#b", starter: false },
+    { label: { ja: "c", en: "c" }, query: "#c", starter: true },
+    { label: { ja: "d", en: "d" }, query: "#d", starter: true },
   ];
   it("履歴が0件のとき、starter だけを元の順で返す", () => {
     expect(starters({ chips: [], history: [] }, words, 60)).toEqual([

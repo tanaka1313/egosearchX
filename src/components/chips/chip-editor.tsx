@@ -9,11 +9,12 @@ import {
   ApiError,
   DEFAULT_PREFS,
   LIMITS,
-  PARAM_OP_TYPES,
+  VALUE_OPS,
   type Chip,
   type Cond,
   type CondKind,
-  type ParamOp,
+  type ValueOp,
+  type ValueType,
 } from "@/api";
 import { truncateName } from "@/components/common/auto-name";
 import { Button } from "@/components/ui/button";
@@ -32,12 +33,13 @@ const KINDS: CondKind[] = [
   "raw",
   "number",
   "date",
+  "text",
 ];
 
-/** 種類（数値・日付）に対応する演算子。キーは契約の定数から導く */
-const opsOf = (type: "number" | "date"): ParamOp[] =>
-  (Object.keys(PARAM_OP_TYPES) as ParamOp[]).filter(
-    (op) => PARAM_OP_TYPES[op] === type,
+/** 種類（数値・日付・ユーザー名）に対応する演算子。キーは契約の定数から導く */
+const opsOf = (type: ValueType): ValueOp[] =>
+  (Object.keys(VALUE_OPS) as ValueOp[]).filter(
+    (op) => VALUE_OPS[op].type === type,
   );
 
 let seq = 0;
@@ -89,7 +91,9 @@ function CondRow({
   const e = t.chips.editor;
   const { ref, handleRef } = useSortable({ id: cond.id, index });
   const paramType =
-    cond.kind === "number" || cond.kind === "date" ? cond.kind : null;
+    cond.kind === "number" || cond.kind === "date" || cond.kind === "text"
+      ? cond.kind
+      : null;
   return (
     <li
       ref={ref}
@@ -108,8 +112,8 @@ function CondRow({
         aria-label={e.kind}
         onChange={(ev) => {
           const kind = ev.target.value as CondKind;
-          // 数値／日付に変えたら演算子の先頭を選び、値は空にする（形式が違うため）
-          if (kind === "number" || kind === "date")
+          // 数値／日付／ユーザー名に変えたら演算子の先頭を選び、値は空にする（形式が違うため）
+          if (kind === "number" || kind === "date" || kind === "text")
             onChange({ id: cond.id, kind, op: opsOf(kind)[0], value: "" });
           else onChange({ id: cond.id, kind, value: cond.value });
         }}
@@ -126,7 +130,7 @@ function CondRow({
           value={cond.op}
           aria-label={e.op}
           onChange={(ev) =>
-            onChange({ ...cond, op: ev.target.value as ParamOp })
+            onChange({ ...cond, op: ev.target.value as ValueOp })
           }
           className={inputClass}
         >
@@ -146,7 +150,7 @@ function CondRow({
         onChange={(ev) => onChange({ ...cond, value: ev.target.value })}
         className={`${inputClass} min-w-0 flex-1 font-mono`}
       />
-      {cond.op && paramType && (
+      {cond.op && paramType && t.search.paramSuffix[cond.op] && (
         <span className="shrink-0 text-sm">
           {t.search.paramSuffix[cond.op]}
         </span>
@@ -186,7 +190,7 @@ function EditorForm({
   const [listInput, setListInput] = useState("");
   // 初期は閉じる。リストの条件を持つボタンを編集するときは開く
   const [listOpen, setListOpen] = useState(() =>
-    conds.some((c) => c.kind === "list"),
+    conds.some((c) => c.kind === "list" || c.op === "list"),
   );
   const [error, setError] = useState("");
 

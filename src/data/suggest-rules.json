@@ -1,10 +1,1600 @@
-[
-  {
-    "when": ["メンバーA", "愛称A"],
-    "suggest": ["#ファンアートタグA", "#配信タグA", "愛称A"]
-  },
-  {
-    "when": ["メンバーB"],
-    "suggest": ["#ファンアートタグB", "#配信タグB"]
-  }
-]
+{
+  "hololive": [
+    {
+      "group": "ときのそら",
+      "when": [
+        "ときのそら",
+        "そらちゃん",
+        "そらさん",
+        "そら先輩",
+        "Tokino Sora",
+        "Sora-chan"
+      ],
+      "suggest": [
+        "(\"ときのそら\" OR \"そらちゃん\" OR \"そらさん\" OR \"そら先輩\")",
+        "(\"Tokino Sora\" OR \"Sora-chan\")",
+        "🐻💿",
+        "そらとも",
+        "#ときのそら生放送",
+        "#そらArt",
+        "0期生"
+      ]
+    },
+    {
+      "group": "星街すいせい",
+      "when": [
+        "星街すいせい",
+        "星街",
+        "すいせい",
+        "すいちゃん",
+        "Hoshimachi Suisei",
+        "Hoshimachi",
+        "Suisei",
+        "Suisei-chan",
+        "Sui-chan"
+      ],
+      "suggest": [
+        "(\"星街すいせい\" OR \"星街\" OR \"すいせい\" OR \"すいちゃん\")",
+        "(\"Hoshimachi Suisei\" OR \"Hoshimachi\" OR \"Suisei\" OR \"Suisei-chan\" OR \"Sui-chan\")",
+        "☄️",
+        "星詠み",
+        "#ほしまちすたじお",
+        "#ほしまちぎゃらりー",
+        "0期生"
+      ]
+    },
+    {
+      "group": "さくらみこ",
+      "when": ["さくらみこ", "みこち", "Sakura Miko", "Miko-chi", "Mikochi"],
+      "suggest": [
+        "(\"さくらみこ\" OR \"みこち\")",
+        "(\"Sakura Miko\" OR \"Miko-chi\" OR \"Mikochi\")",
+        "🌸",
+        "35P",
+        "#みこなま",
+        "#miko_Art",
+        "0期生"
+      ]
+    },
+    {
+      "group": "AZKi",
+      "when": ["AZKi", "アズキ", "あずき", "あずきち", "あずちゃん", "Azuki"],
+      "suggest": [
+        "(\"AZKi\" OR \"アズキ\" OR \"あずき\" OR \"あずきち\" OR \"あずちゃん\")",
+        "(\"AZKi\" OR \"Azuki\")",
+        "⚒️",
+        "開拓者",
+        "#AZKi生放送",
+        "#AZKiART",
+        "0期生"
+      ]
+    },
+    {
+      "group": "ロボ子さん",
+      "when": ["ロボ子さん", "ロボ子", "ろぼこ", "Roboco", "Robocosan"],
+      "suggest": [
+        "(\"ロボ子さん\" OR \"ロボ子\" OR \"ろぼこ\")",
+        "(\"Roboco\" OR \"Robocosan\")",
+        "🤖",
+        "ろぼさー",
+        "#ロボ子生放送",
+        "#ロボ子Art",
+        "0期生"
+      ]
+    },
+    {
+      "group": "白上フブキ",
+      "when": [
+        "白上フブキ",
+        "白上",
+        "フブキ",
+        "フブちゃん",
+        "フブキング",
+        "Shirakami Fubuki",
+        "Shirakami",
+        "Fubuki",
+        "Fubu-chan",
+        "Fubu-san"
+      ],
+      "suggest": [
+        "(\"白上フブキ\" OR \"白上\" OR \"フブキ\" OR \"フブちゃん\" OR \"フブキング\")",
+        "(\"Shirakami Fubuki\" OR \"Shirakami\" OR \"Fubuki\" OR \"Fubu-chan\" OR \"Fubu-san\")",
+        "🌽",
+        "すこん部",
+        "#フブキ生放送",
+        "#絵フブキ",
+        "1期生 / GAMERS"
+      ]
+    },
+    {
+      "group": "夏色まつり",
+      "when": [
+        "夏色まつり",
+        "夏色",
+        "まつりちゃん",
+        "まちゅ",
+        "Natsuiro Matsuri",
+        "Natsuiro",
+        "Matsuri"
+      ],
+      "suggest": [
+        "(\"夏色まつり\" OR \"夏色\"OR \"まつりちゃん\" OR \"まちゅ\")",
+        "(\"Natsuiro Matsuri\" OR \"Natsuiro\" OR \"Matsuri\")",
+        "🏮",
+        "まつりす",
+        "#夏色まつり生放送",
+        "#祭絵",
+        "1期生"
+      ]
+    },
+    {
+      "group": "赤井はあと",
+      "when": [
+        "赤井はあと",
+        "赤井",
+        "はあと",
+        "はあちゃま",
+        "ちゃま",
+        "Akai Haato",
+        "Akai",
+        "Haato",
+        "Haachama"
+      ],
+      "suggest": [
+        "(\"赤井はあと\" OR \"赤井\" OR \"はあと\" OR \"はあちゃま\" OR \"ちゃま\")",
+        "(\"Akai Haato\" OR \"Akai\" OR \"Haato\" OR \"Haachama\")",
+        "❤️‍🔥",
+        "はあとん",
+        "#はあちゃま生放送",
+        "#はあとArt",
+        "1期生"
+      ]
+    },
+    {
+      "group": "アキ・ローゼンタール",
+      "when": [
+        "アキ・ローゼンタール",
+        "アキ",
+        "ローゼンタール",
+        "アキロゼ",
+        "アキちゃん",
+        "Aki Rosenthal",
+        "Aki-chan",
+        "Rosenthal",
+        "AkiRose"
+      ],
+      "suggest": [
+        "(\"アキ・ローゼンタール\" OR \"アキ\" OR \"ローゼンタール\" OR \"アキロゼ\" OR \"アキちゃん\")",
+        "(\"Aki Rosenthal\" OR \"Aki-chan\" OR \"Rosenthal\" OR \"AkiRose\")",
+        "🍎",
+        "ロゼ隊",
+        "#アキロゼ生放送",
+        "#アロ絵",
+        "1期生"
+      ]
+    },
+    {
+      "group": "湊あくあ",
+      "when": [
+        "湊あくあ",
+        "湊",
+        "あくあ",
+        "あくたん",
+        "あくあちゃん",
+        "Minato Aqua",
+        "Minato",
+        "Aqua",
+        "Aqutan"
+      ],
+      "suggest": [
+        "(\"湊あくあ\" OR \"湊\" OR \"あくあ\" OR \"あくたん\" OR \"あくあちゃん\")",
+        "(\"Minato Aqua\" OR \"Minato\" OR \"Aqua\" OR \"Aqutan\")",
+        "⚓️",
+        "あくあクルー",
+        "#湊あくあ生放送",
+        "#あくあーと",
+        "2期生"
+      ]
+    },
+    {
+      "group": "大空スバル",
+      "when": [
+        "大空スバル",
+        "大空",
+        "スバル",
+        "すばう",
+        "Oozora Subaru",
+        "Oozora",
+        "Subaru",
+        "Suba-chan"
+      ],
+      "suggest": [
+        "(\"大空スバル\" OR \"大空\" OR \"スバル\" OR \"すばう\")",
+        "(\"Oozora Subaru\" OR \"Oozora\" OR \"Subaru\" OR \"Suba-chan\")",
+        "🚑",
+        "スバ友",
+        "#スバル生放送",
+        "#プロテインザスバル",
+        "2期生"
+      ]
+    },
+    {
+      "group": "百鬼あやめ",
+      "when": [
+        "百鬼あやめ",
+        "百鬼",
+        "あやめ",
+        "お嬢",
+        "余さん",
+        "Nakiri Ayame",
+        "Nakiri",
+        "Ayame",
+        "Ojou"
+      ],
+      "suggest": [
+        "(\"百鬼あやめ\" OR \"百鬼\" OR \"あやめ\" OR \"お嬢\" OR \"余さん\")",
+        "(\"Nakiri Ayame\" OR \"Nakiri\" OR \"Ayame\" OR \"Ojou\")",
+        "😈",
+        "百鬼組",
+        "#百鬼あやめ生放送",
+        "#百鬼絵巻",
+        "2期生"
+      ]
+    },
+    {
+      "group": "紫咲シオン",
+      "when": [
+        "紫咲シオン",
+        "紫咲",
+        "シオン",
+        "Murasaki Shion",
+        "Murasaki",
+        "Shion"
+      ],
+      "suggest": [
+        "(\"紫咲シオン\" OR \"紫咲\" OR \"シオン\")",
+        "(\"Murasaki Shion\" OR \"Murasaki\" OR \"Shion\")",
+        "🌙",
+        "塩っ子",
+        "#紫咲シオン生放送",
+        "#シオンの書物",
+        "2期生"
+      ]
+    },
+    {
+      "group": "癒月ちょこ",
+      "when": [
+        "癒月ちょこ",
+        "癒月",
+        "ちょこ",
+        "ちょこ先",
+        "ちょこ先生",
+        "Yuzuki Choco",
+        "Yuzuki",
+        "Choco",
+        "Choco-sensei"
+      ],
+      "suggest": [
+        "(\"癒月ちょこ\" OR \"癒月\" OR \"ちょこ\" OR \"ちょこ先\" OR \"ちょこ先生\")",
+        "(\"Yuzuki Choco\" OR \"Yuzuki\" OR \"Choco\" OR \"Choco-sensei\")",
+        "💋",
+        "ちょこめいと",
+        "#癒月ちょこ生放送",
+        "#しょこらーと",
+        "2期生"
+      ]
+    },
+    {
+      "group": "戌神ころね",
+      "when": [
+        "戌神ころね",
+        "戌神",
+        "ころね",
+        "ころさん",
+        "ころねちゃん",
+        "Inugami Korone",
+        "Inugami",
+        "Korone",
+        "Korone-san"
+      ],
+      "suggest": [
+        "(\"戌神ころね\" OR \"戌神\" OR \"ころね\" OR \"ころさん\" OR \"ころねちゃん\")",
+        "(\"Inugami Korone\" OR \"Inugami\" OR \"Korone\" OR \"Korone-san\")",
+        "🥐",
+        "ころねすきー",
+        "#生神ころね",
+        "#できたてころね",
+        "GAMERS"
+      ]
+    },
+    {
+      "group": "猫又おかゆ",
+      "when": [
+        "猫又おかゆ",
+        "猫又",
+        "おかゆ",
+        "おかゆん",
+        "おかゆちゃん",
+        "Nekomata Okayu",
+        "Nekomata",
+        "Okayu",
+        "Okayun"
+      ],
+      "suggest": [
+        "(\"猫又おかゆ\" OR \"猫又\" OR \"おかゆ\" OR \"おかゆん\" OR \"おかゆちゃん\")",
+        "(\"Nekomata Okayu\" OR \"Nekomata\" OR \"Okayu\" OR \"Okayun\")",
+        "🍙",
+        "おにぎりゃー",
+        "#生おかゆ",
+        "#絵かゆ",
+        "GAMERS"
+      ]
+    },
+    {
+      "group": "大神ミオ",
+      "when": [
+        "大神ミオ",
+        "大神",
+        "ミオ",
+        "みおーん",
+        "ミオしゃ",
+        "ミオママ",
+        "Ookami Mio",
+        "Ookami",
+        "Mio",
+        "Mio-sha"
+      ],
+      "suggest": [
+        "(\"大神ミオ\" OR \"大神\" OR \"ミオ\" OR \"みおーん\" OR \"ミオしゃ\" OR \"ミオママ\")",
+        "(\"Ookami Mio\" OR \"Ookami\" OR \"Mio\" OR \"Mio-sha\")",
+        "🌲",
+        "ミオファ",
+        "#ミオかわいい",
+        "#みおーん絵",
+        "GAMERS"
+      ]
+    },
+    {
+      "group": "宝鐘マリン",
+      "when": [
+        "宝鐘マリン",
+        "宝鐘",
+        "マリン",
+        "船長",
+        "まりりん",
+        "Houshou Marine",
+        "Houshou",
+        "Marine",
+        "Senchou"
+      ],
+      "suggest": [
+        "(\"宝鐘マリン\" OR \"宝鐘\" OR \"マリン\" OR \"船長\" OR \"まりりん\")",
+        "(\"Houshou Marine\" OR \"Houshou\" OR \"Marine\" OR \"Senchou\")",
+        "🏴‍☠️",
+        "宝鐘の一味",
+        "#宝鐘マリン生放送",
+        "#マリンのお宝",
+        "3期生"
+      ]
+    },
+    {
+      "group": "兎田ぺこら",
+      "when": [
+        "兎田ぺこら",
+        "兎田",
+        "ぺこら",
+        "ぺこちゃん",
+        "ぺこーら",
+        "Usada Pekora",
+        "Usada",
+        "Pekora",
+        "Peko"
+      ],
+      "suggest": [
+        "(\"兎田ぺこら\" OR \"兎田\" OR \"ぺこら\" OR \"ぺこちゃん\" OR \"ぺこーら\")",
+        "(\"Usada Pekora\" OR \"Usada\" OR \"Pekora\" OR \"Peko\")",
+        "👯‍♀️",
+        "野うさぎ同盟",
+        "#ぺこらいぶ",
+        "#ぺこらーと",
+        "3期生"
+      ]
+    },
+    {
+      "group": "白銀ノエル",
+      "when": [
+        "白銀ノエル",
+        "白銀",
+        "ノエル",
+        "団長",
+        "ノエル団長",
+        "Shirogane Noel",
+        "Shirogane",
+        "Noel",
+        "Danchou"
+      ],
+      "suggest": [
+        "(\"白銀ノエル\" OR \"白銀\" OR \"ノエル\" OR \"団長\" OR \"ノエル団長\")",
+        "(\"Shirogane Noel\" OR \"Shirogane\" OR \"Noel\" OR \"Danchou\")",
+        "⚔️",
+        "白銀聖騎士団",
+        "#ノエル生放送",
+        "#ノエラート",
+        "3期生"
+      ]
+    },
+    {
+      "group": "不知火フレア",
+      "when": [
+        "不知火フレア",
+        "不知火",
+        "フレア",
+        "ふーたん",
+        "フレアちゃん",
+        "Shiranui Flare",
+        "Shiranui",
+        "Flare",
+        "Fuutan"
+      ],
+      "suggest": [
+        "(\"不知火フレア\" OR \"不知火\" OR \"フレア\" OR \"ふーたん\" OR \"フレアちゃん\")",
+        "(\"Shiranui Flare\" OR \"Shiranui\" OR \"Flare\" OR \"Fuutan\")",
+        "🔥",
+        "エルフレンド",
+        "#フレア生放送",
+        "#しらぬえ",
+        "3期生"
+      ]
+    },
+    {
+      "group": "角巻わため",
+      "when": [
+        "角巻わため",
+        "角巻",
+        "わため",
+        "わためぇ",
+        "Tsunomaki Watame",
+        "Tsunomaki",
+        "Watame"
+      ],
+      "suggest": [
+        "(\"角巻わため\" OR \"角巻\" OR \"わため\" OR \"わためぇ\")",
+        "(\"Tsunomaki Watame\" OR \"Tsunomaki\" OR \"Watame\")",
+        "🐏",
+        "わためいと",
+        "#わため生放送",
+        "#つのまきあーと",
+        "4期生"
+      ]
+    },
+    {
+      "group": "天音かなた",
+      "when": [
+        "天音かなた",
+        "天音",
+        "かなた",
+        "かなたん",
+        "かなたちゃん",
+        "Amane Kanata",
+        "Amane",
+        "Kanata",
+        "Kanatan"
+      ],
+      "suggest": [
+        "(\"天音かなた\" OR \"天音\" OR \"かなた\" OR \"かなたん\" OR \"かなたちゃん\")",
+        "(\"Amane Kanata\" OR \"Amane\" OR \"Kanata\" OR \"Kanatan\")",
+        "💫",
+        "へい民",
+        "#かなたーと",
+        "4期生"
+      ]
+    },
+    {
+      "group": "常闇トワ",
+      "when": [
+        "常闇トワ",
+        "常闇",
+        "トワ",
+        "トワ様",
+        "トワちゃん",
+        "Tokoyami Towa",
+        "Tokoyami",
+        "Towa",
+        "Towa-sama"
+      ],
+      "suggest": [
+        "(\"常闇トワ\" OR \"常闇\" OR \"トワ\" OR \"トワ様\" OR \"トワちゃん\")",
+        "(\"Tokoyami Towa\" OR \"Tokoyami\" OR \"Towa\" OR \"Towa-sama\")",
+        "👾",
+        "常闇眷属",
+        "#トワ生",
+        "#TOWART",
+        "4期生"
+      ]
+    },
+    {
+      "group": "桐生ココ",
+      "when": [
+        "桐生ココ",
+        "桐生",
+        "ココ",
+        "会長",
+        "ココ会長",
+        "Kiryu Coco",
+        "Kiryu",
+        "Coco",
+        "Kaichou"
+      ],
+      "suggest": [
+        "(\"桐生ココ\" OR \"桐生\" OR \"ココ\" OR \"会長\" OR \"ココ会長\")",
+        "(\"Kiryu Coco\" OR \"Kiryu\" OR \"Coco\" OR \"Kaichou\")",
+        "🐉",
+        "たつのこ",
+        "#ココここ",
+        "#みかじ絵 / #cocoArt",
+        "4期生"
+      ]
+    },
+    {
+      "group": "姫森ルーナ",
+      "when": [
+        "姫森ルーナ",
+        "姫森",
+        "ルーナ",
+        "ひめさま",
+        "んなたん",
+        "Himemori Luna",
+        "Himemori",
+        "Luna",
+        "Himesama"
+      ],
+      "suggest": [
+        "(\"姫森ルーナ\" OR \"姫森\" OR \"ルーナ\" OR \"ひめさま\" OR \"んなたん\")",
+        "(\"Himemori Luna\" OR \"Himemori\" OR \"Luna\" OR \"Himesama\")",
+        "🍬",
+        "ルーナイト",
+        "#ルーナ生放送",
+        "#ルーナート",
+        "4期生"
+      ]
+    },
+    {
+      "group": "獅白ぼたん",
+      "when": [
+        "獅白ぼたん",
+        "獅白",
+        "ぼたん",
+        "ししろん",
+        "ぼたんちゃん",
+        "Shishiro Botan",
+        "Shishiro",
+        "Botan",
+        "Shishiron"
+      ],
+      "suggest": [
+        "(\"獅白ぼたん\" OR \"獅白\" OR \"ぼたん\" OR \"ししろん\" OR \"ぼたんちゃん\")",
+        "(\"Shishiro Botan\" OR \"Shishiro\" OR \"Botan\" OR \"Shishiron\")",
+        "♌️",
+        "SSRB",
+        "#ぼたん生放送",
+        "#ししらーと",
+        "5期生"
+      ]
+    },
+    {
+      "group": "雪花ラミィ",
+      "when": [
+        "雪花ラミィ",
+        "雪花",
+        "ラミィ",
+        "ラミィちゃん",
+        "Yukihana Lamy",
+        "Yukihana",
+        "Lamy"
+      ],
+      "suggest": [
+        "(\"雪花ラミィ\" OR \"雪花\" OR \"ラミィ\" OR \"ラミィちゃん\")",
+        "(\"Yukihana Lamy\" OR \"Yukihana\" OR \"Lamy\")",
+        "☃️",
+        "雪民",
+        "#ラミィ生放送",
+        "#らみあーと",
+        "5期生"
+      ]
+    },
+    {
+      "group": "尾丸ポルカ",
+      "when": [
+        "尾丸ポルカ",
+        "尾丸",
+        "ポルカ",
+        "ポルポル",
+        "座長",
+        "Omaru Polka",
+        "Omaru",
+        "Polka",
+        "Polpol"
+      ],
+      "suggest": [
+        "(\"尾丸ポルカ\" OR \"尾丸\" OR \"ポルカ\" OR \"ポルポル\" OR \"座長\")",
+        "(\"Omaru Polka\" OR \"Omaru\" OR \"Polka\" OR \"Polpol\")",
+        "🎪",
+        "おまる座",
+        "#ポルカ生放送",
+        "#絵まる",
+        "5期生"
+      ]
+    },
+    {
+      "group": "桃鈴ねね",
+      "when": [
+        "桃鈴ねね",
+        "桃鈴",
+        "ねね",
+        "ねねち",
+        "ねねちゃん",
+        "Momosuzu Nene",
+        "Momosuzu",
+        "Nene",
+        "Nenechi"
+      ],
+      "suggest": [
+        "(\"桃鈴ねね\" OR \"桃鈴\" OR \"ねね\" OR \"ねねち\" OR \"ねねちゃん\")",
+        "(\"Momosuzu Nene\" OR \"Momosuzu\" OR \"Nene\" OR \"Nenechi\")",
+        "🍑🥟",
+        "ねっ子",
+        "#ねね生放送",
+        "#ねねアルバム",
+        "5期生"
+      ]
+    },
+    {
+      "group": "ラプラス・ダークネス",
+      "when": [
+        "ラプラス・ダークネス",
+        "ラプラス",
+        "ダークネス",
+        "ラプ様",
+        "ラプちゃん",
+        "総帥",
+        "La+ Darknesss",
+        "Laplace",
+        "Darknesss",
+        "Laplus",
+        "La+"
+      ],
+      "suggest": [
+        "(\"ラプラス・ダークネス\" OR \"ラプラス\" OR \"ダークネス\" OR \"ラプ様\" OR \"ラプちゃん\" OR \"総帥\")",
+        "(\"La+ Darknesss\" OR \"Laplace\" OR \"Darknesss\" OR \"Laplus\" OR \"La+\")",
+        "🛸💜",
+        "ぷらすめいと",
+        "#ラプラス生放送",
+        "#Laplus_Artdesu",
+        "6期生（holoX）"
+      ]
+    },
+    {
+      "group": "博衣こより",
+      "when": [
+        "博衣こより",
+        "博衣",
+        "こより",
+        "こよ",
+        "こよちゃん",
+        "Hakui Koyori",
+        "Hakui",
+        "Koyori",
+        "Koyo"
+      ],
+      "suggest": [
+        "(\"博衣こより\" OR \"博衣\" OR \"こより\" OR \"こよ\" OR \"こよちゃん\")",
+        "(\"Hakui Koyori\" OR \"Hakui\" OR \"Koyori\" OR \"Koyo\")",
+        "🧪",
+        "こよりの助手くん",
+        "#こより生放送",
+        "#こよりすけっち",
+        "6期生（holoX）"
+      ]
+    },
+    {
+      "group": "沙花叉クロヱ",
+      "when": [
+        "沙花叉クロヱ",
+        "沙花叉",
+        "クロヱ",
+        "Sakamata Chloe",
+        "Sakamata",
+        "Chloe"
+      ],
+      "suggest": [
+        "(\"沙花叉クロヱ\" OR \"沙花叉\" OR \"クロヱ\")",
+        "(\"Sakamata Chloe\" OR \"Sakamata\" OR \"Chloe\")",
+        "🎣",
+        "飼育員",
+        "#クロヱ生放送",
+        "#さかまた飼育日記",
+        "6期生（アフィリエイト）"
+      ]
+    },
+    {
+      "group": "風真いろは",
+      "when": [
+        "風真いろは",
+        "風真",
+        "いろは",
+        "ござる",
+        "いろはちゃん",
+        "Kazama Iroha",
+        "Kazama",
+        "Iroha",
+        "Gozaru"
+      ],
+      "suggest": [
+        "(\"風真いろは\" OR \"風真\" OR \"いろは\" OR \"ござる\" OR \"いろはちゃん\")",
+        "(\"Kazama Iroha\" OR \"Kazama\" OR \"Iroha\" OR \"Gozaru\")",
+        "🍃",
+        "かざま隊",
+        "#いろは生放送",
+        "#いろはにも絵を",
+        "6期生（holoX）"
+      ]
+    },
+    {
+      "group": "鷹嶺ルイ",
+      "when": [
+        "鷹嶺ルイ",
+        "鷹嶺",
+        "ルイ",
+        "ルイ姉",
+        "ルイちゃん",
+        "ルイルイ",
+        "Takane Lui",
+        "Takane",
+        "Lui",
+        "Lui-nee"
+      ],
+      "suggest": [
+        "(\"鷹嶺ルイ\" OR \"鷹嶺\" OR \"ルイ\" OR \"ルイ姉\" OR \"ルイちゃん\" OR \"ルイルイ\")",
+        "(\"Takane Lui\" OR \"Takane\" OR \"Lui\" OR \"Lui-nee\")",
+        "🥀",
+        "ルイ友",
+        "#ルイ生放送",
+        "#Luillust",
+        "6期生（holoX）"
+      ]
+    },
+    {
+      "group": "儒烏風亭らでん",
+      "when": [
+        "儒烏風亭らでん",
+        "儒烏風亭",
+        "らでん",
+        "Juufuutei Raden",
+        "Juufuutei",
+        "Raden"
+      ],
+      "suggest": [
+        "(\"儒烏風亭らでん\" OR \"儒烏風亭\" OR \"らでん\")",
+        "(\"Juufuutei Raden\" OR \"Juufuutei\" OR \"Raden\")",
+        "🐚",
+        "#らでん生放送",
+        "#らでん似絵",
+        "ReGLOSS"
+      ]
+    },
+    {
+      "group": "轟はじめ",
+      "when": [
+        "轟はじめ",
+        "轟",
+        "はじめ",
+        "Todoroki Hajime",
+        "Todoroki",
+        "Hajime"
+      ],
+      "suggest": [
+        "(\"轟はじめ\" OR \"轟\" OR \"はじめ\")",
+        "(\"Todoroki Hajime\" OR \"Todoroki\" OR \"Hajime\")",
+        "🐧⚡",
+        "#はじめ生放送",
+        "#はじめ武勇伝",
+        "ReGLOSS"
+      ]
+    },
+    {
+      "group": "音乃瀬奏",
+      "when": [
+        "音乃瀬奏",
+        "音乃瀬",
+        "奏",
+        "かなで",
+        "Otonose Kanade",
+        "Otonose",
+        "Kanade"
+      ],
+      "suggest": [
+        "(\"音乃瀬奏\" OR \"音乃瀬\" OR \"奏\" OR \"かなで\")",
+        "(\"Otonose Kanade\" OR \"Otonose\" OR \"Kanade\")",
+        "🎹✨",
+        "#奏生放送",
+        "#Artnose",
+        "ReGLOSS"
+      ]
+    },
+    {
+      "group": "一条莉々華",
+      "when": [
+        "一条莉々華",
+        "一条",
+        "莉々華",
+        "りりか",
+        "Ichijou Ririka",
+        "Ichijou",
+        "Ririka"
+      ],
+      "suggest": [
+        "(\"一条莉々華\" OR \"一条\" OR \"莉々華\" OR \"りりか\")",
+        "(\"Ichijou Ririka\" OR \"Ichijou\" OR \"Ririka\")",
+        "🌃",
+        "#莉々華生放送",
+        "#ririkart",
+        "ReGLOSS"
+      ]
+    },
+    {
+      "group": "火威青",
+      "when": ["火威青", "火威", "青", "あお", "Hiodoshi Ao", "Hiodoshi", "Ao"],
+      "suggest": [
+        "(\"火威青\" OR \"火威\" OR \"青\" OR \"あお\")",
+        "(\"Hiodoshi Ao\" OR \"Hiodoshi\" OR \"Ao\")",
+        "🖋️",
+        "#青生放送",
+        "#青ペン",
+        "ReGLOSS"
+      ]
+    },
+    {
+      "group": "綺々羅々ヴィヴィ",
+      "when": [
+        "綺々羅々ヴィヴィ",
+        "綺々羅々",
+        "ヴィヴィ",
+        "Kikirara Vivi",
+        "Kikirara",
+        "Vivi"
+      ],
+      "suggest": [
+        "(\"綺々羅々ヴィヴィ\" OR \"綺々羅々\" OR \"ヴィヴィ\")",
+        "(\"Kikirara Vivi\" OR \"Kikirara\" OR \"Vivi\")",
+        "💅✨",
+        "#ヴィヴィ生放送",
+        "#ヴィヴィメイク",
+        "FLOW GLOW"
+      ]
+    },
+    {
+      "group": "水宮枢",
+      "when": [
+        "水宮枢",
+        "水宮",
+        "枢",
+        "すう",
+        "すうちゃん",
+        "Mizumiya Su",
+        "Mizumiya",
+        "Su",
+        "Suu-chan"
+      ],
+      "suggest": [
+        "(\"水宮枢\" OR \"水宮\" OR \"枢\" OR \"すう\" OR \"すうちゃん\")",
+        "(\"Mizumiya Su\" OR \"Mizumiya\" OR \"Su\" OR \"Suu-chan\")",
+        "💬🔁💙",
+        "#枢生放送",
+        "#すくすく枢",
+        "FLOW GLOW"
+      ]
+    },
+    {
+      "group": "虎金妃笑虎",
+      "when": [
+        "虎金妃笑虎",
+        "虎金妃",
+        "笑虎",
+        "にこ",
+        "Koganei Niko",
+        "Koganei",
+        "Niko"
+      ],
+      "suggest": [
+        "(\"虎金妃笑虎\" OR \"虎金妃\" OR \"笑虎\" OR \"にこ\")",
+        "(\"Koganei Niko\" OR \"Koganei\" OR \"Niko\")",
+        "☺️🐅",
+        "#笑虎生放送",
+        "#ニコたん描いたん",
+        "FLOW GLOW"
+      ]
+    },
+    {
+      "group": "輪堂千速",
+      "when": [
+        "輪堂千速",
+        "輪堂",
+        "千速",
+        "ちはや",
+        "Rindo Chihaya",
+        "Rindo",
+        "Chihaya"
+      ],
+      "suggest": [
+        "(\"輪堂千速\" OR \"輪堂\" OR \"千速\" OR \"ちはや\")",
+        "(\"Rindo Chihaya\" OR \"Rindo\" OR \"Chihaya\")",
+        "🎧🔧",
+        "#千速生放送",
+        "#もはやちはや",
+        "FLOW GLOW"
+      ]
+    },
+    {
+      "group": "響咲リオナ",
+      "when": [
+        "響咲リオナ",
+        "響咲",
+        "リオナ",
+        "リオーナ",
+        "りおーな",
+        "Isaki Riona",
+        "Isaki",
+        "Riona"
+      ],
+      "suggest": [
+        "(\"響咲リオナ\" OR \"響咲\" OR \"リオナ\" OR \"リオーナ\" OR \"りおーな\")",
+        "(\"Isaki Riona\" OR \"Isaki\" OR \"Riona\")",
+        "🎤👑",
+        "#リオナ生放送",
+        "#リオナート",
+        "FLOW GLOW"
+      ]
+    },
+    {
+      "group": "熱千めら",
+      "when": ["熱千めら", "熱千", "めら", "Achichi Mera", "Achichi", "Mera"],
+      "suggest": [
+        "(\"熱千めら\" OR \"熱千\" OR \"めら\")",
+        "(\"Achichi Mera\" OR \"Achichi\" OR \"Mera\")",
+        "🧯",
+        "めら組",
+        "#めら組出動中",
+        "#めら組絵図",
+        "アソビ★まわり隊！"
+      ]
+    },
+    {
+      "group": "鈴鳴つづり",
+      "when": [
+        "鈴鳴つづり",
+        "鈴鳴",
+        "つづり",
+        "Suzuna Tsuzuri",
+        "Suzuna",
+        "Tsuzuri"
+      ],
+      "suggest": [
+        "(\"鈴鳴つづり\" OR \"鈴鳴\" OR \"つづり\")",
+        "(\"Suzuna Tsuzuri\" OR \"Suzuna\" OR \"Tsuzuri\")",
+        "🐐💌",
+        "配達員",
+        "#つづり生放送",
+        "#つづり絵お届け",
+        "アソビ★まわり隊！"
+      ]
+    },
+    {
+      "group": "百灯キョーコ",
+      "when": [
+        "百灯キョーコ",
+        "百灯",
+        "キョーコ",
+        "Hyakuto Kyoko",
+        "Hyakuto",
+        "Kyoko"
+      ],
+      "suggest": [
+        "(\"百灯キョーコ\" OR \"百灯\" OR \"キョーコ\")",
+        "(\"Hyakuto Kyoko\" OR \"Hyakuto\" OR \"Kyoko\")",
+        "👮📢",
+        "めら組",
+        "#キョーコ生放送",
+        "#キョーコの押収品",
+        "アソビ★まわり隊！"
+      ]
+    },
+    {
+      "group": "宙科そぴあ",
+      "when": [
+        "宙科そぴあ",
+        "宙科",
+        "そぴあ",
+        "Sorashina Sopia",
+        "Sorashina",
+        "Sopia"
+      ],
+      "suggest": [
+        "(\"宙科そぴあ\" OR \"宙科\" OR \"そぴあ\")",
+        "(\"Sorashina Sopia\" OR \"Sorashina\" OR \"Sopia\")",
+        "📡",
+        "SopiCrew",
+        "#SopiLive",
+        "#SopiArt",
+        "アソビ★まわり隊！"
+      ]
+    },
+    {
+      "group": "がうる・ぐら",
+      "when": [
+        "がうる・ぐら",
+        "がうる",
+        "ぐら",
+        "サメちゃん",
+        "Gawr Gura",
+        "Gawr",
+        "Gura",
+        "Same-chan",
+        "Gooba"
+      ],
+      "suggest": [
+        "(\"がうる・ぐら\" OR \"がうる\" OR \"ぐら\" OR \"サメちゃん\")",
+        "(\"Gawr Gura\" OR \"Gawr\" OR \"Gura\" OR \"Same-chan\" OR \"Gooba\")",
+        "🔱",
+        "chumbuds",
+        "#gawrt",
+        "Myth"
+      ]
+    },
+    {
+      "group": "森カリオペ",
+      "when": [
+        "モリ・カリオペ",
+        "モリ",
+        "カリオペ",
+        "Mori Calliope",
+        "Mori",
+        "Calliope",
+        "Calli"
+      ],
+      "suggest": [
+        "(\"モリ・カリオペ\" OR \"モリ\" OR \"カリオペ\")",
+        "(\"Mori Calliope\" OR \"Mori\" OR \"Calliope\" OR \"Calli\")",
+        "💀",
+        "Dead Beats",
+        "#Calliolive",
+        "#callillust",
+        "Myth"
+      ]
+    },
+    {
+      "group": "ワトソン・アメリア",
+      "when": [
+        "ワトソン・アメリア",
+        "ワトソン",
+        "アメリア",
+        "Watson Amelia",
+        "Watson",
+        "Amelia",
+        "Ame"
+      ],
+      "suggest": [
+        "(\"ワトソン・アメリア\" OR \"ワトソン\" OR \"アメリア\")",
+        "(\"Watson Amelia\" OR \"Watson\" OR \"Amelia\" OR \"Ame\")",
+        "🔎",
+        "teamates",
+        "#amesame",
+        "#teamates",
+        "Myth（活動終了）"
+      ]
+    },
+    {
+      "group": "一伊那尓栖",
+      "when": [
+        "ニノマエ・イナニス",
+        "ニノマエ",
+        "イナニス",
+        "イナ",
+        "Ninomae Ina'nis",
+        "Ninomae",
+        "Ina'nis",
+        "Ina"
+      ],
+      "suggest": [
+        "(\"ニノマエ・イナニス\" OR \"ニノマエ\" OR \"イナニス\" OR \"イナ\")",
+        "(\"Ninomae Ina'nis\" OR \"Ninomae\" OR \"Ina'nis\" OR \"Ina\")",
+        "🐙",
+        "tentacult",
+        "#inART",
+        "Myth"
+      ]
+    },
+    {
+      "group": "小鳥遊キアラ",
+      "when": [
+        "タカナシ・キアラ",
+        "タカナシ",
+        "キアラ",
+        "Takanashi Kiara",
+        "Takanashi",
+        "Kiara",
+        "Wawa"
+      ],
+      "suggest": [
+        "(\"タカナシ・キアラ\" OR \"タカナシ\" OR \"キアラ\")",
+        "(\"Takanashi Kiara\" OR \"Takanashi\" OR \"Kiara\" OR \"Wawa\")",
+        "🐔",
+        "kfp",
+        "#kfp",
+        "#KFPicasso",
+        "Myth"
+      ]
+    },
+    {
+      "group": "ハコス・ベールズ",
+      "when": [
+        "ハコス・ベールズ",
+        "ハコス",
+        "ベールズ",
+        "Hakos Baelz",
+        "Hakos",
+        "Baelz",
+        "Bae"
+      ],
+      "suggest": [
+        "(\"ハコス・ベールズ\" OR \"ハコス\" OR \"ベールズ\")",
+        "(\"Hakos Baelz\" OR \"Hakos\" OR \"Baelz\" OR \"Bae\")",
+        "🎲",
+        "Brats",
+        "#BAE",
+        "#BAErts",
+        "Promise"
+      ]
+    },
+    {
+      "group": "オーロ・クロニー",
+      "when": [
+        "オーロ・クロニー",
+        "オーロ",
+        "クロニー",
+        "Ouro Kronii",
+        "Ouro",
+        "Kronii"
+      ],
+      "suggest": [
+        "(\"オーロ・クロニー\" OR \"オーロ\" OR \"クロニー\")",
+        "(\"Ouro Kronii\" OR \"Ouro\" OR \"Kronii\")",
+        "⏳",
+        "Kronies",
+        "#kronies",
+        "#kroniiART",
+        "Promise"
+      ]
+    },
+    {
+      "group": "アイリス",
+      "when": ["アイリス", "IRyS", "Irys"],
+      "suggest": [
+        "(\"アイリス\" OR \"アイリス\")",
+        "(\"IRyS\" OR \"Irys\")",
+        "💎",
+        "IRyStocrats",
+        "#IRyStocrats",
+        "#IRySart",
+        "Promise"
+      ]
+    },
+    {
+      "group": "七詩ムメイ",
+      "when": [
+        "ナナシ・ムメイ",
+        "ナナシ",
+        "ムメイ",
+        "Nanashi Mumei",
+        "Nanashi",
+        "Mumei"
+      ],
+      "suggest": [
+        "(\"ナナシ・ムメイ\" OR \"ナナシ\" OR \"ムメイ\")",
+        "(\"Nanashi Mumei\" OR \"Nanashi\" OR \"Mumei\")",
+        "🪶",
+        "Hoomans",
+        "#hoomans",
+        "#mumeiART",
+        "Promise"
+      ]
+    },
+    {
+      "group": "セレス・ファウナ",
+      "when": [
+        "セレス・ファウナ",
+        "セレス",
+        "ファウナ",
+        "Ceres Fauna",
+        "Ceres",
+        "Fauna"
+      ],
+      "suggest": [
+        "(\"セレス・ファウナ\" OR \"セレス\" OR \"ファウナ\")",
+        "(\"Ceres Fauna\" OR \"Ceres\" OR \"Fauna\")",
+        "🌿",
+        "Saplings",
+        "#saplings",
+        "#faunaART",
+        "Promise"
+      ]
+    },
+    {
+      "group": "九十九佐命",
+      "when": [
+        "ツクモ・サナ",
+        "ツクモ",
+        "サナ",
+        "Tsukumo Sana",
+        "Tsukumo",
+        "Sana"
+      ],
+      "suggest": [
+        "(\"ツクモ・サナ\" OR \"ツクモ\" OR \"サナ\")",
+        "(\"Tsukumo Sana\" OR \"Tsukumo\" OR \"Sana\")",
+        "🪐",
+        "Sanallite",
+        "#sanallite",
+        "#sanaART",
+        "Promise"
+      ]
+    },
+    {
+      "group": "フワワ・アビスガード / モココ・アビスガード",
+      "when": [
+        "フワモコ",
+        "フワワ",
+        "モココ",
+        "FUWAMOCO",
+        "Fuwawa",
+        "Mococo",
+        "Fuwa",
+        "Moco"
+      ],
+      "suggest": [
+        "(\"フワモコ\" OR \"フワワ\" OR \"モココ\")",
+        "(\"FUWAMOCO\" OR \"Fuwawa\" OR \"Mococo\" OR \"Fuwa\" OR \"Moco\")",
+        "🐾 / 🐾🩵 / 🐾🩷",
+        "Ruffians",
+        "#FUWAMOCO",
+        "#FWMCpix",
+        "Advent"
+      ]
+    },
+    {
+      "group": "ネリッサ・レイヴンクロフト",
+      "when": [
+        "ネリッサ・レイヴンクロフト",
+        "ネリッサ",
+        "レイヴンクロフト",
+        "Nerissa Ravencroft",
+        "Nerissa",
+        "Ravencroft",
+        "Rissa"
+      ],
+      "suggest": [
+        "(\"ネリッサ・レイヴンクロフト\" OR \"ネリッサ\" OR \"レイヴンクロフト\")",
+        "(\"Nerissa Ravencroft\" OR \"Nerissa\" OR \"Ravencroft\" OR \"Rissa\")",
+        "🎼",
+        "Jailbirds",
+        "#RissaLIVE",
+        "#RavenCrafts",
+        "Advent"
+      ]
+    },
+    {
+      "group": "古石ビジュー",
+      "when": [
+        "コセキ・ビジュー",
+        "コセキ",
+        "ビジュー",
+        "Koseki Bijou",
+        "Koseki",
+        "Bijou",
+        "Biboo"
+      ],
+      "suggest": [
+        "(\"コセキ・ビジュー\" OR \"コセキ\" OR \"ビジュー\")",
+        "(\"Koseki Bijou\" OR \"Koseki\" OR \"Bijou\" OR \"Biboo\")",
+        "🗿",
+        "Pebbles",
+        "#LIVEseki",
+        "#bijouwled",
+        "Advent"
+      ]
+    },
+    {
+      "group": "シオリ・ノヴェラ",
+      "when": [
+        "シオリ・ノヴェラ",
+        "シオリ",
+        "ノヴェラ",
+        "Shiori Novella",
+        "Shiori",
+        "Novella",
+        "Shiorin"
+      ],
+      "suggest": [
+        "(\"シオリ・ノヴェラ\" OR \"シオリ\" OR \"ノヴェラ\")",
+        "(\"Shiori Novella\" OR \"Shiori\" OR \"Novella\" OR \"Shiorin\")",
+        "👁️‍🗨️",
+        "Novelites",
+        "#shiorin",
+        "#shioriART",
+        "Advent"
+      ]
+    },
+    {
+      "group": "ラオーラ・パンテーラ",
+      "when": [
+        "ラオラ・パンテーラ",
+        "ラオラ",
+        "パンテーラ",
+        "Raora Panthera",
+        "Raora",
+        "Panthera"
+      ],
+      "suggest": [
+        "(\"ラオラ・パンテーラ\" OR \"ラオラ\" OR \"パンテーラ\")",
+        "(\"Raora Panthera\" OR \"Raora\" OR \"Panthera\")",
+        "🐱",
+        "#RaoraLive",
+        "#RaoraArt",
+        "Justice"
+      ]
+    },
+    {
+      "group": "エリザベス・ローズ・ブラッドフレイム",
+      "when": [
+        "エリザベス・ローズ・ブラッドフレイム",
+        "エリザベス",
+        "ローズ",
+        "ブラッドフレイム",
+        "Elizabeth Rose Bloodflame",
+        "Elizabeth",
+        "Rose",
+        "Bloodflame",
+        "Liz"
+      ],
+      "suggest": [
+        "(\"エリザベス・ローズ・ブラッドフレイム\" OR \"エリザベス\" OR \"ローズ\" OR \"ブラッドフレイム\")",
+        "(\"Elizabeth Rose Bloodflame\" OR \"Elizabeth\" OR \"Rose\" OR \"Bloodflame\" OR \"Liz\")",
+        "💄",
+        "#LizLive",
+        "#BloodflameArt",
+        "Justice"
+      ]
+    },
+    {
+      "group": "ジジ・ムリン",
+      "when": [
+        "ジジ・ムリン",
+        "ジジ",
+        "ムリン",
+        "Gigi Murin",
+        "Gigi",
+        "Murin",
+        "GG"
+      ],
+      "suggest": [
+        "(\"ジジ・ムリン\" OR \"ジジ\" OR \"ムリン\")",
+        "(\"Gigi Murin\" OR \"Gigi\" OR \"Murin\" OR \"GG\")",
+        "👧",
+        "#GigiLive",
+        "#GigiArt",
+        "Justice"
+      ]
+    },
+    {
+      "group": "セシリア・イマーグリーン",
+      "when": [
+        "セシリア・イマーグリーン",
+        "セシリア",
+        "イマーグリーン",
+        "Cecilia Immergreen",
+        "Cecilia",
+        "Immergreen",
+        "Ceci"
+      ],
+      "suggest": [
+        "(\"セシリア・イマーグリーン\" OR \"セシリア\" OR \"イマーグリーン\")",
+        "(\"Cecilia Immergreen\" OR \"Cecilia\" OR \"Immergreen\" OR \"Ceci\")",
+        "🍵",
+        "#CeciLive",
+        "#ImmergreenArt",
+        "Justice"
+      ]
+    },
+    {
+      "group": "ムーナ・ホシノヴァ",
+      "when": [
+        "ムーナ・ホシノヴァ",
+        "ムーナ",
+        "ホシノヴァ",
+        "Moona Hoshinova",
+        "Moona",
+        "Hoshinova"
+      ],
+      "suggest": [
+        "(\"ムーナ・ホシノヴァ\" OR \"ムーナ\" OR \"ホシノヴァ\")",
+        "(\"Moona Hoshinova\" OR \"Moona\" OR \"Hoshinova\")",
+        "🔮",
+        "Moonafic",
+        "#MoonA_Live",
+        "#HoshinovArt",
+        "ID 1期生"
+      ]
+    },
+    {
+      "group": "アユンダ・リス",
+      "when": [
+        "アユンダ・リス",
+        "アユンダ",
+        "リス",
+        "Ayunda Risu",
+        "Ayunda",
+        "Risu"
+      ],
+      "suggest": [
+        "(\"アユンダ・リス\" OR \"アユンダ\" OR \"リス\")",
+        "(\"Ayunda Risu\" OR \"Ayunda\" OR \"Risu\")",
+        "🐿️",
+        "Risuners",
+        "#Risuners",
+        "#iRISUtration",
+        "ID 1期生"
+      ]
+    },
+    {
+      "group": "アイラニ・イオフィフティーン",
+      "when": [
+        "アイラニ・イオフィフティーン",
+        "アイラニ",
+        "イオフィフティーン",
+        "イオフィ",
+        "Airani Iofifteen",
+        "Airani",
+        "Iofifteen",
+        "Iofi",
+        "IOFI"
+      ],
+      "suggest": [
+        "(\"アイラニ・イオフィフティーン\" OR \"アイラニ\" OR \"イオフィフティーン\" OR \"イオフィ\")",
+        "(\"Airani Iofifteen\" OR \"Airani\" OR \"Iofifteen\" OR \"Iofi\" OR \"IOFI\")",
+        "🎨",
+        "IOFORIA",
+        "#IOFORIA",
+        "#ioarts",
+        "ID 1期生"
+      ]
+    },
+    {
+      "group": "クレイジー・オリー",
+      "when": [
+        "クレイジー・オリー",
+        "クレイジー",
+        "オリー",
+        "Kureiji Ollie",
+        "Kureiji",
+        "Ollie"
+      ],
+      "suggest": [
+        "(\"クレイジー・オリー\" OR \"クレイジー\" OR \"オリー\")",
+        "(\"Kureiji Ollie\" OR \"Kureiji\" OR \"Ollie\")",
+        "🧟♀️",
+        "ZOMRADE",
+        "#ZOMRA hom",
+        "#graveyART",
+        "ID 2期生"
+      ]
+    },
+    {
+      "group": "パヴォリア・レイネ",
+      "when": [
+        "パヴォリア・レイネ",
+        "パヴォリア",
+        "レイネ",
+        "Pavolia Reine",
+        "Pavolia",
+        "Reine"
+      ],
+      "suggest": [
+        "(\"パヴォリア・レイネ\" OR \"パヴォリア\" OR \"レイネ\")",
+        "(\"Pavolia Reine\" OR \"Pavolia\" OR \"Reine\")",
+        "🦚",
+        "MERAKyats",
+        "#Reinessance",
+        "ID 2期生"
+      ]
+    },
+    {
+      "group": "アーニャ・メルフィッサ",
+      "when": [
+        "アーニャ・メルフィッサ",
+        "アーニャ",
+        "メルフィッサ",
+        "Anya Melfissa",
+        "Anya",
+        "Melfissa"
+      ],
+      "suggest": [
+        "(\"アーニャ・メルフィッサ\" OR \"アーニャ\" OR \"メルフィッサ\")",
+        "(\"Anya Melfissa\" OR \"Anya\" OR \"Melfissa\")",
+        "🍂",
+        "MelFriends",
+        "#MelFriends",
+        "#anyatelier",
+        "ID 2期生"
+      ]
+    },
+    {
+      "group": "こぼ・かなえる",
+      "when": [
+        "こぼ・かなえる",
+        "こぼ",
+        "かなえる",
+        "Kobo Kanaeru",
+        "Kobo",
+        "Kanaeru"
+      ],
+      "suggest": [
+        "(\"こぼ・かなえる\" OR \"こぼ\" OR \"かなえる\")",
+        "(\"Kobo Kanaeru\" OR \"Kobo\" OR \"Kanaeru\")",
+        "☔",
+        "Kobokers",
+        "#Kobokers",
+        "#AeruSeni",
+        "ID 3期生"
+      ]
+    },
+    {
+      "group": "ベスティア・ゼータ",
+      "when": [
+        "ベスティア・ゼータ",
+        "ベスティア",
+        "ゼータ",
+        "Vestia Zeta",
+        "Vestia",
+        "Zeta"
+      ],
+      "suggest": [
+        "(\"ベスティア・ゼータ\" OR \"ベスティア\" OR \"ゼータ\")",
+        "(\"Vestia Zeta\" OR \"Vestia\" OR \"Zeta\")",
+        "📜",
+        "Zecretary",
+        "#Zecretary",
+        "#Zetacrylic",
+        "ID 3期生"
+      ]
+    },
+    {
+      "group": "カエラ・コヴァルスキア",
+      "when": [
+        "カエラ・コヴァルスキア",
+        "カエラ",
+        "コヴァルスキア",
+        "Kaela Kovalskia",
+        "Kaela",
+        "Kovalskia"
+      ],
+      "suggest": [
+        "(\"カエラ・コヴァルスキア\" OR \"カエラ\" OR \"コヴァルスキア\")",
+        "(\"Kaela Kovalskia\" OR \"Kaela\" OR \"Kovalskia\")",
+        "🔨",
+        "KaelaKrew",
+        "#KaelaKrew",
+        "#inKaela",
+        "ID 3期生"
+      ]
+    }
+  ]
+}

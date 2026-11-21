@@ -11,24 +11,38 @@ import {
 
 describe("WordSchema", () => {
   it("正しい値を受理する", () => {
-    const w = { label: "ぺこら", query: "兎田ぺこら", starter: true };
+    const w = {
+      label: { ja: "ぺこら", en: "Pekora" },
+      query: "兎田ぺこら",
+      starter: true,
+    };
     expect(WordSchema.parse(w)).toEqual(w);
   });
   it("query が空なら拒否する", () => {
     expect(
-      WordSchema.safeParse({ label: "ぺこら", query: "", starter: true })
-        .success,
+      WordSchema.safeParse({
+        label: { ja: "ぺこら", en: "Pekora" },
+        query: "",
+        starter: true,
+      }).success,
     ).toBe(false);
   });
   it("starter が無ければ拒否する", () => {
     expect(
-      WordSchema.safeParse({ label: "ぺこら", query: "兎田ぺこら" }).success,
+      WordSchema.safeParse({
+        label: { ja: "ぺこら", en: "Pekora" },
+        query: "兎田ぺこら",
+      }).success,
     ).toBe(false);
   });
 });
 
 describe("WordGroupSchema", () => {
-  const word = { label: "a", query: "a", starter: false };
+  const word = {
+    label: { ja: "a", en: "a" },
+    query: "a",
+    starter: false,
+  };
   it("ja・en の両方があれば受理する", () => {
     expect(
       WordGroupSchema.safeParse({
@@ -36,6 +50,11 @@ describe("WordGroupSchema", () => {
         words: [word],
       }).success,
     ).toBe(true);
+  });
+  it("ワードの表示名が文字列だけなら拒否する（日英の両方が要る）", () => {
+    expect(
+      WordSchema.safeParse({ label: "a", query: "a", starter: false }).success,
+    ).toBe(false);
   });
   it("en が無ければ拒否する", () => {
     expect(

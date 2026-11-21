@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { LIMITS } from "@/api";
-import { normalize } from "@/lib/query/model";
+import { suggestFromRules } from "@/lib/query/model";
 import {
   interests,
   parseMaster,
@@ -13,35 +13,50 @@ import presetsJson from "./presets.json";
 import suggestRulesJson from "./suggest-rules.json";
 import wordSetJson from "./word-set.json";
 
+const loc = (ja: string, en = ja) => ({ ja, en });
+
 /** 検証に通る最小のマスタ。各テストはここから1か所だけ壊す */
 const base = () => ({
   interests: {
     a: {
-      label: { ja: "あ", en: "A" },
-      list: { label: "Aから", listId: "123" },
+      label: loc("あ", "A"),
+      list: { label: loc("Aから", "From A"), listId: "123" },
     },
-    b: { label: { ja: "び", en: "B" }, list: null },
+    b: { label: loc("び", "B"), list: null },
   },
   presets: [
     {
       interest: "common",
-      label: "RTを除く",
+      label: loc("RTを除く", "Exclude reposts"),
       query: "-filter:retweets",
       on: true,
       visible: true,
     },
     { defaultList: true },
-    { interest: "a", label: "タグ", query: "#a", on: false, visible: true },
+    {
+      interest: "a",
+      label: loc("タグ", "Tag"),
+      query: "#a",
+      on: false,
+      visible: true,
+    },
   ] as unknown[],
-  suggestRules: [{ when: ["x"], suggest: ["#x"] }],
+  suggestRules: {
+    a: [{ group: "グループ", when: ["x"], suggest: ["#x"] }],
+  } as Record<string, unknown>,
   wordSet: {
     a: [
       {
-        name: { ja: "グループ", en: "Group" },
-        words: [{ label: "w", query: "w", starter: true }],
+        name: loc("グループ", "Group"),
+        words: [{ label: loc("w"), query: "w", starter: true }],
       },
     ],
   } as Record<string, unknown>,
+});
+
+const group = (...queries: string[]) => ({
+  name: loc("g"),
+  words: queries.map((q) => ({ label: loc(q), query: q, starter: false })),
 });
 
 describe("実データ", () => {
@@ -65,89 +80,120 @@ describe("実データ", () => {
     expect(interests().get("other")?.list).toBeNull();
   });
 
-  it("プリセットの並びは、共通と対象別が交互になり、既定リストは RT の直後に入る", () => {
-    const labels = (id: string) => presetsFor(id).map((p) => p.label);
-    expect(labels("hololive")).toEqual([
-      "RTを除く",
-      "ホロメンから",
-      "ネタバレ除外",
-      "ファボ",
-      "日付",
-      "画像つき",
-      "返信のみ",
-      "配信タグ",
-      "ファンアート",
-      "切り抜き",
-      "日本語のみ",
-      "リンクなし",
-    ]);
-    expect(labels("nijisanji")).toEqual([
-      "RTを除く",
-      "にじさんじから",
-      "ファボ",
-      "日付",
-      "画像つき",
-      "返信のみ",
-      "日本語のみ",
-      "リンクなし",
-    ]);
-    expect(labels("other")).toEqual([
-      "RTを除く",
-      "ファボ",
-      "日付",
-      "画像つき",
-      "返信のみ",
-      "日本語のみ",
-      "リンクなし",
-    ]);
-  });
-
-  it("既定リストのプリセットは list:<ID> で、初期は OFF・表示", () => {
-    expect(presetsFor("hololive")[1]).toEqual({
-      label: "ホロメンから",
-      query: "list:1412278227767218179",
-      on: false,
-      visible: true,
-    });
-  });
-
-  it("初期 ON は無し（条件ボタンはすべて OFF から始まる）、リンクなしは非表示", () => {
-    const on = (id: string) =>
-      presetsFor(id)
-        .filter((p) => p.on)
-        .map((p) => p.label);
-    expect(on("hololive")).toEqual([]);
-    expect(on("other")).toEqual([]);
-    expect(
-      presetsFor("other").find((p) => p.label === "リンクなし")?.visible,
-    ).toBe(false);
-  });
-
-  it("検索ワード集は各対象に8グループ・200件で、ホームに出す印は60件", () => {
-    for (const id of ["hololive", "nijisanji", "other"]) {
-      const groups = wordSet(id);
-      expect(groups).toHaveLength(8);
-      const words = groups.flatMap((g) => g.words);
-      expect(words).toHaveLength(200);
-      expect(words.filter((w) => w.starter)).toHaveLength(
-        LIMITS.wordSetStarter,
-      );
+  it("プリセットは、既定リストが先頭（その他は無し）で、ラベルは日本語・英語がそろい、初期 ON は無い", () => {
+    for (const id of interests().keys()) {
+      const list = presetsFor(id);
+      expect(list.length).toBeGreaterThan(0);
+      for (const p of list) {
+        expect(p.label.ja).not.toBe("");
+        expect(p.label.en).not.toBe("");
+        expect(p.on).toBe(false);
+      }
+      const def = interests().get(id)?.list;
+      if (def) {
+        expect(list[0]).toEqual({
+          label: def.label,
+          query: `list:${def.listId}`,
+          on: false,
+          visible: true,
+        });
+      } else {
+        expect(
+          list[0].query.startsWith("list:") && list[0].query.length > 5,
+        ).toBe(false);
+      }
     }
-    expect(wordSet("hololive")[0].name).toEqual({
-      ja: "チャンネルA",
-      en: "Channel A",
+  });
+
+  it("値付きのプリセット（値が空の初期値）が、共通として全対象に入っている", () => {
+    for (const id of interests().keys()) {
+      const queries = presetsFor(id).map((p) => p.query);
+      for (const q of [
+        "@",
+        "-@",
+        "from:",
+        "-from:",
+        "since:",
+        "-since:",
+        "list:",
+      ])
+        expect(queries, `${id} の ${q}`).toContain(q);
+    }
+    expect(presetsFor("hololive").find((p) => p.query === "@")?.label).toEqual({
+      ja: "メンション @",
+      en: "Mention @",
     });
   });
 
-  it("サジェストの規則を返す", () => {
-    expect(suggestRules()[0]).toEqual({
-      when: ["メンバーA", "愛称A"],
-      suggest: ["#ファンアートタグA", "#配信タグA", "愛称A"],
-    });
+  it("値付きのプリセットのラベルに、画面が出す [値] を含めない（ラベルは [ より前だけ）", () => {
+    for (const id of interests().keys())
+      for (const p of presetsFor(id)) {
+        expect(p.label.ja).not.toContain("[");
+        expect(p.label.en).not.toContain("[");
+      }
   });
 
-  it("検索ワード集が無い対象は空配列を返す", () => {
-    expect(wordSet("no-such-interest")).toEqual([]);
+  it("検索ワード集は、共通のグループが先で、対象のグループが続き、共通の語に空の値付き条件は無い", () => {
+    const groups = wordSet("hololive");
+    expect(groups[0].name).toEqual({ ja: "共通", en: "Common" });
+    expect(groups.length).toBeGreaterThan(1);
+    for (const g of groups)
+      for (const w of g.words) {
+        expect(w.query).not.toBe("-");
+        expect(w.query).not.toMatch(/\[X+\]/i);
+        expect(w.label.ja).not.toBe("");
+        expect(w.label.en).not.toBe("");
+      }
+    // 共通は、別の対象にも同じものが出る
+    expect(wordSet("nijisanji")[0].name.ja).toBe("共通");
+  });
+
+  it("ホームに出す印（starter）は、上限を超えた分もそのまま持つ（切るのは画面側）", () => {
+    const starters = wordSet("hololive")
+      .flatMap((g) => g.words)
+      .filter((w) => w.starter);
+    expect(starters.length).toBeGreaterThan(0);
+    expect(LIMITS.wordSetStarter).toBeGreaterThan(0);
+  });
+
+  it("サジェスト規則の出す条件は、すべてその対象の検索ワード集にある検索文字列", () => {
+    for (const id of interests().keys()) {
+      const queries = new Set(
+        wordSet(id).flatMap((g) => g.words.map((w) => w.query)),
+      );
+      for (const r of suggestRules(id))
+        for (const s of r.suggest)
+          expect(queries.has(s), `${id}/${r.group}: ${s}`).toBe(true);
+    }
+  });
+
+  it("ときのそらの規則：呼び名を入れると、そのグループの検索ワードが全部出る", () => {
+    const rules = suggestRules("hololive");
+    const sora = rules.find((r) => r.group === "ときのそら");
+    expect(sora).toBeDefined();
+    expect(sora?.when).toEqual(
+      expect.arrayContaining(["ときのそら", "そらちゃん", "Tokino Sora"]),
+    );
+    const group = wordSet("hololive").find((g) => g.name.ja === "ときのそら");
+    expect(sora?.suggest).toEqual([
+      ...new Set(group?.words.map((w) => w.query)),
+    ]);
+    expect(suggestFromRules("そらちゃん", rules)).toEqual(sora?.suggest);
+  });
+
+  it("短い呼び名は語単位でしか当たらない（水宮枢の Su は Suisei で出ない）", () => {
+    const rules = suggestRules("hololive");
+    const su = rules.find((r) => r.group === "水宮枢");
+    expect(su?.when).toContain("Su");
+    const out = suggestFromRules("Suisei", rules);
+    for (const s of su?.suggest ?? [])
+      if (!rules.some((r) => r.group !== "水宮枢" && r.suggest.includes(s)))
+        expect(out).not.toContain(s);
+  });
+
+  it("対象のグループもサジェスト規則も無い対象は、共通のグループだけ・規則は空を返す", () => {
+    expect(wordSet("no-such-interest").map((g) => g.name.ja)).toEqual(["共通"]);
+    expect(suggestRules("no-such-interest")).toEqual([]);
   });
 });
 
@@ -156,33 +202,27 @@ describe("parseMaster の正常系", () => {
     expect(() => parseMaster(base())).not.toThrow();
   });
 
-  it("対象を1件足すだけで、共通のプリセットが付き、検索ワード集は空になる", () => {
+  it("対象を1件足すだけで、共通のプリセットが付き、検索ワード集・サジェストは空になる", () => {
     const m = parseMaster(base());
     expect(m.interests.b).toBeDefined();
     // b は共通の RT を除くだけ（既定リストなし・a 専用のタグなし）
-    expect(presetsFor("b", m).map((p) => p.label)).toEqual(["RTを除く"]);
+    expect(presetsFor("b", m).map((p) => p.label.ja)).toEqual(["RTを除く"]);
     expect(wordSet("b", m)).toEqual([]);
+    expect(suggestRules("b", m)).toEqual([]);
   });
 
   it("starter が1件も無い、または60件を超えても通る（件数は検証しない）", () => {
     const none = base();
-    none.wordSet = {
-      a: [
-        {
-          name: { ja: "g", en: "g" },
-          words: [{ label: "w", query: "w", starter: false }],
-        },
-      ],
-    };
+    none.wordSet = { a: [group("w")] };
     expect(() => parseMaster(none)).not.toThrow();
 
     const many = base();
     many.wordSet = {
       a: [
         {
-          name: { ja: "g", en: "g" },
+          name: loc("g"),
           words: Array.from({ length: LIMITS.wordSetStarter + 5 }, (_, i) => ({
-            label: `w${i}`,
+            label: loc(`w${i}`),
             query: `w${i}`,
             starter: true,
           })),
@@ -191,29 +231,52 @@ describe("parseMaster の正常系", () => {
     };
     expect(() => parseMaster(many)).not.toThrow();
   });
+
+  it("共通の検索ワードは、どの対象にも先頭に出る", () => {
+    const m = parseMaster({
+      ...base(),
+      wordSet: { common: [group("c")], a: [group("w")] },
+    });
+    expect(wordSet("a", m).map((g) => g.words[0].query)).toEqual(["c", "w"]);
+    expect(wordSet("b", m).map((g) => g.words[0].query)).toEqual(["c"]);
+  });
+
+  it("同じ query が、同じグループ・別グループ・同じ対象内にあっても通る（ファンネーム・グループ名は共通の語）", () => {
+    const m = base();
+    m.wordSet = { a: [group("same", "same"), group("same")] };
+    expect(() => parseMaster(m)).not.toThrow();
+  });
+
+  it("サジェスト規則は、対象ごとに返す", () => {
+    const m = parseMaster(base());
+    expect(suggestRules("a", m)).toEqual([
+      { group: "グループ", when: ["x"], suggest: ["#x"] },
+    ]);
+  });
 });
 
 describe("parseMaster の異常系", () => {
   it("グループ名の英語が空だと失敗する", () => {
     const m = base();
     m.wordSet = {
-      a: [
-        {
-          name: { ja: "グループ", en: "" },
-          words: [{ label: "w", query: "w", starter: false }],
-        },
-      ],
+      a: [{ ...group("w"), name: { ja: "グループ", en: "" } }],
     };
     expect(() => parseMaster(m)).toThrow();
   });
 
   it("グループ名の日本語が空だと失敗する", () => {
     const m = base();
+    m.wordSet = { a: [{ ...group("w"), name: { ja: "", en: "G" } }] };
+    expect(() => parseMaster(m)).toThrow();
+  });
+
+  it("ワードの表示名（英語）が空だと失敗する", () => {
+    const m = base();
     m.wordSet = {
       a: [
         {
-          name: { ja: "", en: "G" },
-          words: [{ label: "w", query: "w", starter: false }],
+          name: loc("g"),
+          words: [{ label: { ja: "w", en: "" }, query: "w", starter: false }],
         },
       ],
     };
@@ -222,7 +285,7 @@ describe("parseMaster の異常系", () => {
 
   it("ワードが0件のグループは失敗する", () => {
     const m = base();
-    m.wordSet = { a: [{ name: { ja: "g", en: "g" }, words: [] }] };
+    m.wordSet = { a: [{ name: loc("g"), words: [] }] };
     expect(() => parseMaster(m)).toThrow();
   });
 
@@ -231,78 +294,43 @@ describe("parseMaster の異常系", () => {
     m.wordSet = {
       a: [
         {
-          name: { ja: "g", en: "g" },
-          words: [{ label: "w", query: "", starter: false }],
+          name: loc("g"),
+          words: [{ label: loc("w"), query: "", starter: false }],
         },
       ],
     };
     expect(() => parseMaster(m)).toThrow();
   });
 
-  it("同じグループ内で query が重複すると失敗する", () => {
+  it("検索ワード集のキーが、存在しない対象だと失敗する（common は可）", () => {
     const m = base();
-    m.wordSet = {
-      a: [
-        {
-          name: { ja: "g", en: "g" },
-          words: [
-            { label: "1", query: "w", starter: false },
-            { label: "2", query: "w", starter: false },
-          ],
-        },
-      ],
-    };
-    expect(() => parseMaster(m)).toThrow(/重複/);
-  });
-
-  it("別グループでも、正規化すると同じ query（語順違い）なら失敗する", () => {
-    const m = base();
-    expect(normalize("a b")).toBe(normalize("b a"));
-    m.wordSet = {
-      a: [
-        {
-          name: { ja: "g1", en: "g1" },
-          words: [{ label: "1", query: "a b", starter: false }],
-        },
-        {
-          name: { ja: "g2", en: "g2" },
-          words: [{ label: "2", query: "b a", starter: false }],
-        },
-      ],
-    };
-    expect(() => parseMaster(m)).toThrow(/重複/);
-  });
-
-  it("対象が違えば、同じ query があっても通る", () => {
-    const m = base();
-    const g = [
-      {
-        name: { ja: "g", en: "g" },
-        words: [{ label: "w", query: "same", starter: false }],
-      },
-    ];
-    m.wordSet = { a: g, b: g };
-    expect(() => parseMaster(m)).not.toThrow();
-  });
-
-  it("検索ワード集のキーが、存在しない対象だと失敗する", () => {
-    const m = base();
-    m.wordSet = {
-      ghost: [
-        {
-          name: { ja: "g", en: "g" },
-          words: [{ label: "w", query: "w", starter: false }],
-        },
-      ],
-    };
+    m.wordSet = { ghost: [group("w")] };
     expect(() => parseMaster(m)).toThrow(/ghost/);
+  });
+
+  it("サジェスト規則のキーが、存在しない対象だと失敗する", () => {
+    const m = base();
+    m.suggestRules = { ghost: [{ group: "g", when: ["x"], suggest: ["#x"] }] };
+    expect(() => parseMaster(m)).toThrow(/ghost/);
+  });
+
+  it("サジェスト規則の when が空配列だと失敗する", () => {
+    const m = base();
+    m.suggestRules = { a: [{ group: "g", when: [], suggest: ["#x"] }] };
+    expect(() => parseMaster(m)).toThrow();
+  });
+
+  it("サジェスト規則の suggest が空配列だと失敗する", () => {
+    const m = base();
+    m.suggestRules = { a: [{ group: "g", when: ["x"], suggest: [] }] };
+    expect(() => parseMaster(m)).toThrow();
   });
 
   it("プリセットの対象が、存在しない対象だと失敗する", () => {
     const m = base();
     m.presets.push({
       interest: "ghost",
-      label: "x",
+      label: loc("x"),
       query: "x",
       on: false,
       visible: true,
@@ -313,7 +341,7 @@ describe("parseMaster の異常系", () => {
   it("対象の ID に予約語 common は使えない", () => {
     const m = base();
     (m.interests as Record<string, unknown>).common = {
-      label: { ja: "共", en: "C" },
+      label: loc("共", "C"),
       list: null,
     };
     expect(() => parseMaster(m)).toThrow();
@@ -322,6 +350,12 @@ describe("parseMaster の異常系", () => {
   it("対象の表示名（英語）が空だと失敗する", () => {
     const m = base();
     m.interests.a.label.en = "";
+    expect(() => parseMaster(m)).toThrow();
+  });
+
+  it("既定リストの名前（英語）が空だと失敗する", () => {
+    const m = base();
+    m.interests.a.list.label.en = "";
     expect(() => parseMaster(m)).toThrow();
   });
 
@@ -337,23 +371,28 @@ describe("parseMaster の異常系", () => {
     expect(() => parseMaster(m)).toThrow(/既定リスト/);
   });
 
-  it("プリセットのラベルが20字を超えると失敗する（21字）", () => {
-    const m = base();
-    m.presets.push({
-      interest: "common",
-      label: "あ".repeat(21),
-      query: "z",
-      on: false,
-      visible: true,
-    });
-    expect(() => parseMaster(m)).toThrow();
+  it("プリセットのラベルが20字を超えると、日本語でも英語でも失敗する（21字）", () => {
+    for (const label of [
+      { ja: "あ".repeat(21), en: "x" },
+      { ja: "あ", en: "x".repeat(21) },
+    ]) {
+      const m = base();
+      m.presets.push({
+        interest: "common",
+        label,
+        query: "z",
+        on: false,
+        visible: true,
+      });
+      expect(() => parseMaster(m)).toThrow();
+    }
   });
 
   it("プリセットのラベルが20字ちょうどなら通る", () => {
     const m = base();
     m.presets.push({
       interest: "common",
-      label: "あ".repeat(20),
+      label: loc("あ".repeat(20), "x".repeat(20)),
       query: "z",
       on: false,
       visible: true,
@@ -361,11 +400,23 @@ describe("parseMaster の異常系", () => {
     expect(() => parseMaster(m)).not.toThrow();
   });
 
-  it("プリセットの query が空だと失敗する", () => {
+  it("プリセットのラベルが文字列（言語の別が無い）だと失敗する", () => {
     const m = base();
     m.presets.push({
       interest: "common",
       label: "x",
+      query: "x",
+      on: false,
+      visible: true,
+    });
+    expect(() => parseMaster(m)).toThrow();
+  });
+
+  it("プリセットの query が空だと失敗する", () => {
+    const m = base();
+    m.presets.push({
+      interest: "common",
+      label: loc("x"),
       query: "",
       on: false,
       visible: true,
@@ -377,30 +428,18 @@ describe("parseMaster の異常系", () => {
     const m = base();
     m.presets.push({
       interest: "common",
-      label: "1",
+      label: loc("1"),
       query: "p q",
       on: false,
       visible: true,
     });
     m.presets.push({
       interest: "a",
-      label: "2",
+      label: loc("2"),
       query: "q p",
       on: false,
       visible: true,
     });
     expect(() => parseMaster(m)).toThrow(/重複/);
-  });
-
-  it("サジェスト規則の when が空配列だと失敗する", () => {
-    const m = base();
-    m.suggestRules = [{ when: [], suggest: ["#x"] }];
-    expect(() => parseMaster(m)).toThrow();
-  });
-
-  it("サジェスト規則の suggest が空配列だと失敗する", () => {
-    const m = base();
-    m.suggestRules = [{ when: ["x"], suggest: [] }];
-    expect(() => parseMaster(m)).toThrow();
   });
 });

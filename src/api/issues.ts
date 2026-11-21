@@ -27,6 +27,7 @@ export const ISSUE_CODES = [
   "chip.empty",
   "chip.badNumber",
   "chip.badDate",
+  "chip.badText",
 ] as const;
 export type IssueCode = (typeof ISSUE_CODES)[number];
 

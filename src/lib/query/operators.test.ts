@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FILTER_KEYS, ISSUE_CODES, PARAM_OP_TYPES } from "@/api";
+import { FILTER_KEYS, ISSUE_CODES, PARAM_OP_TYPES, VALUE_OPS } from "@/api";
 import {
   ACCOUNT_OPS,
   FILTER_OPS,
@@ -160,5 +160,28 @@ describe("operators: status", () => {
       expect(["stable", "experimental"], d.id).toContain(d.status);
       expect(d.status, d.id).toBe("stable");
     }
+  });
+});
+
+describe("値付きの演算子（VALUE_OPS）と operators.ts の定義の一致", () => {
+  it("接頭辞が、数値・日付の演算子とアカウントの演算子の書式（x）と一致する", () => {
+    const x: Record<string, string> = {
+      ...Object.fromEntries(
+        Object.entries(PARAM_OPS).map(([k, d]) => [k, d.x]),
+      ),
+      "-since": `-${PARAM_OPS.since.x}`,
+      from: ACCOUNT_OPS.from.x,
+      "-from": `-${ACCOUNT_OPS.from.x}`,
+      mention: ACCOUNT_OPS.mention.x,
+      "-mention": `-${ACCOUNT_OPS.mention.x}`,
+      list: ACCOUNT_OPS.list.x,
+    };
+    expect(Object.keys(VALUE_OPS).sort()).toEqual(Object.keys(x).sort());
+    for (const [op, d] of Object.entries(VALUE_OPS))
+      expect(d.prefix, op).toBe(x[op]);
+  });
+  it("否定できないリストは、否定の値付き演算子を持たない（-list: は X でエラー）", () => {
+    expect(ACCOUNT_OPS.list.negatable).toBe(false);
+    expect(Object.keys(VALUE_OPS)).not.toContain("-list");
   });
 });

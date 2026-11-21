@@ -54,6 +54,33 @@ describe("data.init（初回のプリセット）", () => {
     }
     expect(data.chips.get("hololive")?.every((c) => c.isPreset)).toBe(true);
   });
+  it("初回のプリセットは、渡した言語のラベルで保存する（既定は日本語）", async () => {
+    const ja = await make().api.data.init();
+    expect(ja.chips.get("hololive")?.map((c) => c.label)).toContain("返信のみ");
+    const en = await createBackend({
+      kv: new MemoryAdapter(),
+      clock,
+      newId,
+      initialLang: () => "en",
+    }).data.init();
+    const labels = en.chips.get("hololive")?.map((c) => c.label);
+    expect(labels).toContain("Replies only");
+    expect(labels).not.toContain("返信のみ");
+  });
+  it("addPresets は、足すときの言語のラベルで保存する（保存済みのボタンは言語を切り替えても変わらない）", async () => {
+    const { api } = make();
+    const first = await api.data.init();
+    const target = first.chips
+      .get("hololive")!
+      .find((c) => c.query === "filter:replies")!;
+    await api.data.chips.remove(target.id);
+    const [added] = await api.data.chips.addPresets("hololive", "en");
+    expect(added.label).toBe("Replies only");
+    const after = await api.data.init();
+    expect(
+      after.chips.get("hololive")!.some((c) => c.label === "返信のみ"),
+    ).toBe(false);
+  });
   it("2回目以降は足さない。条件ボタンを全部削除しても戻らない", async () => {
     const { kv, api } = make();
     const first = await api.data.init();
@@ -271,26 +298,27 @@ describe("data.chips", () => {
     );
   });
   it("addPresets は、一致するものを足さず、削除済みは「無い」扱いにする", async () => {
-    expect(await api.data.chips.addPresets("hololive")).toEqual([]);
+    expect(await api.data.chips.addPresets("hololive", "ja")).toEqual([]);
     const target = (await chipsOf()).find((c) => c.query === "min_faves:50")!;
     await api.data.chips.remove(target.id);
-    const added = await api.data.chips.addPresets("hololive");
+    const added = await api.data.chips.addPresets("hololive", "ja");
     expect(added.map((c) => c.query)).toEqual(["min_faves:50"]);
     expect(added[0].isPreset).toBe(true);
   });
-  it("addPresets は、トークンの順序の違いを同じ検索文字列とみなす", async () => {
-    const target = (await chipsOf()).find((c) => c.query.includes(" "))!;
-    const reversed = target.query.split(" ").reverse().join(" ");
+  it("addPresets は、トークンの重複・空白の違いを同じ検索文字列とみなす", async () => {
+    const target = (await chipsOf()).find((c) => c.query === "filter:replies")!;
     await api.data.chips.save({
       id: target.id,
       interestId: "hololive",
       label: target.label,
-      query: reversed,
+      query: " filter:replies  filter:replies ",
     });
-    expect(await api.data.chips.addPresets("hololive")).toEqual([]);
+    expect(await api.data.chips.addPresets("hololive", "ja")).toEqual([]);
   });
   it("addPresets は、知らない興味の対象を NOT_FOUND にする", async () => {
-    expect(await code(api.data.chips.addPresets("nope"))).toBe("NOT_FOUND");
+    expect(await code(api.data.chips.addPresets("nope", "ja"))).toBe(
+      "NOT_FOUND",
+    );
   });
   it("adoptSuggestion は、長い候補のラベルを20文字に収める", async () => {
     const token = "a".repeat(30);
@@ -612,7 +640,8 @@ describe("clock と計算", () => {
   it("master と limits を束ねている", () => {
     const { api } = make();
     expect([...api.master.interests().keys()]).toContain("hololive");
-    expect(api.master.wordSet("nope")).toEqual([]);
+    // 対象のグループが無い対象には、共通のグループだけが出る
+    expect(api.master.wordSet("nope").map((g) => g.name.ja)).toEqual(["共通"]);
     expect(api.limits).toBe(LIMITS);
   });
   it("launcher の encode → decode で往復し、壊れた入力は LAUNCHER_BROKEN", async () => {
@@ -640,14 +669,20 @@ describe("clock と計算", () => {
     expect(
       api.query.starters({ interest: "hololive", chips: [], history: hist }),
     ).toEqual([]);
-    expect(api.query.suggest({ text: "", chips: [], history: hist })).toEqual([
-      "ぺこら",
-    ]);
+    expect(
+      api.query.suggest({
+        interest: "hololive",
+        text: "",
+        chips: [],
+        history: hist,
+      }),
+    ).toEqual(["ぺこら"]);
   });
   it("suggest の候補は20件で切る（仕様の値。履歴に25種類あっても）", () => {
     const { api } = make();
     const words = Array.from({ length: 25 }, (_, i) => `語${i + 1}`);
     const out = api.query.suggest({
+      interest: "hololive",
       text: "",
       chips: [],
       history: [

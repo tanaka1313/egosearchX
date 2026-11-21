@@ -44,8 +44,9 @@ const open = async (a: EgoSearchApi, extra?: React.ReactNode) => {
   fireEvent.click(opener());
 };
 
-/** 対象 hololive の最初のグループとその最初の語（マスタ JSON の並び） */
-const firstGroup = (a: EgoSearchApi) => a.master.wordSet("hololive")[0];
+/** 対象 hololive の最初のグループ（共通のグループの次。マスタ JSON の並び） */
+const firstGroup = (a: EgoSearchApi) =>
+  a.master.wordSet("hololive").find((g) => g.name.ja !== "共通")!;
 
 describe("WordSetDialog（D4）", () => {
   it("起点のボタンは aria-haspopup=dialog で、押すまで開かない", async () => {
@@ -69,7 +70,7 @@ describe("WordSetDialog（D4）", () => {
     ).toBeVisible();
     const w = g.words[0];
     const button = within(section).getByRole("button", {
-      name: labeled(w.label),
+      name: labeled(w.label.ja),
     });
     expect(button).toHaveAttribute("title", w.query);
     expect(button).toHaveAttribute("aria-pressed", "false");
@@ -80,7 +81,7 @@ describe("WordSetDialog（D4）", () => {
     const w = firstGroup(a).words[0];
     await open(a);
     const button = () =>
-      within(dialog()).getByRole("button", { name: labeled(w.label) });
+      within(dialog()).getByRole("button", { name: labeled(w.label.ja) });
     fireEvent.click(button());
     expect(button()).toHaveAttribute("aria-pressed", "true");
     expect(
@@ -98,7 +99,7 @@ describe("WordSetDialog（D4）", () => {
     const w = firstGroup(a).words[0];
     await open(a, <QueryPreview />);
     fireEvent.click(
-      within(dialog()).getByRole("button", { name: labeled(w.label) }),
+      within(dialog()).getByRole("button", { name: labeled(w.label.ja) }),
     );
     fireEvent.click(
       within(dialog()).getAllByRole("button", { name: "閉じる" }).at(-1)!,
@@ -111,16 +112,16 @@ describe("WordSetDialog（D4）", () => {
 
   it("絞り込みは表示名か検索文字列に含むものだけを出し、該当が無ければ「該当なし」", async () => {
     const a = api();
-    const [g0, g1] = a.master.wordSet("hololive");
+    const [g0, g1] = a.master.wordSet("hololive"); // 共通・最初のメンバーのグループ
     const target = g1.words[0];
     await open(a);
     const filter = within(dialog()).getByRole("textbox", {
       name: "検索ワード集を絞り込み",
     });
     // 表示名
-    fireEvent.change(filter, { target: { value: target.label } });
+    fireEvent.change(filter, { target: { value: target.label.ja } });
     expect(
-      within(dialog()).getByRole("button", { name: labeled(target.label) }),
+      within(dialog()).getByRole("button", { name: labeled(target.label.ja) }),
     ).toBeVisible();
     expect(
       within(dialog()).queryByRole("region", { name: g0.name.ja }),
@@ -128,7 +129,7 @@ describe("WordSetDialog（D4）", () => {
     // 検索文字列
     fireEvent.change(filter, { target: { value: target.query } });
     expect(
-      within(dialog()).getByRole("button", { name: labeled(target.label) }),
+      within(dialog()).getByRole("button", { name: labeled(target.label.ja) }),
     ).toBeVisible();
     fireEvent.change(filter, { target: { value: "存在しない語zzz" } });
     expect(within(dialog()).getByText("該当なし")).toBeVisible();

@@ -28,9 +28,16 @@ export function validateChip(
     .filter(({ c }) => c.value.trim());
   if (!filled.length) return fail("chip.empty");
   for (const { c, index } of filled) {
-    if ((c.kind === "number" || c.kind === "date") && !condToken(c))
+    if (
+      (c.kind === "number" || c.kind === "date" || c.kind === "text") &&
+      !condToken(c)
+    )
       return fail(
-        c.kind === "number" ? "chip.badNumber" : "chip.badDate",
+        c.kind === "number"
+          ? "chip.badNumber"
+          : c.kind === "date"
+            ? "chip.badDate"
+            : "chip.badText",
         index,
       );
   }

@@ -279,7 +279,7 @@ describe("S7 URL解析：新規お気に入りとして保存", () => {
     await waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
     // 検索語と ON の条件ボタン名をつないだ名前
     expect((await api.data.init()).favorites.map((f) => f.name)).toEqual([
-      "ぺこら・RTを除く・画像つき",
+      "ぺこら・画像つき・リポストを除く",
     ]);
   });
 });
